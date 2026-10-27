@@ -13,6 +13,12 @@ gradle-app.setting
 /headless/build/
 /server/build/
 /shared/build/
+**/build/
+
+## GdxUnity Editor Local User Preferences:
+workspace_layout.json
+editor_theme.json
+scene_backup.json
 
 ## Java:
 *.class

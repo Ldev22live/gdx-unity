@@ -1,0 +1,42 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-engine-desktop'
+
+apply plugin: 'application'
+
+sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+application.mainClass = 'io.github.ldev22live.gdxunity.engine.desktop.DesktopLauncher'
+application.applicationName = appName
+java.sourceCompatibility = 21
+java.targetCompatibility = 21
+if (JavaVersion.current().isJava9Compatible()) {
+        compileJava.options.release.set(21)
+}
+
+dependencies {
+  implementation project(':engine-core')
+  implementation project(':engine-scene')
+  implementation project(':engine-render')
+  implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+  testRuntimeOnly "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+}
+
+test {
+  useJUnitPlatform()
+}
+
+jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+run {
+  workingDir = rootProject.file('assets').path
+  jvmArgs += "--enable-native-access=ALL-UNNAMED"
+  def os = System.properties['os.name'].toLowerCase(Locale.ROOT)
+  if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
+}

@@ -1,0 +1,25 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-editor-core'
+
+apply plugin: 'java-library'
+
+dependencies {
+  api project(':engine-core')
+  api project(':engine-scene')
+  api project(':engine-render')
+  implementation "org.jetbrains.kotlin:kotlin-compiler-embeddable:2.0.21"
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+  testRuntimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  testRuntimeOnly "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+}
+
+test {
+  useJUnitPlatform()
+}
+
+jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
