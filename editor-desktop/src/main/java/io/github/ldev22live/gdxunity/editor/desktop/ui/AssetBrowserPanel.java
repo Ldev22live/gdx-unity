@@ -79,7 +79,7 @@ public class AssetBrowserPanel extends Table {
                 rebuildRows();
             }
         });
-        header.add(searchField).width(160).height(20).padLeft(12);
+        header.add(searchField).width(160).height(22).padLeft(12);
 
         // Fill space
         Table spacer = new Table();
@@ -92,8 +92,8 @@ public class AssetBrowserPanel extends Table {
                 refreshCatalog();
             }
         });
-        header.add(refreshBtn).right().padRight(6).height(20);
-        add(header).growX().height(26).row();
+        header.add(refreshBtn).right().padRight(6).height(22);
+        add(header).growX().height(30).row();
 
         // Asset List inside ScrollPane
         this.listTable = new Table(skin);

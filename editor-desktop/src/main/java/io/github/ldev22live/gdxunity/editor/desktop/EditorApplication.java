@@ -300,11 +300,11 @@ public class EditorApplication extends ApplicationAdapter {
                     case "Help" -> editorState.setStatusMessage("GdxUnity v1.0.0 — LibGDX 1.14.2 & Java 21 LTS Editor", false);
                 }
             });
-        root.add(studioNav).growX().height(28).row();
+        root.add(studioNav).growX().height(30).row();
 
         // 2. Editor Command Toolbar
         EditorToolbar toolbar = new EditorToolbar(editorState, playModeController, sceneCamera, skin, this::toggleAssistantPanel, this::toggleGrid, this::togglePhysicsDebug);
-        root.add(toolbar).growX().height(32).row();
+        root.add(toolbar).growX().height(34).row();
 
         // 3. Middle Resizable Workspace Layout using SplitPane
         // Left: HierarchyPanel

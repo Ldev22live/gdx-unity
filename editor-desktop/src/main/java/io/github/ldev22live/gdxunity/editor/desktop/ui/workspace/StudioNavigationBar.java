@@ -72,7 +72,7 @@ public class StudioNavigationBar extends Table {
                     }
                 }
             });
-            add(menuBtn).height(22).padLeft(1).padRight(1);
+            add(menuBtn).height(24).padLeft(2).padRight(2);
         }
 
         // 3. Separator
@@ -107,7 +107,7 @@ public class StudioNavigationBar extends Table {
                 }
             });
             navButtons.put(ws.getId(), btn);
-            add(btn).height(22).padLeft(2).padRight(2);
+            add(btn).height(24).padLeft(2).padRight(2);
         }
 
         // Fill remaining space
@@ -126,7 +126,7 @@ public class StudioNavigationBar extends Table {
                     }
                 }
             });
-            add(themeToggleBtn).height(22).padRight(8);
+            add(themeToggleBtn).height(24).padRight(8);
         }
 
         updateActiveButtonHighlight();

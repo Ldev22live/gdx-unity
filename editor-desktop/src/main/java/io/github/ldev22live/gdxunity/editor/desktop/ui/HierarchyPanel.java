@@ -56,7 +56,7 @@ public class HierarchyPanel extends Table {
         headerBar.add(titleLabel).padLeft(8).left();
 
         this.countLabel = new Label("", skin, "muted");
-        headerBar.add(countLabel).left().padLeft(6);
+        headerBar.add(countLabel).left().padLeft(4);
 
         // Search/Filter box
         com.badlogic.gdx.scenes.scene2d.ui.TextField searchField = new com.badlogic.gdx.scenes.scene2d.ui.TextField("", skin);
@@ -68,7 +68,7 @@ public class HierarchyPanel extends Table {
                 refresh();
             }
         });
-        headerBar.add(searchField).width(120).height(20).padLeft(8);
+        headerBar.add(searchField).width(110).minWidth(80).height(22).padLeft(6).padRight(4);
 
         headerBar.add(new Table()).expandX();
 
@@ -79,7 +79,7 @@ public class HierarchyPanel extends Table {
                 editorState.createEntity("New Entity");
             }
         });
-        headerBar.add(addBtn).height(20).padRight(4);
+        headerBar.add(addBtn).height(22).padRight(3);
 
         TextButton dupBtn = new TextButton("Duplicate", skin);
         dupBtn.addListener(new ChangeListener() {
@@ -88,7 +88,7 @@ public class HierarchyPanel extends Table {
                 editorState.duplicateSelectedEntity();
             }
         });
-        headerBar.add(dupBtn).height(20).padRight(4);
+        headerBar.add(dupBtn).height(22).padRight(3);
 
         TextButton delBtn = new TextButton("- Delete", skin);
         delBtn.addListener(new ChangeListener() {
@@ -97,9 +97,9 @@ public class HierarchyPanel extends Table {
                 editorState.deleteSelectedEntity();
             }
         });
-        headerBar.add(delBtn).height(20).padRight(6);
+        headerBar.add(delBtn).height(22).padRight(6);
 
-        add(headerBar).growX().height(26).row();
+        add(headerBar).growX().height(30).row();
 
         // 2. Scrollable list table
         this.listTable = new Table(skin);
@@ -350,7 +350,7 @@ public class HierarchyPanel extends Table {
             }
         });
 
-        row.add(itemBtn).growX().height(22).left();
+        row.add(itemBtn).growX().height(24).left().pad(1, 2, 1, 2);
         listTable.add(row).growX().padBottom(1).row();
 
         // Recursive traversal for children

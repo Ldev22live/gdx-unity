@@ -228,22 +228,33 @@ public final class EditorSkinFactory implements Disposable {
         skin.add("default", winStyle);
 
         // 10. SplitPaneStyle
-        SplitPane.SplitPaneStyle splitStyle = new SplitPane.SplitPaneStyle(splitHandle);
-        skin.add("default-horizontal", splitStyle);
-        skin.add("default-vertical", splitStyle);
-        skin.add("default", splitStyle);
+        Drawable splitHandleH = createSplitHandleDrawable(palette.getSplitHandle(), 4, 1);
+        Drawable splitHandleV = createSplitHandleDrawable(palette.getSplitHandle(), 1, 4);
+        SplitPane.SplitPaneStyle splitStyleH = new SplitPane.SplitPaneStyle(splitHandleH);
+        SplitPane.SplitPaneStyle splitStyleV = new SplitPane.SplitPaneStyle(splitHandleV);
+        skin.add("default-horizontal", splitStyleH);
+        skin.add("default-vertical", splitStyleV);
+        skin.add("default", splitStyleH);
 
         return skin;
     }
 
     private Drawable createColorDrawable(Color color) {
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        return createColorDrawable(color, 1, 1);
+    }
+
+    private Drawable createColorDrawable(Color color, int width, int height) {
+        Pixmap pixmap = new Pixmap(Math.max(1, width), Math.max(1, height), Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
         pixmap.fill();
         Texture texture = new Texture(pixmap);
         pixmap.dispose();
         ownedResources.add(texture);
         return new TextureRegionDrawable(new TextureRegion(texture));
+    }
+
+    private Drawable createSplitHandleDrawable(Color color, int width, int height) {
+        return createColorDrawable(color, width, height);
     }
 
     @Override

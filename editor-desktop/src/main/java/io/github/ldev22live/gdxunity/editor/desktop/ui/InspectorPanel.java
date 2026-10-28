@@ -69,7 +69,7 @@ public class InspectorPanel extends Table {
             titleLabel.setColor(new Color(0.92f, 0.92f, 0.95f, 1f));
         }
         headerBar.add(titleLabel).padLeft(8).left().expandX();
-        add(headerBar).growX().height(26).row();
+        add(headerBar).growX().height(30).row();
 
         this.contentTable = new Table(skin);
         this.contentTable.top().left();

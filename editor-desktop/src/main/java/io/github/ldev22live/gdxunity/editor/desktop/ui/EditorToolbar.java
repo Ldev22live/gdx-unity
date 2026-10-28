@@ -111,9 +111,9 @@ public class EditorToolbar extends Table {
             }
         });
 
-        add(newBtn).height(24).pad(2);
-        add(saveBtn).height(24).pad(2);
-        add(loadBtn).height(24).pad(2);
+        add(newBtn).height(26).pad(2);
+        add(saveBtn).height(26).pad(2);
+        add(loadBtn).height(26).pad(2);
 
         addSeparator();
 
@@ -143,8 +143,8 @@ public class EditorToolbar extends Table {
         editorState.getCommandHistory().addListener(history -> updateUndoRedoState.run());
         updateUndoRedoState.run();
 
-        add(undoBtn).height(24).pad(2);
-        add(redoBtn).height(24).pad(2);
+        add(undoBtn).height(26).pad(2);
+        add(redoBtn).height(26).pad(2);
 
         addSeparator();
 
@@ -166,7 +166,7 @@ public class EditorToolbar extends Table {
                 }
             }
         });
-        add(compileBtn).height(24).pad(2);
+        add(compileBtn).height(26).pad(2);
 
         addSeparator();
 
@@ -205,9 +205,9 @@ public class EditorToolbar extends Table {
 
         playStateBadge = new Label("Stopped", skin, "muted");
 
-        add(playBtn).height(24).pad(2);
-        add(pauseBtn).height(24).pad(2);
-        add(stopBtn).height(24).pad(2);
+        add(playBtn).height(26).pad(2);
+        add(pauseBtn).height(26).pad(2);
+        add(stopBtn).height(26).pad(2);
         add(playStateBadge).padLeft(4).padRight(4);
 
         addSeparator();
@@ -249,10 +249,10 @@ public class EditorToolbar extends Table {
             }
         });
 
-        add(selectToolBtn).height(24).pad(2);
-        add(moveToolBtn).height(24).pad(2);
-        add(rotateToolBtn).height(24).pad(2);
-        add(scaleToolBtn).height(24).pad(2);
+        add(selectToolBtn).height(26).pad(2);
+        add(moveToolBtn).height(26).pad(2);
+        add(rotateToolBtn).height(26).pad(2);
+        add(scaleToolBtn).height(26).pad(2);
 
         addSeparator();
 
@@ -269,7 +269,7 @@ public class EditorToolbar extends Table {
                 }
             }
         });
-        add(resetCamBtn).height(24).pad(2);
+        add(resetCamBtn).height(26).pad(2);
 
         if (onToggleGrid != null) {
             TextButton gridBtn = createToolButton("Grid", "Toggle Scene View background grid");
@@ -279,7 +279,7 @@ public class EditorToolbar extends Table {
                     onToggleGrid.run();
                 }
             });
-            add(gridBtn).height(24).pad(2);
+            add(gridBtn).height(26).pad(2);
         }
 
         if (onTogglePhysics != null) {
@@ -290,7 +290,7 @@ public class EditorToolbar extends Table {
                     onTogglePhysics.run();
                 }
             });
-            add(physBtn).height(24).pad(2);
+            add(physBtn).height(26).pad(2);
         }
 
         // Fill remaining horizontal space
@@ -306,7 +306,7 @@ public class EditorToolbar extends Table {
                     onToggleAssistant.run();
                 }
             });
-            add(assistantToggleBtn).height(24).padRight(6);
+            add(assistantToggleBtn).height(26).padRight(6);
         } else {
             assistantToggleBtn = null;
         }
