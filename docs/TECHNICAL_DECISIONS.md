@@ -615,11 +615,36 @@ runs are not reloaded until the scene is reopened. Components without a serializ
 
 ---
 
+## Phase 15 Decisions (3D Physics)
+
+### TD-028: 3D Physics Behind an Engine Interface; Jolt Physics (jolt-jni) Recommended
+
+**Status**: Proposed. The engine-neutral part is implemented; adopting the library needs project owner approval
+after the compatibility spike.
+
+**Context**: Design doc §3.3 requires an evaluated, Java-compatible 3D physics solution integrated behind clear
+engine abstractions; Box2D is 2D only. Evaluation: `docs/reports/3d-physics-evaluation.md`.
+
+**Decision**:
+- Scenes describe physics with engine-owned components (`RigidBody3DComponent`, box / sphere / capsule colliders,
+  16 collision layers with masks) and `PhysicsSystem3D` runs them on a `PhysicsBackend3D`. No library type appears
+  outside the backend. 100 scene units = 1 m.
+- Recommended backend: Jolt Physics through jolt-jni 6.2.0 (MIT), in a new `engine-physics` module, with
+  gdx-bullet as the fallback.
+
+**Alternatives**: gdx-bullet (no new native loader, but Bullet 2.87 from 2017, manual disposal, no enter/exit
+events); Libbulletjme (current Bullet, same loader as jolt-jni); ode4j (pure Java, slowest, LGPL listing).
+
+**Consequences**: play mode does not simulate 3D until a backend exists. Adopting jolt-jni adds JSnapLoader and
+per-platform native jars, and creates the `engine-physics` module (an architectural change needing approval).
+
+---
+
 ## Future Decisions
 
 The following decisions will be made in future milestones:
 
-- Physics engine selection (Later milestone)
+- Physics engine selection: evaluated in TD-028 (Proposed)
 - Animation system design (Later milestone)
 
 ## Decision Review Process

@@ -22,6 +22,7 @@ import io.github.ldev22live.gdxunity.editor.core.inspector.ComponentEditorRegist
 import io.github.ldev22live.gdxunity.editor.core.inspector.EntityInspectorModel;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.BoxCollider2DComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.CircleCollider2DComponentEditorProvider;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.Physics3DComponentEditorProviders;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.RigidBody2DComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.ScriptBindingComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.SpriteRendererComponentEditorProvider;
@@ -136,6 +137,10 @@ public class InspectorPanel extends Table {
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.MeshPrimitiveComponentEditorProvider());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Directional());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Point());
+        reg.register(new Physics3DComponentEditorProviders.RigidBody());
+        reg.register(new Physics3DComponentEditorProviders.Box());
+        reg.register(new Physics3DComponentEditorProviders.Sphere());
+        reg.register(new Physics3DComponentEditorProviders.Capsule());
         return reg;
     }
 

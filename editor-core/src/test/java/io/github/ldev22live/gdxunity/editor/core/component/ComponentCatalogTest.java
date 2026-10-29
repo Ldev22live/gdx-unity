@@ -38,7 +38,9 @@ class ComponentCatalogTest {
     @Test
     void shouldSearchByNameOrCategoryCaseInsensitively() {
         List<String> physics = catalog.search("physics").stream().map(ComponentCatalog.Entry::displayName).toList();
-        assertEquals(List.of("Rigid Body 2D", "Box Collider 2D", "Circle Collider 2D"), physics);
+        assertEquals(List.of("Rigid Body 2D", "Box Collider 2D", "Circle Collider 2D",
+            "Rigid Body 3D", "Box Collider 3D", "Sphere Collider 3D", "Capsule Collider 3D"), physics);
+        assertEquals(4, catalog.search("physics 3d").size());
         assertEquals(List.of("Sprite Renderer"), catalog.search("SPRITE").stream().map(ComponentCatalog.Entry::displayName).toList());
         assertEquals(catalog.getEntries().size(), catalog.search("  ").size());
         assertTrue(catalog.search("does-not-exist").isEmpty());

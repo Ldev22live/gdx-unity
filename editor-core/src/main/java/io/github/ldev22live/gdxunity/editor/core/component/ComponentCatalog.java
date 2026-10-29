@@ -1,6 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.core.component;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
@@ -15,6 +16,10 @@ import io.github.ldev22live.gdxunity.engine.scene.lighting.PointLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.CircleCollider2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.CapsuleCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.SphereCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptLanguage;
 
@@ -116,6 +121,14 @@ public class ComponentCatalog {
             state -> new BoxCollider2DComponent(DEFAULT_SIZE, DEFAULT_SIZE)));
         catalog.register(new Entry("Circle Collider 2D", "Physics 2D", CircleCollider2DComponent.class, true,
             state -> new CircleCollider2DComponent(DEFAULT_CIRCLE_RADIUS)));
+        catalog.register(new Entry("Rigid Body 3D", "Physics 3D", RigidBody3DComponent.class, false,
+            state -> new RigidBody3DComponent()));
+        catalog.register(new Entry("Box Collider 3D", "Physics 3D", BoxCollider3DComponent.class, true,
+            ComponentCatalog::createBoxCollider3D));
+        catalog.register(new Entry("Sphere Collider 3D", "Physics 3D", SphereCollider3DComponent.class, true,
+            ComponentCatalog::createSphereCollider3D));
+        catalog.register(new Entry("Capsule Collider 3D", "Physics 3D", CapsuleCollider3DComponent.class, true,
+            state -> new CapsuleCollider3DComponent()));
         catalog.register(new Entry("Mesh Primitive", "Rendering 3D", MeshPrimitiveComponent.class, false,
             state -> new MeshPrimitiveComponent(MeshPrimitiveComponent.Shape.BOX)));
         catalog.register(new Entry("Directional Light", "Lighting", DirectionalLightComponent.class, false,
@@ -130,6 +143,27 @@ public class ComponentCatalog {
         PointLightComponent light = new PointLightComponent();
         light.setRange(DEFAULT_POINT_LIGHT_RANGE);
         return light;
+    }
+
+    /** Fits the selected entity's mesh primitive, if it has one. */
+    private static Component createBoxCollider3D(EditorState editorState) {
+        MeshPrimitiveComponent mesh = selectedMesh(editorState);
+        return mesh != null ? new BoxCollider3DComponent(mesh.getSize()) : new BoxCollider3DComponent();
+    }
+
+    /** Encloses the selected entity's mesh primitive, if it has one. */
+    private static Component createSphereCollider3D(EditorState editorState) {
+        MeshPrimitiveComponent mesh = selectedMesh(editorState);
+        if (mesh == null) {
+            return new SphereCollider3DComponent();
+        }
+        Vector3 size = mesh.getSize();
+        return new SphereCollider3DComponent(Math.max(size.x, Math.max(size.y, size.z)) / 2f);
+    }
+
+    private static MeshPrimitiveComponent selectedMesh(EditorState editorState) {
+        Entity selected = editorState.getSelectedEntity();
+        return selected != null ? selected.getComponent(MeshPrimitiveComponent.class) : null;
     }
 
     /** Uses the asset selected in the Content Browser, if any. */

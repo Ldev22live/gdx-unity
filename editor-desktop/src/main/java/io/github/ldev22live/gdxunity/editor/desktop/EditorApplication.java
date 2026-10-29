@@ -26,6 +26,10 @@ import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
 import io.github.ldev22live.gdxunity.editor.core.action.DefaultEditorActions;
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.BoxCollider3DComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.CapsuleCollider3DComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.RigidBody3DComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.SphereCollider3DComponentSerializer;
 import io.github.ldev22live.gdxunity.editor.core.action.EditorAction;
 import io.github.ldev22live.gdxunity.editor.core.action.EditorActionRegistry;
 import io.github.ldev22live.gdxunity.editor.core.command.RenameEntityCommand;
@@ -200,6 +204,10 @@ public class EditorApplication extends ApplicationAdapter {
         this.editorState.getSerializer().getRegistry().register(
             new io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.PointLightComponentSerializer()
         );
+        this.editorState.getSerializer().getRegistry().register(new RigidBody3DComponentSerializer());
+        this.editorState.getSerializer().getRegistry().register(new BoxCollider3DComponentSerializer());
+        this.editorState.getSerializer().getRegistry().register(new SphereCollider3DComponentSerializer());
+        this.editorState.getSerializer().getRegistry().register(new CapsuleCollider3DComponentSerializer());
 
         // Initialize script management: source directory "scripts", output directory "build/scripts"
         java.io.File scriptsDir = new java.io.File("scripts");
@@ -252,6 +260,8 @@ public class EditorApplication extends ApplicationAdapter {
             new io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer(editorState, sceneCamera),
             new io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer(editorState, sceneCamera3D));
         this.sceneEditorWorkspace.setSceneRenderer3D(sceneRenderer3D);
+        this.sceneEditorWorkspace.setColliderRenderer3D(new io.github.ldev22live.gdxunity.editor.desktop.ui.Collider3DRenderer(
+            editorState, sceneCamera3D, physicsDebugRenderer::isDebugVisible));
         this.workspaceManager.registerWorkspace(sceneEditorWorkspace);
 
         // Centralized keyboard shortcut dispatcher

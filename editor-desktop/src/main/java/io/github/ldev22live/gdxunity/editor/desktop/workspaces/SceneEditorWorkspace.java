@@ -4,6 +4,7 @@ import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
 import io.github.ldev22live.gdxunity.editor.core.workspace.StudioWorkspace;
 import io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceContext;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.Collider3DRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.TransformGizmoRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.ViewportGridRenderer;
@@ -38,6 +39,7 @@ public class SceneEditorWorkspace implements StudioWorkspace {
     private SceneRenderer3D sceneRenderer3D;
     private SelectionOutlineRenderer selectionOutline2D;
     private SelectionOutlineRenderer selectionOutline3D;
+    private Collider3DRenderer colliderRenderer3D;
 
     public SceneEditorWorkspace(SceneRenderer2D sceneRenderer,
                                 OrthographicCamera2D sceneCamera,
@@ -105,6 +107,11 @@ public class SceneEditorWorkspace implements StudioWorkspace {
         this.selectionOutline3D = outline3D;
     }
 
+    /** Sets the 3D collider wireframe renderer (null to disable). */
+    public void setColliderRenderer3D(Collider3DRenderer renderer) {
+        this.colliderRenderer3D = renderer;
+    }
+
     private boolean is3DActive() {
         return camera3D != null && editorState != null && editorState.getViewportMode() == ViewportMode.VIEW_3D;
     }
@@ -154,8 +161,8 @@ public class SceneEditorWorkspace implements StudioWorkspace {
 
     /**
      * 3D view: ground grid, then the scene's 2D renderables seen through the perspective camera, then the
-     * selection outline and gizmos.
-     * The physics debug overlay is 2D-only and is not drawn here.
+     * 3D collider wireframes, the selection outline and gizmos.
+     * The Box2D debug overlay is 2D-only; in 3D the physics debug toggle shows every 3D collider instead.
      */
     private void render3D(float deltaTime) {
         camera3D.update();
@@ -169,6 +176,9 @@ public class SceneEditorWorkspace implements StudioWorkspace {
         }
         sceneRenderer.render(deltaTime);
         if (sceneRenderer.getShapeRenderer() != null) {
+            if (colliderRenderer3D != null) {
+                colliderRenderer3D.render(sceneRenderer.getShapeRenderer());
+            }
             if (selectionOutline3D != null) {
                 selectionOutline3D.render(sceneRenderer.getShapeRenderer());
             }
