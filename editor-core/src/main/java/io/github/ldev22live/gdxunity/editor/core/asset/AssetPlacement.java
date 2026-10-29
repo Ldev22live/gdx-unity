@@ -3,6 +3,7 @@ package io.github.ldev22live.gdxunity.editor.core.asset;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.command.CreateEntityCommand;
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
@@ -12,7 +13,7 @@ import java.util.Objects;
 
 /**
  * Places an asset dragged from the Content Browser into the scene: textures become sprite entities at the
- * drop point, created as one undoable command. Other asset types are reported as not placeable yet.
+ * drop point, created as one undoable command; prefabs are placed as linked instances. Other asset types are reported as not placeable yet.
  */
 public final class AssetPlacement {
 
@@ -43,6 +44,14 @@ public final class AssetPlacement {
                 SpriteRendererComponent sprite = new SpriteRendererComponent(asset, DROPPED_SPRITE_SIZE, DROPPED_SPRITE_SIZE);
                 boolean created = editorState.executeCommand(new CreateEntityCommand(editorState, name, position, List.of(sprite)));
                 return created ? Result.PLACED : Result.REJECTED;
+            }
+            case PREFAB -> {
+                PrefabService prefabs = editorState.getPrefabService();
+                if (prefabs == null) {
+                    editorState.setStatusMessage("Cannot place " + asset.getFileName() + ": prefabs need an asset folder", true);
+                    return Result.UNSUPPORTED_TYPE;
+                }
+                return prefabs.instantiate(asset, position) != null ? Result.PLACED : Result.REJECTED;
             }
             case MODEL -> {
                 editorState.setStatusMessage("Cannot place " + asset.getFileName()

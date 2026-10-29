@@ -25,7 +25,10 @@ import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.CircleCollider2
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.RigidBody2DComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.ScriptBindingComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.SpriteRendererComponentEditorProvider;
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabState;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.ContextMenu;
+import io.github.ldev22live.gdxunity.engine.scene.prefab.PrefabInstanceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
@@ -197,6 +200,12 @@ public class InspectorPanel extends Table {
         Label idLabel = new Label("ID: " + uuidStr.substring(0, Math.min(uuidStr.length(), 18)) + "...", skin, "muted");
         contentTable.add(idLabel).left().padLeft(6).padBottom(6).row();
 
+        PrefabService prefabs = editorState.getPrefabService();
+        Set<String> overrides = prefabs != null ? prefabs.getOverrides(selected) : Set.of();
+        if (prefabs != null && PrefabService.instanceRootOf(selected) != null) {
+            addPrefabBar(prefabs, selected, overrides);
+        }
+
         // 2. Transform Section
         addSectionHeader("Transform");
 
@@ -244,7 +253,10 @@ public class InspectorPanel extends Table {
         // 3. Component sections (collapsible, with enable toggle and Remove)
         List<Component> components = selected.getAllComponents();
         for (Component comp : components) {
-            renderComponentSection(selected, comp);
+            if (comp instanceof PrefabInstanceComponent) {
+                continue; // shown as the prefab bar
+            }
+            renderComponentSection(selected, comp, overrides);
         }
 
         // 4. Searchable Add Component
@@ -309,7 +321,40 @@ public class InspectorPanel extends Table {
     }
 
     @SuppressWarnings("unchecked")
-    private <C extends Component> void renderComponentSection(Entity entity, C comp) {
+    /** Prefab asset, override count and Apply / Revert / Unpack for an entity of a prefab instance (TD-027). */
+    private void addPrefabBar(PrefabService prefabs, Entity selected, Set<String> overrides) {
+        Table bar = new Table(skin);
+        bar.setBackground("subheader-bg");
+        bar.left();
+        PrefabInstanceComponent link = PrefabService.linkOf(selected);
+        Label title = new Label("Prefab  " + link.getPrefabPath(), skin, "section");
+        title.setColor(HierarchyPanel.PREFAB_TEXT_COLOR);
+        bar.add(title).padLeft(6).left().expandX();
+        bar.add(prefabButton("Apply", () -> prefabs.applyAll(selected))).height(22);
+        bar.add(prefabButton("Revert", () -> prefabs.revertAll(selected))).height(22);
+        bar.add(prefabButton("Unpack", () -> prefabs.unpack(selected))).height(22).padRight(4);
+        contentTable.add(bar).growX().height(24).padBottom(2).row();
+
+        int instanceOverrides = prefabs.countInstanceOverrides(selected);
+        String summary = instanceOverrides == 0 ? "Matches the prefab"
+            : instanceOverrides + " overridden " + (instanceOverrides == 1 ? "property" : "properties") + " in this instance"
+                + (overrides.isEmpty() ? "" : " (" + overrides.size() + " on this entity)");
+        contentTable.add(new Label(summary, skin, "muted")).left().padLeft(6).padBottom(6).row();
+    }
+
+    private TextButton prefabButton(String text, Runnable action) {
+        TextButton button = new TextButton(text, skin, "flat");
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                action.run();
+                refresh();
+            }
+        });
+        return button;
+    }
+
+    private <C extends Component> void renderComponentSection(Entity entity, C comp, Set<String> overrides) {
         Class<C> compClass = (Class<C>) comp.getClass();
         Optional<ComponentEditorProvider<C, Table>> providerOpt = componentRegistry.getProvider(compClass);
         String title = providerOpt.map(ComponentEditorProvider::getDisplayName).orElse(displayNameOf(compClass));
@@ -343,7 +388,18 @@ public class InspectorPanel extends Table {
             }
         });
         bar.add(enabledToggle).width(30).height(22);
-        bar.add(new Label(title, skin, "section")).padLeft(4).left().expandX();
+        String componentKey = overrides.isEmpty() ? null
+            : PrefabState.componentKey(editorState.getSerializer(), entity, comp);
+        boolean overridden = componentKey != null
+            && overrides.stream().anyMatch(p -> componentKey.equals(PrefabState.componentKeyOf(p)));
+        Label titleLabel = new Label(overridden ? title + "  (overridden)" : title, skin, "section");
+        if (overridden) {
+            titleLabel.setColor(HierarchyPanel.PREFAB_TEXT_COLOR);
+        }
+        bar.add(titleLabel).padLeft(4).left().expandX();
+        if (overridden) {
+            bar.add(prefabButton("Revert", () -> editorState.getPrefabService().revertComponent(entity, comp))).height(22);
+        }
 
         TextButton removeButton = new TextButton("Remove", skin, "flat");
         removeButton.addListener(new ChangeListener() {

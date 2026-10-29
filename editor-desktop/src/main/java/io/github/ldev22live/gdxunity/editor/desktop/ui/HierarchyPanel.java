@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.action.EditorActionRegistry;
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.ContextMenu;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
@@ -28,6 +29,8 @@ import java.util.UUID;
  * Styled with clear parent-child indentation, selection highlights, and accessible controls.
  */
 public class HierarchyPanel extends Table {
+    /** Text color of entities that belong to a prefab instance. */
+    static final Color PREFAB_TEXT_COLOR = new Color(0.45f, 0.72f, 1f, 1f);
     private final EditorState editorState;
     private final Skin skin;
 
@@ -267,6 +270,8 @@ public class HierarchyPanel extends Table {
             normalColor = accentActiveColor;
         } else if (!entity.isActiveSelf()) {
             normalColor = textMutedColor;
+        } else if (PrefabService.linkOf(entity) != null) {
+            normalColor = PREFAB_TEXT_COLOR;
         } else {
             normalColor = textPrimaryColor;
         }

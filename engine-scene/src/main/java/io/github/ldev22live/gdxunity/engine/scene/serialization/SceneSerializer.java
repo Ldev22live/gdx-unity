@@ -75,6 +75,40 @@ public class SceneSerializer {
         return json.prettyPrint(stringWriter.toString(), settings);
     }
 
+    /**
+     * One entity in the scene file format (id, name, active, parentId, transform, components), parsed back into
+     * a tree. Used by the prefab system to compare and copy entity state.
+     */
+    public JsonValue entityToJsonValue(Entity entity) {
+        Objects.requireNonNull(entity, "entity cannot be null");
+        StringWriter stringWriter = new StringWriter();
+        JsonWriter jsonWriter = new JsonWriter(stringWriter);
+        jsonWriter.setOutputType(JsonWriter.OutputType.json);
+        Json json = new Json();
+        json.setWriter(jsonWriter);
+        writeEntity(entity, json);
+        return new JsonReader().parse(stringWriter.toString());
+    }
+
+    /**
+     * Creates the component described by one entry of an entity's {@code components} array
+     * ({@code type}, {@code enabled}, {@code data}), or null when the type is not registered.
+     */
+    @SuppressWarnings("unchecked")
+    public Component readComponent(JsonValue componentVal) {
+        Objects.requireNonNull(componentVal, "componentVal cannot be null");
+        String typeId = componentVal.getString("type", null);
+        ComponentSerializer serializer = typeId != null ? registry.getByTypeId(typeId) : null;
+        if (serializer == null) {
+            return null;
+        }
+        Component component = serializer.deserialize(componentVal.get("data"), new Json());
+        if (component != null) {
+            component.setEnabled(componentVal.getBoolean("enabled", true));
+        }
+        return component;
+    }
+
     @SuppressWarnings("unchecked")
     private void writeEntity(Entity entity, Json json) {
         json.writeObjectStart();
@@ -246,7 +280,8 @@ public class SceneSerializer {
         return scene;
     }
 
-    private void readTransform(JsonValue transformVal, Transform transform) {
+    /** Applies a {@code transform} object (position, rotation, scale) to {@code transform}. */
+    public void readTransform(JsonValue transformVal, Transform transform) {
         JsonValue posVal = transformVal.get("position");
         if (posVal != null) {
             transform.setLocalPosition(

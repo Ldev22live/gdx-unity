@@ -580,6 +580,41 @@ library still requires approval of the dependency.
 
 ---
 
+## Phase 14 Decisions (Prefabs)
+
+### TD-027: Prefab Assets, Instance Links and Comparison-Based Overrides
+
+**Status**: Proposed (implemented in Phase 14; awaiting project owner review)
+
+**Context**: Phase 14 adds reusable entity templates, the equivalent of Unreal's Blueprint actor classes
+without the graph. An instance must follow later changes to its prefab while keeping the values the user
+changed on that instance, survive save/load, and undo like any other edit.
+
+**Decision**:
+- A prefab is a `.prefab` JSON file under the asset root (`prefabs/` by default): the entity tree in the scene
+  file format, with prefab-local ids and a `rootId` (`PrefabDocument`). No new dependency.
+- Each instance entity carries a `PrefabInstanceComponent` (engine-scene) naming the prefab and its matching
+  prefab entity. The root also records which prefab entities existed at the last sync, so entities added to or
+  removed from the prefab later are told apart from entities the user deleted in the instance.
+- An override is any property whose value differs from the prefab, found by comparing flattened entity state
+  (`PrefabState`). Overrides are recomputed while editing and stored on the links when the scene is saved, so a
+  scene opened after the prefab changed keeps them. The instance root's name, position and rotation are never
+  overrides.
+- Apply writes an instance into the prefab and updates the other instances in the scene; Revert, per instance
+  or per component, restores prefab values; Unpack removes the links. Each is one `SceneSnapshotCommand`, which
+  restores the original entity and component objects so other commands in the history keep valid references.
+  Undoing Apply also restores the previous prefab file.
+
+**Alternatives**: recording each edit as an explicit modification (the property-modification lists of other
+engines) needs every editing command to report property paths; comparison needs no changes to existing
+commands. Replacing whole scenes on undo would invalidate references held by earlier commands.
+
+**Consequences**: nested prefabs and prefab variants are not supported (links inside a new prefab are
+replaced). Duplicating an instance produces plain entities. Prefab files changed outside the editor while it
+runs are not reloaded until the scene is reopened. Components without a serializer are not part of prefab state.
+
+---
+
 ## Future Decisions
 
 The following decisions will be made in future milestones:

@@ -1,5 +1,6 @@
 package io.github.ldev22live.gdxunity.editor.core;
 
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
@@ -42,6 +43,7 @@ public class EditorState {
     private final SceneSerializer serializer;
     private io.github.ldev22live.gdxunity.engine.core.asset.AssetService assetService;
     private io.github.ldev22live.gdxunity.editor.core.scripting.ScriptManager scriptManager;
+    private PrefabService prefabService;
     private final io.github.ldev22live.gdxunity.editor.core.command.CommandHistory commandHistory;
     private final List<Listener> listeners = new CopyOnWriteArrayList<>();
 
@@ -66,6 +68,15 @@ public class EditorState {
 
     public void setScriptManager(io.github.ldev22live.gdxunity.editor.core.scripting.ScriptManager scriptManager) {
         this.scriptManager = scriptManager;
+    }
+
+    /** Prefab support, or null when the editor runs without an asset folder (TD-027). */
+    public PrefabService getPrefabService() {
+        return prefabService;
+    }
+
+    public void setPrefabService(PrefabService prefabService) {
+        this.prefabService = prefabService;
     }
 
     public io.github.ldev22live.gdxunity.editor.core.command.CommandHistory getCommandHistory() {
@@ -459,6 +470,9 @@ public class EditorState {
             throw new IllegalStateException("No active scene to save");
         }
 
+        if (prefabService != null) {
+            prefabService.storeOverrides(activeScene);
+        }
         String json = serializer.toJson(activeScene);
         if (file.getParentFile() != null) {
             file.getParentFile().mkdirs();
@@ -480,8 +494,14 @@ public class EditorState {
 
         String json = Files.readString(file.toPath());
         Scene loaded = serializer.fromJson(json);
+        List<String> prefabProblems = prefabService != null ? prefabService.syncScene(loaded) : List.of();
         setActiveScene(loaded);
-        setStatusMessage("Loaded scene from: " + file.getName(), false);
+        if (prefabProblems.isEmpty()) {
+            setStatusMessage("Loaded scene from: " + file.getName(), false);
+        } else {
+            setStatusMessage("Loaded " + file.getName() + "; " + prefabProblems.size()
+                + " prefab instance(s) not updated: " + String.join("; ", prefabProblems), true);
+        }
     }
 
     public SceneSerializer getSerializer() {

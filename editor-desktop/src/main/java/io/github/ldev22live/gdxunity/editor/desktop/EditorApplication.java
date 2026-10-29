@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
 import io.github.ldev22live.gdxunity.editor.core.action.DefaultEditorActions;
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
 import io.github.ldev22live.gdxunity.editor.core.action.EditorAction;
 import io.github.ldev22live.gdxunity.editor.core.action.EditorActionRegistry;
 import io.github.ldev22live.gdxunity.editor.core.command.RenameEntityCommand;
@@ -86,7 +87,9 @@ public class EditorApplication extends ApplicationAdapter {
     /** Actions in the Outliner right-click menu. */
     static final List<String> OUTLINER_CONTEXT_ACTIONS = List.of(
         DefaultEditorActions.CREATE_EMPTY_ENTITY, ACTION_RENAME,
-        DefaultEditorActions.EDIT_DUPLICATE, DefaultEditorActions.EDIT_DELETE);
+        DefaultEditorActions.EDIT_DUPLICATE, DefaultEditorActions.EDIT_DELETE,
+        DefaultEditorActions.PREFAB_CREATE, DefaultEditorActions.PREFAB_APPLY,
+        DefaultEditorActions.PREFAB_REVERT, DefaultEditorActions.PREFAB_UNPACK);
     private static final int BOTTOM_TAB_CONTENT_BROWSER = 0;
 
     private static final float MENU_BAR_HEIGHT = 28f;
@@ -164,6 +167,7 @@ public class EditorApplication extends ApplicationAdapter {
         this.assetService = new io.github.ldev22live.gdxunity.engine.core.asset.AssetService(assetCatalog);
 
         this.editorState.setAssetService(assetService);
+        this.editorState.setPrefabService(new PrefabService(editorState, assetRoot));
         this.sceneRenderer = new SceneRenderer2D(sceneCamera, assetService);
         // SceneViewportWidget clears the frame buffer; the workspace draws the grid before the scene
         this.sceneRenderer.setClearEnabled(false);

@@ -9,6 +9,7 @@ import io.github.ldev22live.gdxunity.editor.core.command.CreateEntityCommand;
 import io.github.ldev22live.gdxunity.editor.core.component.ComponentCatalog;
 import io.github.ldev22live.gdxunity.editor.core.file.SceneFileController;
 import io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher;
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
@@ -16,6 +17,7 @@ import io.github.ldev22live.gdxunity.engine.scene.lighting.DirectionalLightCompo
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -54,6 +56,10 @@ public final class DefaultEditorActions {
     public static final String TOOL_SCALE = "tools.scale";
     public static final String VIEW_TOGGLE_2D_3D = "view.toggle-2d-3d";
     public static final String HELP_ABOUT = "help.about";
+    public static final String PREFAB_CREATE = "prefab.create";
+    public static final String PREFAB_APPLY = "prefab.apply";
+    public static final String PREFAB_REVERT = "prefab.revert";
+    public static final String PREFAB_UNPACK = "prefab.unpack";
 
     private static final int GROUP_FIRST = 0;
     private static final int GROUP_SECOND = 1;
@@ -92,6 +98,8 @@ public final class DefaultEditorActions {
             .shortcut(Input.Keys.FORWARD_DEL, 0)
             .enabledWhen(() -> canEditSelection(editorState))
             .build());
+
+        registerPrefabActions(registry, editorState);
 
         // Create
         registry.register(EditorAction.builder(CREATE_EMPTY_ENTITY, "Empty Entity", () -> createEmptyEntity(editorState))
@@ -186,6 +194,44 @@ public final class DefaultEditorActions {
             .menu(MENU_CREATE, group)
             .enabledWhen(canCreate)
             .build());
+    }
+
+    /**
+     * Prefab actions on the selected entity (TD-027). Disabled when the editor has no {@link PrefabService}
+     * or, except for Create, when the selection is not part of a prefab instance.
+     */
+    private static void registerPrefabActions(EditorActionRegistry registry, EditorState editorState) {
+        BooleanSupplier canCreate = () -> canEditSelection(editorState) && editorState.getPrefabService() != null;
+        BooleanSupplier isInstance = () -> canCreate.getAsBoolean()
+            && PrefabService.instanceRootOf(editorState.getSelectedEntity()) != null;
+        registry.register(EditorAction.builder(PREFAB_CREATE, "Create Prefab",
+                () -> withPrefabs(editorState, PrefabService::createPrefab))
+            .menu(MENU_EDIT, GROUP_THIRD)
+            .enabledWhen(canCreate)
+            .build());
+        registry.register(EditorAction.builder(PREFAB_APPLY, "Apply Prefab Overrides",
+                () -> withPrefabs(editorState, PrefabService::applyAll))
+            .menu(MENU_EDIT, GROUP_THIRD)
+            .enabledWhen(isInstance)
+            .build());
+        registry.register(EditorAction.builder(PREFAB_REVERT, "Revert Prefab Overrides",
+                () -> withPrefabs(editorState, PrefabService::revertAll))
+            .menu(MENU_EDIT, GROUP_THIRD)
+            .enabledWhen(isInstance)
+            .build());
+        registry.register(EditorAction.builder(PREFAB_UNPACK, "Unpack Prefab",
+                () -> withPrefabs(editorState, PrefabService::unpack))
+            .menu(MENU_EDIT, GROUP_THIRD)
+            .enabledWhen(isInstance)
+            .build());
+    }
+
+    private static void withPrefabs(EditorState editorState, BiConsumer<PrefabService, Entity> operation) {
+        PrefabService prefabs = editorState.getPrefabService();
+        Entity selected = editorState.getSelectedEntity();
+        if (prefabs != null && selected != null) {
+            operation.accept(prefabs, selected);
+        }
     }
 
     private static void registerTool(EditorActionRegistry registry, EditorState editorState,

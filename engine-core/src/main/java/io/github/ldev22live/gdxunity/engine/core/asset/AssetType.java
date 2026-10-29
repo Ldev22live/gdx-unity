@@ -7,6 +7,8 @@ public enum AssetType {
     TEXTURE("png", "jpg", "jpeg"),
     /** glTF 2.0 models (text or binary). Listed in the Content Browser; loading arrives with Phase 13. */
     MODEL("gltf", "glb"),
+    /** Reusable entity trees saved by the editor (TD-027). */
+    PREFAB("prefab"),
     UNKNOWN;
 
     private final String[] extensions;
