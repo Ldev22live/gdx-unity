@@ -5,7 +5,7 @@ Required by `docs/design-doc.md.txt` §10.3. Status words are defined in `AGENTS
 **Validated** = integrated and checked in the running app (needs a dated report).
 
 Last verified: 2026-10-29 against the working tree on `phase-12-3d-foundation` @ `3e55d5e` plus uncommitted Phase 12B-B/12C changes.
-Test counts come from `./gradlew test --continue` XML reports: **331 tests, 0 failures, 0 errors, 0 skipped**.
+Test counts come from `./gradlew test --continue` XML reports: **337 tests, 0 failures, 0 errors, 0 skipped**.
 
 Update this file in the same change as any feature or test change.
 
@@ -46,6 +46,8 @@ Update this file in the same change as any feature or test change.
 | Scene files: New/Open/Save/Save As, unsaved changes (Phase 12B-B, TD-022) | `SceneFileController`, `EditorDialogService`, `TinyFileDialogService` | `SceneFileControllerTest` (8), `TinyFileDialogServiceTest` (1) | Implemented; native dialogs pending manual check | No recent-files list |
 | Output Log (Phase 12B-B) | `EditorLog`, `OutputLogPanel` | `EditorLogTest` (4) | Implemented; integration pending manual check | Only status messages and script diagnostics are captured |
 | Outliner context menu & rename (Phase 12B-B) | `HierarchyPanel`, `ContextMenu` | via `DefaultEditorActionsTest` | Implemented; integration pending manual check | Widget behaviour is not unit-tested |
+| Editor typography & icons (Phase 12B-C, TD-021) | `EditorSkinFactory` (Inter via FreeType, drawn Play/Pause/Stop icons) | `EditorFontResourcesTest` (2) | Implemented; visual check pending | Tool and panel icons not done; font rendering itself needs a graphics test |
+| Focus selection (F) | `ViewportFocus`, `EditorApplication.focusSelection` | `ViewportFocusTest` (4) | Implemented; integration pending manual check | — |
 | Editor actions, menus & shortcuts (Phase 12B-A) | `EditorActionRegistry`, `DefaultEditorActions`, `EditorMenuBar` | `EditorActionRegistryTest` (6), `DefaultEditorActionsTest` (5) | Implemented; integration pending manual check | Menu widget itself has no automated test |
 | Scene view in its own panel (Phase 12B-A, TD-024) | `SceneViewportWidget`, `SceneViewportInteraction2D`, `ViewportCoordinates2D`, `OrthographicCamera2D.createScreenFilling` | `SceneViewportInteraction2DTest` (7), `SceneViewportWidgetTest` (2), `OrthographicCamera2DTest`, `SceneRenderer2DTest` | Implemented; integration pending manual check | Frame-buffer rendering needs a graphics test |
 | Selection & multi-selection | `EditorState` | `EditorStateTest` (7), `EditorStateMultiSelectionTest` (6) | Integrated | — |

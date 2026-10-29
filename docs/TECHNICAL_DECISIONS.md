@@ -492,6 +492,9 @@ blurry when scaled, has no HiDPI support and limits the editor to ASCII. TD-002 
 file. Fonts are generated at startup per theme/scale and owned by `EditorSkinFactory`. This supersedes
 the font part of TD-002. The runtime (`engine-*`) does not gain the dependency.
 
+**Implemented (2026-10-29)**: Inter 4.0 Regular and SemiBold from the official release
+(github.com/rsms/inter, v4.0) in `editor-desktop/src/main/resources/fonts/` with `Inter-OFL-LICENSE.txt`.
+
 ### TD-022: Native File Dialogs via LWJGL tinyfd
 
 **Status**: Approved

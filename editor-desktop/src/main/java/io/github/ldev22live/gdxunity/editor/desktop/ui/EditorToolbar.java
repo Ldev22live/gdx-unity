@@ -2,6 +2,7 @@ package io.github.ldev22live.gdxunity.editor.desktop.ui;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -29,9 +30,9 @@ public class EditorToolbar extends Table {
     private final EditorLog editorLog;
     private final Skin skin;
 
-    private final TextButton playBtn;
-    private final TextButton pauseBtn;
-    private final TextButton stopBtn;
+    private final ImageTextButton playBtn;
+    private final ImageTextButton pauseBtn;
+    private final ImageTextButton stopBtn;
     private final Label playStateBadge;
 
     /**
@@ -61,7 +62,7 @@ public class EditorToolbar extends Table {
         left.add(compileBtn).height(BUTTON_HEIGHT).padLeft(6);
 
         // --- Center: play controls ---
-        playBtn = new TextButton("> Play", skin);
+        playBtn = new ImageTextButton("Play", skin, "play");
         playBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -73,7 +74,7 @@ public class EditorToolbar extends Table {
             }
         });
 
-        pauseBtn = new TextButton("|| Pause", skin);
+        pauseBtn = new ImageTextButton("Pause", skin, "pause");
         pauseBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -85,7 +86,7 @@ public class EditorToolbar extends Table {
             }
         });
 
-        stopBtn = new TextButton("[] Stop", skin);
+        stopBtn = new ImageTextButton("Stop", skin, "stop");
         stopBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -153,24 +154,24 @@ public class EditorToolbar extends Table {
 
         switch (state) {
             case STOPPED -> {
-                setButton(playBtn, "> Play", false, textPrimary);
-                setButton(pauseBtn, "|| Pause", true, textMuted);
+                setButton(playBtn, "Play", false, textPrimary);
+                setButton(pauseBtn, "Pause", true, textMuted);
                 stopBtn.setDisabled(true);
                 stopBtn.setColor(textMuted);
                 playStateBadge.setText("Stopped");
                 playStateBadge.setColor(textMuted);
             }
             case PLAYING -> {
-                setButton(playBtn, "> Playing", true, successColor);
-                setButton(pauseBtn, "|| Pause", false, textPrimary);
+                setButton(playBtn, "Playing", true, successColor);
+                setButton(pauseBtn, "Pause", false, textPrimary);
                 stopBtn.setDisabled(false);
                 stopBtn.setColor(errorColor);
                 playStateBadge.setText("Playing");
                 playStateBadge.setColor(successColor);
             }
             case PAUSED -> {
-                setButton(playBtn, "> Resume", false, textPrimary);
-                setButton(pauseBtn, "|| Paused", false, warningColor);
+                setButton(playBtn, "Resume", false, textPrimary);
+                setButton(pauseBtn, "Paused", false, warningColor);
                 stopBtn.setDisabled(false);
                 stopBtn.setColor(errorColor);
                 playStateBadge.setText("Paused");
@@ -179,7 +180,7 @@ public class EditorToolbar extends Table {
         }
     }
 
-    private static void setButton(TextButton button, String text, boolean disabled, Color color) {
+    private static void setButton(ImageTextButton button, String text, boolean disabled, Color color) {
         button.setText(text);
         button.setDisabled(disabled);
         button.setColor(color);

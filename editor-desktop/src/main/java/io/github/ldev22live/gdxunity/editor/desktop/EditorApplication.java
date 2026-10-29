@@ -32,6 +32,7 @@ import io.github.ldev22live.gdxunity.editor.core.input.ViewportCameraController3
 import io.github.ldev22live.gdxunity.editor.core.viewport.ModeSwitchingViewportInteraction;
 import io.github.ldev22live.gdxunity.editor.core.viewport.SceneViewportInteraction2D;
 import io.github.ldev22live.gdxunity.editor.core.viewport.SceneViewportInteraction3D;
+import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportFocus;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportInteraction;
 import io.github.ldev22live.gdxunity.editor.core.play.PlayModeController;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorSkinFactory;
@@ -77,6 +78,7 @@ public class EditorApplication extends ApplicationAdapter {
     static final String ACTION_TOGGLE_ASSISTANT = "window.toggle-assistant";
     static final String ACTION_TOGGLE_THEME = "window.toggle-theme";
     static final String ACTION_RENAME = "edit.rename";
+    static final String ACTION_FOCUS_SELECTION = "view.focus-selection";
 
     /** Actions in the Outliner right-click menu. */
     static final List<String> OUTLINER_CONTEXT_ACTIONS = List.of(
@@ -398,7 +400,7 @@ public class EditorApplication extends ApplicationAdapter {
         HierarchyPanel hierarchyPanel = new HierarchyPanel(editorState, skin, actionRegistry, OUTLINER_CONTEXT_ACTIONS);
 
         ViewportOverlayToolbar overlay = new ViewportOverlayToolbar(editorState, actionRegistry, skin,
-            DefaultEditorActions.VIEW_TOGGLE_2D_3D, ACTION_TOGGLE_GRID, ACTION_TOGGLE_PHYSICS_DEBUG, ACTION_RESET_VIEW);
+            DefaultEditorActions.VIEW_TOGGLE_2D_3D, ACTION_FOCUS_SELECTION, ACTION_TOGGLE_GRID, ACTION_TOGGLE_PHYSICS_DEBUG, ACTION_RESET_VIEW);
         Container<ViewportOverlayToolbar> overlayContainer = new Container<>(overlay);
         overlayContainer.top().left().pad(6f);
         // The container covers the whole scene view; only the toolbar itself should take clicks
@@ -443,6 +445,11 @@ public class EditorApplication extends ApplicationAdapter {
     }
 
     private void registerDesktopActions() {
+        actionRegistry.register(EditorAction.builder(ACTION_FOCUS_SELECTION, "Focus Selection", this::focusSelection)
+            .menu(DefaultEditorActions.MENU_TOOLS, 1)
+            .shortcut(Input.Keys.F, 0)
+            .enabledWhen(() -> editorState.getSelectedEntity() != null)
+            .build());
         actionRegistry.register(EditorAction.builder(ACTION_RENAME, "Rename", this::showRenamePopup)
             .menu(DefaultEditorActions.MENU_EDIT, 1)
             .shortcut(Input.Keys.F2, 0)
@@ -536,6 +543,31 @@ public class EditorApplication extends ApplicationAdapter {
         sceneCamera.update();
         reset3DView();
         editorState.setStatusMessage("Camera view reset", false);
+    }
+
+    /** Frames the selected entity: the 3D camera backs off along its view direction, the 2D view zooms to fit. */
+    private void focusSelection() {
+        Entity selected = editorState.getSelectedEntity();
+        if (selected == null) {
+            return;
+        }
+        Vector3 center = ViewportFocus.focusCenter(selected);
+        float radius = ViewportFocus.boundingRadius(selected);
+        if (editorState.getViewportMode() == ViewportMode.VIEW_3D) {
+            float distance = ViewportFocus.perspectiveDistance(radius, sceneCamera3D.getFieldOfView());
+            Vector3 direction = sceneCamera3D.getDirection().nor();
+            sceneCamera3D.setPosition(new Vector3(center).mulAdd(direction, -distance));
+            sceneCamera3D.update();
+            cameraController3D.setTarget(center);
+        } else {
+            sceneCamera.setPosition(center.x, center.y, sceneCamera.getPosition().z);
+            if (sceneViewport != null && sceneViewport.getWidth() > 0f && sceneViewport.getHeight() > 0f) {
+                sceneCamera.setZoom(ViewportFocus.orthographicZoom(2f * radius, 2f * radius,
+                    sceneViewport.getWidth(), sceneViewport.getHeight()));
+            }
+            sceneCamera.update();
+        }
+        editorState.setStatusMessage("Focused on " + selected.getName(), false);
     }
 
     /** Where Create menu entities appear: the orbit target in 3D, the center of the 2D view otherwise. */

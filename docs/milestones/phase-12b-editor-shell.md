@@ -1,6 +1,6 @@
 # Phase 12B — Unreal-Style Editor Shell
 
-**Status:** Steps A and B implemented (A committed in `3e55d5e`); step C not started. Phase 12C (3D content) implemented alongside; see `docs/reports/phase-12b-12c-report.md`. · **Branch:** `phase-12-3d-foundation` · **Decisions:** TD-020…TD-024
+**Status:** Steps A, B and C implemented (A in `3e55d5e`, B with 12C in `32df7a4`). Visual checks pending; see `docs/reports/phase-12b-12c-report.md`.
 **Reference:** Unreal Engine 5 editor workflows (TD-020) — original implementation, generic names only.
 
 ## Objective
@@ -40,11 +40,12 @@ File New/Open/Save/Save As via native dialogs (TD-022) behind `FileDialogService
 Browser. Details: searchable **Add Component**, collapsible component sections with enable toggle and
 Remove. Outliner: right-click Create/Rename/Duplicate/Delete.
 
-## Step C — Typography, icons, shortcuts, report
+## Step C — Typography, icons, shortcuts (done)
 
-Inter via gdx-freetype (TD-021) with HiDPI scaling; icon atlas for tools and play controls; remaining
-shortcuts (F focus selection, Ctrl+N/O/S/Shift+S); updated `FEATURE_TEST_MATRIX.md`, `INDEX.md` and
-`docs/reports/phase-12b-editor-shell.md`.
+Inter Regular/SemiBold via gdx-freetype (TD-021), generated at the back-buffer density and scaled to UI
+units for HiDPI; SemiBold for section titles. Procedurally drawn Play/Pause/Stop icons (no image assets).
+F frames the selection (`ViewportFocus`). Ctrl+N/O/S/Shift+S came with step B.
+Not done: icons for the transform tools and panels (text labels remain).
 
 ## Out of scope
 

@@ -20,6 +20,10 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+  // Scalable editor fonts (TD-021)
+  implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+  testRuntimeOnly "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
   // Native file dialogs (TD-022); must match the LWJGL version used by gdx-backend-lwjgl3
   implementation "org.lwjgl:lwjgl-tinyfd:$backendLwjglVersion"
   ["natives-windows", "natives-linux", "natives-linux-arm64", "natives-macos", "natives-macos-arm64"].each { platform ->

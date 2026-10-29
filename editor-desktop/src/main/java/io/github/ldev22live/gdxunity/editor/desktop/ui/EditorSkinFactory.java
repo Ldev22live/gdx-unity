@@ -1,10 +1,13 @@
 package io.github.ldev22live.gdxunity.editor.desktop.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -28,6 +31,15 @@ import java.util.Objects;
 public final class EditorSkinFactory implements Disposable {
     private final java.util.List<Disposable> ownedResources = new ArrayList<>();
 
+    private static final String REGULAR_FONT = "fonts/Inter-Regular.ttf";
+    private static final String SEMIBOLD_FONT = "fonts/Inter-SemiBold.ttf";
+    /** UI text size in logical pixels. */
+    private static final int BASE_FONT_SIZE = 14;
+    /** Icon edge length in logical pixels. */
+    private static final int ICON_SIZE = 12;
+    /** Typographic characters used in editor text beyond FreeType's default Latin-1 set. */
+    private static final String EXTRA_CHARACTERS = "—–…•·←→↑↓";
+
     public Skin createSkin() {
         return createSkin(EditorThemePalette.createDarkPalette());
     }
@@ -36,10 +48,11 @@ public final class EditorSkinFactory implements Disposable {
         Objects.requireNonNull(palette, "palette cannot be null");
         Skin skin = new Skin();
 
-        // 1. Typography (Base font)
-        BitmapFont font = new BitmapFont();
+        // 1. Typography: Inter generated at the display's pixel density (TD-021)
+        BitmapFont font = generateFont(REGULAR_FONT, BASE_FONT_SIZE);
+        BitmapFont headingFont = generateFont(SEMIBOLD_FONT, BASE_FONT_SIZE);
         skin.add("default", font);
-        ownedResources.add(font);
+        skin.add("heading", headingFont);
 
         // 2. Semantic Color Registration
         skin.add("background", palette.getBackground());
@@ -120,11 +133,11 @@ public final class EditorSkinFactory implements Disposable {
         Label.LabelStyle mutedStyle = new Label.LabelStyle(font, palette.getTextMuted());
         skin.add("muted", mutedStyle);
 
-        Label.LabelStyle titleStyle = new Label.LabelStyle(font, palette.getTextPrimary());
+        Label.LabelStyle titleStyle = new Label.LabelStyle(headingFont, palette.getTextPrimary());
         titleStyle.background = headerBg;
         skin.add("title", titleStyle);
 
-        Label.LabelStyle sectionStyle = new Label.LabelStyle(font, palette.getPrimary());
+        Label.LabelStyle sectionStyle = new Label.LabelStyle(headingFont, palette.getPrimary());
         skin.add("section", sectionStyle);
 
         Label.LabelStyle errorStyle = new Label.LabelStyle(font, palette.getError());
@@ -197,6 +210,12 @@ public final class EditorSkinFactory implements Disposable {
         tabBtnStyle.checked = tabActiveBg;
         skin.add("tab", tabBtnStyle);
 
+        // Play-control buttons: default button look with a drawn icon before the text
+        Color iconColor = palette.getTextPrimary();
+        skin.add("play", iconButtonStyle(btnStyle, createIconDrawable(EditorIcon.PLAY, iconColor)));
+        skin.add("pause", iconButtonStyle(btnStyle, createIconDrawable(EditorIcon.PAUSE, iconColor)));
+        skin.add("stop", iconButtonStyle(btnStyle, createIconDrawable(EditorIcon.STOP, iconColor)));
+
         // 6. TextFieldStyle
         TextField.TextFieldStyle txtStyle = new TextField.TextFieldStyle();
         txtStyle.font = font;
@@ -237,6 +256,80 @@ public final class EditorSkinFactory implements Disposable {
         skin.add("default", splitStyleH);
 
         return skin;
+    }
+
+    /** Icons drawn procedurally at the display density, so no image assets are needed. */
+    enum EditorIcon {
+        PLAY,
+        PAUSE,
+        STOP
+    }
+
+    private static ImageTextButton.ImageTextButtonStyle iconButtonStyle(TextButton.TextButtonStyle base, Drawable icon) {
+        ImageTextButton.ImageTextButtonStyle style = new ImageTextButton.ImageTextButtonStyle(base);
+        style.imageUp = icon;
+        return style;
+    }
+
+    private Drawable createIconDrawable(EditorIcon icon, Color color) {
+        float density = uiDensity();
+        int size = Math.max(8, Math.round(ICON_SIZE * density));
+        Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        pixmap.setBlending(Pixmap.Blending.None);
+        pixmap.setColor(0f, 0f, 0f, 0f);
+        pixmap.fill();
+        pixmap.setColor(color);
+        int inset = Math.round(size * 0.15f);
+        int far = size - 1 - inset;
+        switch (icon) {
+            case PLAY -> pixmap.fillTriangle(inset, inset, inset, far, far, size / 2);
+            case PAUSE -> {
+                int barWidth = Math.max(2, Math.round(size * 0.22f));
+                pixmap.fillRectangle(inset, inset, barWidth, far - inset + 1);
+                pixmap.fillRectangle(far - barWidth + 1, inset, barWidth, far - inset + 1);
+            }
+            case STOP -> pixmap.fillRectangle(inset, inset, far - inset + 1, far - inset + 1);
+        }
+        Texture texture = new Texture(pixmap);
+        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        pixmap.dispose();
+        ownedResources.add(texture);
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(texture));
+        drawable.setMinSize(ICON_SIZE, ICON_SIZE);
+        return drawable;
+    }
+
+    /**
+     * Generates a font from a bundled TrueType file. The glyphs are rendered at the back-buffer resolution and
+     * scaled back to UI units, so text stays sharp on HiDPI displays.
+     *
+     * @throws com.badlogic.gdx.utils.GdxRuntimeException if the font resource is missing
+     */
+    private BitmapFont generateFont(String classpathFile, int logicalSize) {
+        float density = uiDensity();
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.classpath(classpathFile));
+        try {
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            parameter.size = Math.round(logicalSize * density);
+            parameter.minFilter = Texture.TextureFilter.Linear;
+            parameter.magFilter = Texture.TextureFilter.Linear;
+            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + EXTRA_CHARACTERS;
+            BitmapFont font = generator.generateFont(parameter);
+            font.getData().setScale(1f / density);
+            font.setUseIntegerPositions(false);
+            ownedResources.add(font);
+            return font;
+        } finally {
+            generator.dispose();
+        }
+    }
+
+    /** Back-buffer pixels per UI unit (1 on standard displays, e.g. 1.5 or 2 on HiDPI). */
+    static float uiDensity() {
+        if (Gdx.graphics == null || Gdx.graphics.getWidth() <= 0) {
+            return 1f;
+        }
+        return Math.max(1f, Gdx.graphics.getBackBufferWidth() / (float) Gdx.graphics.getWidth());
     }
 
     private Drawable createColorDrawable(Color color) {
