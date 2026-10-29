@@ -61,10 +61,11 @@ public class SelectionOutlineRenderer {
             shapeRenderer.setColor(id.equals(primaryId) ? PRIMARY_COLOR : SECONDARY_COLOR);
             Vector3 position = entity.getTransform().getWorldPosition();
             float scale = scaleAt(position);
-            BoundingBox meshBounds = (camera instanceof PerspectiveCamera3D) ? ViewportPicker.computeMeshBounds(entity) : null;
+            BoundingBox localMeshBounds = (camera instanceof PerspectiveCamera3D) ? ViewportPicker.computeMeshLocalBounds(entity) : null;
             Rectangle bounds = ViewportPicker.computeRenderBounds(entity);
-            if (meshBounds != null) {
-                drawBox(shapeRenderer, meshBounds, OUTLINE_PADDING * scale);
+            if (localMeshBounds != null) {
+                drawOrientedBox(shapeRenderer, localMeshBounds, entity.getTransform().getWorldMatrix(),
+                    entity.getTransform().getWorldScale(), OUTLINE_PADDING * scale);
             } else if (bounds != null) {
                 float pad = OUTLINE_PADDING * scale;
                 drawRect(shapeRenderer, bounds.x - pad, bounds.y - pad, bounds.width + 2f * pad, bounds.height + 2f * pad, position.z);
@@ -92,26 +93,32 @@ public class SelectionOutlineRenderer {
         sr.line(x, y + h, z, x, y, z);
     }
 
-    /** The 12 edges of the padded box. */
-    private static void drawBox(ShapeRenderer sr, BoundingBox box, float pad) {
-        Vector3 min = new Vector3(box.min).sub(pad);
-        Vector3 max = new Vector3(box.max).add(pad);
-        float[] xs = {min.x, max.x};
-        float[] ys = {min.y, max.y};
-        float[] zs = {min.z, max.z};
-        for (float y : ys) {
-            for (float z : zs) {
-                sr.line(min.x, y, z, max.x, y, z);
+    /**
+     * The 12 edges of a local-space box placed by {@code worldMatrix} (follows rotation and scale). The world-space
+     * padding is converted to local units per axis so the gap looks even under non-uniform scale.
+     */
+    private static void drawOrientedBox(ShapeRenderer sr, BoundingBox localBox, Matrix4 worldMatrix, Vector3 worldScale, float pad) {
+        Vector3 localPad = new Vector3(pad / nonZero(worldScale.x), pad / nonZero(worldScale.y), pad / nonZero(worldScale.z));
+        Vector3 min = new Vector3(localBox.min).sub(localPad);
+        Vector3 max = new Vector3(localBox.max).add(localPad);
+        Vector3[] corners = new Vector3[8];
+        for (int i = 0; i < 8; i++) {
+            corners[i] = new Vector3((i & 1) == 0 ? min.x : max.x, (i & 2) == 0 ? min.y : max.y, (i & 4) == 0 ? min.z : max.z)
+                .mul(worldMatrix);
+        }
+        // Corners whose indices differ in exactly one bit share an edge
+        for (int i = 0; i < 8; i++) {
+            for (int bit = 1; bit < 8; bit <<= 1) {
+                int j = i | bit;
+                if (j != i) {
+                    sr.line(corners[i], corners[j]);
+                }
             }
         }
-        for (float x : xs) {
-            for (float z : zs) {
-                sr.line(x, min.y, z, x, max.y, z);
-            }
-            for (float y : ys) {
-                sr.line(x, y, min.z, x, y, max.z);
-            }
-        }
+    }
+
+    private static float nonZero(float value) {
+        return Math.abs(value) < 1e-6f ? 1f : Math.abs(value);
     }
 
     private static void drawMarker(ShapeRenderer sr, Vector3 p, float size) {

@@ -2,6 +2,8 @@ package io.github.ldev22live.gdxunity.editor.desktop.ui;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -19,7 +21,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Editor panel for discovering and selecting project assets (textures/images).
+ * Editor panel for discovering and selecting project assets (textures and models). Rows can be dragged
+ * into the scene view when the panel is given a shared {@link DragAndDrop}.
  * Uses AssetCatalog for recursive filesystem scanning without eager GPU decoding,
  * and provides live search filtering.
  */
@@ -33,9 +36,19 @@ public class AssetBrowserPanel extends Table {
     private final ScrollPane scrollPane;
     private final Label statusCountLabel;
     private final TextField searchField;
+    /** Shared with the scene view so assets can be dragged into it; null disables dragging. */
+    private final DragAndDrop dragAndDrop;
 
     public AssetBrowserPanel(EditorState editorState, AssetCatalog catalog, Skin skin) {
+        this(editorState, catalog, skin, null);
+    }
+
+    /**
+     * @param dragAndDrop drag-and-drop instance shared with drop targets such as the scene view; may be null
+     */
+    public AssetBrowserPanel(EditorState editorState, AssetCatalog catalog, Skin skin, DragAndDrop dragAndDrop) {
         super(skin);
+        this.dragAndDrop = dragAndDrop;
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.catalog = Objects.requireNonNull(catalog, "catalog cannot be null");
         this.filterModel = new AssetBrowserFilterModel(catalog);
@@ -100,6 +113,8 @@ public class AssetBrowserPanel extends Table {
         this.listTable.top().left();
         this.scrollPane = new ScrollPane(listTable, skin);
         this.scrollPane.setFadeScrollBars(false);
+        // Desktop: the wheel scrolls; a mouse drag on a row starts an asset drag instead of scrolling
+        this.scrollPane.setFlickScroll(false);
         add(scrollPane).grow().pad(4).row();
 
         // Listen for selection changes to update highlight
@@ -171,6 +186,18 @@ public class AssetBrowserPanel extends Table {
                     editorState.setStatusMessage("Selected asset: " + ref.getPath(), false);
                 }
             });
+
+            if (dragAndDrop != null) {
+                dragAndDrop.addSource(new DragAndDrop.Source(itemBtn) {
+                    @Override
+                    public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
+                        DragAndDrop.Payload payload = new DragAndDrop.Payload();
+                        payload.setObject(ref);
+                        payload.setDragActor(new Label("  " + ref.getFileName(), skin));
+                        return payload;
+                    }
+                });
+            }
 
             row.add(itemBtn).growX().height(22).left();
             listTable.add(row).growX().padBottom(1).row();

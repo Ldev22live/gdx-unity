@@ -125,6 +125,41 @@ class SceneViewportInteraction3DTest {
     }
 
     @Test
+    void shouldChangeFlySpeedWithScrollOnlyWhileFlying() {
+        cameraController.setFlyMoveSpeed(400f);
+        float zBefore = camera.getPosition().z;
+
+        interaction.touchDown(400f, 300f, PANEL_W, PANEL_H, Input.Buttons.RIGHT, 0);
+        interaction.scrolled(-1f);
+        assertEquals(400f * SceneViewportInteraction3D.FLY_SPEED_STEP, interaction.getFlySpeed(), 0.01f);
+        assertEquals(zBefore, camera.getPosition().z, 0.001f, "Scrolling while flying must not dolly");
+
+        for (int i = 0; i < 200; i++) {
+            interaction.scrolled(-1f);
+        }
+        assertEquals(SceneViewportInteraction3D.MAX_FLY_SPEED, interaction.getFlySpeed(), 0.01f);
+
+        interaction.touchUp(Input.Buttons.RIGHT);
+        interaction.scrolled(-1f);
+        assertTrue(camera.getPosition().z < zBefore, "Without flying, scrolling dollies toward the target");
+    }
+
+    @Test
+    void shouldPlaceDropsOnTheContentPlaneOrAtTheTarget() {
+        Vector3 center = interaction.worldPointAt(PANEL_W / 2f, PANEL_H / 2f, PANEL_W, PANEL_H);
+        assertEquals(0f, center.x, 0.01f);
+        assertEquals(0f, center.y, 0.01f);
+        assertEquals(0f, center.z, 0.01f);
+
+        // Looking away from the z = 0 plane, drops fall back to the orbit target
+        camera.setPosition(0f, 0f, 500f);
+        camera.lookAt(0f, 0f, 1000f);
+        camera.update();
+        cameraController.setTarget(5f, 6f, 7f);
+        assertEquals(new Vector3(5f, 6f, 7f), interaction.worldPointAt(400f, 300f, PANEL_W, PANEL_H));
+    }
+
+    @Test
     void shouldOrbitAroundTargetWithAltLeftDrag() {
         float distance = camera.getPosition().dst(cameraController.getTarget());
         assertTrue(interaction.touchDown(400f, 300f, PANEL_W, PANEL_H, Input.Buttons.LEFT, EditorKeyboardDispatcher.MOD_ALT));
@@ -198,6 +233,12 @@ class SceneViewportInteraction3DTest {
         @Override
         public void update(float deltaTime) {
             events.add("update");
+        }
+
+        @Override
+        public Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight) {
+            events.add("point");
+            return new Vector3();
         }
     }
 }

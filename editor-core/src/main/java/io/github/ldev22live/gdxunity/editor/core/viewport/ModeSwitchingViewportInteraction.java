@@ -1,5 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.core.viewport;
 
+import com.badlogic.gdx.math.Vector3;
+
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
 
@@ -65,5 +67,10 @@ public class ModeSwitchingViewportInteraction implements ViewportInteraction {
     @Override
     public void update(float deltaTime) {
         active().update(deltaTime);
+    }
+
+    @Override
+    public Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight) {
+        return active().worldPointAt(localX, localY, panelWidth, panelHeight);
     }
 }

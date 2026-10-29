@@ -29,7 +29,7 @@ Welcome to the **GdxUnity** architecture, design, and roadmap documentation.
 | **Phase 12** | 3D Rendering Foundation & Camera Systems | Implemented; 3D view integrated in editor (12B/12C, pending manual check) | [phase-12-verification.md](reports/phase-12-verification.md) |
 | **Phase 12B** | Unreal-style editor shell (menus, scene view panel, files, Output Log, Details) | Steps A–B implemented; C pending | [phase-12b-editor-shell.md](milestones/phase-12b-editor-shell.md) |
 | **Phase 12C** | 3D content: primitives, lights, Create menu | Implemented, pending manual check | [phase-12b-12c-report.md](reports/phase-12b-12c-report.md) |
-| **Phase 13** | 3D asset pipeline: glTF import, PBR, shadows, Content Browser (TD-026) | **Next** | [ALL_IN_ONE_STUDIO_ROADMAP.md §5](ALL_IN_ONE_STUDIO_ROADMAP.md), [gdx-gltf-evaluation.md](reports/gdx-gltf-evaluation.md) |
+| **Phase 13** | 3D asset pipeline: glTF import, PBR, shadows, Content Browser (TD-026) | In progress: C/D parts done; A/B blocked on gdx-gltf spike approval ([plan](milestones/phase-13-asset-pipeline.md)) | [ALL_IN_ONE_STUDIO_ROADMAP.md §5](ALL_IN_ONE_STUDIO_ROADMAP.md), [gdx-gltf-evaluation.md](reports/gdx-gltf-evaluation.md) |
 | **Phase 14** | Prefabs | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md §5](ALL_IN_ONE_STUDIO_ROADMAP.md) |
 | **Phase 15** | 3D physics (Jolt vs Bullet evaluation first) | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md §5](ALL_IN_ONE_STUDIO_ROADMAP.md) |
 | **Phase 16–18** | Visual scripting, animation & sequencer, packaging | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md §5](ALL_IN_ONE_STUDIO_ROADMAP.md) |

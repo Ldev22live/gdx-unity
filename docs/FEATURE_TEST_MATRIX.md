@@ -5,7 +5,7 @@ Required by `docs/design-doc.md.txt` §10.3. Status words are defined in `AGENTS
 **Validated** = integrated and checked in the running app (needs a dated report).
 
 Last verified: 2026-10-29 against the working tree on `phase-12-3d-foundation` @ `3e55d5e` plus uncommitted Phase 12B-B/12C changes.
-Test counts come from `./gradlew test --continue` XML reports: **337 tests, 0 failures, 0 errors, 0 skipped**.
+Test counts come from `./gradlew test --continue` XML reports: **346 tests, 0 failures, 0 errors, 0 skipped**.
 
 Update this file in the same change as any feature or test change.
 
@@ -48,6 +48,8 @@ Update this file in the same change as any feature or test change.
 | Outliner context menu & rename (Phase 12B-B) | `HierarchyPanel`, `ContextMenu` | via `DefaultEditorActionsTest` | Implemented; integration pending manual check | Widget behaviour is not unit-tested |
 | Editor typography & icons (Phase 12B-C, TD-021) | `EditorSkinFactory` (Inter via FreeType, drawn Play/Pause/Stop icons) | `EditorFontResourcesTest` (2) | Implemented; visual check pending | Tool and panel icons not done; font rendering itself needs a graphics test |
 | Focus selection (F) | `ViewportFocus`, `EditorApplication.focusSelection` | `ViewportFocusTest` (4) | Implemented; integration pending manual check | — |
+| Content Browser drag-and-drop, model asset type (Phase 13-C, part) | `AssetPlacement`, `AssetType.MODEL`, `AssetBrowserPanel`, `ViewportInteraction.worldPointAt` | `AssetPlacementTest` (3), `SceneViewportInteraction3DTest` | Implemented; visual check pending | Models cannot be placed until a glTF loader is approved; no thumbnails/folders yet |
+| Oriented 3D picking, fly speed (Phase 13-D, part) | `ViewportPicker.intersectOriented`, `SelectionOutlineRenderer`, `SceneViewportInteraction3D` | `OrientedPickingTest` (4), `SceneViewportInteraction3DTest` | Implemented; visual check pending | 2D content still picked unrotated |
 | Editor actions, menus & shortcuts (Phase 12B-A) | `EditorActionRegistry`, `DefaultEditorActions`, `EditorMenuBar` | `EditorActionRegistryTest` (6), `DefaultEditorActionsTest` (5) | Implemented; integration pending manual check | Menu widget itself has no automated test |
 | Scene view in its own panel (Phase 12B-A, TD-024) | `SceneViewportWidget`, `SceneViewportInteraction2D`, `ViewportCoordinates2D`, `OrthographicCamera2D.createScreenFilling` | `SceneViewportInteraction2DTest` (7), `SceneViewportWidgetTest` (2), `OrthographicCamera2DTest`, `SceneRenderer2DTest` | Implemented; integration pending manual check | Frame-buffer rendering needs a graphics test |
 | Selection & multi-selection | `EditorState` | `EditorStateTest` (7), `EditorStateMultiSelectionTest` (6) | Integrated | — |

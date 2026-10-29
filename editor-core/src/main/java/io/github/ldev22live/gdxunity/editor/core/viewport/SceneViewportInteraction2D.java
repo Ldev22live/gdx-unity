@@ -2,6 +2,7 @@ package io.github.ldev22live.gdxunity.editor.core.viewport;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.gizmo.ColliderGizmoController;
 import io.github.ldev22live.gdxunity.editor.core.gizmo.ColliderGizmoHandle;
@@ -149,6 +150,13 @@ public class SceneViewportInteraction2D implements ViewportInteraction {
         camera.setZoom(zoom);
         camera.update();
         return true;
+    }
+
+    /** The 2D point under the pointer, on the z = 0 plane. */
+    @Override
+    public Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight) {
+        Vector2 world = toWorld(localX, localY, panelWidth, panelHeight);
+        return new Vector3(world.x, world.y, 0f);
     }
 
     private Vector2 toWorld(float localX, float localY, float panelWidth, float panelHeight) {

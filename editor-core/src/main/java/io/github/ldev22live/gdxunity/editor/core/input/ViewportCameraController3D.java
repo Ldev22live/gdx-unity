@@ -276,6 +276,10 @@ public class ViewportCameraController3D {
         this.panSensitivity = panSensitivity;
     }
 
+    public float getFlyMoveSpeed() {
+        return flyMoveSpeed;
+    }
+
     public void setFlyMoveSpeed(float flyMoveSpeed) {
         this.flyMoveSpeed = flyMoveSpeed;
     }

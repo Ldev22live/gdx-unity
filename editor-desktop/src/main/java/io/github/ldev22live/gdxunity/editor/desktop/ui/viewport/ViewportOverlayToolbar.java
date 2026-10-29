@@ -15,6 +15,7 @@ import io.github.ldev22live.gdxunity.editor.core.action.EditorActionRegistry;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Compact tool strip drawn over the top-left of the scene view: transform tools plus view toggles.
@@ -28,12 +29,15 @@ public class ViewportOverlayToolbar extends Table {
     private final EditorActionRegistry actions;
     private final Skin skin;
     private final Map<ToolMode, TextButton> toolButtons = new EnumMap<>(ToolMode.class);
+    private final Label infoLabel;
+    private Supplier<String> infoText = () -> "";
 
     /**
      * @param viewActionIds ids of view actions (grid, physics overlay, reset view) shown after the tools
      */
     public ViewportOverlayToolbar(EditorState editorState, EditorActionRegistry actions, Skin skin, String... viewActionIds) {
         super(skin);
+        this.infoLabel = new Label("", skin, "muted");
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.actions = Objects.requireNonNull(actions, "actions cannot be null");
         this.skin = Objects.requireNonNull(skin, "skin cannot be null");
@@ -49,6 +53,7 @@ public class ViewportOverlayToolbar extends Table {
         for (String id : viewActionIds) {
             add(createActionButton(id)).height(BUTTON_HEIGHT).padLeft(1).padRight(1);
         }
+        add(infoLabel).padLeft(8).padRight(4);
 
         editorState.addListener(new EditorState.Listener() {
             @Override
@@ -57,6 +62,20 @@ public class ViewportOverlayToolbar extends Table {
             }
         });
         updateToolHighlight();
+    }
+
+    /** Short live text shown at the end of the strip (e.g. the 3D fly speed); refreshed every frame. */
+    public void setInfoText(Supplier<String> infoText) {
+        this.infoText = Objects.requireNonNull(infoText, "infoText cannot be null");
+    }
+
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+        String text = infoText.get();
+        if (!text.contentEquals(infoLabel.getText())) {
+            infoLabel.setText(text);
+        }
     }
 
     private void addToolButton(ToolMode mode, String actionId) {

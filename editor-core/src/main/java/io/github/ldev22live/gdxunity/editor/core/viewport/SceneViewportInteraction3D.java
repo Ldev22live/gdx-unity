@@ -1,6 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.core.viewport;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.gizmo.GizmoHandle;
@@ -21,6 +22,12 @@ import java.util.Objects;
  * middle-drag pans, the wheel dollies. Left click hits gizmo handles first (TD-016), then picks entities.
  */
 public class SceneViewportInteraction3D implements ViewportInteraction {
+
+    /** Fly speed multiplier per scroll notch while flying. */
+    public static final float FLY_SPEED_STEP = 1.25f;
+    /** Fly speed limits in world units per second. */
+    public static final float MIN_FLY_SPEED = 10f;
+    public static final float MAX_FLY_SPEED = 20000f;
 
     private final EditorState editorState;
     private final PerspectiveCamera3D camera;
@@ -105,9 +112,40 @@ public class SceneViewportInteraction3D implements ViewportInteraction {
         return false;
     }
 
+    /**
+     * Scrolling dollies the camera; while flying (right button held) it changes the fly speed instead, by
+     * {@link #FLY_SPEED_STEP} per notch within [{@link #MIN_FLY_SPEED}, {@link #MAX_FLY_SPEED}].
+     */
     @Override
     public boolean scrolled(float amountY) {
+        if (cameraController.getCurrentMode() == NavigationMode.FLY) {
+            float factor = (float) Math.pow(FLY_SPEED_STEP, -amountY);
+            float speed = Math.max(MIN_FLY_SPEED, Math.min(MAX_FLY_SPEED, cameraController.getFlyMoveSpeed() * factor));
+            cameraController.setFlyMoveSpeed(speed);
+            return true;
+        }
         return cameraController.processScroll(amountY);
+    }
+
+    public float getFlySpeed() {
+        return cameraController.getFlyMoveSpeed();
+    }
+
+    /**
+     * Where the pointer ray meets the z = 0 plane (where 2D content lives); the orbit target when the ray
+     * points away from that plane.
+     */
+    @Override
+    public Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight) {
+        camera.update();
+        Ray ray = ViewportCoordinates3D.panelToRay(localX, localY, panelWidth, panelHeight, camera.getGdxCamera());
+        if (ray.direction.z != 0f) {
+            float distance = -ray.origin.z / ray.direction.z;
+            if (distance > 0f) {
+                return ray.getEndPoint(new Vector3(), distance);
+            }
+        }
+        return cameraController.getTarget();
     }
 
     @Override

@@ -1,5 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.core.viewport;
 
+import com.badlogic.gdx.math.Vector3;
+
 /**
  * Pointer and keyboard handling for the scene view, independent of any UI toolkit.
  *
@@ -29,4 +31,7 @@ public interface ViewportInteraction {
 
     /** Per-frame update for continuous navigation such as fly movement. */
     default void update(float deltaTime) {}
+
+    /** World position under the pointer, used to place dropped assets. Never null. */
+    Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight);
 }

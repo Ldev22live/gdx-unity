@@ -1,6 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.core.picking;
 
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -22,6 +23,11 @@ import java.util.Objects;
  * 2D point hit-testing utility for picking scene entities in the viewport.
  */
 public final class ViewportPicker {
+
+    /** Local-space thickness given to planes so rays can hit them (they have no Y extent). */
+    public static final float PLANE_PICK_THICKNESS = 1f;
+    /** Transforms with a smaller determinant (e.g. a zero scale axis) are not pickable. */
+    private static final float SINGULAR_EPSILON = 1e-9f;
 
     private ViewportPicker() {}
 
@@ -50,9 +56,9 @@ public final class ViewportPicker {
     }
 
     /**
-     * Finds the nearest active entity hit by a world-space ray (3D viewport). Each entity's 2D render bounds
-     * are tested in the XY plane at the entity's world Z, so flat 2D content can be picked from any angle.
-     * Rotation of the entity out of the XY plane is not taken into account.
+     * Finds the nearest active entity hit by a world-space ray (3D viewport). 3D primitives are tested as
+     * oriented boxes (rotation and scale included). Flat 2D content is tested in the XY plane at the entity's
+     * world Z; rotation of 2D content out of that plane is not taken into account.
      *
      * @return the hit entity closest to the ray origin, or null if none
      */
@@ -69,15 +75,12 @@ public final class ViewportPicker {
             if (!entity.isActiveInHierarchy()) {
                 continue;
             }
-            BoundingBox meshBounds = computeMeshBounds(entity);
-            if (meshBounds != null) {
-                Vector3 hit = new Vector3();
-                if (Intersector.intersectRayBounds(ray, meshBounds, hit)) {
-                    float meshDistance = hit.dst(ray.origin);
-                    if (meshDistance < nearestDistance) {
-                        nearest = entity;
-                        nearestDistance = meshDistance;
-                    }
+            BoundingBox localBounds = computeMeshLocalBounds(entity);
+            if (localBounds != null) {
+                float meshDistance = intersectOriented(ray, localBounds, entity.getTransform().getWorldMatrix());
+                if (meshDistance >= 0f && meshDistance < nearestDistance) {
+                    nearest = entity;
+                    nearestDistance = meshDistance;
                 }
                 continue;
             }
@@ -100,21 +103,45 @@ public final class ViewportPicker {
     }
 
     /**
-     * World-space axis-aligned bounds of the entity's enabled {@link MeshPrimitiveComponent}s (size times world
-     * scale, centered on the entity), or {@code null} if it has none. Rotation is not taken into account.
+     * Bounds of the entity's enabled {@link MeshPrimitiveComponent}s in the entity's local space (before its world
+     * transform), or {@code null} if it has none. Planes get {@link #PLANE_PICK_THICKNESS} so they can be hit.
      */
-    public static BoundingBox computeMeshBounds(Entity entity) {
+    public static BoundingBox computeMeshLocalBounds(Entity entity) {
         BoundingBox union = null;
-        Vector3 worldPos = entity.getTransform().getWorldPosition();
-        Vector3 worldScale = entity.getTransform().getWorldScale();
         for (Component c : entity.getAllComponents()) {
             if (c.isEnabled() && c instanceof MeshPrimitiveComponent primitive) {
-                Vector3 half = primitive.getExtent().scl(worldScale).scl(0.5f);
-                BoundingBox box = new BoundingBox(new Vector3(worldPos).sub(half), new Vector3(worldPos).add(half));
+                Vector3 half = primitive.getExtent().scl(0.5f);
+                half.y = Math.max(half.y, PLANE_PICK_THICKNESS / 2f);
+                BoundingBox box = new BoundingBox(new Vector3(half).scl(-1f), half);
                 union = (union == null) ? box : union.ext(box);
             }
         }
         return union;
+    }
+
+    /**
+     * World-space axis-aligned box enclosing the entity's primitives after rotation and scale, or {@code null}
+     * if it has none. Used for framing and 2D picking; 3D picking tests the oriented box exactly.
+     */
+    public static BoundingBox computeMeshBounds(Entity entity) {
+        BoundingBox local = computeMeshLocalBounds(entity);
+        return local == null ? null : new BoundingBox(local).mul(entity.getTransform().getWorldMatrix());
+    }
+
+    /**
+     * Distance along {@code ray} to the oriented box {@code localBounds} placed by {@code worldMatrix}, or -1
+     * if it misses (or the matrix cannot be inverted, e.g. zero scale).
+     */
+    static float intersectOriented(Ray ray, BoundingBox localBounds, Matrix4 worldMatrix) {
+        if (Math.abs(worldMatrix.det()) < SINGULAR_EPSILON) {
+            return -1f;
+        }
+        Ray localRay = ray.cpy().mul(new Matrix4(worldMatrix).inv());
+        Vector3 hit = new Vector3();
+        if (!Intersector.intersectRayBounds(localRay, localBounds, hit)) {
+            return -1f;
+        }
+        return hit.mul(worldMatrix).dst(ray.origin);
     }
 
     /**
@@ -150,9 +177,9 @@ public final class ViewportPicker {
                 result.add(bounds(worldPos, shape.getWidth() * worldScale.x, shape.getHeight() * worldScale.y, shape.isCentered()));
             } else if (c instanceof SpriteRendererComponent sprite) {
                 result.add(bounds(worldPos, sprite.getWidth() * worldScale.x, sprite.getHeight() * worldScale.y, sprite.isCentered()));
-            } else if (c instanceof MeshPrimitiveComponent primitive) {
-                Vector3 extent = primitive.getExtent().scl(worldScale);
-                result.add(bounds(worldPos, extent.x, extent.y, true));
+            } else if (c instanceof MeshPrimitiveComponent) {
+                BoundingBox world = computeMeshBounds(entity);
+                result.add(new Rectangle(world.min.x, world.min.y, world.getWidth(), world.getHeight()));
             }
         }
         return result;

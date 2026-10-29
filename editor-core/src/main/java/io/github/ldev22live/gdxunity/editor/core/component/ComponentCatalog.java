@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
+import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
@@ -134,7 +135,9 @@ public class ComponentCatalog {
     /** Uses the asset selected in the Content Browser, if any. */
     private static Component createSprite(EditorState editorState) {
         AssetReference selectedAsset = editorState.getSelectedAsset();
-        return selectedAsset != null
+        // Only textures can back a sprite; a selected model or other asset is ignored
+        boolean useSelection = selectedAsset != null && AssetType.fromPath(selectedAsset.getPath()) == AssetType.TEXTURE;
+        return useSelection
             ? new SpriteRendererComponent(selectedAsset, DEFAULT_SIZE, DEFAULT_SIZE)
             : new SpriteRendererComponent(DEFAULT_SIZE, DEFAULT_SIZE);
     }

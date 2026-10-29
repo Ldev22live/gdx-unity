@@ -18,6 +18,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import io.github.ldev22live.gdxunity.editor.core.asset.AssetPlacement;
+import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
@@ -139,6 +142,7 @@ public class EditorApplication extends ApplicationAdapter {
     private final PerspectiveCamera3D sceneCamera3D;
     private final ViewportCameraController3D cameraController3D;
     private final SceneRenderer3D sceneRenderer3D;
+    private final SceneViewportInteraction3D viewportInteraction3D;
     private final ViewportInteraction viewportInteraction;
     private SceneViewportWidget sceneViewport;
 
@@ -223,9 +227,10 @@ public class EditorApplication extends ApplicationAdapter {
         sceneRenderer3D.setClearEnabled(false);
         sceneRenderer3D.setDefaultLightEnabled(true);
         sceneRenderer3D.setAmbientLight(EDITOR_AMBIENT_LIGHT);
+        this.viewportInteraction3D = new SceneViewportInteraction3D(editorState, sceneCamera3D, cameraController3D, gizmoController);
         this.viewportInteraction = new ModeSwitchingViewportInteraction(editorState,
             new SceneViewportInteraction2D(editorState, sceneCamera, gizmoController, colliderController),
-            new SceneViewportInteraction3D(editorState, sceneCamera3D, cameraController3D, gizmoController));
+            viewportInteraction3D);
         // Workspace and Layout initialization
         this.workspaceManager = new io.github.ldev22live.gdxunity.editor.core.workspace.DefaultWorkspaceManager(() -> editorState);
         this.layoutSerializer = new io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceLayoutSerializer();
@@ -401,6 +406,9 @@ public class EditorApplication extends ApplicationAdapter {
 
         ViewportOverlayToolbar overlay = new ViewportOverlayToolbar(editorState, actionRegistry, skin,
             DefaultEditorActions.VIEW_TOGGLE_2D_3D, ACTION_FOCUS_SELECTION, ACTION_TOGGLE_GRID, ACTION_TOGGLE_PHYSICS_DEBUG, ACTION_RESET_VIEW);
+        overlay.setInfoText(() -> editorState.getViewportMode() == ViewportMode.VIEW_3D
+            ? "Fly speed " + Math.round(viewportInteraction3D.getFlySpeed())
+            : "");
         Container<ViewportOverlayToolbar> overlayContainer = new Container<>(overlay);
         overlayContainer.top().left().pad(6f);
         // The container covers the whole scene view; only the toolbar itself should take clicks
@@ -426,8 +434,22 @@ public class EditorApplication extends ApplicationAdapter {
         centerRightSplit.setMinSplitAmount(0.50f);
         centerRightSplit.setMaxSplitAmount(0.88f);
 
+        // Content Browser rows can be dragged into the scene view; the drop lands under the mouse
+        DragAndDrop assetDragAndDrop = new DragAndDrop();
+        assetDragAndDrop.addTarget(new DragAndDrop.Target(sceneViewport) {
+            @Override
+            public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                return payload.getObject() instanceof AssetReference;
+            }
+
+            @Override
+            public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                Vector3 position = viewportInteraction.worldPointAt(x, y, sceneViewport.getWidth(), sceneViewport.getHeight());
+                AssetPlacement.place(editorState, (AssetReference) payload.getObject(), position);
+            }
+        });
         io.github.ldev22live.gdxunity.editor.desktop.ui.AssetBrowserPanel assetBrowser =
-            new io.github.ldev22live.gdxunity.editor.desktop.ui.AssetBrowserPanel(editorState, assetCatalog, skin);
+            new io.github.ldev22live.gdxunity.editor.desktop.ui.AssetBrowserPanel(editorState, assetCatalog, skin, assetDragAndDrop);
 
         com.badlogic.gdx.scenes.scene2d.ui.SplitPane mainSplit =
             new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(centerRightSplit, new TabbedPanel(skin,
