@@ -10,7 +10,7 @@ Welcome to the **GdxUnity** architecture, design, and roadmap documentation.
 - **Product Brief:** [design-doc.md.txt](design-doc.md.txt) — Master engineering instructions and long-term vision.
 - **Feature-to-Test Matrix:** [FEATURE_TEST_MATRIX.md](FEATURE_TEST_MATRIX.md) — What is implemented, integrated and tested, with gaps.
 
-- **Master Roadmap:** [ALL_IN_ONE_STUDIO_ROADMAP.md](ALL_IN_ONE_STUDIO_ROADMAP.md) — Comprehensive multi-phase studio roadmap (Phase 0 through Phase 15).
+- **Master Roadmap:** [ALL_IN_ONE_STUDIO_ROADMAP.md](ALL_IN_ONE_STUDIO_ROADMAP.md) — Phase roadmap; re-sequenced after Phase 12 to an Unreal-aligned order (TD-026).
 - **Core Architecture:** [ARCHITECTURE.md](ARCHITECTURE.md) — Subsystem boundaries, module dependencies, and conventions.
 - **Technical Decisions:** [TECHNICAL_DECISIONS.md](TECHNICAL_DECISIONS.md) — Architectural decision records (ADRs) and design trade-offs.
 - **Testing Strategy:** [TEST_STRATEGY.md](TEST_STRATEGY.md) — Headless unit test guidelines, native loading, and graphics isolation.
@@ -29,9 +29,11 @@ Welcome to the **GdxUnity** architecture, design, and roadmap documentation.
 | **Phase 12** | 3D Rendering Foundation & Camera Systems | Implemented; 3D view integrated in editor (12B/12C, pending manual check) | [phase-12-verification.md](reports/phase-12-verification.md) |
 | **Phase 12B** | Unreal-style editor shell (menus, scene view panel, files, Output Log, Details) | Steps A–B implemented; C pending | [phase-12b-editor-shell.md](milestones/phase-12b-editor-shell.md) |
 | **Phase 12C** | 3D content: primitives, lights, Create menu | Implemented, pending manual check | [phase-12b-12c-report.md](reports/phase-12b-12c-report.md) |
-| **Phase 13** | 3D Modeling & Mesh Studio (Low-Poly / UV) | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md#phase-13](ALL_IN_ONE_STUDIO_ROADMAP.md) |
-| **Phase 14** | 3D Rigging, Bones & Keyframe Animation Studio | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md#phase-14](ALL_IN_ONE_STUDIO_ROADMAP.md) |
-| **Phase 15** | Unified All-In-One Studio Integration & Release | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md#phase-15](ALL_IN_ONE_STUDIO_ROADMAP.md) |
+| **Phase 13** | 3D asset pipeline: glTF import, PBR, shadows, Content Browser (TD-026) | **Next** | [ALL_IN_ONE_STUDIO_ROADMAP.md §5](ALL_IN_ONE_STUDIO_ROADMAP.md), [gdx-gltf-evaluation.md](reports/gdx-gltf-evaluation.md) |
+| **Phase 14** | Prefabs | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md §5](ALL_IN_ONE_STUDIO_ROADMAP.md) |
+| **Phase 15** | 3D physics (Jolt vs Bullet evaluation first) | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md §5](ALL_IN_ONE_STUDIO_ROADMAP.md) |
+| **Phase 16–18** | Visual scripting, animation & sequencer, packaging | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md §5](ALL_IN_ONE_STUDIO_ROADMAP.md) |
+| Deferred | Vector, audio, mesh modeling and rigging studios | Deferred (TD-026) | [ALL_IN_ONE_STUDIO_ROADMAP.md](ALL_IN_ONE_STUDIO_ROADMAP.md) |
 
 ---
 

@@ -562,6 +562,22 @@ components could not be saved, so scenes with lights could not enter Play mode.
 **Limitations**: picking and outlines use axis-aligned bounds (rotation ignored); 2D content draws on top of
 3D primitives regardless of depth; the plane is edge-on (unpickable) in the 2D view.
 
+### TD-026: Unreal-Aligned Roadmap After Phase 12
+
+**Status**: Approved (project owner, 2026-10-29)
+
+**Context**: The roadmap continued with in-engine studios (mesh modeling, rigging, vector art, audio). With
+Unreal Engine as the reference (TD-020), the larger gap is importing and presenting real 3D content: Unreal
+imports meshes rather than modeling them.
+
+**Decision**: Phase 13 becomes the 3D asset pipeline (glTF import, PBR materials, shadows and image-based
+lighting, Content Browser thumbnails and drag-and-drop). Then 14 prefabs, 15 3D physics, 16 visual scripting,
+17 animation and sequencer, 18 packaging. The vector, audio, mesh modeling and rigging studios are deferred,
+not cancelled; their original roadmap sections are kept and labelled.
+
+**Consequences**: Phase 13 starts with a library evaluation (`docs/reports/gdx-gltf-evaluation.md`); adopting a
+library still requires approval of the dependency.
+
 ---
 
 ## Future Decisions

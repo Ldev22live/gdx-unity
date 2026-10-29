@@ -222,6 +222,23 @@ To support four creative domains without creating a tangled monolith, the modula
 
 ## 5. Phase-by-Phase Implementation Roadmap
 
+> **Re-sequenced 2026-10-29 (TD-026).** With Unreal Engine as the reference product (TD-020), phases after 12
+> follow an import-first, Unreal-aligned order. Unreal does not model meshes in the engine; it imports them.
+> The in-engine modeling and rigging studios below are deferred, not cancelled.
+>
+> | Phase | Milestone | Unreal equivalent |
+> |---|---|---|
+> | 12 / 12B / 12C | 3D foundation, editor shell, primitives and lights (done) | Viewport, Outliner, Details, Content Browser |
+> | **13** | **3D asset pipeline: glTF import, PBR materials, shadows and image-based lighting, Content Browser thumbnails and drag-and-drop** | Static Mesh import, Material, Lumen-free lighting |
+> | 14 | Prefabs: reusable entity templates with overrides | Blueprint actor classes (without the graph) |
+> | 15 | 3D physics (engine evaluated first: Jolt vs Bullet) | Chaos physics |
+> | 16 | Visual scripting graph (design in `docs/project-suggestions.md`) | Blueprints |
+> | 17 | Skeletal animation from imported models and a sequencer timeline | Animation Blueprint basics, Sequencer |
+> | 18 | Packaging: standalone builds for Windows, macOS, Linux | Project Packaging |
+> | Deferred | Vector studio, audio studio, in-engine mesh modeling and rigging studios | (no direct equivalent) |
+>
+> Phases 9–11 below are historical; the original Phase 13–15 sections are kept for reference and labelled.
+
 The project has achieved **Phase 0 through Phase 8**. The following phased roadmap specifies what needs to be implemented to achieve the All-in-One Studio vision.
 
 ```
@@ -326,7 +343,29 @@ Phase 0 ──► Phase 8  ──►  Phase 9  ──►  Phase 10 ──►  Ph
 
 ---
 
-### Phase 13 — 3D Modeling & Mesh Studio (Blender-like Modeling & UV)
+### Phase 13 — 3D Asset Pipeline (glTF, PBR, Lighting, Content Browser) — *current next milestone (TD-026)*
+
+**Objective**: Import real 3D content made in external tools and show it with physically based materials,
+shadows and environment lighting, placed and edited like any other entity.
+
+**Key Deliverables**:
+- [ ] glTF 2.0 / GLB import: meshes, node hierarchy, textures and materials, with warnings for unsupported
+      extensions (design doc §5.3). Library choice: `docs/reports/gdx-gltf-evaluation.md`.
+- [ ] PBR materials: base color, metallic/roughness, normal, occlusion, emissive.
+- [ ] Shadows from directional lights, image-based environment lighting, tone mapping; documented quality
+      settings and limits (design doc §5.2).
+- [ ] Model component referencing an imported asset (alongside `MeshPrimitiveComponent`), serialized as an
+      `AssetReference`; picking against the model's bounds.
+- [ ] Content Browser: folders, thumbnails, drag-and-drop into the viewport, reimport on file change.
+- [ ] Viewport: rotation-aware picking, depth-correct 2D/3D compositing, camera speed indicator.
+
+**Acceptance**: a model exported from Blender can be dragged into the scene, renders with correct materials,
+shadows and sky lighting, survives save/reload, is selectable/movable with undo, and is covered by tests and a
+manual checklist.
+
+---
+
+### Deferred — 3D Modeling & Mesh Studio (originally Phase 13; see TD-026)
 
 **Objective**: Provide an interactive in-engine low-poly 3D modeling and UV mapping studio.
 
@@ -353,7 +392,7 @@ Phase 0 ──► Phase 8  ──►  Phase 9  ──►  Phase 10 ──►  Ph
 
 ---
 
-### Phase 14 — 3D Rigging, Bones & Keyframe Animation Studio
+### Deferred / folded into Phase 17 — 3D Rigging, Bones & Keyframe Animation Studio (originally Phase 14)
 
 **Objective**: Implement bone hierarchies, vertex skinning, and timeline-based keyframe animation (Blender Animation / Dope Sheet).
 
@@ -374,7 +413,7 @@ Phase 0 ──► Phase 8  ──►  Phase 9  ──►  Phase 10 ──►  Ph
 
 ---
 
-### Phase 15 — Unified Cross-Studio Asset Pipeline & Live Game Preview
+### Deferred — Unified Cross-Studio Asset Pipeline & Live Game Preview (originally Phase 15; asset import moved to Phase 13)
 
 **Objective**: Complete the seamless feedback loop where editing a vector shape, 3D model, or audio synth instantly updates in the active game scene without manual file export.
 
