@@ -2,6 +2,7 @@ package io.github.ldev22live.gdxunity.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
 
 /**
  * Launcher for the desktop GdxUnity Editor application.
@@ -13,7 +14,16 @@ public class EditorLauncher {
     }
 
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new EditorApplication(), getDefaultConfiguration());
+        EditorApplication editor = new EditorApplication();
+        Lwjgl3ApplicationConfiguration configuration = getDefaultConfiguration();
+        // Closing the window offers to save unsaved scene changes first (Cancel keeps the editor open)
+        configuration.setWindowListener(new Lwjgl3WindowAdapter() {
+            @Override
+            public boolean closeRequested() {
+                return editor.confirmClose();
+            }
+        });
+        return new Lwjgl3Application(editor, configuration);
     }
 
     public static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {

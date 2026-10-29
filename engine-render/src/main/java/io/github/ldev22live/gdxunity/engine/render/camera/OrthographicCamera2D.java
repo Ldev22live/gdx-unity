@@ -24,6 +24,12 @@ public class OrthographicCamera2D implements Camera {
     private final Viewport viewport;
     private final boolean screenFilling;
 
+    /**
+     * Depth range in front of and behind the screen-filling editor camera, so 3D primitives centered on
+     * z = 0 are not clipped by the near plane (orthographic cameras allow a negative near plane).
+     */
+    public static final float EDITOR_DEPTH_RANGE = 20000f;
+
     public OrthographicCamera2D() {
         this(640f, 480f);
     }
@@ -39,6 +45,8 @@ public class OrthographicCamera2D implements Camera {
     public static OrthographicCamera2D createScreenFilling(float centerX, float centerY) {
         // The virtual size only seeds the initial viewport; a screen-filling camera takes its size from resize()
         OrthographicCamera2D camera = new OrthographicCamera2D(1f, 1f, true);
+        camera.gdxCamera.near = -EDITOR_DEPTH_RANGE;
+        camera.gdxCamera.far = EDITOR_DEPTH_RANGE;
         camera.setPosition(centerX, centerY, 0f);
         camera.update();
         return camera;

@@ -1,14 +1,23 @@
 package io.github.ldev22live.gdxunity.editor.core.action;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.ToolMode;
 import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
+import io.github.ldev22live.gdxunity.editor.core.command.CreateEntityCommand;
+import io.github.ldev22live.gdxunity.editor.core.component.ComponentCatalog;
+import io.github.ldev22live.gdxunity.editor.core.file.SceneFileController;
 import io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher;
+import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
+import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.DirectionalLightComponent;
 
-import java.io.File;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 /**
  * Registers the standard editor actions that only depend on {@link EditorState}.
@@ -24,14 +33,21 @@ public final class DefaultEditorActions {
     public static final String MENU_HELP = "Help";
 
     public static final String FILE_NEW_SCENE = "file.new-scene";
-    public static final String FILE_SAVE_BACKUP = "file.save-backup";
-    public static final String FILE_LOAD_BACKUP = "file.load-backup";
+    public static final String FILE_OPEN_SCENE = "file.open-scene";
+    public static final String FILE_SAVE_SCENE = "file.save-scene";
+    public static final String FILE_SAVE_SCENE_AS = "file.save-scene-as";
+    public static final String FILE_EXIT = "file.exit";
     public static final String EDIT_UNDO = "edit.undo";
     public static final String EDIT_REDO = "edit.redo";
     public static final String EDIT_REDO_ALTERNATE = "edit.redo.ctrl-shift-z";
     public static final String EDIT_DUPLICATE = "edit.duplicate";
     public static final String EDIT_DELETE = "edit.delete";
     public static final String CREATE_EMPTY_ENTITY = "create.empty-entity";
+    public static final String CREATE_BOX = "create.box";
+    public static final String CREATE_SPHERE = "create.sphere";
+    public static final String CREATE_PLANE = "create.plane";
+    public static final String CREATE_DIRECTIONAL_LIGHT = "create.directional-light";
+    public static final String CREATE_POINT_LIGHT = "create.point-light";
     public static final String TOOL_SELECT = "tools.select";
     public static final String TOOL_MOVE = "tools.move";
     public static final String TOOL_ROTATE = "tools.rotate";
@@ -39,37 +55,16 @@ public final class DefaultEditorActions {
     public static final String VIEW_TOGGLE_2D_3D = "view.toggle-2d-3d";
     public static final String HELP_ABOUT = "help.about";
 
-    /**
-     * Fixed scene file used by the backup save/load actions until file dialogs replace them
-     * (Phase 12B step B, TD-022). Resolved against the working directory.
-     */
-    public static final String SCENE_BACKUP_FILE_NAME = "scene_backup.json";
-
     private static final int GROUP_FIRST = 0;
     private static final int GROUP_SECOND = 1;
+    private static final int GROUP_THIRD = 2;
 
     private DefaultEditorActions() {}
 
-    /** Registers File, Edit, Create, Tools and Help actions. */
+    /** Registers Edit, Create, Tools and Help actions. File actions: {@link #registerFileActions}. */
     public static void registerDefaults(EditorActionRegistry registry, EditorState editorState) {
         Objects.requireNonNull(registry, "registry cannot be null");
         Objects.requireNonNull(editorState, "editorState cannot be null");
-
-        // File
-        registry.register(EditorAction.builder(FILE_NEW_SCENE, "New Scene", () -> editorState.newScene("Untitled Scene"))
-            .menu(MENU_FILE, GROUP_FIRST)
-            .shortcut(Input.Keys.N, EditorKeyboardDispatcher.MOD_CTRL)
-            .enabledWhen(() -> !editorState.isPlayModeActive())
-            .build());
-        registry.register(EditorAction.builder(FILE_SAVE_BACKUP, "Save Scene Backup", () -> saveBackup(editorState))
-            .menu(MENU_FILE, GROUP_SECOND)
-            .shortcut(Input.Keys.S, EditorKeyboardDispatcher.MOD_CTRL)
-            .enabledWhen(() -> !editorState.isPlayModeActive() && editorState.getActiveScene() != null)
-            .build());
-        registry.register(EditorAction.builder(FILE_LOAD_BACKUP, "Load Scene Backup", () -> loadBackup(editorState))
-            .menu(MENU_FILE, GROUP_SECOND)
-            .enabledWhen(() -> !editorState.isPlayModeActive())
-            .build());
 
         // Edit
         registry.register(EditorAction.builder(EDIT_UNDO, "Undo", editorState::undo)
@@ -121,6 +116,78 @@ public final class DefaultEditorActions {
             .build());
     }
 
+    /**
+     * Registers File menu actions backed by {@code files} (TD-022).
+     *
+     * @param requestExit closes the application; only called after unsaved changes were handled
+     */
+    public static void registerFileActions(EditorActionRegistry registry, EditorState editorState,
+                                           SceneFileController files, Runnable requestExit) {
+        Objects.requireNonNull(registry, "registry cannot be null");
+        Objects.requireNonNull(files, "files cannot be null");
+        Objects.requireNonNull(requestExit, "requestExit cannot be null");
+        BooleanSupplier editing = () -> !editorState.isPlayModeActive();
+
+        registry.register(EditorAction.builder(FILE_NEW_SCENE, "New Scene", files::newScene)
+            .menu(MENU_FILE, GROUP_FIRST)
+            .shortcut(Input.Keys.N, EditorKeyboardDispatcher.MOD_CTRL)
+            .enabledWhen(editing)
+            .build());
+        registry.register(EditorAction.builder(FILE_OPEN_SCENE, "Open Scene...", files::open)
+            .menu(MENU_FILE, GROUP_FIRST)
+            .shortcut(Input.Keys.O, EditorKeyboardDispatcher.MOD_CTRL)
+            .enabledWhen(editing)
+            .build());
+        registry.register(EditorAction.builder(FILE_SAVE_SCENE, "Save Scene", files::save)
+            .menu(MENU_FILE, GROUP_SECOND)
+            .shortcut(Input.Keys.S, EditorKeyboardDispatcher.MOD_CTRL)
+            .enabledWhen(() -> editing.getAsBoolean() && editorState.getActiveScene() != null)
+            .build());
+        registry.register(EditorAction.builder(FILE_SAVE_SCENE_AS, "Save Scene As...", files::saveAs)
+            .menu(MENU_FILE, GROUP_SECOND)
+            .shortcut(Input.Keys.S, EditorKeyboardDispatcher.MOD_CTRL | EditorKeyboardDispatcher.MOD_SHIFT)
+            .enabledWhen(() -> editing.getAsBoolean() && editorState.getActiveScene() != null)
+            .build());
+        registry.register(EditorAction.builder(FILE_EXIT, "Exit", () -> {
+                if (files.confirmDiscardChanges()) {
+                    requestExit.run();
+                }
+            })
+            .menu(MENU_FILE, GROUP_THIRD)
+            .build());
+    }
+
+    /**
+     * Registers Create menu entries for 3D primitives and lights. Each creates one entity at
+     * {@code spawnPosition} (normally the center of the view) with its component attached, as one undo step.
+     */
+    public static void registerCreate3DActions(EditorActionRegistry registry, EditorState editorState,
+                                               Supplier<Vector3> spawnPosition) {
+        Objects.requireNonNull(registry, "registry cannot be null");
+        Objects.requireNonNull(spawnPosition, "spawnPosition cannot be null");
+        BooleanSupplier canCreate = () -> !editorState.isPlayModeActive() && editorState.getActiveScene() != null;
+        registerCreate(registry, editorState, canCreate, spawnPosition, CREATE_BOX, "Box", GROUP_SECOND,
+            () -> new MeshPrimitiveComponent(MeshPrimitiveComponent.Shape.BOX));
+        registerCreate(registry, editorState, canCreate, spawnPosition, CREATE_SPHERE, "Sphere", GROUP_SECOND,
+            () -> new MeshPrimitiveComponent(MeshPrimitiveComponent.Shape.SPHERE));
+        registerCreate(registry, editorState, canCreate, spawnPosition, CREATE_PLANE, "Plane", GROUP_SECOND,
+            () -> new MeshPrimitiveComponent(MeshPrimitiveComponent.Shape.PLANE));
+        registerCreate(registry, editorState, canCreate, spawnPosition, CREATE_DIRECTIONAL_LIGHT, "Directional Light", GROUP_THIRD,
+            DirectionalLightComponent::new);
+        registerCreate(registry, editorState, canCreate, spawnPosition, CREATE_POINT_LIGHT, "Point Light", GROUP_THIRD,
+            ComponentCatalog::createPointLight);
+    }
+
+    private static void registerCreate(EditorActionRegistry registry, EditorState editorState, BooleanSupplier canCreate,
+                                       Supplier<Vector3> spawnPosition, String id, String name, int group,
+                                       Supplier<Component> component) {
+        registry.register(EditorAction.builder(id, name, () -> editorState.executeCommand(
+                new CreateEntityCommand(editorState, name, spawnPosition.get(), List.of(component.get()))))
+            .menu(MENU_CREATE, group)
+            .enabledWhen(canCreate)
+            .build());
+    }
+
     private static void registerTool(EditorActionRegistry registry, EditorState editorState,
                                      String id, String label, ToolMode mode, int keycode) {
         registry.register(EditorAction.builder(id, label, () -> editorState.setToolMode(mode))
@@ -143,26 +210,6 @@ public final class DefaultEditorActions {
         Entity created = editorState.createEntity("Entity");
         if (created != null) {
             editorState.setSelectedEntity(created);
-        }
-    }
-
-    private static void saveBackup(EditorState editorState) {
-        File file = new File(SCENE_BACKUP_FILE_NAME);
-        try {
-            editorState.saveSceneToFile(file);
-            editorState.setStatusMessage("Scene saved to " + file.getName(), false);
-        } catch (Exception e) {
-            editorState.setStatusMessage("Save failed: " + e.getMessage(), true);
-        }
-    }
-
-    private static void loadBackup(EditorState editorState) {
-        File file = new File(SCENE_BACKUP_FILE_NAME);
-        try {
-            editorState.loadSceneFromFile(file);
-            editorState.setStatusMessage("Scene loaded from " + file.getName(), false);
-        } catch (Exception e) {
-            editorState.setStatusMessage("Load failed: " + e.getMessage(), true);
         }
     }
 }

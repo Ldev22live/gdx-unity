@@ -1,6 +1,6 @@
 # Phase 12B — Unreal-Style Editor Shell
 
-**Status:** In progress (step A) · **Branch:** `phase-12-3d-foundation` · **Decisions:** TD-020…TD-024
+**Status:** Steps A and B implemented (A committed in `3e55d5e`); step C not started. Phase 12C (3D content) implemented alongside; see `docs/reports/phase-12b-12c-report.md`. · **Branch:** `phase-12-3d-foundation` · **Decisions:** TD-020…TD-024
 **Reference:** Unreal Engine 5 editor workflows (TD-020) — original implementation, generic names only.
 
 ## Objective

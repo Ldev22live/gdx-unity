@@ -9,6 +9,7 @@ import io.github.ldev22live.gdxunity.editor.desktop.ui.TransformGizmoRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.ViewportGridRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ViewportGridRenderer3D;
 import io.github.ldev22live.gdxunity.engine.render.SceneRenderer2D;
+import io.github.ldev22live.gdxunity.engine.render.SceneRenderer3D;
 import io.github.ldev22live.gdxunity.engine.render.camera.OrthographicCamera2D;
 import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
 
@@ -34,6 +35,7 @@ public class SceneEditorWorkspace implements StudioWorkspace {
     private TransformGizmoRenderer gizmoRenderer3D;
     private ViewportGridRenderer3D gridRenderer3D;
 
+    private SceneRenderer3D sceneRenderer3D;
     private SelectionOutlineRenderer selectionOutline2D;
     private SelectionOutlineRenderer selectionOutline3D;
 
@@ -92,6 +94,11 @@ public class SceneEditorWorkspace implements StudioWorkspace {
         this.gridRenderer3D = Objects.requireNonNull(gridRenderer3D, "gridRenderer3D cannot be null");
     }
 
+    /** Renders 3D primitives in both views, before the 2D content; may be null to disable. */
+    public void setSceneRenderer3D(SceneRenderer3D sceneRenderer3D) {
+        this.sceneRenderer3D = sceneRenderer3D;
+    }
+
     /** Sets the selection outline renderers for the 2D and 3D views (either may be null to disable). */
     public void setSelectionOutlines(SelectionOutlineRenderer outline2D, SelectionOutlineRenderer outline3D) {
         this.selectionOutline2D = outline2D;
@@ -121,7 +128,11 @@ public class SceneEditorWorkspace implements StudioWorkspace {
                 gridRenderer.render(sceneRenderer.getShapeRenderer(), zoom);
             }
 
-            // 2. Render scene entities and components
+            // 2. Render 3D primitives (orthographic) and then 2D entities and components
+            if (sceneRenderer3D != null) {
+                sceneRenderer3D.setCamera(sceneCamera);
+                sceneRenderer3D.render(deltaTime);
+            }
             sceneRenderer.render(deltaTime);
 
             // 3. Render physics debug visualization (Box2D or authored colliders)
@@ -151,6 +162,10 @@ public class SceneEditorWorkspace implements StudioWorkspace {
         sceneRenderer.setCamera(camera3D);
         if (sceneRenderer.getShapeRenderer() != null && gridRenderer.isEnabled()) {
             gridRenderer3D.render(sceneRenderer.getShapeRenderer());
+        }
+        if (sceneRenderer3D != null) {
+            sceneRenderer3D.setCamera(camera3D);
+            sceneRenderer3D.render(deltaTime);
         }
         sceneRenderer.render(deltaTime);
         if (sceneRenderer.getShapeRenderer() != null) {

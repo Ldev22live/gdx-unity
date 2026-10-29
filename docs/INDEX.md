@@ -26,7 +26,9 @@ Welcome to the **GdxUnity** architecture, design, and roadmap documentation.
 | **Phase 9** | 2D Vector & Sprite Rendering Pipeline | Complete | [PHASE_9_ARCHITECTURE_AUDIT.md](PHASE_9_ARCHITECTURE_AUDIT.md) |
 | **Phase 10** | 2D Physics Subsystem & Hardening | Complete | [PHASE_10E_FINAL_ACCEPTANCE_AUDIT.md](PHASE_10E_FINAL_ACCEPTANCE_AUDIT.md) |
 | **Phase 11** | Material Design 3 Desktop Studio Shell | Complete | [PHASE_11_MATERIAL_DESIGN_EDITOR_REDESIGN_REPORT.md](PHASE_11_MATERIAL_DESIGN_EDITOR_REDESIGN_REPORT.md) |
-| **Phase 12** | 3D Rendering Foundation & Camera Systems | **Implemented (headless), not integrated** — uncommitted | [phase-12-verification.md](reports/phase-12-verification.md) |
+| **Phase 12** | 3D Rendering Foundation & Camera Systems | Implemented; 3D view integrated in editor (12B/12C, pending manual check) | [phase-12-verification.md](reports/phase-12-verification.md) |
+| **Phase 12B** | Unreal-style editor shell (menus, scene view panel, files, Output Log, Details) | Steps A–B implemented; C pending | [phase-12b-editor-shell.md](milestones/phase-12b-editor-shell.md) |
+| **Phase 12C** | 3D content: primitives, lights, Create menu | Implemented, pending manual check | [phase-12b-12c-report.md](reports/phase-12b-12c-report.md) |
 | **Phase 13** | 3D Modeling & Mesh Studio (Low-Poly / UV) | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md#phase-13](ALL_IN_ONE_STUDIO_ROADMAP.md) |
 | **Phase 14** | 3D Rigging, Bones & Keyframe Animation Studio | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md#phase-14](ALL_IN_ONE_STUDIO_ROADMAP.md) |
 | **Phase 15** | Unified All-In-One Studio Integration & Release | Planned | [ALL_IN_ONE_STUDIO_ROADMAP.md#phase-15](ALL_IN_ONE_STUDIO_ROADMAP.md) |

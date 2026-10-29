@@ -1,10 +1,13 @@
 package io.github.ldev22live.gdxunity.editor.core.picking;
 
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import io.github.ldev22live.gdxunity.engine.render.camera.Camera;
+import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
@@ -54,7 +57,7 @@ public final class ViewportPicker {
      * @return the hit entity closest to the ray origin, or null if none
      */
     public static Entity pickEntity3D(Scene scene, Ray ray) {
-        if (scene == null || !scene.isActive() || ray == null || ray.direction.z == 0f) {
+        if (scene == null || !scene.isActive() || ray == null) {
             return null;
         }
 
@@ -64,6 +67,21 @@ public final class ViewportPicker {
         for (int i = entities.size() - 1; i >= 0; i--) {
             Entity entity = entities.get(i);
             if (!entity.isActiveInHierarchy()) {
+                continue;
+            }
+            BoundingBox meshBounds = computeMeshBounds(entity);
+            if (meshBounds != null) {
+                Vector3 hit = new Vector3();
+                if (Intersector.intersectRayBounds(ray, meshBounds, hit)) {
+                    float meshDistance = hit.dst(ray.origin);
+                    if (meshDistance < nearestDistance) {
+                        nearest = entity;
+                        nearestDistance = meshDistance;
+                    }
+                }
+                continue;
+            }
+            if (ray.direction.z == 0f) {
                 continue;
             }
             float planeZ = entity.getTransform().getWorldPosition().z;
@@ -79,6 +97,24 @@ public final class ViewportPicker {
             }
         }
         return nearest;
+    }
+
+    /**
+     * World-space axis-aligned bounds of the entity's enabled {@link MeshPrimitiveComponent}s (size times world
+     * scale, centered on the entity), or {@code null} if it has none. Rotation is not taken into account.
+     */
+    public static BoundingBox computeMeshBounds(Entity entity) {
+        BoundingBox union = null;
+        Vector3 worldPos = entity.getTransform().getWorldPosition();
+        Vector3 worldScale = entity.getTransform().getWorldScale();
+        for (Component c : entity.getAllComponents()) {
+            if (c.isEnabled() && c instanceof MeshPrimitiveComponent primitive) {
+                Vector3 half = primitive.getExtent().scl(worldScale).scl(0.5f);
+                BoundingBox box = new BoundingBox(new Vector3(worldPos).sub(half), new Vector3(worldPos).add(half));
+                union = (union == null) ? box : union.ext(box);
+            }
+        }
+        return union;
     }
 
     /**
@@ -114,6 +150,9 @@ public final class ViewportPicker {
                 result.add(bounds(worldPos, shape.getWidth() * worldScale.x, shape.getHeight() * worldScale.y, shape.isCentered()));
             } else if (c instanceof SpriteRendererComponent sprite) {
                 result.add(bounds(worldPos, sprite.getWidth() * worldScale.x, sprite.getHeight() * worldScale.y, sprite.isCentered()));
+            } else if (c instanceof MeshPrimitiveComponent primitive) {
+                Vector3 extent = primitive.getExtent().scl(worldScale);
+                result.add(bounds(worldPos, extent.x, extent.y, true));
             }
         }
         return result;

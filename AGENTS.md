@@ -31,7 +31,7 @@ verify against the source (§9). `docs/porject-suggestions.md` is an intentional
 |---|---|
 | Language | Java 21 (`build.gradle` → `java.sourceCompatibility = 21`) |
 | Framework | LibGDX `gdxVersion` in `gradle.properties` (1.14.2) |
-| Desktop backend | LWJGL3 via `gdx-backend-lwjgl3`; `lwjgl3Version` in `gradle.properties` (3.4.1) |
+| Desktop backend | LWJGL3 via `gdx-backend-lwjgl3`, which resolves LWJGL **3.3.3** (`backendLwjglVersion`). `lwjgl3Version` (3.4.1) is only used by the unbuilt `lwjgl3/` template. |
 | Build | Gradle wrapper, `gradle/wrapper/gradle-wrapper.properties` (9.6.1) |
 | Tests | JUnit 5.10 (Jupiter), headless with `GdxNativesLoader` |
 | 2D physics | Box2D (`gdx-box2d`). **Box2D is 2D only — there is no 3D physics yet.** |

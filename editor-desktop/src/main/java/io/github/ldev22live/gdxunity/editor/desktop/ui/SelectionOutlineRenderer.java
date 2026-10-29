@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.gizmo.TransformGizmoMath;
 import io.github.ldev22live.gdxunity.editor.core.picking.ViewportPicker;
@@ -18,8 +19,9 @@ import java.util.UUID;
 
 /**
  * Draws an outline around every selected entity, in every tool mode, so selection is always visible.
- * The outline is the entity's pickable area ({@link ViewportPicker#computeRenderBounds}); entities with no
- * renderer get a small diamond marker at their position.
+ * The outline is the entity's pickable area: a box around 3D primitives in the 3D view
+ * ({@link ViewportPicker#computeMeshBounds}), otherwise a rectangle ({@link ViewportPicker#computeRenderBounds});
+ * entities with no renderer get a small diamond marker at their position.
  */
 public class SelectionOutlineRenderer {
 
@@ -59,8 +61,11 @@ public class SelectionOutlineRenderer {
             shapeRenderer.setColor(id.equals(primaryId) ? PRIMARY_COLOR : SECONDARY_COLOR);
             Vector3 position = entity.getTransform().getWorldPosition();
             float scale = scaleAt(position);
+            BoundingBox meshBounds = (camera instanceof PerspectiveCamera3D) ? ViewportPicker.computeMeshBounds(entity) : null;
             Rectangle bounds = ViewportPicker.computeRenderBounds(entity);
-            if (bounds != null) {
+            if (meshBounds != null) {
+                drawBox(shapeRenderer, meshBounds, OUTLINE_PADDING * scale);
+            } else if (bounds != null) {
                 float pad = OUTLINE_PADDING * scale;
                 drawRect(shapeRenderer, bounds.x - pad, bounds.y - pad, bounds.width + 2f * pad, bounds.height + 2f * pad, position.z);
             } else {
@@ -85,6 +90,28 @@ public class SelectionOutlineRenderer {
         sr.line(x + w, y, z, x + w, y + h, z);
         sr.line(x + w, y + h, z, x, y + h, z);
         sr.line(x, y + h, z, x, y, z);
+    }
+
+    /** The 12 edges of the padded box. */
+    private static void drawBox(ShapeRenderer sr, BoundingBox box, float pad) {
+        Vector3 min = new Vector3(box.min).sub(pad);
+        Vector3 max = new Vector3(box.max).add(pad);
+        float[] xs = {min.x, max.x};
+        float[] ys = {min.y, max.y};
+        float[] zs = {min.z, max.z};
+        for (float y : ys) {
+            for (float z : zs) {
+                sr.line(min.x, y, z, max.x, y, z);
+            }
+        }
+        for (float x : xs) {
+            for (float z : zs) {
+                sr.line(x, min.y, z, x, max.y, z);
+            }
+            for (float y : ys) {
+                sr.line(x, y, min.z, x, y, max.z);
+            }
+        }
     }
 
     private static void drawMarker(ShapeRenderer sr, Vector3 p, float size) {

@@ -6,6 +6,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
@@ -13,11 +15,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
 import io.github.ldev22live.gdxunity.editor.core.action.DefaultEditorActions;
 import io.github.ldev22live.gdxunity.editor.core.action.EditorAction;
 import io.github.ldev22live.gdxunity.editor.core.action.EditorActionRegistry;
+import io.github.ldev22live.gdxunity.editor.core.command.RenameEntityCommand;
+import io.github.ldev22live.gdxunity.editor.core.file.SceneFileController;
+import io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher;
+import io.github.ldev22live.gdxunity.editor.core.log.EditorLog;
 import io.github.ldev22live.gdxunity.editor.core.input.ViewportCameraController3D;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ModeSwitchingViewportInteraction;
 import io.github.ldev22live.gdxunity.editor.core.viewport.SceneViewportInteraction2D;
@@ -28,7 +38,11 @@ import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorSkinFactory;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorStatusBar;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorToolbar;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.HierarchyPanel;
+import io.github.ldev22live.gdxunity.editor.desktop.file.TinyFileDialogService;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.InspectorPanel;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.OutputLogPanel;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.TabbedPanel;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.ContextMenu;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.EditorMenuBar;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.SceneViewportWidget;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ViewportGridRenderer3D;
@@ -36,6 +50,7 @@ import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ViewportOverlayT
 import com.badlogic.gdx.graphics.Color;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.SceneRenderer2D;
+import io.github.ldev22live.gdxunity.engine.render.SceneRenderer3D;
 import io.github.ldev22live.gdxunity.engine.render.camera.OrthographicCamera2D;
 import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
@@ -61,10 +76,18 @@ public class EditorApplication extends ApplicationAdapter {
     static final String ACTION_TOGGLE_PHYSICS_DEBUG = "window.toggle-physics-debug";
     static final String ACTION_TOGGLE_ASSISTANT = "window.toggle-assistant";
     static final String ACTION_TOGGLE_THEME = "window.toggle-theme";
+    static final String ACTION_RENAME = "edit.rename";
+
+    /** Actions in the Outliner right-click menu. */
+    static final List<String> OUTLINER_CONTEXT_ACTIONS = List.of(
+        DefaultEditorActions.CREATE_EMPTY_ENTITY, ACTION_RENAME,
+        DefaultEditorActions.EDIT_DUPLICATE, DefaultEditorActions.EDIT_DELETE);
+    private static final int BOTTOM_TAB_CONTENT_BROWSER = 0;
 
     private static final float MENU_BAR_HEIGHT = 28f;
     private static final float TOOLBAR_HEIGHT = 34f;
     private static final float STATUS_BAR_HEIGHT = 24f;
+    private static final float RENAME_FIELD_WIDTH = 260f;
 
     // 3D view. Scene units are pixel-sized (the sample scene spans 640x480), so distances and speeds are large.
     private static final float VIEW3D_FIELD_OF_VIEW = 60f;
@@ -79,6 +102,8 @@ public class EditorApplication extends ApplicationAdapter {
     private static final float VIEW3D_FLY_SPEED = 400f;
     /** Dolly distance per mouse-wheel notch. */
     private static final float VIEW3D_DOLLY_STEP = 60f;
+    /** Ambient light in the editor views, brighter than the runtime default so unlit sides stay readable. */
+    private static final Color EDITOR_AMBIENT_LIGHT = new Color(0.35f, 0.35f, 0.38f, 1f);
 
     private final EditorState editorState;
     private final OrthographicCamera2D sceneCamera;
@@ -111,8 +136,14 @@ public class EditorApplication extends ApplicationAdapter {
     private final EditorActionRegistry actionRegistry = new EditorActionRegistry();
     private final PerspectiveCamera3D sceneCamera3D;
     private final ViewportCameraController3D cameraController3D;
+    private final SceneRenderer3D sceneRenderer3D;
     private final ViewportInteraction viewportInteraction;
     private SceneViewportWidget sceneViewport;
+
+    private final EditorLog editorLog = new EditorLog();
+    private SceneFileController sceneFiles;
+    private ContextMenu renamePopup;
+    private int selectedBottomTab = BOTTOM_TAB_CONTENT_BROWSER;
 
     private boolean isAssistantVisible = false;
     private com.badlogic.gdx.scenes.scene2d.ui.SplitPane rightSplit;
@@ -150,6 +181,15 @@ public class EditorApplication extends ApplicationAdapter {
         this.editorState.getSerializer().getRegistry().register(
             new io.github.ldev22live.gdxunity.engine.scene.physics.serialization.CircleCollider2DComponentSerializer()
         );
+        this.editorState.getSerializer().getRegistry().register(
+            new io.github.ldev22live.gdxunity.engine.render.components.serialization.MeshPrimitiveComponentSerializer()
+        );
+        this.editorState.getSerializer().getRegistry().register(
+            new io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.DirectionalLightComponentSerializer()
+        );
+        this.editorState.getSerializer().getRegistry().register(
+            new io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.PointLightComponentSerializer()
+        );
 
         // Initialize script management: source directory "scripts", output directory "build/scripts"
         java.io.File scriptsDir = new java.io.File("scripts");
@@ -176,6 +216,11 @@ public class EditorApplication extends ApplicationAdapter {
         cameraController3D.setFlyMoveSpeed(VIEW3D_FLY_SPEED);
         cameraController3D.setZoomSensitivity(VIEW3D_DOLLY_STEP);
         reset3DView();
+        // 3D primitives draw in both views; the frame buffer is cleared by SceneViewportWidget
+        this.sceneRenderer3D = new SceneRenderer3D(sceneCamera3D);
+        sceneRenderer3D.setClearEnabled(false);
+        sceneRenderer3D.setDefaultLightEnabled(true);
+        sceneRenderer3D.setAmbientLight(EDITOR_AMBIENT_LIGHT);
         this.viewportInteraction = new ModeSwitchingViewportInteraction(editorState,
             new SceneViewportInteraction2D(editorState, sceneCamera, gizmoController, colliderController),
             new SceneViewportInteraction3D(editorState, sceneCamera3D, cameraController3D, gizmoController));
@@ -195,6 +240,7 @@ public class EditorApplication extends ApplicationAdapter {
         this.sceneEditorWorkspace.setSelectionOutlines(
             new io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer(editorState, sceneCamera),
             new io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer(editorState, sceneCamera3D));
+        this.sceneEditorWorkspace.setSceneRenderer3D(sceneRenderer3D);
         this.workspaceManager.registerWorkspace(sceneEditorWorkspace);
 
         // Centralized keyboard shortcut dispatcher
@@ -208,23 +254,39 @@ public class EditorApplication extends ApplicationAdapter {
         // Like most 3D editors, start with the Move tool so a selection immediately shows its gizmo
         this.editorState.setToolMode(io.github.ldev22live.gdxunity.editor.core.ToolMode.MOVE);
 
-        // Editor actions drive menus, toolbars, shortcuts and automation
-        DefaultEditorActions.registerDefaults(actionRegistry, editorState);
-        registerDesktopActions();
-        actionRegistry.bindShortcuts(keyboardDispatcher);
-
         // Populate with initial demo scene
         Scene initialScene = createInitialScene();
         this.editorState.setActiveScene(initialScene);
         this.sceneRenderer.setActiveScene(initialScene);
+        this.sceneRenderer3D.setActiveScene(initialScene);
 
         // Keep renderer synchronized with editor state's active scene
         this.editorState.addListener(new EditorState.Listener() {
             @Override
             public void onActiveSceneChanged(Scene oldScene, Scene newScene) {
                 sceneRenderer.setActiveScene(newScene);
+                sceneRenderer3D.setActiveScene(newScene);
             }
         });
+
+        // Output Log records every status message from here on
+        editorLog.captureStatusMessages(editorState);
+
+        // Scene files (TD-022). Created after the initial scene is set so the document starts clean.
+        this.sceneFiles = new SceneFileController(editorState, new TinyFileDialogService(),
+            new java.io.File(System.getProperty("user.dir")));
+        sceneFiles.addListener(files -> {
+            if (Gdx.graphics != null) {
+                Gdx.graphics.setTitle(files.getWindowTitle());
+            }
+        });
+
+        // Editor actions drive menus, toolbars, shortcuts and automation
+        DefaultEditorActions.registerFileActions(actionRegistry, editorState, sceneFiles, () -> Gdx.app.exit());
+        DefaultEditorActions.registerDefaults(actionRegistry, editorState);
+        DefaultEditorActions.registerCreate3DActions(actionRegistry, editorState, this::spawnPosition);
+        registerDesktopActions();
+        actionRegistry.bindShortcuts(keyboardDispatcher);
 
         // Initialize AI tool registry, provider registry, and assistant service
         io.github.ldev22live.gdxunity.editor.core.agent.AgentToolRegistry toolRegistry =
@@ -269,8 +331,9 @@ public class EditorApplication extends ApplicationAdapter {
 
     @Override
     public void create() {
-        // 1. Initialize renderer
+        // 1. Initialize renderers (they need the GL context)
         sceneRenderer.initialize();
+        sceneRenderer3D.initialize();
 
         // 2. Build UI skin and Stage
         this.skinFactory = new EditorSkinFactory();
@@ -282,6 +345,7 @@ public class EditorApplication extends ApplicationAdapter {
 
         // 4. Build UI layout
         buildUi();
+        Gdx.graphics.setTitle(sceneFiles.getWindowTitle());
 
         // 5. Configure input handling: UI stage (including the scene view) first, then global shortcuts
         InputMultiplexer multiplexer = new InputMultiplexer();
@@ -327,11 +391,11 @@ public class EditorApplication extends ApplicationAdapter {
         root.add(menuRow).growX().height(MENU_BAR_HEIGHT).row();
 
         // 2. Main toolbar: compile left, play controls centered, panel toggles right
-        root.add(new EditorToolbar(editorState, playModeController, skin, this::toggleAssistantPanel))
+        root.add(new EditorToolbar(editorState, playModeController, editorLog, skin, this::toggleAssistantPanel))
             .growX().height(TOOLBAR_HEIGHT).row();
 
         // 3. Outliner | Scene view | Details (+ optional AI Assistant), Content Browser below
-        HierarchyPanel hierarchyPanel = new HierarchyPanel(editorState, skin);
+        HierarchyPanel hierarchyPanel = new HierarchyPanel(editorState, skin, actionRegistry, OUTLINER_CONTEXT_ACTIONS);
 
         ViewportOverlayToolbar overlay = new ViewportOverlayToolbar(editorState, actionRegistry, skin,
             DefaultEditorActions.VIEW_TOGGLE_2D_3D, ACTION_TOGGLE_GRID, ACTION_TOGGLE_PHYSICS_DEBUG, ACTION_RESET_VIEW);
@@ -364,7 +428,10 @@ public class EditorApplication extends ApplicationAdapter {
             new io.github.ldev22live.gdxunity.editor.desktop.ui.AssetBrowserPanel(editorState, assetCatalog, skin);
 
         com.badlogic.gdx.scenes.scene2d.ui.SplitPane mainSplit =
-            new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(centerRightSplit, assetBrowser, true, skin);
+            new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(centerRightSplit, new TabbedPanel(skin,
+                List.of("Content Browser", "Output Log"),
+                List.of(assetBrowser, new OutputLogPanel(editorLog, skin)),
+                selectedBottomTab, index -> selectedBottomTab = index), true, skin);
         mainSplit.setSplitAmount(layoutConfig.getSplitRatioMain());
         mainSplit.setMinSplitAmount(0.55f);
         mainSplit.setMaxSplitAmount(0.92f);
@@ -376,6 +443,11 @@ public class EditorApplication extends ApplicationAdapter {
     }
 
     private void registerDesktopActions() {
+        actionRegistry.register(EditorAction.builder(ACTION_RENAME, "Rename", this::showRenamePopup)
+            .menu(DefaultEditorActions.MENU_EDIT, 1)
+            .shortcut(Input.Keys.F2, 0)
+            .enabledWhen(() -> !editorState.isPlayModeActive() && editorState.getSelectedEntity() != null)
+            .build());
         actionRegistry.register(EditorAction.builder(ACTION_RESET_VIEW, "Reset View", this::resetView)
             .menu(DefaultEditorActions.MENU_TOOLS, 1)
             .build());
@@ -403,6 +475,61 @@ public class EditorApplication extends ApplicationAdapter {
         switchTheme(next);
     }
 
+    /** Small popup with the selected entity's name; Enter or OK renames it as one undoable command. */
+    private void showRenamePopup() {
+        Entity selected = editorState.getSelectedEntity();
+        if (selected == null || uiStage == null) {
+            return;
+        }
+        if (renamePopup == null) {
+            renamePopup = new ContextMenu(skin);
+        }
+        TextField nameField = new TextField(selected.getName(), skin);
+        TextButton okButton = new TextButton("Rename", skin, "primary");
+        Runnable apply = () -> {
+            String newName = nameField.getText().trim();
+            renamePopup.close();
+            if (!newName.isEmpty() && !newName.equals(selected.getName())) {
+                editorState.executeCommand(new RenameEntityCommand(editorState, selected.getId(), selected.getName(), newName));
+            }
+        };
+        nameField.setTextFieldListener((field, c) -> {
+            if (c == '\r' || c == '\n') {
+                apply.run();
+            }
+        });
+        okButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                apply.run();
+            }
+        });
+        Table content = new Table(skin);
+        content.add(new Label("Rename " + selected.getName(), skin, "section")).left().padBottom(4).row();
+        content.add(nameField).width(RENAME_FIELD_WIDTH).height(24).padBottom(4).row();
+        content.add(okButton).right().height(24);
+        renamePopup.showContent(uiStage, uiStage.getWidth() / 2f - RENAME_FIELD_WIDTH / 2f, uiStage.getHeight() * 0.6f, content);
+        uiStage.setKeyboardFocus(nameField);
+        nameField.selectAll();
+    }
+
+    /**
+     * Called when the window close button is pressed. Offers to save unsaved changes.
+     *
+     * @return true to let the window close
+     */
+    public boolean confirmClose() {
+        return sceneFiles == null || sceneFiles.confirmDiscardChanges();
+    }
+
+    public SceneFileController getSceneFiles() {
+        return sceneFiles;
+    }
+
+    public EditorLog getEditorLog() {
+        return editorLog;
+    }
+
     private void resetView() {
         sceneCamera.setPosition(DEFAULT_VIEW_CENTER_X, DEFAULT_VIEW_CENTER_Y, 0f);
         sceneCamera.setZoom(1.0f);
@@ -411,10 +538,19 @@ public class EditorApplication extends ApplicationAdapter {
         editorState.setStatusMessage("Camera view reset", false);
     }
 
+    /** Where Create menu entities appear: the orbit target in 3D, the center of the 2D view otherwise. */
+    private Vector3 spawnPosition() {
+        if (editorState.getViewportMode() == ViewportMode.VIEW_3D) {
+            return cameraController3D.getTarget();
+        }
+        Vector3 center = sceneCamera.getPosition();
+        return new Vector3(center.x, center.y, 0f);
+    }
+
     /** Places the 3D camera in front of and above the view center, looking at it. */
     private void reset3DView() {
         sceneCamera3D.setPosition(DEFAULT_VIEW_CENTER_X, VIEW3D_CAMERA_HEIGHT, VIEW3D_CAMERA_DISTANCE);
-        sceneCamera3D.setUp(com.badlogic.gdx.math.Vector3.Y);
+        sceneCamera3D.setUp(Vector3.Y);
         sceneCamera3D.lookAt(DEFAULT_VIEW_CENTER_X, DEFAULT_VIEW_CENTER_Y, 0f);
         sceneCamera3D.update();
         cameraController3D.setTarget(DEFAULT_VIEW_CENTER_X, DEFAULT_VIEW_CENTER_Y, 0f);
@@ -497,6 +633,9 @@ public class EditorApplication extends ApplicationAdapter {
         if (sceneRenderer != null) {
             sceneRenderer.dispose();
         }
+        if (sceneRenderer3D != null) {
+            sceneRenderer3D.dispose();
+        }
         if (assetService != null) {
             assetService.dispose();
         }
@@ -578,13 +717,13 @@ public class EditorApplication extends ApplicationAdapter {
         public boolean keyDown(int keycode) {
             int modifiers = 0;
             if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) {
-                modifiers |= io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher.MOD_CTRL;
+                modifiers |= EditorKeyboardDispatcher.MOD_CTRL;
             }
             if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
-                modifiers |= io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher.MOD_SHIFT;
+                modifiers |= EditorKeyboardDispatcher.MOD_SHIFT;
             }
             if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT)) {
-                modifiers |= io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher.MOD_ALT;
+                modifiers |= EditorKeyboardDispatcher.MOD_ALT;
             }
             return keyboardDispatcher.dispatch(keycode, modifiers);
         }

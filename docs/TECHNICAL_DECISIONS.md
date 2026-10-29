@@ -499,8 +499,13 @@ the font part of TD-002. The runtime (`engine-*`) does not gain the dependency.
 **Context**: File operations save silently to a fixed `scene_backup.json`; there is no Open/Save As.
 
 **Decision**: Use LWJGL's `lwjgl-tinyfd` module (native open/save dialogs on Windows, macOS and Linux) in
-`editor-desktop`, pinned to `lwjgl3Version` so it matches the LWJGL version bundled with the backend. Dialog
-calls sit behind a small `FileDialogService` interface so editor logic stays headless-testable.
+`editor-desktop`, pinned to `backendLwjglVersion` in `gradle.properties`: the LWJGL version actually resolved
+for `gdx-backend-lwjgl3` (3.3.3). Dialog calls sit behind a small `EditorDialogService` interface so editor
+logic stays headless-testable.
+
+**Correction (2026-10-29)**: this record originally said "pinned to `lwjgl3Version`". That property (3.4.1)
+is only used by the unbuilt `lwjgl3/` template module; pinning tinyfd to it would have upgraded the whole
+LWJGL stack under libGDX through Gradle conflict resolution.
 
 ### TD-023: Editor Panel Naming
 
@@ -525,6 +530,34 @@ the panel, the panels covered it, and the GL viewport it left behind distorted t
 - The editor camera uses a screen-filling viewport (1 world unit = 1 pixel at zoom 1), so it always fills the
   panel and panel-to-world conversion is a pure function (`ViewportCoordinates2D`).
 - Games keep TD-011's fixed virtual resolution (`FitViewport`) at runtime.
+
+---
+
+## Phase 12C Decisions (3D Content)
+
+### TD-025: Built-in 3D Primitives and Editor Lighting
+
+**Status**: Proposed (implemented 2026-10-29; awaiting project-owner review)
+
+**Context**: The 3D view showed only flat 2D content; `SceneRenderer3D` submitted no geometry and light
+components could not be saved, so scenes with lights could not enter Play mode.
+
+**Decision**:
+- `MeshPrimitiveComponent` (box, sphere, plane; size in world units; diffuse color) in `engine-render`, with a
+  serializer. `SceneRenderer3D` builds one unit-sized `Model` per shape lazily, shares it, and caches one
+  `ModelInstance` per component (scaled by size, tinted per instance). Imported meshes (glTF) remain out of
+  scope.
+- Directional and point lights get serializers and Details editors.
+- In the editor only, `SceneRenderer3D` adds a fallback directional light when the scene has none and uses a
+  brighter ambient light, so new primitives are visible before the user adds lights. Runtime defaults are
+  unchanged (no fallback light).
+- The 2D editor camera gets a ±20000-unit orthographic depth range so 3D primitives also show in the 2D view.
+- Create menu entries (Box, Sphere, Plane, Directional Light, Point Light) spawn at the view center as one
+  undo step (`CreateEntityCommand` with initial components; redo restores the components that
+  `Scene.removeEntity` detaches).
+
+**Limitations**: picking and outlines use axis-aligned bounds (rotation ignored); 2D content draws on top of
+3D primitives regardless of depth; the plane is edge-on (unpickable) in the 2D view.
 
 ---
 

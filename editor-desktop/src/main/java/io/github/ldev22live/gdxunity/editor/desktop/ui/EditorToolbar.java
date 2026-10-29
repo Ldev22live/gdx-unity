@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.log.EditorLog;
+import io.github.ldev22live.gdxunity.editor.core.scripting.ScriptDiagnostic;
 import io.github.ldev22live.gdxunity.editor.core.play.PlayModeController;
 import io.github.ldev22live.gdxunity.editor.core.play.PlayModeState;
 
@@ -24,6 +26,7 @@ public class EditorToolbar extends Table {
 
     private final EditorState editorState;
     private final PlayModeController playModeController;
+    private final EditorLog editorLog;
     private final Skin skin;
 
     private final TextButton playBtn;
@@ -34,8 +37,10 @@ public class EditorToolbar extends Table {
     /**
      * @param onToggleAssistant toggles the AI Assistant panel; may be null to hide the button
      */
-    public EditorToolbar(EditorState editorState, PlayModeController playModeController, Skin skin, Runnable onToggleAssistant) {
+    public EditorToolbar(EditorState editorState, PlayModeController playModeController, EditorLog editorLog,
+                         Skin skin, Runnable onToggleAssistant) {
         super(skin);
+        this.editorLog = Objects.requireNonNull(editorLog, "editorLog cannot be null");
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.playModeController = Objects.requireNonNull(playModeController, "playModeController cannot be null");
         this.skin = Objects.requireNonNull(skin, "skin cannot be null");
@@ -130,8 +135,12 @@ public class EditorToolbar extends Table {
             editorState.setStatusMessage("Scripts compiled (" + count + " classes loaded)", false);
         } else {
             var diagnostics = editorState.getScriptManager().getLatestDiagnostics();
+            // Every diagnostic goes to the Output Log; the status bar shows the first
+            for (ScriptDiagnostic diagnostic : diagnostics) {
+                editorLog.error("Scripts", diagnostic.toString());
+            }
             String error = !diagnostics.isEmpty() ? diagnostics.get(0).message() : "Unknown error";
-            editorState.setStatusMessage("Compilation failed: " + error, true);
+            editorState.setStatusMessage("Compilation failed: " + error + " (see Output Log)", true);
         }
     }
 
