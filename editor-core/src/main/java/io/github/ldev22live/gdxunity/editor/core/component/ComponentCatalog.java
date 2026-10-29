@@ -102,7 +102,14 @@ public class ComponentCatalog {
             editorState.setStatusMessage(entity.getName() + " already has a " + entry.displayName(), true);
             return false;
         }
-        Component component = entry.factory().apply(editorState);
+        Component component;
+        try {
+            component = entry.factory().apply(editorState);
+        } catch (RuntimeException e) {
+            // Factories may create files (a new graph asset); report and add nothing
+            editorState.setStatusMessage("Could not add " + entry.displayName() + ": " + e.getMessage(), true);
+            return false;
+        }
         return editorState.executeCommand(new AddComponentCommand(editorState, entity.getId(), component));
     }
 

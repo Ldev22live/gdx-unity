@@ -71,6 +71,18 @@ class ComponentCatalogTest {
     }
 
     @Test
+    void shouldReportAFailingFactoryWithoutAddingAnything() {
+        catalog.register(new ComponentCatalog.Entry("Broken", "Testing", RigidBody2DComponent.class, true, state -> {
+            throw new IllegalStateException("disk full");
+        }));
+        int before = entity.getAllComponents().size();
+        assertFalse(catalog.addTo(editorState, entity, entry("Broken")));
+        assertEquals(before, entity.getAllComponents().size());
+        assertTrue(editorState.isStatusError());
+        assertTrue(editorState.getStatusMessage().contains("disk full"));
+    }
+
+    @Test
     void shouldRejectDuplicateEntryNames() {
         assertThrows(IllegalArgumentException.class, () -> catalog.register(entry("Script")));
     }

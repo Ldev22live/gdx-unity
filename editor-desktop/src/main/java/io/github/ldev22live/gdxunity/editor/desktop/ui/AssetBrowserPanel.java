@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.asset.AssetBrowserFilterModel;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetCatalog;
@@ -19,6 +20,7 @@ import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Editor panel for discovering and selecting project assets (textures and models). Rows can be dragged
@@ -38,6 +40,13 @@ public class AssetBrowserPanel extends Table {
     private final TextField searchField;
     /** Shared with the scene view so assets can be dragged into it; null disables dragging. */
     private final DragAndDrop dragAndDrop;
+    /** Called when a row is double-clicked; null when assets cannot be opened. */
+    private Consumer<AssetReference> onOpen;
+
+    /** Sets what double-clicking an asset does (for example opening a graph). */
+    public void setOnOpen(Consumer<AssetReference> onOpen) {
+        this.onOpen = onOpen;
+    }
 
     public AssetBrowserPanel(EditorState editorState, AssetCatalog catalog, Skin skin) {
         this(editorState, catalog, skin, null);
@@ -184,6 +193,14 @@ public class AssetBrowserPanel extends Table {
                 public void changed(ChangeEvent event, Actor actor) {
                     editorState.setSelectedAsset(ref);
                     editorState.setStatusMessage("Selected asset: " + ref.getPath(), false);
+                }
+            });
+            itemBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    if (getTapCount() == 2 && onOpen != null) {
+                        onOpen.accept(ref);
+                    }
                 }
             });
 

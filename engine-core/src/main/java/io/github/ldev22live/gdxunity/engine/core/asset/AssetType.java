@@ -9,6 +9,8 @@ public enum AssetType {
     MODEL("gltf", "glb"),
     /** Reusable entity trees saved by the editor (TD-027). */
     PREFAB("prefab"),
+    /** Visual scripts (TD-029). */
+    GRAPH("graph"),
     UNKNOWN;
 
     private final String[] extensions;

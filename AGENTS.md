@@ -66,9 +66,11 @@ Only the modules in `settings.gradle` are part of the build:
 | `engine-core` | Lifecycle, time, resource ownership (`ResourceManager`), asset references/catalog | LibGDX core |
 | `engine-scene` | `Entity`, `Component`, `Transform`, `Scene`, serialization, 2D physics, lights, script components | `engine-core` |
 | `engine-render` | Cameras (`OrthographicCamera2D`, `PerspectiveCamera3D`), `SceneRenderer2D`, `SceneRenderer3D`, render components | `engine-core`, `engine-scene` |
+| `engine-visualscript` | Visual scripting runtime: graph model, nodes, validator, `.graph` files, interpreter (TD-029) | `engine-scene` |
 | `engine-desktop` | Runtime desktop launcher (no editor code) | engine modules |
 | `editor-core` | Headless editor logic: state, commands/undo, gizmo math, picking, play mode, scripting compiler, AI agent tools | engine modules |
-| `editor-desktop` | scene2d.ui editor shell, panels, renderers for gizmos/grid/physics debug | `editor-core`, engine modules |
+| `editor-visualscript` | Headless graph editing: documents, undoable commands, graph assets, play mode extension (TD-029) | `editor-core`, `engine-visualscript` |
+| `editor-desktop` | scene2d.ui editor shell, panels, renderers for gizmos/grid/physics debug, graph canvas | `editor-core`, `editor-visualscript`, engine modules |
 
 Rules:
 - Engine modules must never depend on editor modules.

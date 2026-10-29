@@ -1,0 +1,18 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-engine-visualscript'
+
+apply plugin: 'java-library'
+
+// Visual scripting runtime: graph model, node set, validator, file format and interpreter (TD-029)
+dependencies {
+  api project(':engine-scene')
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+  testRuntimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}
+
+test {
+  useJUnitPlatform()
+}

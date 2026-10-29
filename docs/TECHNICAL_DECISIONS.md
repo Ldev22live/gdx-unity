@@ -640,6 +640,34 @@ per-platform native jars, and creates the `engine-physics` module (an architectu
 
 ---
 
+## Phase 16 Decisions (Visual Scripting)
+
+### TD-029: Visual Scripting as Interpreted Node Graphs in Two New Modules
+
+**Status**: Approved (project owner, 2026-10-29: "two modules, interpreter first")
+
+**Context**: Phase 16 adds Blueprint-style visual scripting (`docs/project-suggestions.md` §3). TD-019 covers Java and
+Kotlin scripts; `AGENTS.md` asks for a decision record before another way of scripting is added.
+
+**Decision**:
+- New modules `engine-visualscript` (runtime: graph model, nodes, validator, `.graph` files, interpreter,
+  `GraphScriptComponent`) and `editor-visualscript` (headless editing: documents, undoable commands, assets, play
+  mode extension). The canvas UI stays in `editor-desktop`.
+- Graphs run in an interpreter on the JVM: no new language runtime, no code generation. Pure nodes are computed
+  when read; action nodes run along execution wires; a node error stops only its chain and names the node.
+- Graphs are assets (`assets/graphs/*.graph`, JSON with typed values) referenced by path from a component, so one
+  graph can drive many entities, each with its own variables.
+- `PlayModeController` gains an `Extension` hook so modules outside editor-core start and stop with play.
+
+**Alternatives**: compiling graphs to Java bytecode (faster, but harder to debug and to report errors per node; can be
+added later behind the same model); putting the code in `engine-scene` / `editor-core` (rejected: keeps those modules
+focused and the dependency direction clear).
+
+**Consequences**: two more modules in `settings.gradle`; graph edits have their own undo history, separate from the
+scene's; the open graph is saved before play so play always runs what is on screen.
+
+---
+
 ## Future Decisions
 
 The following decisions will be made in future milestones:

@@ -127,7 +127,8 @@ public class InspectorPanel extends Table {
         return componentRegistry;
     }
 
-    private static ComponentEditorRegistry<Table> createDefaultRegistry() {
+    /** Details editors for the built-in components; the desktop shell adds editors for other modules. */
+    public static ComponentEditorRegistry<Table> createDefaultRegistry() {
         ComponentEditorRegistry<Table> reg = new ComponentEditorRegistry<>();
         reg.register(new SpriteRendererComponentEditorProvider());
         reg.register(new ScriptBindingComponentEditorProvider());

@@ -21,6 +21,17 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import io.github.ldev22live.gdxunity.editor.core.asset.AssetPlacement;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
+import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
+import io.github.ldev22live.gdxunity.editor.core.component.ComponentCatalog;
+import io.github.ldev22live.gdxunity.editor.core.inspector.ComponentEditorRegistry;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.graph.GraphEditorPanel;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.GraphScriptComponentEditorProvider;
+import io.github.ldev22live.gdxunity.editor.visualscript.GraphAssets;
+import io.github.ldev22live.gdxunity.editor.visualscript.GraphExecutionTrace;
+import io.github.ldev22live.gdxunity.editor.visualscript.GraphPlayModeExtension;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphScriptComponent;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphScriptComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.visualscript.NodeRegistry;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
@@ -65,6 +76,8 @@ import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 
 /**
@@ -95,6 +108,8 @@ public class EditorApplication extends ApplicationAdapter {
         DefaultEditorActions.PREFAB_CREATE, DefaultEditorActions.PREFAB_APPLY,
         DefaultEditorActions.PREFAB_REVERT, DefaultEditorActions.PREFAB_UNPACK);
     private static final int BOTTOM_TAB_CONTENT_BROWSER = 0;
+    private static final int CENTER_TAB_VIEWPORT = 0;
+    private static final int CENTER_TAB_GRAPH = 1;
 
     private static final float MENU_BAR_HEIGHT = 28f;
     private static final float TOOLBAR_HEIGHT = 34f;
@@ -161,6 +176,14 @@ public class EditorApplication extends ApplicationAdapter {
     private boolean isAssistantVisible = false;
     private com.badlogic.gdx.scenes.scene2d.ui.SplitPane rightSplit;
 
+    // Visual scripting (TD-029)
+    private final NodeRegistry nodeRegistry = NodeRegistry.createDefault();
+    private final GraphAssets graphAssets;
+    private final GraphExecutionTrace graphTrace = new GraphExecutionTrace();
+    private GraphEditorPanel graphEditorPanel;
+    private TabbedPanel centerTabs;
+    private int selectedCenterTab = CENTER_TAB_VIEWPORT;
+
     public EditorApplication() {
         this.editorState = new EditorState();
         this.sceneCamera = OrthographicCamera2D.createScreenFilling(DEFAULT_VIEW_CENTER_X, DEFAULT_VIEW_CENTER_Y);
@@ -172,6 +195,8 @@ public class EditorApplication extends ApplicationAdapter {
 
         this.editorState.setAssetService(assetService);
         this.editorState.setPrefabService(new PrefabService(editorState, assetRoot));
+        this.graphAssets = new GraphAssets(assetRoot);
+        this.editorState.getSerializer().getRegistry().register(new GraphScriptComponentSerializer());
         this.sceneRenderer = new SceneRenderer2D(sceneCamera, assetService);
         // SceneViewportWidget clears the frame buffer; the workspace draws the grid before the scene
         this.sceneRenderer.setClearEnabled(false);
@@ -218,6 +243,19 @@ public class EditorApplication extends ApplicationAdapter {
 
         this.playModeController = new PlayModeController(editorState);
         this.editorState.setPlayModeController(playModeController);
+        // Graphs run from their files: save the one being edited before play loads them
+        playModeController.addExtension(new PlayModeController.Extension() {
+            @Override
+            public List<String> onPlay(Scene runtimeScene, PlayModeController controller) {
+                return graphEditorPanel == null || graphEditorPanel.saveIfDirty()
+                    ? List.of() : List.of("the open graph could not be saved");
+            }
+
+            @Override
+            public void onStop(Scene runtimeScene) {
+            }
+        });
+        playModeController.addExtension(new GraphPlayModeExtension(editorState, graphAssets, nodeRegistry, editorLog, graphTrace));
 
         this.gizmoController = new io.github.ldev22live.gdxunity.editor.core.gizmo.GizmoInteractionController(editorState);
         this.colliderController = new io.github.ldev22live.gdxunity.editor.core.gizmo.ColliderGizmoController(editorState);
@@ -267,7 +305,10 @@ public class EditorApplication extends ApplicationAdapter {
         // Centralized keyboard shortcut dispatcher
         this.keyboardDispatcher = new io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher(() -> {
             if (uiStage != null && uiStage.getKeyboardFocus() != null) {
-                return uiStage.getKeyboardFocus() instanceof com.badlogic.gdx.scenes.scene2d.ui.TextField;
+                // Text fields take typing; the graph editor handles its own Delete and Ctrl+Z / Ctrl+Y
+                Actor focus = uiStage.getKeyboardFocus();
+                return focus instanceof com.badlogic.gdx.scenes.scene2d.ui.TextField
+                    || (graphEditorPanel != null && focus.isDescendantOf(graphEditorPanel));
             }
             return false;
         });
@@ -429,13 +470,32 @@ public class EditorApplication extends ApplicationAdapter {
         overlayContainer.setTouchable(Touchable.childrenOnly);
         Stack sceneView = new Stack(sceneViewport, overlayContainer);
 
+        // Graph tab beside the viewport; a rebuilt UI reopens the graph that was open (saved first)
+        AssetReference openGraph = null;
+        if (graphEditorPanel != null) {
+            graphEditorPanel.saveIfDirty();
+            openGraph = graphEditorPanel.getDocument() != null ? graphEditorPanel.getDocument().getAsset() : null;
+            graphEditorPanel.dispose();
+        }
+        this.graphEditorPanel = new GraphEditorPanel(skin, editorState, graphAssets, nodeRegistry, graphTrace, assetCatalog::scan);
+        if (openGraph != null) {
+            graphEditorPanel.open(openGraph);
+        }
+        this.centerTabs = new TabbedPanel(skin, List.of("Viewport", "Graph"), List.of(sceneView, graphEditorPanel),
+            selectedCenterTab, index -> selectedCenterTab = index);
+
         com.badlogic.gdx.scenes.scene2d.ui.SplitPane leftSplit =
-            new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(hierarchyPanel, sceneView, false, skin);
+            new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(hierarchyPanel, centerTabs, false, skin);
         leftSplit.setSplitAmount(layoutConfig.getSplitRatioLeft());
         leftSplit.setMinSplitAmount(0.12f);
         leftSplit.setMaxSplitAmount(0.40f);
 
-        InspectorPanel inspectorPanel = new InspectorPanel(editorState, skin);
+        ComponentEditorRegistry<Table> detailEditors = InspectorPanel.createDefaultRegistry();
+        detailEditors.register(new GraphScriptComponentEditorProvider(this::openGraph));
+        ComponentCatalog componentCatalog = ComponentCatalog.createDefault();
+        componentCatalog.register(new ComponentCatalog.Entry("Graph Script", "Scripting", GraphScriptComponent.class, true,
+            this::createGraphScript));
+        InspectorPanel inspectorPanel = new InspectorPanel(editorState, skin, detailEditors, componentCatalog);
         this.assistantPanel = new io.github.ldev22live.gdxunity.editor.desktop.ui.AssistantPanel(assistantService, skin);
         this.rightSplit = new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(inspectorPanel, assistantPanel, true, skin);
         this.rightSplit.setSplitAmount(isAssistantVisible ? 0.55f : 1.0f);
@@ -464,6 +524,11 @@ public class EditorApplication extends ApplicationAdapter {
         });
         io.github.ldev22live.gdxunity.editor.desktop.ui.AssetBrowserPanel assetBrowser =
             new io.github.ldev22live.gdxunity.editor.desktop.ui.AssetBrowserPanel(editorState, assetCatalog, skin, assetDragAndDrop);
+        assetBrowser.setOnOpen(asset -> {
+            if (AssetType.fromPath(asset.getPath()) == AssetType.GRAPH) {
+                openGraph(asset);
+            }
+        });
 
         com.badlogic.gdx.scenes.scene2d.ui.SplitPane mainSplit =
             new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(centerRightSplit, new TabbedPanel(skin,
@@ -478,6 +543,33 @@ public class EditorApplication extends ApplicationAdapter {
 
         // 4. Status bar
         root.add(new EditorStatusBar(editorState, skin)).growX().height(STATUS_BAR_HEIGHT);
+    }
+
+    /** Opens a graph asset in the Graph tab and switches to it. */
+    private void openGraph(AssetReference asset) {
+        if (graphEditorPanel != null && graphEditorPanel.open(asset) && centerTabs != null) {
+            centerTabs.select(CENTER_TAB_GRAPH);
+        }
+    }
+
+    /**
+     * Factory for Add Component → Graph Script: uses the graph selected in the Content Browser, otherwise creates
+     * a new graph named after the entity and opens it.
+     */
+    private GraphScriptComponent createGraphScript(EditorState state) {
+        AssetReference selected = state.getSelectedAsset();
+        if (selected != null && AssetType.fromPath(selected.getPath()) == AssetType.GRAPH) {
+            return new GraphScriptComponent(selected.getPath());
+        }
+        String name = state.getSelectedEntity() != null ? state.getSelectedEntity().getName() : "Graph";
+        try {
+            AssetReference created = graphAssets.create(name);
+            assetCatalog.scan();
+            openGraph(created);
+            return new GraphScriptComponent(created.getPath());
+        } catch (IOException e) {
+            throw new UncheckedIOException("Cannot create graph: " + e.getMessage(), e);
+        }
     }
 
     private void registerDesktopActions() {
@@ -686,6 +778,10 @@ public class EditorApplication extends ApplicationAdapter {
 
     @Override
     public void dispose() {
+        if (graphEditorPanel != null) {
+            graphEditorPanel.saveIfDirty();
+            graphEditorPanel.dispose();
+        }
         // Save layout configuration before exiting
         if (layoutSerializer != null && layoutConfig != null) {
             layoutSerializer.saveToFile(layoutConfig, layoutConfigFile);

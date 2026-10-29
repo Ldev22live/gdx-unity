@@ -25,9 +25,22 @@ public class PlayModeController {
         void onPlayModeStateChanged(PlayModeState oldState, PlayModeState newState);
     }
 
+    /**
+     * Runtime systems that live outside editor-core (for example visual scripting, TD-029) and must start and stop
+     * with play. {@link #onPlay} runs after scripts and 2D physics are ready, before the first update.
+     */
+    public interface Extension {
+        /** @return problems that prevent playing; empty to allow play */
+        List<String> onPlay(Scene runtimeScene, PlayModeController controller);
+
+        /** Called before the runtime scene is disposed, also after a failed {@link #onPlay}. */
+        void onStop(Scene runtimeScene);
+    }
+
     private final EditorState editorState;
     private final SceneSerializer serializer;
     private final List<Listener> listeners = new CopyOnWriteArrayList<>();
+    private final List<Extension> extensions = new CopyOnWriteArrayList<>();
 
     private PlayModeState state = PlayModeState.STOPPED;
 
@@ -53,6 +66,10 @@ public class PlayModeController {
         if (listener != null) {
             listeners.add(listener);
         }
+    }
+
+    public void addExtension(Extension extension) {
+        extensions.add(Objects.requireNonNull(extension, "extension cannot be null"));
     }
 
     public void removeListener(Listener listener) {
@@ -152,6 +169,24 @@ public class PlayModeController {
             return false;
         }
 
+        for (Extension extension : extensions) {
+            List<String> problems = extension.onPlay(clonedRuntime, this);
+            if (!problems.isEmpty()) {
+                editorState.setStatusMessage("Cannot play: " + problems.get(0)
+                    + (problems.size() > 1 ? " (+" + (problems.size() - 1) + " more)" : ""), true);
+                for (Extension started : extensions) {
+                    started.onStop(clonedRuntime);
+                }
+                physicsSystem.dispose();
+                physicsSystem = null;
+                if (editorState.getScriptManager() != null) {
+                    editorState.getScriptManager().cleanupSceneScripts(clonedRuntime);
+                }
+                clonedRuntime.dispose();
+                return false;
+            }
+        }
+
         this.authoredScene = currentAuthored;
         this.runtimeScene = clonedRuntime;
         this.prePlaySelectedId = editorState.getSelectedEntityId();
@@ -206,6 +241,16 @@ public class PlayModeController {
         }
 
         Throwable disposalError = null;
+
+        if (runtimeScene != null) {
+            for (Extension extension : extensions) {
+                try {
+                    extension.onStop(runtimeScene);
+                } catch (Throwable t) {
+                    if (disposalError == null) disposalError = t;
+                }
+            }
+        }
 
         // Dispose runtime physics system
         if (physicsSystem != null) {
