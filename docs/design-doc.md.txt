@@ -1,0 +1,852 @@
+# GdxUnity AI Game Engine — Master Engineering Instructions
+
+## Project Identity
+
+**Project:** GdxUnity AI Game Engine  
+**Category:** Production-grade 3D game engine and integrated development environment  
+**Primary language:** Java  
+**Engine framework:** LibGDX  
+**IDE:** IntelliJ IDEA  
+**AI development agent:** Windsurf  
+**Target platforms:** Windows, macOS and Linux, including Ubuntu 24.04 LTS and later  
+**Repository:** The existing GdxUnity repository  
+**Development approach:** Engine-first, test-driven where practical, incremental, architecture-driven and AI-agent-friendly
+
+---
+
+# 1. Vision and Engineering Standards
+
+We are building GdxUnity, a professional-grade, Java-first game engine and integrated game-development studio inspired by the capabilities and workflows of Unity 2026.
+
+The objective is to create a stable, maintainable and extensible engine that enables developers to create, edit, test, package and distribute complete games without requiring a collection of unrelated applications.
+
+GdxUnity must eventually provide an integrated workflow for:
+
+- 2D and 3D game development.
+- Scene authoring and management.
+- Entity-component-system architecture.
+- Rendering, materials, lighting and cameras.
+- Physics, collision detection and simulation.
+- Animation and skeletal animation.
+- Audio and sound design integration.
+- Scripting and gameplay logic.
+- Visual scripting and AI-assisted game creation.
+- Asset importing, processing and management.
+- Prefabs, reusable objects and scene hierarchies.
+- Editor tools, inspectors, gizmos and debugging.
+- Automated testing and runtime diagnostics.
+- Game packaging, exporting and distribution.
+- Cross-platform desktop development and execution.
+
+The long-term objective is an AI-controllable game-development environment in which a developer can request a game, such as Tetris or a 3D adventure, and an AI agent can construct the project using documented engine APIs, editor commands, asset pipelines, scripts and automated tests.
+
+**This is a long-term engineering project, not a disposable prototype.**
+
+No hacks, silent fallbacks that conceal failures, unnecessary abstractions, placeholder implementations presented as finished features, or shortcuts that compromise maintainability.
+
+Prefer simple, explicit and reliable engineering over unnecessary complexity.
+
+---
+
+# 2. Mandatory Development Rules
+
+## 2.1 Work autonomously
+
+- Ask questions only when a critical requirement cannot be determined safely from the repository or available instructions.
+- Inspect existing documentation, code and tests before requesting information that may already be available.
+- Make reasonable, reversible engineering decisions independently.
+- Document significant assumptions and architectural decisions.
+- Stop and request clarification before irreversible operations or decisions that could compromise data integrity or existing architecture.
+
+## 2.2 Repository isolation
+
+IMPORTANT: Work exclusively within the existing GdxUnity working directory.
+
+- Do not inspect other repositories, unrelated directories, other projects or unrelated code on the computer.
+- Do not use unrelated local projects as reference implementations.
+- Do not search the wider filesystem for alternative implementations.
+- Do not copy source code from other local projects.
+- Do not modify files outside the repository.
+- Use the existing GdxUnity source, tests, documentation, dependencies and approved external documentation as the basis for decisions.
+- Do not confuse GdxUnity with the separate Weskaap, Pulse for Processing or UrConnex projects.
+
+External documentation may be consulted when necessary to verify the behavior of LibGDX, Java, Gradle or a dependency. Do not inspect external repositories or copy their implementation code without explicit authorization.
+
+## 2.3 Preserve existing work
+
+Before making changes:
+
+1. Confirm the repository root.
+2. Record the current Git branch and HEAD.
+3. Inspect `git status`, including staged, unstaged and untracked files.
+4. Read the relevant `AGENTS.md` and project documentation.
+5. Identify the current milestone and implementation baseline.
+6. Review the relevant source files and tests.
+7. Determine whether the requested functionality already exists.
+
+Never assume that a reported implementation is correct without verifying the actual source.
+
+Never overwrite, discard, reset, revert, clean or silently incorporate existing user changes.
+
+## 2.4 No unauthorized Git operations
+
+- Do not create a new repository if the existing GdxUnity repository is already initialized.
+- Do not replace the existing remote or change repository identity.
+- Do not stage files automatically.
+- Do not commit, amend or push without explicit authorization.
+- Do not reset, rebase, force-push, clean the repository or discard user changes.
+- Do not create or switch branches without authorization when doing so could affect existing work.
+- Do not publish releases or deploy artifacts without authorization.
+
+At the end of each milestone, provide a clear status report and wait for explicit commit or push authorization where required.
+
+---
+
+# 3. Technology Stack
+
+The existing project is Java-first. Preserve the established stack unless a documented technical assessment justifies a change.
+
+## 3.1 Core technology
+
+- Java 21 LTS as the current baseline.
+- LibGDX 1.14.2 as the current game framework baseline.
+- LWJGL3 3.4.1 as the current desktop backend baseline.
+- Gradle 9.6.1 as the current build-system baseline.
+- IntelliJ IDEA as the primary development environment.
+- Windsurf as the primary AI coding agent.
+
+These versions reflect the current project baseline and must be verified against the repository before changes. Do not upgrade versions merely because newer releases exist.
+
+## 3.2 Rendering and mathematics
+
+Use LibGDX's supported rendering and mathematics facilities where appropriate.
+
+- `ModelBatch`, `ModelInstance`, `Model`, `Environment` and associated rendering facilities for supported 3D workflows.
+- `PerspectiveCamera` or the existing GdxUnity 3D camera abstraction.
+- LibGDX vectors, matrices, quaternions, rays and bounding volumes.
+- Existing rendering and material abstractions.
+- Existing viewport and camera-controller systems.
+- Appropriate shader and OpenGL capabilities provided by the current backend.
+
+The initial desktop rendering architecture should remain compatible with LibGDX and its supported graphics backends.
+
+Do not introduce a Vulkan rendering backend, native rendering library or alternative graphics abstraction merely to imitate another engine's internal architecture. Such a change requires a separate feasibility study, compatibility assessment and explicit approval.
+
+## 3.3 Physics
+
+Evaluate a suitable Java-compatible physics solution based on:
+
+- 3D collision detection.
+- Rigid-body simulation.
+- Collision layers and filtering.
+- Raycasts and shape queries.
+- Triggers and contact events.
+- Fixed-timestep simulation.
+- Deterministic behavior where achievable.
+- Runtime performance and resource management.
+- Compatibility with supported desktop platforms.
+- Integration with the entity-component and scripting systems.
+
+Box2D is a 2D physics engine and must not be treated as the 3D physics solution.
+
+Any proposed 3D physics dependency must be evaluated against the current project architecture before adoption.
+
+## 3.4 Audio
+
+Use LibGDX audio capabilities or an approved audio abstraction that satisfies the engine's requirements.
+
+Plan for:
+
+- Sound effects.
+- Music playback.
+- Volume and channel management.
+- Spatial audio where supported.
+- Resource lifetime management.
+- Audio asset importing.
+- Runtime and editor integration.
+
+Avoid unnecessary native dependencies unless they provide measurable value.
+
+## 3.5 Scripting
+
+The preferred gameplay scripting direction is a clearly defined scripting API, initially evaluating Lua or another suitable JVM-compatible or embeddable language.
+
+Before choosing or changing the scripting implementation, evaluate:
+
+- Java interoperability.
+- Entity and component access.
+- Script lifecycle.
+- Runtime error handling.
+- Script reload support.
+- Editor integration.
+- Security boundaries.
+- API stability.
+- Cross-platform packaging.
+- Automated testing.
+- AI-agent accessibility.
+
+The scripting language is an architectural decision. Do not silently introduce a new language runtime or create a second incompatible scripting architecture.
+
+---
+
+# 4. Architecture Principles
+
+## 4.1 Engine-first modular architecture
+
+Maintain a clear separation between the reusable engine, editor and game runtime.
+
+The exact Gradle module names and boundaries must follow the existing repository unless a reviewed architectural change is necessary.
+
+Conceptually, the engine should provide:
+
+- Core lifecycle and application infrastructure.
+- Scene and entity management.
+- Component architecture.
+- Mathematics and transforms.
+- Rendering abstractions.
+- Camera systems.
+- Physics integration.
+- Audio integration.
+- Asset management.
+- Input management.
+- Scripting and gameplay execution.
+- Serialization.
+- Logging, diagnostics and profiling.
+- Resource ownership and disposal.
+- Testing utilities.
+
+The editor should build on engine APIs rather than contain duplicate implementations of engine functionality.
+
+The runtime should be able to load and execute exported games without depending on development-only editor features.
+
+## 4.2 Entity-component-system
+
+Develop a simple, predictable entity-component architecture.
+
+Support, as appropriate:
+
+- Entity creation and destruction.
+- Component attachment and removal.
+- Component queries.
+- Entity identifiers and lifecycle.
+- Transform hierarchies.
+- Parent-child relationships.
+- Scene ownership.
+- Serialization and deserialization.
+- Prefab instances.
+- Component validation.
+- Runtime/editor separation.
+- Script access to entities and components.
+
+Avoid introducing an unnecessarily complicated ECS framework. Adopt external ECS libraries only after evaluating their compatibility with the existing implementation.
+
+## 4.3 Scene management
+
+Scenes must support:
+
+- Creation and destruction.
+- Scene serialization.
+- Entity and component persistence.
+- Parent-child hierarchies.
+- Transform propagation.
+- Asset references.
+- Scene switching.
+- Runtime initialization and cleanup.
+- Validation and error reporting.
+- Editor/runtime consistency.
+
+Create representative test scenes that exercise the implemented engine functionality.
+
+## 4.4 Resource ownership
+
+All resources must have an explicit and testable lifecycle.
+
+This includes models, textures, shaders, materials, framebuffers, audio resources, physics objects, scripts and editor resources.
+
+Use existing disposal conventions consistently.
+
+Prevent:
+
+- Double disposal.
+- Use-after-disposal.
+- Unbounded resource retention.
+- Unclear ownership.
+- Duplicate asset loading where caching is required.
+- Leaked native resources.
+- Editor shutdown failures.
+
+---
+
+# 5. 3D Rendering Requirements
+
+The long-term rendering system must support a practical modern 3D workflow.
+
+## 5.1 Camera system
+
+Support:
+
+- Perspective and orthographic cameras where appropriate.
+- Field of view and clipping planes.
+- View and projection matrices.
+- Camera resizing and viewport integration.
+- Euler and quaternion-based rotation where justified.
+- Orbit, pan, fly and dolly controls.
+- Runtime and editor camera separation.
+- Camera serialization where appropriate.
+- Reliable headless testing of camera mathematics.
+
+Preserve the existing `PerspectiveCamera3D` and `ViewportCameraController3D` abstractions unless inspection reveals a concrete problem.
+
+## 5.2 Lighting and materials
+
+Plan for:
+
+- Directional, point and spot lights.
+- Ambient illumination.
+- Physically based rendering materials.
+- Metallic and roughness parameters.
+- Texture maps and normal maps.
+- Environment lighting and image-based lighting.
+- HDR environment maps.
+- HDR rendering and tone mapping.
+- Shadow mapping and filtering.
+- Ambient occlusion.
+- Transparent materials and correct rendering order.
+- Material and shader resource management.
+
+Use appropriate graphics techniques rather than claiming that a feature is production-ready when it is only represented by a placeholder.
+
+Advanced features such as screen-space ambient occlusion, image-based lighting and soft shadows must have documented quality settings, platform requirements and validation methods.
+
+## 5.3 Asset importing
+
+Provide a robust asset pipeline for glTF 2.0 and GLB assets, including:
+
+- Meshes and submeshes.
+- Materials and textures.
+- Node hierarchies.
+- Transform preservation.
+- Supported animation data.
+- Texture formats and colour-space handling.
+- Asset validation.
+- Missing-resource diagnostics.
+- Asset caching.
+- Import settings.
+- Reimporting and change detection.
+- Serialization of asset references.
+
+Clearly identify unsupported glTF extensions and report errors or warnings. Never silently discard important asset information.
+
+## 5.4 Editor gizmos
+
+Provide editor tools for:
+
+- Translation.
+- Rotation.
+- Scaling.
+- Selection and picking.
+- World-space and local-space manipulation.
+- Camera navigation.
+- Grid and snapping where appropriate.
+- Selection highlighting.
+- Raycasting and hit testing.
+- Accurate transform updates.
+
+Gizmo interaction must work consistently with the scene's actual transform hierarchy.
+
+Preserve and extend the existing gizmo architecture, including `TransformGizmoMath`, rather than introducing a parallel implementation.
+
+---
+
+# 6. Physics and Gameplay
+
+The engine should support scriptable, component-based gameplay.
+
+Required capabilities include:
+
+- Rigid bodies and colliders.
+- Collision layers and masks.
+- Trigger volumes.
+- Raycasts and shape queries.
+- Fixed-timestep physics updates.
+- Collision and trigger events.
+- Physics debugging.
+- Transform synchronization.
+- Safe entity destruction during simulation.
+- Serialization of supported physics properties.
+
+Physics operations must respect the engine's update lifecycle. Do not modify physics structures unsafely while a simulation step is in progress.
+
+The selected physics library must be integrated behind clear engine abstractions where practical, without hiding important capabilities or limitations.
+
+---
+
+# 7. Scripting API and AI Controllability
+
+AI-agent controllability is a core product requirement, not an optional convenience.
+
+## 7.1 Gameplay scripting
+
+Scripts should be able to:
+
+- Access their owning entity.
+- Read and modify supported components.
+- Create and destroy entities safely.
+- Instantiate prefabs.
+- Find entities using supported identifiers or queries.
+- Read and modify transforms.
+- Control supported physics components.
+- Play audio.
+- Access input through an explicit API.
+- Communicate with game systems through documented interfaces.
+- Receive lifecycle callbacks.
+- Handle errors without crashing the entire editor.
+
+The exact lifecycle and API must be documented and tested.
+
+## 7.2 Editor automation API
+
+Provide structured interfaces that an AI agent can use to operate the engine without relying exclusively on mouse and keyboard simulation.
+
+The long-term interface should support:
+
+- Project creation and inspection.
+- Scene creation and loading.
+- Entity and component operations.
+- Asset import and validation.
+- Script creation and modification.
+- Prefab creation and instantiation.
+- Scene validation.
+- Build and test execution.
+- Runtime launch and shutdown.
+- Diagnostic retrieval.
+- Screenshot or rendering capture where supported.
+- Game export.
+- Machine-readable operation results and errors.
+
+Prefer explicit commands, schemas, stable identifiers and predictable responses.
+
+Every editor operation exposed to automation should have clear success and failure semantics.
+
+Provide a documented CLI or other automation interface where practical. A graphical editor alone is insufficient for the intended AI-driven workflow.
+
+## 7.3 AI-generated games
+
+The engine should eventually make it possible for an AI agent to construct complete games through a combination of:
+
+- Engine APIs.
+- Script generation.
+- Scene and component authoring.
+- Asset pipelines.
+- Prefab workflows.
+- Editor automation.
+- Build tools.
+- Automated play and validation tests.
+
+For example, an AI agent should be able to create a playable Tetris implementation, configure its assets and input, run tests, launch the game, and export a standalone build.
+
+Do not claim that this workflow is complete until it has been demonstrated end to end.
+
+---
+
+# 8. Integrated Editor
+
+Develop a professional editor using the existing architecture.
+
+The long-term editor should include:
+
+- Project and asset browser.
+- Scene hierarchy.
+- Viewport.
+- Inspector.
+- Entity and component editing.
+- Transform gizmos.
+- Camera controls.
+- Material and lighting editing.
+- Script editing or integration.
+- Console and diagnostics.
+- Play, pause and stop controls.
+- Scene save/load workflows.
+- Undo and redo.
+- Prefab workflows.
+- Build and export controls.
+- Keyboard shortcuts.
+- Clear validation and error reporting.
+
+The editor must remain responsive during common operations and must not corrupt scene data when operations fail.
+
+The editor may be integrated with the runtime or use separate executables, depending on the existing architecture. Make this decision through a documented architectural assessment rather than a premature rewrite.
+
+Development-only tools must not leak into distribution builds unnecessarily.
+
+---
+
+# 9. Game Export and Distribution
+
+Provide a reliable pipeline for producing games that users can distribute.
+
+Support Windows, macOS and Linux, subject to verified platform compatibility.
+
+The export process should:
+
+- Select the target platform.
+- Validate project and scene references.
+- Include required runtime dependencies.
+- Package scripts and assets.
+- Exclude editor-only functionality when appropriate.
+- Report unsupported features and missing resources.
+- Produce a predictable output directory.
+- Return meaningful build errors.
+- Preserve application metadata and version information.
+- Support repeatable builds where practical.
+
+The exported game must run independently of the editor.
+
+Validate actual exported artifacts on each available target platform. Do not claim that a platform is supported solely because the code compiles on another operating system.
+
+---
+
+# 10. Testing Strategy — Mandatory
+
+Testing is a first-class engineering requirement.
+
+Do not implement a feature without determining how its behavior will be verified.
+
+Use the existing test framework and conventions. Adopt additional test libraries only when their benefits justify the dependency.
+
+## 10.1 Unit tests
+
+Cover, as appropriate:
+
+- Entity and component operations.
+- Transform mathematics.
+- Parent-child transform propagation.
+- Camera mathematics.
+- Gizmo hit testing.
+- Raycasting and intersection calculations.
+- Scene serialization.
+- Resource lifecycle.
+- Asset reference resolution.
+- Script API behavior.
+- Physics synchronization.
+- Input mapping.
+- Build configuration.
+- Error handling.
+
+Tests must validate behavior, not merely execute code without assertions.
+
+## 10.2 Integration tests
+
+Verify interactions between:
+
+- Scenes and entities.
+- Entities and components.
+- Transforms and cameras.
+- Rendering and materials.
+- Physics and transforms.
+- Scripting and entities.
+- Asset loading and scene serialization.
+- Editor commands and engine APIs.
+- Export configuration and runtime loading.
+
+Use headless tests wherever possible for deterministic logic.
+
+When actual graphics, audio, windowing or native physics behavior is required, clearly separate those integration tests from headless tests.
+
+## 10.3 Comprehensive test scene
+
+Maintain a representative engine test scene or test project that exercises every implemented feature.
+
+It should progressively cover:
+
+- Every registered component type.
+- Supported component combinations.
+- Transform hierarchies.
+- Cameras and navigation.
+- Rendering and materials.
+- Lighting and shadows.
+- Imported assets.
+- Physics and collision events.
+- Scripting lifecycle.
+- Entity creation and destruction.
+- Prefabs.
+- Serialization and deserialization.
+- Input handling.
+- Audio.
+- Editor selection and gizmos.
+- Runtime execution.
+- Export and reload.
+
+Maintain an explicit feature-to-test coverage matrix.
+
+Do not mark an unimplemented or untested feature as complete. A comprehensive scene supplements automated tests; it does not replace them.
+
+## 10.4 Required verification
+
+For each milestone:
+
+1. Run targeted tests.
+2. Run the relevant Gradle build and module tests.
+3. Run the broader test suite when practical.
+4. Review actual test reports and exit codes.
+5. Investigate new failures.
+6. Distinguish pre-existing failures from regressions.
+7. Review changed files and unintended side effects.
+8. Record test counts and the exact commands used.
+
+Never fabricate test results, suppress failures to obtain a green build, or claim success when a command was not executed.
+
+---
+
+# 11. Project Instructions and Agent Skills
+
+Create or maintain a root-level `AGENTS.md` with concrete engineering rules.
+
+The document should describe:
+
+- Project identity and technology stack.
+- Repository boundaries.
+- Architecture and module responsibilities.
+- Naming and code style.
+- Build and test commands.
+- Resource lifecycle rules.
+- Rendering conventions.
+- Scene and component design.
+- Scripting API conventions.
+- Error-handling practices.
+- Git safety rules.
+- Documentation requirements.
+- Acceptance criteria for milestones.
+
+Create focused agent skills or equivalent reusable workflow documentation where the installed tooling supports them.
+
+Potential skills include:
+
+- Repository audit and milestone assessment.
+- Java and LibGDX implementation.
+- Rendering and camera systems.
+- Scene and ECS development.
+- Physics integration.
+- Scripting API development.
+- Editor and gizmo implementation.
+- Test planning and execution.
+- Cross-platform build validation.
+- Code review and release readiness.
+
+Skills must contain concrete instructions and verifiable checklists, not vague statements such as "write good code."
+
+Avoid duplicating the same rules in multiple places when a clear reference to `AGENTS.md` would suffice.
+
+---
+
+# 12. Code Quality and Naming
+
+Follow the existing GdxUnity conventions and maintain consistent, readable Java code.
+
+Where applicable, use the following principles from the Hazel Engine developer guide as inspiration for naming and readability:
+
+https://docs.hazelengine.com/HazelForEngineers/DeveloperGuide#naming
+
+Hazel is a C++ engine. Its C++ naming rules must not be copied blindly into Java.
+
+Apply Java conventions appropriately:
+
+- PascalCase for classes, interfaces, enums and records.
+- camelCase for methods and variables.
+- UPPER_SNAKE_CASE for constants where appropriate.
+- Meaningful and consistent names.
+- Explicit ownership and lifecycle.
+- Small, focused methods.
+- Clear separation of responsibilities.
+- Minimal unnecessary abstraction.
+- No unexplained magic numbers.
+- No ignored exceptions.
+- No silent error suppression.
+- No unnecessary global mutable state.
+- No duplicate implementations of existing engine systems.
+
+Use descriptive JavaDoc for public engine APIs, especially scripting, editor automation and extension points.
+
+Document architectural decisions that materially affect future compatibility.
+
+---
+
+# 13. Performance and Stability
+
+Professional quality includes predictable performance and failure handling.
+
+Monitor:
+
+- Frame time and frame-rate stability.
+- Allocation pressure and garbage collection.
+- Asset-loading latency.
+- Rendering and shader errors.
+- Physics update cost.
+- Scene serialization time.
+- Editor responsiveness.
+- Memory and native-resource usage.
+- Shutdown and disposal behavior.
+
+Use profiling and measurement before optimizing.
+
+Avoid introducing unnecessary allocations in frequently executed update and rendering loops.
+
+Do not sacrifice correctness for speculative performance gains.
+
+Ensure malformed assets, invalid scene data and script exceptions produce actionable diagnostics rather than unexplained crashes.
+
+---
+
+# 14. Cross-Platform Requirements
+
+Windows, macOS and Linux are intended targets.
+
+Use portable Java and LibGDX APIs wherever practical.
+
+For platform-specific behavior:
+
+- Isolate operating-system dependencies.
+- Validate file paths and case sensitivity.
+- Avoid assumptions about working directories.
+- Handle application-data directories appropriately.
+- Verify native library availability.
+- Test application startup and shutdown.
+- Validate asset loading and export paths.
+- Document platform-specific limitations.
+
+Ubuntu 24.04 LTS and later are the primary Linux targets.
+
+Do not claim full cross-platform support until the relevant builds and representative runtime workflows have been validated on each platform.
+
+---
+
+# 15. Milestone Workflow
+
+Work incrementally through clearly defined milestones.
+
+For each milestone:
+
+### Phase A — Inspect
+
+- Confirm the current repository state.
+- Read applicable project instructions.
+- Inspect relevant source code and tests.
+- Identify dependencies and existing functionality.
+- Establish a baseline.
+- Identify risks and acceptance criteria.
+
+### Phase B — Plan
+
+- Define the smallest complete implementation.
+- Identify affected modules and files.
+- Specify expected behavior and failure cases.
+- Define unit and integration tests.
+- Identify documentation changes.
+- List work that is explicitly out of scope.
+
+### Phase C — Implement
+
+- Make focused changes.
+- Follow the existing architecture.
+- Preserve backward compatibility where required.
+- Add tests alongside the implementation.
+- Update relevant documentation.
+- Avoid unrelated refactoring.
+
+### Phase D — Verify
+
+- Run targeted tests.
+- Run relevant builds.
+- Run the broader test suite where practical.
+- Inspect actual reports and failures.
+- Review the diff.
+- Check for resource leaks, compatibility issues and regressions.
+- Verify the acceptance criteria against evidence.
+
+### Phase E — Report
+
+Provide a structured report containing:
+
+1. Milestone and objective.
+2. Starting and final Git HEAD.
+3. Repository state before and after.
+4. Files changed and why.
+5. Acceptance criteria and their status.
+6. Tests executed and actual results.
+7. Known limitations and outstanding issues.
+8. Documentation updated.
+9. Risks and recommended next steps.
+10. Explicit confirmation that no unauthorized commit, push or destructive operation occurred.
+
+### Phase F — Await authorization
+
+Do not automatically commit, push or begin an unrelated milestone.
+
+Wait for explicit authorization where required.
+
+---
+
+# 16. Current Project Baseline and Continuation
+
+GdxUnity already exists. This is not a request to create a new engine repository from scratch.
+
+The project has an established implementation and milestone history. A previous Phase 12 report states that the 3D rendering foundation and camera systems were implemented and validated, including:
+
+- `PerspectiveCamera3D`.
+- `SceneRenderer3D`.
+- Directional and point light components.
+- Transform rotation and hierarchical matrix handling.
+- `ViewportCameraController3D`.
+- Translation, rotation and scaling gizmos.
+- `TransformGizmoMath`.
+- Headless tests for camera, renderer, transforms, controllers and gizmos.
+
+The reported repository baseline was branch `main`, HEAD `7772df4`, with Phase 12 changes not committed at the time of that report.
+
+**Treat this as historical context, not verified current state.**
+
+At the start of a new task, inspect the actual repository, Git status, source files, documentation and test reports. Determine whether Phase 12 is complete, partially implemented, modified since the report or already committed.
+
+Do not repeat completed work without a concrete reason.
+
+Do not start Phase 13 or another milestone unless explicitly instructed or unless the current task clearly authorizes it.
+
+If the requested work is an audit, remain read-only. If it is an implementation task, change only the authorized scope.
+
+---
+
+# 17. Definition of Done
+
+A milestone is complete only when:
+
+- The implementation satisfies its explicit acceptance criteria.
+- The code follows existing architecture and naming conventions.
+- Relevant automated tests have been added or updated.
+- Relevant tests and builds have been executed and their results verified.
+- New failures have been investigated and reported.
+- Resource lifecycle and error handling are addressed.
+- Documentation reflects the actual implementation.
+- No unrelated user work has been overwritten.
+- No placeholder functionality is presented as complete.
+- The diff has been reviewed.
+- Remaining limitations are documented.
+- The repository state is accurately reported.
+- No unauthorized Git or deployment operation has occurred.
+
+A passing compilation alone does not establish production readiness.
+
+A large number of tests alone does not establish correctness.
+
+A visually working feature alone does not establish reliability.
+
+Production readiness requires appropriate implementation, testing, failure handling, documentation and evidence.
+
+---
+
+# 18. Final Operating Directive
+
+Build GdxUnity into a dependable, extensible, Java-first game engine and integrated development environment that can eventually support professional 2D and 3D game production and fully AI-assisted game creation.
+
+Inspect before changing. Preserve existing work. Reuse sound architecture. Implement only what is justified. Test thoroughly. Verify results. Document decisions. Report limitations honestly.
+
+**The objective is a solid, maintainable engine that developers can trust—not a superficial imitation of Unity, a collection of disconnected demos or a prototype that merely appears to work.**

@@ -233,4 +233,93 @@ class TransformGizmoTest {
 
         assertEquals(initialUndoCount, editorState.getCommandHistory().getUndoCount());
     }
+
+    @Test
+    void shouldHitTest3DGizmoRayAlongAxesAndPlanes() {
+        Vector3 origin = new Vector3(0f, 0f, 0f);
+
+        // Ray pointing down Z axis directly at origin center
+        com.badlogic.gdx.math.collision.Ray centerRay = new com.badlogic.gdx.math.collision.Ray(
+            new Vector3(0f, 0f, 10f), new Vector3(0f, 0f, -1f)
+        );
+        assertEquals(GizmoHandle.MOVE_CENTER, TransformGizmoMath.hitTest3D(ToolMode.MOVE, origin, centerRay, 1.0f));
+
+        // Ray intersecting X axis line segment at x=30
+        com.badlogic.gdx.math.collision.Ray xRay = new com.badlogic.gdx.math.collision.Ray(
+            new Vector3(30f, 0f, 10f), new Vector3(0f, 0f, -1f)
+        );
+        assertEquals(GizmoHandle.MOVE_X, TransformGizmoMath.hitTest3D(ToolMode.MOVE, origin, xRay, 1.0f));
+
+        // Ray intersecting Y axis line segment at y=30
+        com.badlogic.gdx.math.collision.Ray yRay = new com.badlogic.gdx.math.collision.Ray(
+            new Vector3(0f, 30f, 10f), new Vector3(0f, 0f, -1f)
+        );
+        assertEquals(GizmoHandle.MOVE_Y, TransformGizmoMath.hitTest3D(ToolMode.MOVE, origin, yRay, 1.0f));
+
+        // Ray intersecting Z axis
+        com.badlogic.gdx.math.collision.Ray zRay = new com.badlogic.gdx.math.collision.Ray(
+            new Vector3(10f, 0f, 30f), new Vector3(-1f, 0f, 0f)
+        );
+        assertEquals(GizmoHandle.MOVE_Z, TransformGizmoMath.hitTest3D(ToolMode.MOVE, origin, zRay, 1.0f));
+    }
+
+    @Test
+    void shouldCalculate3DTransformMoveAndScale() {
+        TransformSnapshot snapshot = TransformSnapshot.capture(testEntity.getTransform());
+
+        // Move along Z axis
+        Vector3 movedZ = TransformGizmoMath.calculateMoved3DLocalPosition(
+            snapshot, GizmoHandle.MOVE_Z, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 15f)
+        );
+        assertEquals(15f, movedZ.z, 0.001f);
+
+        // Scale along Z axis
+        Vector3 scaledZ = TransformGizmoMath.calculateScaled3DLocalScale(
+            snapshot, GizmoHandle.SCALE_Z, new Vector3(0f, 0f, 30f), 1.0f
+        );
+        assertEquals(1.5f, scaledZ.z, 0.001f);
+
+        // Rotation around arbitrary axis (e.g. Y axis by 90 degrees)
+        Quaternion rotY = TransformGizmoMath.calculateRotated3DLocalRotation(snapshot, GizmoHandle.ROTATE_Y, 90f);
+        assertEquals(90f, rotY.getYaw(), 0.05f);
+    }
+
+    private static com.badlogic.gdx.math.collision.Ray ray(float ox, float oy, float oz, float dx, float dy, float dz) {
+        return new com.badlogic.gdx.math.collision.Ray(new Vector3(ox, oy, oz), new Vector3(dx, dy, dz));
+    }
+
+    @Test
+    void shouldHitTest3DPlanarMoveHandles() {
+        Vector3 origin = new Vector3();
+        // Plane handles span [0, 60 * 0.35 = 21] on their two axes; (15, 15) is outside the 12-unit center box
+        assertEquals(GizmoHandle.MOVE_PLANE_XY, TransformGizmoMath.hitTest3D(ToolMode.MOVE, origin, ray(15f, 15f, 10f, 0f, 0f, -1f), 1.0f));
+        assertEquals(GizmoHandle.MOVE_PLANE_XZ, TransformGizmoMath.hitTest3D(ToolMode.MOVE, origin, ray(15f, 10f, 15f, 0f, -1f, 0f), 1.0f));
+        assertEquals(GizmoHandle.MOVE_PLANE_YZ, TransformGizmoMath.hitTest3D(ToolMode.MOVE, origin, ray(10f, 15f, 15f, -1f, 0f, 0f), 1.0f));
+    }
+
+    @Test
+    void shouldHitTest3DAxisTipBeyondAxisLength() {
+        Vector3 origin = new Vector3();
+        // The rendered tip box occupies [axisLen, axisLen + handleRadius] = [60, 70]
+        assertEquals(GizmoHandle.MOVE_Z, TransformGizmoMath.hitTest3D(ToolMode.MOVE, origin, ray(10f, 0f, 65f, -1f, 0f, 0f), 1.0f));
+        assertEquals(GizmoHandle.SCALE_Z, TransformGizmoMath.hitTest3D(ToolMode.SCALE, origin, ray(10f, 0f, 65f, -1f, 0f, 0f), 1.0f));
+        assertEquals(GizmoHandle.NONE, TransformGizmoMath.hitTest3D(ToolMode.MOVE, origin, ray(10f, 0f, 75f, -1f, 0f, 0f), 1.0f));
+    }
+
+    @Test
+    void shouldHitTest3DRotationRingsWithoutCenterHandle() {
+        Vector3 origin = new Vector3();
+        assertEquals(GizmoHandle.ROTATE_Z, TransformGizmoMath.hitTest3D(ToolMode.ROTATE, origin, ray(50f, 0f, 10f, 0f, 0f, -1f), 1.0f));
+        assertEquals(GizmoHandle.ROTATE_Y, TransformGizmoMath.hitTest3D(ToolMode.ROTATE, origin, ray(30f, 10f, 40f, 0f, -1f, 0f), 1.0f));
+        assertEquals(GizmoHandle.ROTATE_X, TransformGizmoMath.hitTest3D(ToolMode.ROTATE, origin, ray(10f, 30f, 40f, -1f, 0f, 0f), 1.0f));
+
+        // Clicking the gizmo center in rotate mode must not start a move drag
+        assertEquals(GizmoHandle.NONE, TransformGizmoMath.hitTest3D(ToolMode.ROTATE, origin, ray(0f, 0f, 10f, 0f, 0f, -1f), 1.0f));
+    }
+
+    @Test
+    void shouldHitTest3DUniformScaleCenter() {
+        assertEquals(GizmoHandle.SCALE_UNIFORM,
+            TransformGizmoMath.hitTest3D(ToolMode.SCALE, new Vector3(), ray(0f, 0f, 10f, 0f, 0f, -1f), 1.0f));
+    }
 }

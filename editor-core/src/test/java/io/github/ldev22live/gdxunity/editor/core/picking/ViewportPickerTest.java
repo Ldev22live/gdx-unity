@@ -2,6 +2,7 @@ package io.github.ldev22live.gdxunity.editor.core.picking;
 
 import com.badlogic.gdx.graphics.Color;
 import io.github.ldev22live.gdxunity.editor.core.EditorTestHelper;
+import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
@@ -68,5 +69,21 @@ class ViewportPickerTest {
 
         Entity hit = ViewportPicker.pickEntityAt(scene, 50f, 50f);
         assertNull(hit);
+    }
+
+    @Test
+    void shouldRejectPickRayWithoutCamera() {
+        assertThrows(NullPointerException.class, () -> ViewportPicker.getPickRay(null, 10f, 10f));
+    }
+
+    @Test
+    void shouldRejectPickRayWhenCameraHasNoViewport() {
+        PerspectiveCamera3D cameraWithoutViewport = new PerspectiveCamera3D(67f, 800f, 600f, 0.1f, 100f) {
+            @Override
+            public com.badlogic.gdx.utils.viewport.Viewport getViewport() {
+                return null;
+            }
+        };
+        assertThrows(IllegalArgumentException.class, () -> ViewportPicker.getPickRay(cameraWithoutViewport, 10f, 10f));
     }
 }

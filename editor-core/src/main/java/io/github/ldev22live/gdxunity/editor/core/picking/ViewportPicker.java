@@ -2,6 +2,7 @@ package io.github.ldev22live.gdxunity.editor.core.picking;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
 import io.github.ldev22live.gdxunity.engine.render.camera.Camera;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
@@ -10,6 +11,7 @@ import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 2D point hit-testing utility for picking scene entities in the viewport.
@@ -83,5 +85,22 @@ public final class ViewportPicker {
         Vector3 unprojected = new Vector3(screenX, screenY, 0f);
         camera.getViewport().unproject(unprojected);
         return new Vector2(unprojected.x, unprojected.y);
+    }
+
+    /**
+     * Generates a world-space picking ray from screen coordinates through the camera viewport.
+     *
+     * <p>Unlike {@link #screenToWorld2D}, there is no meaningful fallback ray without a camera
+     * viewport, so a missing camera or viewport is reported instead of returning a fabricated ray.
+     *
+     * @throws NullPointerException     if {@code camera} is null
+     * @throws IllegalArgumentException if the camera has no viewport
+     */
+    public static Ray getPickRay(Camera camera, float screenX, float screenY) {
+        Objects.requireNonNull(camera, "camera cannot be null");
+        if (camera.getViewport() == null) {
+            throw new IllegalArgumentException("camera has no viewport; cannot build a picking ray");
+        }
+        return camera.getViewport().getPickRay(screenX, screenY);
     }
 }

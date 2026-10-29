@@ -1,33 +1,42 @@
 # GdxUnity
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+A Java-first game engine and integrated editor built on [libGDX](https://libgdx.com/), with an
+AI-controllable editor workflow as a core goal.
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+- **Engineering rules for contributors and AI agents:** [`AGENTS.md`](AGENTS.md)
+- **Product brief:** [`docs/design-doc.md.txt`](docs/design-doc.md.txt)
+- **Documentation index:** [`docs/INDEX.md`](docs/INDEX.md)
+- **What is actually implemented and tested:** [`docs/FEATURE_TEST_MATRIX.md`](docs/FEATURE_TEST_MATRIX.md)
 
-## Platforms
+## Requirements
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+- JDK 21
+- Windows, macOS or Linux desktop with OpenGL support (to run the editor/runtime; tests are headless)
 
-## Gradle
+## Modules
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+| Module | Purpose |
+|---|---|
+| `engine-core` | Lifecycle, timing, resource ownership, asset references |
+| `engine-scene` | Entities, components, transforms, scenes, serialization, 2D physics, scripting components |
+| `engine-render` | 2D/3D cameras and scene renderers |
+| `engine-desktop` | Desktop runtime launcher |
+| `editor-core` | Headless editor logic: state, undo/redo, gizmos, picking, play mode, script compiler, AI agent tools |
+| `editor-desktop` | Desktop editor UI |
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+The `core/` and `lwjgl3/` directories are leftovers from the original gdx-liftoff template and are not part of
+the build (`settings.gradle`).
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+## Common commands
+
+Use `gradlew.bat` on Windows (cmd/PowerShell) or `./gradlew` elsewhere.
+
+```bash
+./gradlew test --continue          # run all tests
+./gradlew :editor-core:test        # run one module's tests
+./gradlew :editor-desktop:run      # launch the editor
+./gradlew :engine-desktop:run      # launch the runtime
+```
+
+The build is configured with `org.gradle.logging.level=quiet`, so a passing run prints very little. Check the
+exit code and the reports in `<module>/build/reports/tests/test/index.html`.
