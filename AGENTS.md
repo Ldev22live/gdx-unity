@@ -37,6 +37,7 @@ verify against the source (§9). `docs/porject-suggestions.md` is an intentional
 | 2D physics | Box2D (`gdx-box2d`). **Box2D is 2D only — there is no 3D physics yet.** |
 | Scripting | Java and Kotlin scripts compiled in-editor (`editor-core/.../scripting`). See §7. |
 | Root package | `io.github.ldev22live.gdxunity` |
+| Reference product | Unreal Engine 5 **workflows and toolset**, not its rendering technology (TD-020). Original implementations only; no Unreal/Unity code, assets, icons or trademarked feature names. |
 
 Do not upgrade versions just because newer releases exist. A version change needs a written justification in
 `docs/TECHNICAL_DECISIONS.md`.

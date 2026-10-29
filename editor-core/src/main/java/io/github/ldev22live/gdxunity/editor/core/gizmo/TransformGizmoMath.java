@@ -25,6 +25,10 @@ public final class TransformGizmoMath {
     public static final float MIN_SCALE = 0.001f;
     /** Side length of the 3D planar move handles as a fraction of the axis length. */
     public static final float PLANE_HANDLE_SIZE_RATIO = 0.35f;
+    /** In a perspective view the axis length is this fraction of the visible height at the gizmo's depth. */
+    public static final float PERSPECTIVE_VIEW_FRACTION = 0.15f;
+    /** Below this, a ray and an axis (or plane) are treated as parallel. */
+    private static final float PARALLEL_EPSILON = 1e-6f;
 
     private TransformGizmoMath() {}
 
@@ -428,6 +432,89 @@ public final class TransformGizmoMath {
         }
 
         return newLocalScale;
+    }
+
+    /**
+     * Scale factor that keeps a 3D gizmo a constant size on screen (TD-016 extension for perspective cameras):
+     * the axis length becomes {@link #PERSPECTIVE_VIEW_FRACTION} of the visible height at the gizmo's distance.
+     *
+     * @param fieldOfViewDegrees vertical field of view of the perspective camera
+     */
+    public static float perspectiveScaleFactor(Vector3 cameraPosition, Vector3 origin, float fieldOfViewDegrees) {
+        float distance = cameraPosition.dst(origin);
+        float visibleHeight = 2f * distance * (float) Math.tan(Math.toRadians(fieldOfViewDegrees) * 0.5);
+        return Math.max(MIN_SCALE, visibleHeight * PERSPECTIVE_VIEW_FRACTION / DEFAULT_AXIS_LENGTH);
+    }
+
+    /**
+     * Point on the infinite line {@code origin + s * axis} closest to the ray, or {@code null} when the ray is
+     * parallel to the axis.
+     */
+    public static Vector3 closestPointOnAxis(Ray ray, Vector3 origin, Vector3 axis) {
+        Vector3 w0 = new Vector3(origin).sub(ray.origin);
+        float a = axis.dot(axis);
+        float b = axis.dot(ray.direction);
+        float c = ray.direction.dot(ray.direction);
+        float d = axis.dot(w0);
+        float e = ray.direction.dot(w0);
+        float denominator = a * c - b * b;
+        if (Math.abs(denominator) < PARALLEL_EPSILON) {
+            return null;
+        }
+        float s = (b * e - c * d) / denominator;
+        return new Vector3(axis).scl(s).add(origin);
+    }
+
+    /**
+     * Where a 3D drag of {@code handle} is measured: the closest point on the handle's axis for axis handles,
+     * otherwise the ray's intersection with the handle's plane through {@code origin}. Returns {@code null}
+     * when the ray is parallel to that axis or plane.
+     */
+    public static Vector3 dragPoint3D(GizmoHandle handle, Ray ray, Vector3 origin) {
+        Vector3 axis = handleAxis(handle);
+        if (axis != null) {
+            return closestPointOnAxis(ray, origin, axis);
+        }
+        Vector3 normal = handlePlaneNormal(handle);
+        if (normal == null) {
+            return null;
+        }
+        Vector3 hit = new Vector3();
+        if (Math.abs(ray.direction.dot(normal)) < PARALLEL_EPSILON
+            || !Intersector.intersectRayPlane(ray, new Plane(normal, origin), hit)) {
+            return null;
+        }
+        return hit;
+    }
+
+    /** World axis an axis handle moves or scales along, or {@code null} for plane, ring and center handles. */
+    public static Vector3 handleAxis(GizmoHandle handle) {
+        return switch (handle) {
+            case MOVE_X, SCALE_X -> Vector3.X;
+            case MOVE_Y, SCALE_Y -> Vector3.Y;
+            case MOVE_Z, SCALE_Z -> Vector3.Z;
+            default -> null;
+        };
+    }
+
+    /**
+     * Normal of the plane a plane, ring or center handle is dragged in. Center handles use the XY plane, matching
+     * {@link #calculateMoved3DLocalPosition}.
+     */
+    public static Vector3 handlePlaneNormal(GizmoHandle handle) {
+        return switch (handle) {
+            case MOVE_PLANE_XY, MOVE_CENTER, SCALE_UNIFORM, ROTATE_Z -> Vector3.Z;
+            case MOVE_PLANE_XZ, ROTATE_Y -> Vector3.Y;
+            case MOVE_PLANE_YZ, ROTATE_X -> Vector3.X;
+            default -> null;
+        };
+    }
+
+    /** Signed angle in degrees from {@code from} to {@code to}, counter-clockwise around {@code normal}. */
+    public static float signedAngleDegrees(Vector3 from, Vector3 to, Vector3 normal) {
+        float sine = new Vector3(from).crs(to).dot(normal);
+        float cosine = from.dot(to);
+        return (float) Math.toDegrees(Math.atan2(sine, cosine));
     }
 
     public static float sanitizeScale(float scale) {

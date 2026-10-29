@@ -1,19 +1,24 @@
 package io.github.ldev22live.gdxunity.editor.desktop.workspaces;
 
-import com.badlogic.gdx.graphics.Camera;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
 import io.github.ldev22live.gdxunity.editor.core.workspace.StudioWorkspace;
 import io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceContext;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.TransformGizmoRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.ViewportGridRenderer;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ViewportGridRenderer3D;
 import io.github.ldev22live.gdxunity.engine.render.SceneRenderer2D;
 import io.github.ldev22live.gdxunity.engine.render.camera.OrthographicCamera2D;
+import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
 
 import java.util.Objects;
 
 /**
- * Concrete StudioWorkspace hosting the primary 2D scene editor, camera viewport,
- * background grid, and visual transform gizmos.
+ * Concrete StudioWorkspace hosting the primary scene editor, camera viewport,
+ * background grid, and visual transform gizmos. With a 3D view configured
+ * ({@link #configure3DView}), {@link ViewportMode#VIEW_3D} renders the same scene through a
+ * perspective camera over a ground grid.
  */
 public class SceneEditorWorkspace implements StudioWorkspace {
     public static final String ID = "scene-editor";
@@ -24,6 +29,13 @@ public class SceneEditorWorkspace implements StudioWorkspace {
     private final ViewportGridRenderer gridRenderer;
     private io.github.ldev22live.gdxunity.editor.desktop.ui.PhysicsDebugRenderer physicsDebugRenderer;
     private EditorState editorState;
+
+    private PerspectiveCamera3D camera3D;
+    private TransformGizmoRenderer gizmoRenderer3D;
+    private ViewportGridRenderer3D gridRenderer3D;
+
+    private SelectionOutlineRenderer selectionOutline2D;
+    private SelectionOutlineRenderer selectionOutline3D;
 
     public SceneEditorWorkspace(SceneRenderer2D sceneRenderer,
                                 OrthographicCamera2D sceneCamera,
@@ -72,6 +84,24 @@ public class SceneEditorWorkspace implements StudioWorkspace {
         this.physicsDebugRenderer = renderer;
     }
 
+    /** Enables the 3D view. The 3D grid follows the 2D grid's enabled flag. */
+    public void configure3DView(PerspectiveCamera3D camera3D, TransformGizmoRenderer gizmoRenderer3D,
+                                ViewportGridRenderer3D gridRenderer3D) {
+        this.camera3D = Objects.requireNonNull(camera3D, "camera3D cannot be null");
+        this.gizmoRenderer3D = Objects.requireNonNull(gizmoRenderer3D, "gizmoRenderer3D cannot be null");
+        this.gridRenderer3D = Objects.requireNonNull(gridRenderer3D, "gridRenderer3D cannot be null");
+    }
+
+    /** Sets the selection outline renderers for the 2D and 3D views (either may be null to disable). */
+    public void setSelectionOutlines(SelectionOutlineRenderer outline2D, SelectionOutlineRenderer outline3D) {
+        this.selectionOutline2D = outline2D;
+        this.selectionOutline3D = outline3D;
+    }
+
+    private boolean is3DActive() {
+        return camera3D != null && editorState != null && editorState.getViewportMode() == ViewportMode.VIEW_3D;
+    }
+
     @Override
     public void initialize(WorkspaceContext context) {
         this.editorState = context.getEditorState();
@@ -79,6 +109,11 @@ public class SceneEditorWorkspace implements StudioWorkspace {
 
     @Override
     public void render(float deltaTime) {
+        if (is3DActive()) {
+            render3D(deltaTime);
+            return;
+        }
+        sceneRenderer.setCamera(sceneCamera);
         if (sceneRenderer != null) {
             // 1. Render viewport background grid
             if (sceneRenderer.getShapeRenderer() != null && gridRenderer != null) {
@@ -95,7 +130,10 @@ public class SceneEditorWorkspace implements StudioWorkspace {
                 physicsDebugRenderer.render(sceneRenderer.getShapeRenderer(), zoom);
             }
 
-            // 4. Render transform gizmos on top
+            // 4. Selection outline, then transform gizmos on top
+            if (sceneRenderer.getShapeRenderer() != null && selectionOutline2D != null) {
+                selectionOutline2D.render(sceneRenderer.getShapeRenderer());
+            }
             if (sceneRenderer.getShapeRenderer() != null && gizmoRenderer != null) {
                 float zoom = sceneCamera.getZoom();
                 gizmoRenderer.render(sceneRenderer.getShapeRenderer(), zoom);
@@ -103,10 +141,31 @@ public class SceneEditorWorkspace implements StudioWorkspace {
         }
     }
 
+    /**
+     * 3D view: ground grid, then the scene's 2D renderables seen through the perspective camera, then the
+     * selection outline and gizmos.
+     * The physics debug overlay is 2D-only and is not drawn here.
+     */
+    private void render3D(float deltaTime) {
+        camera3D.update();
+        sceneRenderer.setCamera(camera3D);
+        if (sceneRenderer.getShapeRenderer() != null && gridRenderer.isEnabled()) {
+            gridRenderer3D.render(sceneRenderer.getShapeRenderer());
+        }
+        sceneRenderer.render(deltaTime);
+        if (sceneRenderer.getShapeRenderer() != null) {
+            if (selectionOutline3D != null) {
+                selectionOutline3D.render(sceneRenderer.getShapeRenderer());
+            }
+            gizmoRenderer3D.render(sceneRenderer.getShapeRenderer(), 1f);
+        }
+    }
+
     @Override
     public void resize(int width, int height) {
-        if (sceneRenderer != null) {
-            sceneRenderer.resize(width, height);
+        sceneCamera.resize(width, height);
+        if (camera3D != null) {
+            camera3D.resize(width, height);
         }
     }
 

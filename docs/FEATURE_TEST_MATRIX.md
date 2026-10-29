@@ -5,7 +5,7 @@ Required by `docs/design-doc.md.txt` §10.3. Status words are defined in `AGENTS
 **Validated** = integrated and checked in the running app (needs a dated report).
 
 Last verified: 2026-10-29 against working tree on `main` @ `7772df4` (with uncommitted Phase 12 changes).
-Test counts come from `./gradlew test --continue` XML reports: **262 tests, 0 failures, 0 errors, 0 skipped**.
+Test counts come from `./gradlew test --continue` XML reports: **303 tests, 0 failures, 0 errors, 0 skipped**.
 
 Update this file in the same change as any feature or test change.
 
@@ -33,7 +33,7 @@ Update this file in the same change as any feature or test change.
 |---|---|---|---|---|
 | 2D camera | `OrthographicCamera2D` | `OrthographicCamera2DTest` (5) | Integrated | — |
 | 2D scene rendering | `SceneRenderer2D`, `PrimitiveRenderer`, sprite/shape components | `SceneRenderer2DTest` (1), `PrimitiveRendererTest` (2), `RenderableComponentTest` (3), `SpriteRendererComponentSerializerTest` (2) | Integrated | GL output is not verified automatically |
-| 3D perspective camera | `PerspectiveCamera3D` | `PerspectiveCamera3DTest` (5) | Implemented | Not used by the editor or runtime yet |
+| 3D perspective camera | `PerspectiveCamera3D` | `PerspectiveCamera3DTest` (5) | Implemented; used by the editor 3D view (pending manual check) | Runtime does not use it |
 | 3D scene renderer | `SceneRenderer3D` | `SceneRenderer3DTest` (2) | Implemented (foundation) | **Submits no geometry**: there is no model/mesh component. Not used by the editor or runtime. Light objects are re-allocated every frame |
 | Directional / point lights | `DirectionalLightComponent`, `PointLightComponent` | via `SceneRenderer3DTest` | Implemented | No serializer, no inspector, no dedicated unit tests |
 | Materials, PBR, shadows, IBL | — | — | Not implemented | — |
@@ -43,6 +43,8 @@ Update this file in the same change as any feature or test change.
 
 | Feature | Main types | Tests (count) | Status | Gaps |
 |---|---|---|---|---|
+| Editor actions, menus & shortcuts (Phase 12B-A) | `EditorActionRegistry`, `DefaultEditorActions`, `EditorMenuBar` | `EditorActionRegistryTest` (6), `DefaultEditorActionsTest` (5) | Implemented; integration pending manual check | Menu widget itself has no automated test |
+| Scene view in its own panel (Phase 12B-A, TD-024) | `SceneViewportWidget`, `SceneViewportInteraction2D`, `ViewportCoordinates2D`, `OrthographicCamera2D.createScreenFilling` | `SceneViewportInteraction2DTest` (7), `SceneViewportWidgetTest` (2), `OrthographicCamera2DTest`, `SceneRenderer2DTest` | Implemented; integration pending manual check | Frame-buffer rendering needs a graphics test |
 | Selection & multi-selection | `EditorState` | `EditorStateTest` (7), `EditorStateMultiSelectionTest` (6) | Integrated | — |
 | Scene integrity hardening | `EditorState` | `SceneModelIntegrityAndHardeningTest` (5) | Integrated | — |
 | Undo / redo commands | `CommandHistory`, `*Command` | `CommandHistoryTest` (6), `EditorCommandsTest` (7), `CompoundCommandTest` (6), `ComponentCommandTest` (2), `DuplicateEntityCommandTest` (2), `ReparentEntityCommandTest` (6) | Integrated | — |
@@ -50,9 +52,9 @@ Update this file in the same change as any feature or test change.
 | 2D picking | `ViewportPicker.pickEntityAt` | `ViewportPickerTest` (3 of 5) | Integrated | — |
 | 3D pick ray | `ViewportPicker.getPickRay` | `ViewportPickerTest` (2 of 5, error contract only) | Implemented | Success path needs a graphics context (`Camera.unproject` reads `Gdx.graphics`); not called by the editor |
 | 2D transform gizmos | `TransformGizmoMath.hitTest`, `GizmoInteractionController`, `TransformGizmoRenderer` | `TransformGizmoTest` (2D cases) | Integrated | — |
-| 3D transform gizmos | `TransformGizmoMath.hitTest3D`, `calculate*3D*`, `TransformGizmoRenderer` (perspective branch) | `TransformGizmoTest` (6 3D cases) | Implemented | `GizmoInteractionController` only calls the 2D path; 3D drag (ray→plane projection) is not implemented; nothing draws with a perspective camera yet |
+| 3D transform gizmos | `TransformGizmoMath` (`hitTest3D`, `dragPoint3D`, `perspectiveScaleFactor`), `GizmoInteractionController.startDrag3D/updateDrag3D`, `TransformGizmoRenderer` | `TransformGizmoTest` (6 3D cases), `GizmoDrag3DTest` (8) | Implemented; integrated in the 3D view (pending manual check) | Center/uniform handles drag in the XY plane, not a camera-facing plane |
 | Collider gizmos | `ColliderGizmoController` | `ColliderGizmoControllerTest` (5) | Integrated | — |
-| 3D viewport navigation | `ViewportCameraController3D` | `ViewportCameraController3DTest` (6) | Implemented | Not connected to editor input |
+| 3D viewport navigation & 2D/3D toggle | `ViewportCameraController3D`, `SceneViewportInteraction3D`, `ModeSwitchingViewportInteraction`, `ViewportGridRenderer3D` | `ViewportCameraController3DTest` (6), `SceneViewportInteraction3DTest` (8), `ViewportGridRenderer3DTest` (2) | Implemented; integrated (pending manual check) | Physics debug overlay is 2D-only; no focus-selection (F) yet |
 | Keyboard shortcuts | `EditorKeyboardDispatcher` | `EditorKeyboardDispatcherTest` (4) | Integrated | — |
 | Play mode | `PlayModeController` | `PlayModeControllerTest` (13) | Integrated | — |
 | Script compilation (Java/Kotlin) | `JavaScriptCompiler`, `KotlinScriptCompiler`, `ScriptManager` | `ScriptCompilerTest` (5) | Integrated | — |

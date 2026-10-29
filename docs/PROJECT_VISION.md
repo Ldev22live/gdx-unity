@@ -2,13 +2,15 @@
 
 ## Objective
 
-Build an original, extensible game engine and development environment inspired by the productivity and workflows of Unity, implemented in Java using LibGDX.
+Build an original, extensible game engine and development environment inspired by the workflows and toolset of Unreal Engine 5, implemented in Java using LibGDX.
+
+The reference is workflow parity for indie-scale projects, not rendering-technology parity (see TD-020 in `TECHNICAL_DECISIONS.md`). Unity was the original reference until 2026-10-29.
 
 ## Goals
 
 ### Primary Goals
 
-- **Unity-inspired editor experience**: Provide a visual editor with Scene View, Hierarchy panel, Inspector panel, Project/asset browser, Console, and toolbar with Play/Pause/Stop controls.
+- **Unreal-inspired editor experience**: Provide a visual editor with a viewport with overlay tools, an outliner (scene hierarchy), a details panel (inspector), a content browser, an output log, and play-in-editor controls, followed by visual scripting, a material graph editor, a sequencer/timeline, a particle editor, landscape tools and packaging.
 - **Entity/component architecture**: Implement a clean, understandable entity/component system with stable IDs, single authoritative transform model, and predictable update ordering.
 - **Scene persistence**: Support versioned JSON scene format with stable IDs, component data, transform information, and resource references.
 - **Runtime independence**: The engine runtime must be capable of launching a game without launching the editor.
@@ -17,7 +19,8 @@ Build an original, extensible game engine and development environment inspired b
 ### Non-Goals
 
 - **Game-specific content**: Do not implement game-specific missions, quests, characters, combat, story content, or systems.
-- **Unity source code dependency**: Create original implementations. Do not copy Unity source code, proprietary assets, branding, or protected UI assets.
+- **Third-party engine code or branding**: Create original implementations. Do not copy Unreal Engine or Unity source code (including Unreal source available under the Epic Games EULA), proprietary assets, icons, branding, trademarked feature names, or protected UI assets.
+- **Rendering-technology parity with Unreal**: Nanite/Lumen-class rendering is out of scope; a new rendering backend needs a feasibility study and approval (design doc §3.2).
 - **Premature ECS framework**: Begin with a small, understandable entity/component design. Evaluate external ECS libraries only when requirements justify them.
 - **All platforms initially**: Initial target platform is Desktop. Additional platform support is a later milestone.
 
@@ -34,7 +37,7 @@ Build an original, extensible game engine and development environment inspired b
 
 The project succeeds when:
 
-1. Developers can create and edit scenes visually with a Unity-like workflow.
+1. Developers can create and edit scenes visually with an Unreal-like workflow.
 2. Games built with the engine can run independently of the editor.
 3. The engine architecture is maintainable, extensible, and well-documented.
 4. Multiple independent games can be developed using the same engine codebase.

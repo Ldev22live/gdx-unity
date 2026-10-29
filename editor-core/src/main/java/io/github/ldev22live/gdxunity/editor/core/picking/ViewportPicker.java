@@ -1,5 +1,6 @@
 package io.github.ldev22live.gdxunity.editor.core.picking;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -10,6 +11,7 @@ import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,42 +39,90 @@ public final class ViewportPicker {
         // Traverse in reverse so top/latest rendered entities are picked first
         for (int i = entities.size() - 1; i >= 0; i--) {
             Entity entity = entities.get(i);
-            if (!entity.isActiveInHierarchy()) {
-                continue;
-            }
-
-            Vector3 worldPos = entity.getTransform().getWorldPosition();
-            Vector3 worldScale = entity.getTransform().getWorldScale();
-
-            for (Component c : entity.getAllComponents()) {
-                if (!c.isEnabled()) continue;
-
-                if (c instanceof ShapeRendererComponent shape) {
-                    float w = shape.getWidth() * worldScale.x;
-                    float h = shape.getHeight() * worldScale.y;
-                    float minX = shape.isCentered() ? (worldPos.x - w / 2f) : worldPos.x;
-                    float minY = shape.isCentered() ? (worldPos.y - h / 2f) : worldPos.y;
-                    float maxX = minX + w;
-                    float maxY = minY + h;
-
-                    if (worldX >= minX && worldX <= maxX && worldY >= minY && worldY <= maxY) {
-                        return entity;
-                    }
-                } else if (c instanceof SpriteRendererComponent sprite) {
-                    float w = sprite.getWidth() * worldScale.x;
-                    float h = sprite.getHeight() * worldScale.y;
-                    float minX = sprite.isCentered() ? (worldPos.x - w / 2f) : worldPos.x;
-                    float minY = sprite.isCentered() ? (worldPos.y - h / 2f) : worldPos.y;
-                    float maxX = minX + w;
-                    float maxY = minY + h;
-
-                    if (worldX >= minX && worldX <= maxX && worldY >= minY && worldY <= maxY) {
-                        return entity;
-                    }
-                }
+            if (entity.isActiveInHierarchy() && containsPoint(entity, worldX, worldY)) {
+                return entity;
             }
         }
         return null;
+    }
+
+    /**
+     * Finds the nearest active entity hit by a world-space ray (3D viewport). Each entity's 2D render bounds
+     * are tested in the XY plane at the entity's world Z, so flat 2D content can be picked from any angle.
+     * Rotation of the entity out of the XY plane is not taken into account.
+     *
+     * @return the hit entity closest to the ray origin, or null if none
+     */
+    public static Entity pickEntity3D(Scene scene, Ray ray) {
+        if (scene == null || !scene.isActive() || ray == null || ray.direction.z == 0f) {
+            return null;
+        }
+
+        Entity nearest = null;
+        float nearestDistance = Float.POSITIVE_INFINITY;
+        List<Entity> entities = scene.getAllEntities();
+        for (int i = entities.size() - 1; i >= 0; i--) {
+            Entity entity = entities.get(i);
+            if (!entity.isActiveInHierarchy()) {
+                continue;
+            }
+            float planeZ = entity.getTransform().getWorldPosition().z;
+            float distance = (planeZ - ray.origin.z) / ray.direction.z;
+            if (distance < 0f || distance >= nearestDistance) {
+                continue;
+            }
+            float hitX = ray.origin.x + ray.direction.x * distance;
+            float hitY = ray.origin.y + ray.direction.y * distance;
+            if (containsPoint(entity, hitX, hitY)) {
+                nearest = entity;
+                nearestDistance = distance;
+            }
+        }
+        return nearest;
+    }
+
+    /**
+     * World-space XY bounds of the entity's enabled shape and sprite renderers (the area that picking
+     * responds to), or {@code null} if the entity has nothing pickable. Rotation is not taken into account.
+     */
+    public static Rectangle computeRenderBounds(Entity entity) {
+        Rectangle union = null;
+        for (Rectangle bounds : componentBounds(entity)) {
+            union = (union == null) ? new Rectangle(bounds) : union.merge(bounds);
+        }
+        return union;
+    }
+
+    /** Whether the world XY point lies inside any enabled shape or sprite bounds of the entity. */
+    private static boolean containsPoint(Entity entity, float worldX, float worldY) {
+        for (Rectangle bounds : componentBounds(entity)) {
+            if (bounds.contains(worldX, worldY)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static List<Rectangle> componentBounds(Entity entity) {
+        Vector3 worldPos = entity.getTransform().getWorldPosition();
+        Vector3 worldScale = entity.getTransform().getWorldScale();
+        List<Rectangle> result = new ArrayList<>();
+        for (Component c : entity.getAllComponents()) {
+            if (!c.isEnabled()) continue;
+
+            if (c instanceof ShapeRendererComponent shape) {
+                result.add(bounds(worldPos, shape.getWidth() * worldScale.x, shape.getHeight() * worldScale.y, shape.isCentered()));
+            } else if (c instanceof SpriteRendererComponent sprite) {
+                result.add(bounds(worldPos, sprite.getWidth() * worldScale.x, sprite.getHeight() * worldScale.y, sprite.isCentered()));
+            }
+        }
+        return result;
+    }
+
+    private static Rectangle bounds(Vector3 worldPos, float w, float h, boolean centered) {
+        float minX = centered ? (worldPos.x - w / 2f) : worldPos.x;
+        float minY = centered ? (worldPos.y - h / 2f) : worldPos.y;
+        return new Rectangle(minX, minY, w, h);
     }
 
     /**

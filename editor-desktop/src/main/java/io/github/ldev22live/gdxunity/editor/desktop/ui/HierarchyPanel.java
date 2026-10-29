@@ -47,7 +47,7 @@ public class HierarchyPanel extends Table {
         headerBar.setBackground("subheader-bg");
         headerBar.left();
 
-        Label titleLabel = new Label("Hierarchy", skin);
+        Label titleLabel = new Label("Outliner", skin);
         if (skin.has("text-primary", Color.class)) {
             titleLabel.setColor(skin.getColor("text-primary"));
         } else {

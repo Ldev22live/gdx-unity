@@ -63,7 +63,10 @@ public class TransformGizmoRenderer {
         }
 
         Vector3 origin = selected.getTransform().getWorldPosition();
-        float effectiveScale = (scaleFactor <= 0f) ? 1.0f : scaleFactor;
+        // Perspective gizmos keep a constant on-screen size; the hit-test in SceneViewportInteraction3D uses the same factor
+        float effectiveScale = (camera instanceof PerspectiveCamera3D perspectiveCamera)
+            ? TransformGizmoMath.perspectiveScaleFactor(camera.getPosition(), origin, perspectiveCamera.getFieldOfView())
+            : (scaleFactor <= 0f) ? 1.0f : scaleFactor;
         float axisLen = TransformGizmoMath.DEFAULT_AXIS_LENGTH * effectiveScale;
         float handleRadius = TransformGizmoMath.DEFAULT_HANDLE_RADIUS * effectiveScale;
         float centerRadius = TransformGizmoMath.DEFAULT_CENTER_RADIUS * effectiveScale;

@@ -3,6 +3,7 @@ package io.github.ldev22live.gdxunity.editor.core.gizmo;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.ToolMode;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
@@ -24,6 +25,7 @@ public class GizmoInteractionController {
     private TransformSnapshot initialSnapshot;
     private final Vector2 dragStartWorldPos = new Vector2();
     private final Vector2 currentWorldPos = new Vector2();
+    private final Vector3 dragStartPoint3D = new Vector3();
 
     public GizmoInteractionController(EditorState editorState) {
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
@@ -159,6 +161,81 @@ public class GizmoInteractionController {
             default -> {}
         }
 
+        editorState.notifyEntityTransformModified(selected);
+    }
+
+    /**
+     * Hit-tests the selected entity's gizmo with a world-space picking ray (3D viewport).
+     *
+     * @param scaleFactor gizmo scale, normally {@link TransformGizmoMath#perspectiveScaleFactor}
+     */
+    public GizmoHandle hitTest3D(Ray ray, float scaleFactor) {
+        Entity selected = editorState.getSelectedEntity();
+        if (selected == null || ray == null || editorState.getToolMode() == ToolMode.SELECT) {
+            return GizmoHandle.NONE;
+        }
+        return TransformGizmoMath.hitTest3D(editorState.getToolMode(), selected.getTransform().getWorldPosition(), ray, scaleFactor);
+    }
+
+    /**
+     * Begins a 3D drag on {@code handle}. The drag is measured along the handle's axis or in its plane
+     * (see {@link TransformGizmoMath#dragPoint3D}).
+     *
+     * @return true if the drag started; false if the handle is invalid or the ray is parallel to its axis/plane
+     */
+    public boolean startDrag3D(GizmoHandle handle, Ray ray) {
+        Entity selected = editorState.getSelectedEntity();
+        if (handle == null || handle == GizmoHandle.NONE || ray == null || selected == null) {
+            return false;
+        }
+        Vector3 start = TransformGizmoMath.dragPoint3D(handle, ray, selected.getTransform().getWorldPosition());
+        if (start == null) {
+            return false;
+        }
+        this.isDragging = true;
+        this.activeHandle = handle;
+        this.initialSnapshot = TransformSnapshot.capture(selected.getTransform());
+        this.dragStartPoint3D.set(start);
+        return true;
+    }
+
+    /**
+     * Updates the transform during a 3D drag started with {@link #startDrag3D}.
+     *
+     * @param scaleFactor gizmo scale used to convert scale-handle movement into a scale factor
+     */
+    public void updateDrag3D(Ray ray, float scaleFactor) {
+        if (!isDragging || initialSnapshot == null || activeHandle == GizmoHandle.NONE || ray == null) {
+            return;
+        }
+        Entity selected = editorState.getSelectedEntity();
+        if (selected == null) {
+            cancelDrag();
+            return;
+        }
+        Vector3 origin = initialSnapshot.worldPosition();
+        Vector3 current = TransformGizmoMath.dragPoint3D(activeHandle, ray, origin);
+        if (current == null) {
+            return;
+        }
+
+        Transform transform = selected.getTransform();
+        switch (editorState.getToolMode()) {
+            case MOVE -> transform.setLocalPosition(
+                TransformGizmoMath.calculateMoved3DLocalPosition(initialSnapshot, activeHandle, dragStartPoint3D, current));
+            case ROTATE -> {
+                Vector3 normal = TransformGizmoMath.handlePlaneNormal(activeHandle);
+                if (normal == null) {
+                    return;
+                }
+                float angle = TransformGizmoMath.signedAngleDegrees(
+                    new Vector3(dragStartPoint3D).sub(origin), new Vector3(current).sub(origin), normal);
+                transform.setLocalRotation(TransformGizmoMath.calculateRotated3DLocalRotation(initialSnapshot, activeHandle, angle));
+            }
+            case SCALE -> transform.setLocalScale(TransformGizmoMath.calculateScaled3DLocalScale(
+                initialSnapshot, activeHandle, new Vector3(current).sub(dragStartPoint3D), scaleFactor));
+            default -> {}
+        }
         editorState.notifyEntityTransformModified(selected);
     }
 

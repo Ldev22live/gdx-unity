@@ -133,9 +133,12 @@ public class SceneRenderer3D implements EngineRenderer {
             Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
         }
 
-        // 2. Update camera projection
+        // 2. Update camera projection and restore this camera's GL viewport (see SceneRenderer2D.render)
         if (camera != null) {
             camera.update();
+            if (Gdx.gl != null && camera.getViewport() != null) {
+                camera.getViewport().apply();
+            }
         }
 
         // 3. Skip scene rendering if no scene or scene is inactive

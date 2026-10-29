@@ -441,6 +441,93 @@ This document records significant technical decisions. Each decision should refe
 
 ---
 
+## Product Direction Decisions
+
+### TD-020: Unreal Engine as the Reference Product
+
+**Status**: Approved (project owner, 2026-10-29)
+
+**Context**: The project vision and `docs/design-doc.md.txt` named Unity (2026) as the product the editor's
+capabilities and workflows are modelled on. The project owner has chosen Unreal Engine as the reference
+instead, to raise the bar for editor quality and toolset breadth.
+
+**Decision**:
+- Unreal Engine 5 replaces Unity 2026 as the reference for **editor workflows, UX and toolset breadth**:
+  viewport with overlay tools, outliner, details panel, content browser, output log, play-in-editor,
+  reusable actor templates (prefabs), visual scripting, material graph editor, sequencer/timeline,
+  particle editor, landscape tools, and packaging.
+- The reference is **workflow parity for indie-scale projects, not rendering-technology parity**. Features
+  that depend on Unreal's renderer (e.g. Nanite virtualized geometry, Lumen global illumination) are out of
+  scope. Pursuing them would require a new rendering backend, which design doc §3.2 allows only after a
+  separate feasibility study and explicit approval.
+- All implementations stay original. No Unreal Engine source code (including source available under the
+  Epic Games EULA), content, icons, branding or trademarked feature names (e.g. "Blueprints", "Niagara",
+  "Nanite") are copied or used in the product UI; use generic names such as "visual scripting".
+
+**Consequences**:
+- TD-019 is unchanged: Java/Kotlin remain the text scripting languages. Visual scripting is an additional,
+  not-yet-designed system and will get its own decision record.
+- The editor UI overhaul uses Unreal's layout and interaction patterns as its acceptance reference. Renaming
+  existing UI terms (Hierarchy, Inspector, GameObject menu) is decided in that milestone, not here.
+- Project, module and package names (`GdxUnity`, `io.github.ldev22live.gdxunity`) are unchanged by this
+  decision.
+- Historical milestone reports that mention Unity remain as written.
+
+---
+
+## Phase 12B Decisions (Editor Shell)
+
+All four approved by the project owner on 2026-10-29. Plan: `docs/milestones/phase-12b-editor-shell.md`.
+
+### TD-021: Scalable Editor Typography via gdx-freetype
+
+**Status**: Approved
+
+**Context**: The editor skin uses LibGDX's built-in `BitmapFont()` (a single small Arial bitmap), which looks
+blurry when scaled, has no HiDPI support and limits the editor to ASCII. TD-002 removed `gdx-freetype`
+"until a font milestone".
+
+**Decision**: Add the official `com.badlogicgames.gdx:gdx-freetype` extension (at `gdxVersion`) to
+`editor-desktop` only, and bundle an open-licence UI font (Inter, SIL Open Font License 1.1) with its licence
+file. Fonts are generated at startup per theme/scale and owned by `EditorSkinFactory`. This supersedes
+the font part of TD-002. The runtime (`engine-*`) does not gain the dependency.
+
+### TD-022: Native File Dialogs via LWJGL tinyfd
+
+**Status**: Approved
+
+**Context**: File operations save silently to a fixed `scene_backup.json`; there is no Open/Save As.
+
+**Decision**: Use LWJGL's `lwjgl-tinyfd` module (native open/save dialogs on Windows, macOS and Linux) in
+`editor-desktop`, pinned to `lwjgl3Version` so it matches the LWJGL version bundled with the backend. Dialog
+calls sit behind a small `FileDialogService` interface so editor logic stays headless-testable.
+
+### TD-023: Editor Panel Naming
+
+**Status**: Approved
+
+**Decision**: User-facing panel names follow the Unreal-style layout with generic, non-trademarked terms:
+**Outliner** (scene hierarchy), **Details** (inspector), **Content Browser** (assets), **Output Log**
+(console). Java class names (`HierarchyPanel`, `InspectorPanel`, `AssetBrowserPanel`) are unchanged to
+avoid churn.
+
+### TD-024: Editor Camera Fills the Scene Viewport Panel
+
+**Status**: Approved. Supersedes TD-011 for the editor scene view only.
+
+**Context**: The editor scene camera was an `OrthographicCamera2D` with a fixed 640×480 `FitViewport`,
+rendered straight to the window behind the UI panels. The scene was letterboxed to the window instead of
+the panel, the panels covered it, and the GL viewport it left behind distorted the UI and broke picking.
+
+**Decision**:
+- The editor scene view renders off-screen into a `FrameBuffer` sized to its panel and is drawn as a UI
+  widget (`SceneViewportWidget`). Pointer input arrives in panel-local coordinates.
+- The editor camera uses a screen-filling viewport (1 world unit = 1 pixel at zoom 1), so it always fills the
+  panel and panel-to-world conversion is a pure function (`ViewportCoordinates2D`).
+- Games keep TD-011's fixed virtual resolution (`FitViewport`) at runtime.
+
+---
+
 ## Future Decisions
 
 The following decisions will be made in future milestones:

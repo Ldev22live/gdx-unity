@@ -49,7 +49,7 @@ public class AssetBrowserPanel extends Table {
         header.setBackground("subheader-bg");
         header.left();
 
-        Label titleLabel = new Label("Project Assets", skin);
+        Label titleLabel = new Label("Content Browser", skin);
         if (skin.has("text-primary", Color.class)) {
             titleLabel.setColor(skin.getColor("text-primary"));
         } else {

@@ -23,6 +23,7 @@ public class EditorState {
         default void onSelectionChanged(UUID previousSelectedId, UUID newSelectedId) {}
         default void onMultiSelectionChanged(java.util.Set<UUID> previousSelection, java.util.Set<UUID> newSelection, UUID primarySelectedId) {}
         default void onToolModeChanged(ToolMode oldMode, ToolMode newMode) {}
+        default void onViewportModeChanged(ViewportMode oldMode, ViewportMode newMode) {}
         default void onStatusMessage(String message, boolean isError) {}
         default void onHierarchyModified() {}
         default void onEntityTransformModified(Entity entity) {}
@@ -34,6 +35,7 @@ public class EditorState {
     private UUID primarySelectedEntityId;
     private io.github.ldev22live.gdxunity.engine.core.asset.AssetReference selectedAsset;
     private ToolMode toolMode = ToolMode.SELECT;
+    private ViewportMode viewportMode = ViewportMode.VIEW_2D;
     private String statusMessage = "Ready";
     private boolean statusIsError = false;
 
@@ -292,6 +294,21 @@ public class EditorState {
             this.toolMode = newMode;
             for (Listener l : listeners) {
                 l.onToolModeChanged(old, this.toolMode);
+            }
+        }
+    }
+
+    public ViewportMode getViewportMode() {
+        return viewportMode;
+    }
+
+    public void setViewportMode(ViewportMode newMode) {
+        Objects.requireNonNull(newMode, "viewportMode cannot be null");
+        if (this.viewportMode != newMode) {
+            ViewportMode old = this.viewportMode;
+            this.viewportMode = newMode;
+            for (Listener l : listeners) {
+                l.onViewportModeChanged(old, this.viewportMode);
             }
         }
     }

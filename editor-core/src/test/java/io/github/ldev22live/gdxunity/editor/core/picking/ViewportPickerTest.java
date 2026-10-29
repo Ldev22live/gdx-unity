@@ -86,4 +86,24 @@ class ViewportPickerTest {
         };
         assertThrows(IllegalArgumentException.class, () -> ViewportPicker.getPickRay(cameraWithoutViewport, 10f, 10f));
     }
+
+    @Test
+    void shouldComputeUnionRenderBoundsUsedForOutlineAndPicking() {
+        Scene scene = new Scene("BoundsScene");
+        Entity entity = scene.createEntity("Composite");
+        entity.getTransform().setLocalPosition(100f, 100f, 0f);
+        entity.getTransform().setLocalScale(2f, 1f, 1f);
+        // 20x10 centered, scaled x2 in X -> [80..120] x [95..105]
+        entity.addComponent(new ShapeRendererComponent(20f, 10f, Color.RED, ShapeRendererComponent.ShapeType.FILLED, true));
+
+        com.badlogic.gdx.math.Rectangle bounds = ViewportPicker.computeRenderBounds(entity);
+        assertNotNull(bounds);
+        assertEquals(80f, bounds.x, 0.001f);
+        assertEquals(95f, bounds.y, 0.001f);
+        assertEquals(40f, bounds.width, 0.001f);
+        assertEquals(10f, bounds.height, 0.001f);
+        assertEquals(entity, ViewportPicker.pickEntityAt(scene, 119f, 104f));
+
+        assertNull(ViewportPicker.computeRenderBounds(scene.createEntity("Empty")), "No renderer means no bounds");
+    }
 }

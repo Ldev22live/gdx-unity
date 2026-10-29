@@ -31,6 +31,7 @@ public class SceneRenderer2D implements EngineRenderer {
     private SpriteBatch spriteBatch;
 
     private Color clearColor = new Color(0.12f, 0.14f, 0.18f, 1.0f);
+    private boolean clearEnabled = true;
     private boolean initialized = false;
     private boolean disposed = false;
 
@@ -87,15 +88,20 @@ public class SceneRenderer2D implements EngineRenderer {
             return;
         }
 
-        // 1. Clear frame buffer
-        if (Gdx.gl != null) {
+        // 1. Clear frame buffer (disabled when the host clears and draws a background such as a grid first)
+        if (clearEnabled && Gdx.gl != null) {
             Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         }
 
-        // 2. Update camera projection
+        // 2. Update camera projection and restore this camera's GL viewport. Other passes in the same
+        // frame (e.g. the editor UI stage) apply their own viewports, so it must be re-applied every frame
+        // or the scene is drawn with the wrong viewport and no longer matches picking coordinates.
         if (camera != null) {
             camera.update();
+            if (Gdx.gl != null && camera.getViewport() != null) {
+                camera.getViewport().apply();
+            }
         }
 
         // 3. Skip scene rendering if no scene or scene is inactive
@@ -228,6 +234,15 @@ public class SceneRenderer2D implements EngineRenderer {
 
     public Color getClearColor() {
         return clearColor;
+    }
+
+    public boolean isClearEnabled() {
+        return clearEnabled;
+    }
+
+    /** Controls whether {@link #render(float)} clears the color buffer before drawing. Default true. */
+    public void setClearEnabled(boolean clearEnabled) {
+        this.clearEnabled = clearEnabled;
     }
 
     public void setClearColor(Color clearColor) {

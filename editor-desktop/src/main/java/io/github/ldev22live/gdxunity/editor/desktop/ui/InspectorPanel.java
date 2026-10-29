@@ -62,7 +62,7 @@ public class InspectorPanel extends Table {
         Table headerBar = new Table(skin);
         headerBar.setBackground("subheader-bg");
         headerBar.left();
-        Label titleLabel = new Label("Inspector", skin);
+        Label titleLabel = new Label("Details", skin);
         if (skin.has("text-primary", Color.class)) {
             titleLabel.setColor(skin.getColor("text-primary"));
         } else {

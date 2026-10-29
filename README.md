@@ -1,6 +1,7 @@
 # GdxUnity
 
-A Java-first game engine and integrated editor built on [libGDX](https://libgdx.com/), with an
+A Java-first game engine and integrated editor built on [libGDX](https://libgdx.com/), modelled on the
+workflows and toolset of Unreal Engine 5 (an original implementation, not affiliated with Epic Games), with an
 AI-controllable editor workflow as a core goal.
 
 - **Engineering rules for contributors and AI agents:** [`AGENTS.md`](AGENTS.md)

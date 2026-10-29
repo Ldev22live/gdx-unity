@@ -16,7 +16,9 @@
 
 # 1. Vision and Engineering Standards
 
-We are building GdxUnity, a professional-grade, Java-first game engine and integrated game-development studio inspired by the capabilities and workflows of Unity 2026.
+We are building GdxUnity, a professional-grade, Java-first game engine and integrated game-development studio inspired by the capabilities and workflows of Unreal Engine 5.
+
+> **Reference product changed 2026-10-29:** Unreal Engine replaces Unity 2026 as the reference (TD-020 in `docs/TECHNICAL_DECISIONS.md`). The reference covers editor workflows and toolset breadth, not rendering-technology parity such as Nanite or Lumen (see §3.2).
 
 The objective is to create a stable, maintainable and extensible engine that enables developers to create, edit, test, package and distribute complete games without requiring a collection of unrelated applications.
 

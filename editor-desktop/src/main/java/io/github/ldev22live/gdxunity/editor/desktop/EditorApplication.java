@@ -6,32 +6,80 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
-import io.github.ldev22live.gdxunity.editor.core.picking.ViewportPicker;
+import io.github.ldev22live.gdxunity.editor.core.action.DefaultEditorActions;
+import io.github.ldev22live.gdxunity.editor.core.action.EditorAction;
+import io.github.ldev22live.gdxunity.editor.core.action.EditorActionRegistry;
+import io.github.ldev22live.gdxunity.editor.core.input.ViewportCameraController3D;
+import io.github.ldev22live.gdxunity.editor.core.viewport.ModeSwitchingViewportInteraction;
+import io.github.ldev22live.gdxunity.editor.core.viewport.SceneViewportInteraction2D;
+import io.github.ldev22live.gdxunity.editor.core.viewport.SceneViewportInteraction3D;
+import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportInteraction;
 import io.github.ldev22live.gdxunity.editor.core.play.PlayModeController;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorSkinFactory;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorStatusBar;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorToolbar;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.HierarchyPanel;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.InspectorPanel;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.EditorMenuBar;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.SceneViewportWidget;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ViewportGridRenderer3D;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ViewportOverlayToolbar;
 import com.badlogic.gdx.graphics.Color;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.SceneRenderer2D;
 import io.github.ldev22live.gdxunity.engine.render.camera.OrthographicCamera2D;
+import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 
+import java.util.List;
+
 /**
  * Main LibGDX Application for the desktop editor shell.
- * Coordinates SceneRenderer2D viewport rendering and scene2d UI panels on a single OpenGL window.
+ * Coordinates scene view rendering (off-screen, TD-024) and scene2d UI panels on a single OpenGL window.
  */
 public class EditorApplication extends ApplicationAdapter {
+    /** World position the editor view centers on at startup and on Reset View (center of the sample scene). */
+    static final float DEFAULT_VIEW_CENTER_X = 320f;
+    static final float DEFAULT_VIEW_CENTER_Y = 240f;
+
+    static final List<String> MENU_ORDER = List.of(
+        DefaultEditorActions.MENU_FILE, DefaultEditorActions.MENU_EDIT, DefaultEditorActions.MENU_CREATE,
+        DefaultEditorActions.MENU_TOOLS, DefaultEditorActions.MENU_WINDOW, DefaultEditorActions.MENU_HELP);
+
+    static final String ACTION_RESET_VIEW = "view.reset";
+    static final String ACTION_TOGGLE_GRID = "window.toggle-grid";
+    static final String ACTION_TOGGLE_PHYSICS_DEBUG = "window.toggle-physics-debug";
+    static final String ACTION_TOGGLE_ASSISTANT = "window.toggle-assistant";
+    static final String ACTION_TOGGLE_THEME = "window.toggle-theme";
+
+    private static final float MENU_BAR_HEIGHT = 28f;
+    private static final float TOOLBAR_HEIGHT = 34f;
+    private static final float STATUS_BAR_HEIGHT = 24f;
+
+    // 3D view. Scene units are pixel-sized (the sample scene spans 640x480), so distances and speeds are large.
+    private static final float VIEW3D_FIELD_OF_VIEW = 60f;
+    private static final float VIEW3D_NEAR_PLANE = 1f;
+    private static final float VIEW3D_FAR_PLANE = 50000f;
+    /** Initial 3D camera offset from the view center: raised and pulled back to look slightly down at the scene. */
+    private static final float VIEW3D_CAMERA_HEIGHT = 520f;
+    private static final float VIEW3D_CAMERA_DISTANCE = 900f;
+    /** Pan speed per pixel, scaled by camera distance / 10 inside ViewportCameraController3D. */
+    private static final float VIEW3D_PAN_SENSITIVITY = 0.022f;
+    /** Fly speed in world units per second. */
+    private static final float VIEW3D_FLY_SPEED = 400f;
+    /** Dolly distance per mouse-wheel notch. */
+    private static final float VIEW3D_DOLLY_STEP = 60f;
+
     private final EditorState editorState;
     private final OrthographicCamera2D sceneCamera;
     private final SceneRenderer2D sceneRenderer;
@@ -60,19 +108,18 @@ public class EditorApplication extends ApplicationAdapter {
     private Skin skin;
     private Stage uiStage;
 
-    // Viewport navigation mouse drag state
-    private boolean isPanning = false;
-    private int lastMouseX;
-    private int lastMouseY;
+    private final EditorActionRegistry actionRegistry = new EditorActionRegistry();
+    private final PerspectiveCamera3D sceneCamera3D;
+    private final ViewportCameraController3D cameraController3D;
+    private final ViewportInteraction viewportInteraction;
+    private SceneViewportWidget sceneViewport;
 
-    // Viewport spacer for dynamic hit-testing
-    private Table viewportSpacer;
     private boolean isAssistantVisible = false;
     private com.badlogic.gdx.scenes.scene2d.ui.SplitPane rightSplit;
 
     public EditorApplication() {
         this.editorState = new EditorState();
-        this.sceneCamera = new OrthographicCamera2D(640, 480);
+        this.sceneCamera = OrthographicCamera2D.createScreenFilling(DEFAULT_VIEW_CENTER_X, DEFAULT_VIEW_CENTER_Y);
 
         // Find asset root directory ('assets' or parent/current)
         java.io.File assetRoot = findAssetRoot();
@@ -81,6 +128,8 @@ public class EditorApplication extends ApplicationAdapter {
 
         this.editorState.setAssetService(assetService);
         this.sceneRenderer = new SceneRenderer2D(sceneCamera, assetService);
+        // SceneViewportWidget clears the frame buffer; the workspace draws the grid before the scene
+        this.sceneRenderer.setClearEnabled(false);
 
         // Register core serializers into editor state serializer
         this.editorState.getSerializer().getRegistry().register(
@@ -120,6 +169,16 @@ public class EditorApplication extends ApplicationAdapter {
         this.physicsDebugRenderer = new io.github.ldev22live.gdxunity.editor.desktop.ui.PhysicsDebugRenderer(
             editorState, playModeController, colliderController, sceneCamera
         );
+        // 3D view: perspective camera with editor navigation; input is routed by the current viewport mode
+        this.sceneCamera3D = new PerspectiveCamera3D(VIEW3D_FIELD_OF_VIEW, 800f, 600f, VIEW3D_NEAR_PLANE, VIEW3D_FAR_PLANE);
+        this.cameraController3D = new ViewportCameraController3D(sceneCamera3D);
+        cameraController3D.setPanSensitivity(VIEW3D_PAN_SENSITIVITY);
+        cameraController3D.setFlyMoveSpeed(VIEW3D_FLY_SPEED);
+        cameraController3D.setZoomSensitivity(VIEW3D_DOLLY_STEP);
+        reset3DView();
+        this.viewportInteraction = new ModeSwitchingViewportInteraction(editorState,
+            new SceneViewportInteraction2D(editorState, sceneCamera, gizmoController, colliderController),
+            new SceneViewportInteraction3D(editorState, sceneCamera3D, cameraController3D, gizmoController));
         // Workspace and Layout initialization
         this.workspaceManager = new io.github.ldev22live.gdxunity.editor.core.workspace.DefaultWorkspaceManager(() -> editorState);
         this.layoutSerializer = new io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceLayoutSerializer();
@@ -130,6 +189,12 @@ public class EditorApplication extends ApplicationAdapter {
         this.sceneEditorWorkspace = new io.github.ldev22live.gdxunity.editor.desktop.workspaces.SceneEditorWorkspace(
             sceneRenderer, sceneCamera, gizmoRenderer, new io.github.ldev22live.gdxunity.editor.desktop.ui.ViewportGridRenderer(sceneCamera), physicsDebugRenderer
         );
+        this.sceneEditorWorkspace.configure3DView(sceneCamera3D,
+            new io.github.ldev22live.gdxunity.editor.desktop.ui.TransformGizmoRenderer(editorState, gizmoController, sceneCamera3D),
+            new ViewportGridRenderer3D(sceneCamera3D));
+        this.sceneEditorWorkspace.setSelectionOutlines(
+            new io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer(editorState, sceneCamera),
+            new io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer(editorState, sceneCamera3D));
         this.workspaceManager.registerWorkspace(sceneEditorWorkspace);
 
         // Centralized keyboard shortcut dispatcher
@@ -140,13 +205,13 @@ public class EditorApplication extends ApplicationAdapter {
             return false;
         });
 
-        // Register standard global shortcuts
-        // Keycode 54 = Z, 53 = Y, 47 = S, 112 = Forward Delete / Backspace
-        this.keyboardDispatcher.registerGlobalShortcut("undo", Input.Keys.Z, io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher.MOD_CTRL, editorState::undo);
-        this.keyboardDispatcher.registerGlobalShortcut("redo-ctrl-y", Input.Keys.Y, io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher.MOD_CTRL, editorState::redo);
-        this.keyboardDispatcher.registerGlobalShortcut("redo-ctrl-shift-z", Input.Keys.Z, io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher.MOD_CTRL | io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher.MOD_SHIFT, editorState::redo);
-        this.keyboardDispatcher.registerGlobalShortcut("delete", Input.Keys.FORWARD_DEL, 0, editorState::deleteSelectedEntity);
-        this.keyboardDispatcher.registerGlobalShortcut("duplicate", Input.Keys.D, io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher.MOD_CTRL, editorState::duplicateSelectedEntity);
+        // Like most 3D editors, start with the Move tool so a selection immediately shows its gizmo
+        this.editorState.setToolMode(io.github.ldev22live.gdxunity.editor.core.ToolMode.MOVE);
+
+        // Editor actions drive menus, toolbars, shortcuts and automation
+        DefaultEditorActions.registerDefaults(actionRegistry, editorState);
+        registerDesktopActions();
+        actionRegistry.bindShortcuts(keyboardDispatcher);
 
         // Populate with initial demo scene
         Scene initialScene = createInitialScene();
@@ -212,13 +277,16 @@ public class EditorApplication extends ApplicationAdapter {
         this.skin = skinFactory.createSkin(themeManager.getCurrentPalette());
         this.uiStage = new Stage(new ScreenViewport());
 
-        // 3. Build UI layout
+        // 3. Scene view widget lives across UI rebuilds (theme switches) because it owns a frame buffer
+        this.sceneViewport = new SceneViewportWidget(viewportInteraction, workspaceManager::resize);
+
+        // 4. Build UI layout
         buildUi();
 
-        // 4. Configure input handling: UI stage has first priority, then viewport controller
+        // 5. Configure input handling: UI stage (including the scene view) first, then global shortcuts
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(uiStage);
-        multiplexer.addProcessor(new ViewportInputProcessor());
+        multiplexer.addProcessor(new KeyboardShortcutProcessor());
         Gdx.input.setInputProcessor(multiplexer);
     }
 
@@ -249,94 +317,49 @@ public class EditorApplication extends ApplicationAdapter {
         root.setFillParent(true);
         uiStage.addActor(root);
 
-        // 1. Top Studio Navigation Bar (Workspace Switcher & Menu)
-        io.github.ldev22live.gdxunity.editor.desktop.ui.workspace.StudioNavigationBar studioNav =
-            new io.github.ldev22live.gdxunity.editor.desktop.ui.workspace.StudioNavigationBar(workspaceManager, themeManager, skin, menuName -> {
-                switch (menuName) {
-                    case "File" -> {
-                        try {
-                            java.io.File saveFile = new java.io.File("scene_backup.json");
-                            editorState.saveSceneToFile(saveFile);
-                            editorState.setStatusMessage("Scene saved to " + saveFile.getName(), false);
-                        } catch (Exception e) {
-                            editorState.setStatusMessage("Save failed: " + e.getMessage(), true);
-                        }
-                    }
-                    case "Edit" -> {
-                        if (editorState.getCommandHistory().canUndo()) {
-                            editorState.undo();
-                        } else {
-                            editorState.setStatusMessage("Nothing to undo", false);
-                        }
-                    }
-                    case "Assets" -> {
-                        assetCatalog.scan();
-                        editorState.setStatusMessage("Asset catalog refreshed (" + assetCatalog.getAllAssets().size() + " assets)", false);
-                    }
-                    case "GameObject" -> {
-                        Entity created = editorState.createEntity("GameObject");
-                        editorState.setSelectedEntity(created);
-                        editorState.setStatusMessage("Created: " + created.getName(), false);
-                    }
-                    case "Component" -> {
-                        Entity selected = editorState.getSelectedEntity();
-                        if (selected != null) {
-                            io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent sprite =
-                                new io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent(100f, 100f);
-                            editorState.executeCommand(new io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand(editorState, selected.getId(), sprite));
-                            editorState.setStatusMessage("Added SpriteRendererComponent to " + selected.getName(), false);
-                        } else {
-                            editorState.setStatusMessage("Select a GameObject first to add a component", true);
-                        }
-                    }
-                    case "View", "ToggleTheme" -> {
-                        io.github.ldev22live.gdxunity.editor.core.theme.EditorThemeMode next =
-                            (themeManager.getCurrentMode() == io.github.ldev22live.gdxunity.editor.core.theme.EditorThemeMode.DARK) ?
-                                io.github.ldev22live.gdxunity.editor.core.theme.EditorThemeMode.LIGHT :
-                                io.github.ldev22live.gdxunity.editor.core.theme.EditorThemeMode.DARK;
-                        switchTheme(next);
-                    }
-                    case "Window" -> toggleAssistantPanel();
-                    case "Help" -> editorState.setStatusMessage("GdxUnity v1.0.0 — LibGDX 1.14.2 & Java 21 LTS Editor", false);
-                }
-            });
-        root.add(studioNav).growX().height(30).row();
+        // 1. Menu bar: brand + drop-down menus generated from the action registry
+        Table menuRow = new Table(skin);
+        menuRow.setBackground("header-bg");
+        Label brand = new Label(" GdxUnity ", skin);
+        brand.setColor(skin.getColor("accent"));
+        menuRow.add(brand).padLeft(6).padRight(6);
+        menuRow.add(new EditorMenuBar(actionRegistry, MENU_ORDER, skin)).left().expandX();
+        root.add(menuRow).growX().height(MENU_BAR_HEIGHT).row();
 
-        // 2. Editor Command Toolbar
-        EditorToolbar toolbar = new EditorToolbar(editorState, playModeController, sceneCamera, skin, this::toggleAssistantPanel, this::toggleGrid, this::togglePhysicsDebug);
-        root.add(toolbar).growX().height(34).row();
+        // 2. Main toolbar: compile left, play controls centered, panel toggles right
+        root.add(new EditorToolbar(editorState, playModeController, skin, this::toggleAssistantPanel))
+            .growX().height(TOOLBAR_HEIGHT).row();
 
-        // 3. Middle Resizable Workspace Layout using SplitPane
-        // Left: HierarchyPanel
+        // 3. Outliner | Scene view | Details (+ optional AI Assistant), Content Browser below
         HierarchyPanel hierarchyPanel = new HierarchyPanel(editorState, skin);
 
-        // Center: Viewport spacer (transparent area where SceneRenderer2D draws)
-        this.viewportSpacer = new Table();
+        ViewportOverlayToolbar overlay = new ViewportOverlayToolbar(editorState, actionRegistry, skin,
+            DefaultEditorActions.VIEW_TOGGLE_2D_3D, ACTION_TOGGLE_GRID, ACTION_TOGGLE_PHYSICS_DEBUG, ACTION_RESET_VIEW);
+        Container<ViewportOverlayToolbar> overlayContainer = new Container<>(overlay);
+        overlayContainer.top().left().pad(6f);
+        // The container covers the whole scene view; only the toolbar itself should take clicks
+        overlayContainer.setTouchable(Touchable.childrenOnly);
+        Stack sceneView = new Stack(sceneViewport, overlayContainer);
 
-        // Left split: [Hierarchy] | [Center Viewport]
         com.badlogic.gdx.scenes.scene2d.ui.SplitPane leftSplit =
-            new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(hierarchyPanel, viewportSpacer, false, skin);
+            new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(hierarchyPanel, sceneView, false, skin);
         leftSplit.setSplitAmount(layoutConfig.getSplitRatioLeft());
         leftSplit.setMinSplitAmount(0.12f);
         leftSplit.setMaxSplitAmount(0.40f);
 
-        // Right: Inspector and optional AI Assistant in vertical split
         InspectorPanel inspectorPanel = new InspectorPanel(editorState, skin);
         this.assistantPanel = new io.github.ldev22live.gdxunity.editor.desktop.ui.AssistantPanel(assistantService, skin);
         this.rightSplit = new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(inspectorPanel, assistantPanel, true, skin);
-        // By default show Inspector primarily, Assistant hidden or docked
         this.rightSplit.setSplitAmount(isAssistantVisible ? 0.55f : 1.0f);
         this.rightSplit.setMinSplitAmount(0.2f);
         this.rightSplit.setMaxSplitAmount(1.0f);
 
-        // Center+Right split: [leftSplit] | [rightSplit (Inspector + Assistant)]
         com.badlogic.gdx.scenes.scene2d.ui.SplitPane centerRightSplit =
             new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(leftSplit, rightSplit, false, skin);
         centerRightSplit.setSplitAmount(1.0f - layoutConfig.getSplitRatioRight());
         centerRightSplit.setMinSplitAmount(0.50f);
         centerRightSplit.setMaxSplitAmount(0.88f);
 
-        // Bottom Section: Asset Browser (Height configurable via vertical split)
         io.github.ldev22live.gdxunity.editor.desktop.ui.AssetBrowserPanel assetBrowser =
             new io.github.ldev22live.gdxunity.editor.desktop.ui.AssetBrowserPanel(editorState, assetCatalog, skin);
 
@@ -348,9 +371,53 @@ public class EditorApplication extends ApplicationAdapter {
 
         root.add(mainSplit).grow().row();
 
-        // 4. Bottom Status Bar
-        EditorStatusBar statusBar = new EditorStatusBar(editorState, skin);
-        root.add(statusBar).growX().height(24);
+        // 4. Status bar
+        root.add(new EditorStatusBar(editorState, skin)).growX().height(STATUS_BAR_HEIGHT);
+    }
+
+    private void registerDesktopActions() {
+        actionRegistry.register(EditorAction.builder(ACTION_RESET_VIEW, "Reset View", this::resetView)
+            .menu(DefaultEditorActions.MENU_TOOLS, 1)
+            .build());
+        actionRegistry.register(EditorAction.builder(ACTION_TOGGLE_GRID, "Grid", this::toggleGrid)
+            .menu(DefaultEditorActions.MENU_WINDOW, 0)
+            .build());
+        actionRegistry.register(EditorAction.builder(ACTION_TOGGLE_PHYSICS_DEBUG, "Physics Debug", this::togglePhysicsDebug)
+            .menu(DefaultEditorActions.MENU_WINDOW, 0)
+            .build());
+        actionRegistry.register(EditorAction.builder(ACTION_TOGGLE_ASSISTANT, "AI Assistant", this::toggleAssistantPanel)
+            .menu(DefaultEditorActions.MENU_WINDOW, 1)
+            .build());
+        // Rebuilding the UI from inside a menu click would remove the actor handling the event; defer it
+        actionRegistry.register(EditorAction.builder(ACTION_TOGGLE_THEME, "Toggle Dark/Light Theme",
+                () -> Gdx.app.postRunnable(this::toggleTheme))
+            .menu(DefaultEditorActions.MENU_WINDOW, 2)
+            .build());
+    }
+
+    private void toggleTheme() {
+        io.github.ldev22live.gdxunity.editor.core.theme.EditorThemeMode next =
+            (themeManager.getCurrentMode() == io.github.ldev22live.gdxunity.editor.core.theme.EditorThemeMode.DARK)
+                ? io.github.ldev22live.gdxunity.editor.core.theme.EditorThemeMode.LIGHT
+                : io.github.ldev22live.gdxunity.editor.core.theme.EditorThemeMode.DARK;
+        switchTheme(next);
+    }
+
+    private void resetView() {
+        sceneCamera.setPosition(DEFAULT_VIEW_CENTER_X, DEFAULT_VIEW_CENTER_Y, 0f);
+        sceneCamera.setZoom(1.0f);
+        sceneCamera.update();
+        reset3DView();
+        editorState.setStatusMessage("Camera view reset", false);
+    }
+
+    /** Places the 3D camera in front of and above the view center, looking at it. */
+    private void reset3DView() {
+        sceneCamera3D.setPosition(DEFAULT_VIEW_CENTER_X, VIEW3D_CAMERA_HEIGHT, VIEW3D_CAMERA_DISTANCE);
+        sceneCamera3D.setUp(com.badlogic.gdx.math.Vector3.Y);
+        sceneCamera3D.lookAt(DEFAULT_VIEW_CENTER_X, DEFAULT_VIEW_CENTER_Y, 0f);
+        sceneCamera3D.update();
+        cameraController3D.setTarget(DEFAULT_VIEW_CENTER_X, DEFAULT_VIEW_CENTER_Y, 0f);
     }
 
     public void toggleAssistantPanel() {
@@ -380,48 +447,35 @@ public class EditorApplication extends ApplicationAdapter {
     public void resize(int width, int height) {
         if (width <= 0 || height <= 0) return;
 
-        // Resize UI Stage
+        // The scene view sizes its own camera from its panel (SceneViewportWidget), so only the UI follows the window
         if (uiStage != null) {
             uiStage.getViewport().update(width, height, true);
-        }
-
-        // Delegate to active workspace for internal viewports and camera
-        if (workspaceManager != null) {
-            workspaceManager.resize(width, height);
-        } else if (sceneRenderer != null) {
-            sceneRenderer.resize(width, height);
         }
     }
 
     @Override
     public void render() {
-        // 1. Clear OpenGL buffer using theme surface/background
-        Color clearColor = themeManager != null ? themeManager.getCurrentPalette().getBackground() : new Color(0.12f, 0.14f, 0.18f, 1.0f);
-        Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        Color background = themeManager.getCurrentPalette().getBackground();
         float delta = Gdx.graphics.getDeltaTime();
 
-        // 2. Advance Play Mode simulation if active
-        if (playModeController != null && playModeController.isPlaying()) {
+        // 1. Advance Play Mode simulation if active
+        if (playModeController.isPlaying()) {
             playModeController.update(delta);
         }
+        viewportInteraction.update(delta);
 
-        // 3. Delegate per-frame rendering to active creative workspace
-        if (workspaceManager != null) {
-            workspaceManager.update(delta);
-            workspaceManager.render(delta);
-        } else if (sceneRenderer != null) {
-            sceneRenderer.render(delta);
-            if (sceneRenderer.getShapeRenderer() != null) {
-                float zoom = sceneCamera.getZoom();
-                gizmoRenderer.render(sceneRenderer.getShapeRenderer(), zoom);
-            }
+        // 2. Render the active workspace off-screen into the scene view panel
+        workspaceManager.update(delta);
+        if (sceneViewport != null) {
+            sceneViewport.renderScene(background, () -> workspaceManager.render(delta));
         }
 
-        // 4. Render Editor UI Stage on top
+        // 3. Clear the window and draw the editor UI (which shows the scene view texture)
+        Gdx.gl.glClearColor(background.r, background.g, background.b, 1.0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (uiStage != null) {
             uiStage.act(delta);
+            uiStage.getViewport().apply();
             uiStage.draw();
         }
     }
@@ -457,6 +511,9 @@ public class EditorApplication extends ApplicationAdapter {
         }
         if (physicsDebugRenderer != null) {
             physicsDebugRenderer.dispose();
+        }
+        if (sceneViewport != null) {
+            sceneViewport.dispose();
         }
         if (uiStage != null) {
             uiStage.dispose();
@@ -502,6 +559,10 @@ public class EditorApplication extends ApplicationAdapter {
         return keyboardDispatcher;
     }
 
+    public EditorActionRegistry getActionRegistry() {
+        return actionRegistry;
+    }
+
     public io.github.ldev22live.gdxunity.editor.core.agent.service.AssistantService getAssistantService() {
         return assistantService;
     }
@@ -510,150 +571,9 @@ public class EditorApplication extends ApplicationAdapter {
         return assistantPanel;
     }
 
-    // --- Viewport Input Handling: Right-Click Pan, Mouse Wheel Zoom, Left-Click Picking ---
+    // --- Global keyboard shortcuts (pointer input is handled by SceneViewportWidget) ---
 
-    private class ViewportInputProcessor extends InputAdapter {
-        @Override
-        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            // Check if clicking in the center area (outside of side panels)
-            boolean inViewport = true;
-            if (viewportSpacer != null && viewportSpacer.getStage() != null) {
-                com.badlogic.gdx.math.Vector2 stageCoords = viewportSpacer.getStage().screenToStageCoordinates(new Vector2(screenX, screenY));
-                Actor hit = viewportSpacer.getStage().hit(stageCoords.x, stageCoords.y, true);
-                // Allow interaction if clicked on the viewportSpacer or no UI element absorbed the hit
-                inViewport = (hit == null || hit == viewportSpacer || hit.isDescendantOf(viewportSpacer));
-            } else {
-                int leftPanelWidth = (int) (Gdx.graphics.getWidth() * layoutConfig.getSplitRatioLeft());
-                int rightPanelWidth = (int) (Gdx.graphics.getWidth() * layoutConfig.getSplitRatioRight());
-                int topBarHeight = 60;
-                int bottomBarHeight = 24;
-                int windowW = Gdx.graphics.getWidth();
-                int windowH = Gdx.graphics.getHeight();
-                inViewport = (screenX >= leftPanelWidth) && (screenX <= windowW - rightPanelWidth)
-                    && (screenY >= topBarHeight) && (screenY <= windowH - bottomBarHeight);
-            }
-
-            if (!inViewport) {
-                return false;
-            }
-
-            if (button == Input.Buttons.RIGHT) {
-                isPanning = true;
-                lastMouseX = screenX;
-                lastMouseY = screenY;
-                return true;
-            }
-
-            if (button == Input.Buttons.LEFT) {
-                Vector2 worldCoords = ViewportPicker.screenToWorld2D(sceneCamera, screenX, screenY);
-                float zoom = sceneCamera.getZoom();
-
-                // 1. Collider Gizmo interaction priority: check if a collider handle was clicked on selected entity
-                io.github.ldev22live.gdxunity.editor.core.gizmo.ColliderGizmoController.HitResult colHit = colliderController.hitTest(worldCoords, zoom);
-                if (colHit.handle != io.github.ldev22live.gdxunity.editor.core.gizmo.ColliderGizmoHandle.NONE) {
-                    colliderController.startDrag(colHit, worldCoords);
-                    editorState.setStatusMessage("Resizing Collider: " + colHit.handle.name(), false);
-                    return true;
-                }
-
-                // 2. Transform Gizmo interaction priority: check if a transform gizmo handle was clicked
-                io.github.ldev22live.gdxunity.editor.core.gizmo.GizmoHandle handle = gizmoController.hitTest(worldCoords, zoom);
-                if (handle != io.github.ldev22live.gdxunity.editor.core.gizmo.GizmoHandle.NONE) {
-                    gizmoController.startDrag(handle, worldCoords);
-                    editorState.setStatusMessage("Manipulating: " + handle.name(), false);
-                    return true;
-                }
-
-                // 3. Viewport Entity Picking: check if an entity was clicked
-                Entity picked = ViewportPicker.pickEntityAt(editorState.getActiveScene(), worldCoords.x, worldCoords.y);
-                if (picked != null) {
-                    boolean shiftOrCtrl = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
-                        || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)
-                        || Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
-                        || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
-
-                    if (shiftOrCtrl) {
-                        if (editorState.isSelected(picked.getId())) {
-                            editorState.removeSelectedEntityId(picked.getId());
-                        } else {
-                            editorState.addSelectedEntityId(picked.getId());
-                        }
-                    } else {
-                        editorState.setSelectedEntity(picked);
-                    }
-                    editorState.setStatusMessage("Picked entity: " + picked.getName(), false);
-                } else {
-                    editorState.clearSelection();
-                }
-                return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public boolean touchDragged(int screenX, int screenY, int pointer) {
-            if (isPanning) {
-                float dx = screenX - lastMouseX;
-                float dy = screenY - lastMouseY;
-
-                // Move camera opposite to mouse drag in world coordinates scaled by camera zoom
-                float zoom = sceneCamera.getZoom();
-                sceneCamera.translate(-dx * zoom, dy * zoom, 0f);
-                sceneCamera.update();
-
-                lastMouseX = screenX;
-                lastMouseY = screenY;
-                return true;
-            }
-
-            if (colliderController.isDragging()) {
-                Vector2 worldCoords = ViewportPicker.screenToWorld2D(sceneCamera, screenX, screenY);
-                colliderController.updateDrag(worldCoords);
-                return true;
-            }
-
-            if (gizmoController.isDragging()) {
-                Vector2 worldCoords = ViewportPicker.screenToWorld2D(sceneCamera, screenX, screenY);
-                float zoom = sceneCamera.getZoom();
-                gizmoController.updateDrag(worldCoords, zoom);
-                return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            if (button == Input.Buttons.RIGHT) {
-                isPanning = false;
-                return true;
-            }
-
-            if (button == Input.Buttons.LEFT && colliderController.isDragging()) {
-                colliderController.endDrag();
-                editorState.setStatusMessage("Collider resizing finished", false);
-                return true;
-            }
-
-            if (button == Input.Buttons.LEFT && gizmoController.isDragging()) {
-                gizmoController.endDrag();
-                editorState.setStatusMessage("Manipulation finished", false);
-                return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public boolean scrolled(float amountX, float amountY) {
-            float currentZoom = sceneCamera.getZoom();
-            float newZoom = Math.max(0.1f, Math.min(10f, currentZoom + amountY * 0.1f));
-            sceneCamera.setZoom(newZoom);
-            sceneCamera.update();
-            return true;
-        }
-
+    private class KeyboardShortcutProcessor extends InputAdapter {
         @Override
         public boolean keyDown(int keycode) {
             int modifiers = 0;
@@ -666,12 +586,7 @@ public class EditorApplication extends ApplicationAdapter {
             if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT)) {
                 modifiers |= io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher.MOD_ALT;
             }
-
-            if (keyboardDispatcher != null && keyboardDispatcher.dispatch(keycode, modifiers)) {
-                return true;
-            }
-
-            return false;
+            return keyboardDispatcher.dispatch(keycode, modifiers);
         }
     }
 }
