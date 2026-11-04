@@ -7,11 +7,15 @@ import io.github.ldev22live.gdxunity.engine.scene.BaseComponent;
 /**
  * Directional light component for simulating light from a distant source (e.g., sun).
  * Directional lights have a direction but no position, affecting all objects equally.
+ *
+ * <p>With {@link #isCastShadows()} the 3D renderer draws this light's shadows. Only one directional light
+ * casts shadows at a time: the first enabled one that has it switched on.
  */
 public class DirectionalLightComponent extends BaseComponent {
     private final Vector3 direction = new Vector3(0f, -1f, -0.5f).nor();
     private Color color = new Color(1f, 1f, 1f, 1f);
     private float intensity = 1.0f;
+    private boolean castShadows = true;
 
     public DirectionalLightComponent() {
         super();
@@ -68,5 +72,19 @@ public class DirectionalLightComponent extends BaseComponent {
      */
     public void setIntensity(float intensity) {
         this.intensity = Math.max(0f, intensity);
+    }
+
+    /**
+     * Whether this light casts shadows in the 3D view. Default true.
+     */
+    public boolean isCastShadows() {
+        return castShadows;
+    }
+
+    /**
+     * Sets whether this light casts shadows in the 3D view.
+     */
+    public void setCastShadows(boolean castShadows) {
+        this.castShadows = castShadows;
     }
 }

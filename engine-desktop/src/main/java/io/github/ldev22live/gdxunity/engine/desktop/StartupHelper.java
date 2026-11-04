@@ -26,6 +26,7 @@ import org.lwjgl.system.macosx.ObjCRuntime;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -79,6 +80,17 @@ public class StartupHelper {
 	 * @return whether a child JVM process was spawned or not.
 	 */
 	public static boolean startNewJvmIfRequired() {
+		return startNewJvmIfRequired(true);
+	}
+
+	/** Program arguments passed on to the child JVM process, so a restarted game still gets its options. */
+	private static String[] forwardedArgs = new String[0];
+
+	/**
+	 * Like {@link #startNewJvmIfRequired()}, and passes {@code programArgs} on to the child JVM process.
+	 */
+	public static boolean startNewJvmIfRequired(String[] programArgs) {
+		forwardedArgs = programArgs.clone();
 		return startNewJvmIfRequired(true);
 	}
 
@@ -199,6 +211,7 @@ public class StartupHelper {
 			}
 		}
 		jvmArgs.add(mainClass);
+		jvmArgs.addAll(Arrays.asList(forwardedArgs));
 
 		try {
 			ProcessBuilder processBuilder = new ProcessBuilder(jvmArgs);

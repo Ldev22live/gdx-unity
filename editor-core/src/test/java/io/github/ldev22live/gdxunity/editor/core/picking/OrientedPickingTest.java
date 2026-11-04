@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import io.github.ldev22live.gdxunity.editor.core.EditorTestHelper;
+import io.github.ldev22live.gdxunity.engine.render.components.DynamicMeshComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
@@ -73,5 +74,23 @@ class OrientedPickingTest {
         flat.addComponent(new MeshPrimitiveComponent());
         flat.getTransform().setLocalScale(1f, 1f, 0f);
         assertDoesNotThrow(() -> ViewportPicker.pickEntity3D(scene, downZ(0f, 0f)));
+    }
+
+    @Test
+    void shouldPickAndMeasureADynamicMeshOnceTheRendererReportedItsBounds() {
+        Scene scene = new Scene("Sculpts");
+        Entity sculpt = scene.createEntity("Sculpt");
+        DynamicMeshComponent mesh = sculpt.addComponent(new DynamicMeshComponent("sculpts/rock.sculpt"));
+        assertNull(ViewportPicker.computeMeshLocalBounds(sculpt), "nothing is known before the first frame");
+        assertNull(ViewportPicker.pickEntity3D(scene, downZ(0f, 0f)));
+
+        mesh.setBounds(new BoundingBox(new Vector3(-50f, -50f, -50f), new Vector3(50f, 50f, 50f)));
+
+        BoundingBox local = ViewportPicker.computeMeshLocalBounds(sculpt);
+        assertEquals(50f, local.max.x, 1e-4f);
+        assertEquals(sculpt, ViewportPicker.pickEntity3D(scene, downZ(0f, 0f)));
+        assertNull(ViewportPicker.pickEntity3D(scene, downZ(80f, 0f)), "outside the bounds");
+        mesh.setEnabled(false);
+        assertNull(ViewportPicker.computeMeshLocalBounds(sculpt), "a disabled component is ignored");
     }
 }

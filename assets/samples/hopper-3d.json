@@ -1,0 +1,714 @@
+{
+  "schemaVersion": 1,
+  "name": "3D Platform Hopper",
+  "active": true,
+  "entities": [
+    {
+      "id": "d6a0c6e9-c492-54c5-8197-d7db7b0dc67f",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "fedbf821-972d-53fb-a38d-8c08f37ca848",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.72,
+            "skyB": 0.88,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "862ab0b0-ae47-50e3-a240-a93028aaeced",
+      "name": "Platform 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -20.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 260.0,
+            "sizeY": 40.0,
+            "sizeZ": 260.0,
+            "colorR": 0.62,
+            "colorG": 0.6,
+            "colorB": 0.66,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f171b753-79fa-5b0c-920d-3b40da116a64",
+      "name": "Platform 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 40.0,
+          "z": -330.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 40.0,
+            "sizeZ": 160.0,
+            "colorR": 0.62,
+            "colorG": 0.6,
+            "colorB": 0.66,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c333ab19-5581-5d7f-aae0-4754ea343001",
+      "name": "Platform 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 260.0,
+          "y": 110.0,
+          "z": -520.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 40.0,
+            "sizeZ": 160.0,
+            "colorR": 0.62,
+            "colorG": 0.6,
+            "colorB": 0.66,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7e84d1f7-3eb5-50df-95b2-74dba0393893",
+      "name": "Platform 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 520.0,
+          "y": 180.0,
+          "z": -380.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 40.0,
+            "sizeZ": 140.0,
+            "colorR": 0.62,
+            "colorG": 0.6,
+            "colorB": 0.66,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "86e6e2ca-e04f-50ca-bebd-2061decb0dbf",
+      "name": "Platform 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 520.0,
+          "y": 240.0,
+          "z": -80.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 120.0,
+            "sizeY": 40.0,
+            "sizeZ": 260.0,
+            "colorR": 0.62,
+            "colorG": 0.6,
+            "colorB": 0.66,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "26539489-369c-58ac-b094-63b61b2a4bab",
+      "name": "Platform 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 260.0,
+          "y": 300.0,
+          "z": 100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 40.0,
+            "sizeZ": 120.0,
+            "colorR": 0.62,
+            "colorG": 0.6,
+            "colorB": 0.66,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b9341fba-07b7-5138-a7bc-ff7e388a7b1a",
+      "name": "Platform 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 360.0,
+          "z": 160.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 120.0,
+            "sizeY": 40.0,
+            "sizeZ": 120.0,
+            "colorR": 0.62,
+            "colorG": 0.6,
+            "colorB": 0.66,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e5d46e6e-8bf9-57dc-b483-9ead72dddfec",
+      "name": "Platform 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -260.0,
+          "y": 300.0,
+          "z": -60.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 40.0,
+            "sizeZ": 140.0,
+            "colorR": 0.62,
+            "colorG": 0.6,
+            "colorB": 0.66,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6e0bc54a-fa6f-53ea-9f2a-3d5e09a9f944",
+      "name": "Goal",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -520.0,
+          "y": 380.0,
+          "z": -260.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 180.0,
+            "sizeY": 40.0,
+            "sizeZ": 180.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b7216ee4-ad4a-5d59-b06e-49eea9ecf1ee",
+      "name": "Player",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 30.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 60.0,
+            "sizeZ": 40.0,
+            "colorR": 1.0,
+            "colorG": 0.45,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/hopper/HopperPlayer.java",
+            "scriptClassName": "samples.hopper.HopperPlayer",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ec177249-38ab-5635-98a7-89d016ea41da",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 370.0,
+          "z": 520.0
+        },
+        "rotation": {
+          "x": -0.258664,
+          "y": -0.0,
+          "z": -0.0,
+          "w": 0.965967
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/common/FollowCamera3D.java",
+            "scriptClassName": "samples.common.FollowCamera3D",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eb227c08-e4d7-569b-b0b5-ce893a3a1b31",
+      "name": "Falls Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Falls: 0",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8b9ff78f-a72f-538c-8eb5-f5ce87b1dff0",
+      "name": "Time Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Time: 0.0",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_RIGHT",
+            "offsetX": -16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2d6848ad-8084-59c2-b22f-fd51af475a72",
+      "name": "Message Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.8,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1a9caa36-a3df-5ac9-98f1-4af7956fe673",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "WASD or arrows: move   Space: jump   R: restart   Reach the gold platform",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

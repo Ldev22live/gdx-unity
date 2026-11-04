@@ -47,4 +47,13 @@ class AssetReferenceTest {
         assertEquals(ref1.hashCode(), ref2.hashCode());
         assertNotEquals(ref1, ref3);
     }
+
+    @Test
+    void shouldRejectTraversalOnlyForWholeDotDotSegments() {
+        // Checked by splitting on '/', not with java.nio.file.Path (unavailable on the web runtime, TD-036)
+        assertEquals("textures/..hero.png", new AssetReference("textures/..hero.png").getPath());
+        assertEquals("a../b.png", new AssetReference("a../b.png").getPath());
+        assertThrows(IllegalArgumentException.class, () -> new AssetReference("textures/.."));
+        assertThrows(IllegalArgumentException.class, () -> new AssetReference("a//../b.png"));
+    }
 }

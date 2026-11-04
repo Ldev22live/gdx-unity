@@ -41,11 +41,24 @@ class SceneFileControllerTest {
     @Test
     void shouldStartCleanAndBecomeDirtyOnEditorCommands() {
         assertFalse(files.isDirty());
-        assertEquals("Untitled - GdxUnity Editor", files.getWindowTitle());
+        assertEquals("Untitled - Forgeroom Editor", files.getWindowTitle());
 
         editorState.createEntity("Thing");
         assertTrue(files.isDirty());
-        assertEquals("Untitled* - GdxUnity Editor", files.getWindowTitle());
+        assertEquals("Untitled* - Forgeroom Editor", files.getWindowTitle());
+    }
+
+    @Test
+    void shouldRunBeforeSaveHooksBeforeWriting() throws Exception {
+        io.github.ldev22live.gdxunity.engine.scene.Entity thing = editorState.createEntity("Thing");
+        thing.getTransform().setLocalPosition(500f, 0f, 0f);
+        files.addBeforeSaveHook(() -> thing.getTransform().setLocalPosition(0f, 0f, 0f));
+        dialogs.nextSaveFile = tempDir.resolve("hooked.json").toFile();
+
+        assertTrue(files.save());
+
+        String saved = java.nio.file.Files.readString(tempDir.resolve("hooked.json"));
+        assertFalse(saved.contains("500"), saved);
     }
 
     @Test
@@ -58,7 +71,7 @@ class SceneFileControllerTest {
         assertTrue(saved.isFile());
         assertEquals(saved, files.getCurrentFile());
         assertFalse(files.isDirty());
-        assertEquals("level1.json - GdxUnity Editor", files.getWindowTitle());
+        assertEquals("level1.json - Forgeroom Editor", files.getWindowTitle());
 
         // Second save goes straight to the same file
         editorState.createEntity("Another");
@@ -131,7 +144,23 @@ class SceneFileControllerTest {
         List<String> titles = new ArrayList<>();
         files.addListener(controller -> titles.add(controller.getWindowTitle()));
         editorState.createEntity("Thing");
-        assertEquals(List.of("Untitled* - GdxUnity Editor"), titles);
+        assertEquals(List.of("Untitled* - Forgeroom Editor"), titles);
+    }
+
+    @Test
+    void shouldOpenSamplesFromTheGivenFolder() throws Exception {
+        editorState.createEntity("Sample Entity");
+        dialogs.nextSaveFile = tempDir.resolve("sample.json").toFile();
+        assertTrue(files.save());
+        assertTrue(files.newScene());
+        File samples = tempDir.resolve("samples").toFile();
+
+        dialogs.nextOpenFile = tempDir.resolve("sample.json").toFile();
+        assertTrue(files.openFrom("Open Sample", samples));
+
+        assertEquals(samples, dialogs.lastOpenDirectory);
+        assertEquals("Open Sample", dialogs.lastOpenTitle);
+        assertNotNull(editorState.getActiveScene().findEntityByName("Sample Entity"));
     }
 
     private static class FakeDialogs implements EditorDialogService {
@@ -142,8 +171,13 @@ class SceneFileControllerTest {
         int unsavedPrompts;
         final List<String> errors = new ArrayList<>();
 
+        File lastOpenDirectory;
+        String lastOpenTitle;
+
         @Override
         public Optional<File> chooseOpenFile(String title, File initialDirectory, String filterDescription, String extension) {
+            lastOpenTitle = title;
+            lastOpenDirectory = initialDirectory;
             return Optional.ofNullable(nextOpenFile);
         }
 

@@ -1,0 +1,23 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-engine-audio'
+
+apply plugin: 'java-library'
+
+// Audio core (TD-040): software synthesizer, drums, samples, SoundFont playback, sfxr sound effects, effects,
+// mixer, song model and player. Headless and pure Java (plus libGDX's JSON reader), so it is unit-tested and
+// can later run in the web player; sound output is the caller's job (the editor feeds a libGDX AudioDevice).
+dependencies {
+  api project(':engine-core')
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+}
+
+test {
+  useJUnitPlatform()
+}
+
+jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

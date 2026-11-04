@@ -5,6 +5,10 @@ import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.EditorTestHelper;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
+import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.Ray;
+import io.github.ldev22live.gdxunity.editor.core.picking.ViewportPicker;
+import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import org.junit.jupiter.api.BeforeAll;
@@ -38,15 +42,37 @@ class AssetPlacementTest {
     }
 
     @Test
-    void shouldRefuseModelsWithAnExplanationUntilTheLoaderExists() {
+    void shouldPlaceModelAsSelectedModelEntityInOneUndoStep() {
         EditorState editorState = new EditorState();
         int before = editorState.getActiveScene().getAllEntities().size();
 
-        AssetPlacement.Result result = AssetPlacement.place(editorState, new AssetReference("models/robot.glb"), new Vector3());
-        assertEquals(AssetPlacement.Result.UNSUPPORTED_TYPE, result);
+        AssetPlacement.Result result = AssetPlacement.place(editorState, new AssetReference("models/robot.glb"), new Vector3(0f, 0f, 50f));
+        assertEquals(AssetPlacement.Result.PLACED, result);
+
+        Entity placed = editorState.getSelectedEntity();
+        assertEquals("robot", placed.getName());
+        assertEquals(new Vector3(0f, 0f, 50f), placed.getTransform().getWorldPosition());
+        assertEquals("models/robot.glb", placed.getComponent(ModelComponent.class).getModelPath());
+
+        editorState.undo();
         assertEquals(before, editorState.getActiveScene().getAllEntities().size());
-        assertTrue(editorState.isStatusError());
-        assertTrue(editorState.getStatusMessage().contains("robot.glb"));
+    }
+
+    @Test
+    void shouldPickModelByItsLoadedBoundsTimesImportScale() {
+        EditorState editorState = new EditorState();
+        Entity entity = editorState.getActiveScene().createEntity("Hero");
+        ModelComponent model = entity.addComponent(new ModelComponent("models/hero.glb"));
+        assertNull(ViewportPicker.computeMeshLocalBounds(entity), "nothing to pick before the model is loaded");
+
+        model.setModelInfo(new ModelComponent.ModelInfo(java.util.Map.of(),
+            new BoundingBox(new Vector3(-0.5f, 0f, -0.5f), new Vector3(0.5f, 2f, 0.5f)), 0, null));
+
+        BoundingBox bounds = ViewportPicker.computeMeshLocalBounds(entity);
+        assertEquals(200f, bounds.max.y, 1e-4f);
+        assertEquals(-50f, bounds.min.x, 1e-4f);
+        assertEquals(entity, ViewportPicker.pickEntity3D(editorState.getActiveScene(),
+            new Ray(new Vector3(0f, 100f, 500f), new Vector3(0f, 0f, -1f))));
     }
 
     @Test

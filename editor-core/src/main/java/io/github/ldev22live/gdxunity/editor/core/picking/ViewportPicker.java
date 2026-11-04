@@ -8,7 +8,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import io.github.ldev22live.gdxunity.engine.render.camera.Camera;
+import io.github.ldev22live.gdxunity.engine.render.components.DynamicMeshComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
@@ -103,8 +105,10 @@ public final class ViewportPicker {
     }
 
     /**
-     * Bounds of the entity's enabled {@link MeshPrimitiveComponent}s in the entity's local space (before its world
-     * transform), or {@code null} if it has none. Planes get {@link #PLANE_PICK_THICKNESS} so they can be hit.
+     * Bounds of the entity's enabled {@link MeshPrimitiveComponent}s, loaded {@link ModelComponent}s (rest pose,
+     * times the import scale) and {@link DynamicMeshComponent}s in the entity's local space (before its world
+     * transform), or {@code null} if it has none. Planes get {@link #PLANE_PICK_THICKNESS} so they can be hit. A
+     * model or dynamic mesh counts once the renderer has loaded it.
      */
     public static BoundingBox computeMeshLocalBounds(Entity entity) {
         BoundingBox union = null;
@@ -113,6 +117,14 @@ public final class ViewportPicker {
                 Vector3 half = primitive.getExtent().scl(0.5f);
                 half.y = Math.max(half.y, PLANE_PICK_THICKNESS / 2f);
                 BoundingBox box = new BoundingBox(new Vector3(half).scl(-1f), half);
+                union = (union == null) ? box : union.ext(box);
+            } else if (c.isEnabled() && c instanceof ModelComponent model && model.getModelInfo().bounds() != null) {
+                BoundingBox source = model.getModelInfo().bounds();
+                float scale = model.getImportScale();
+                BoundingBox box = new BoundingBox(new Vector3(source.min).scl(scale), new Vector3(source.max).scl(scale));
+                union = (union == null) ? box : union.ext(box);
+            } else if (c.isEnabled() && c instanceof DynamicMeshComponent dynamic && dynamic.getBounds() != null) {
+                BoundingBox box = dynamic.getBounds();
                 union = (union == null) ? box : union.ext(box);
             }
         }

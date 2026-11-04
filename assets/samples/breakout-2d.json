@@ -1,0 +1,2158 @@
+{
+  "schemaVersion": 1,
+  "name": "2D Breakout",
+  "active": true,
+  "entities": [
+    {
+      "id": "514e56d2-bd28-5346-b7f6-85fb2fffb2c9",
+      "name": "Background",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 640.0,
+            "height": 480.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.08,
+              "g": 0.09,
+              "b": 0.14,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "b822f1f9-b10b-56f9-9d49-256b639c1d54",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "ORTHOGRAPHIC",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4ee43a30-c155-52e2-84e9-1a1d53b50161",
+      "name": "Wall Left",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 5.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 10.0,
+            "height": 480.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.45,
+              "g": 0.48,
+              "b": 0.58,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "e54eb3f3-6020-59a4-b5b3-6b31cfc09b4e",
+      "name": "Wall Right",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 635.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 10.0,
+            "height": 480.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.45,
+              "g": 0.48,
+              "b": 0.58,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "a6226264-0735-5da8-93b2-c8bb1d1d6d82",
+      "name": "Wall Top",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 475.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 640.0,
+            "height": 10.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.45,
+              "g": 0.48,
+              "b": 0.58,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "f5f27435-45f6-53c4-a9b6-1107a86a5d13",
+      "name": "Brick 1-1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 54.0,
+          "y": 400.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.94,
+              "g": 0.33,
+              "b": 0.33,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "cc5b822d-abd4-5cbd-a8c1-7651eb8e5e46",
+      "name": "Brick 1-2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 130.0,
+          "y": 400.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.94,
+              "g": 0.33,
+              "b": 0.33,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "1bc98428-1cbe-510b-bf3e-79fcb7b8d81d",
+      "name": "Brick 1-3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 206.0,
+          "y": 400.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.94,
+              "g": 0.33,
+              "b": 0.33,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "c808d2da-8aef-5ea1-bfdd-fc33835e6623",
+      "name": "Brick 1-4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 282.0,
+          "y": 400.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.94,
+              "g": 0.33,
+              "b": 0.33,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "5e9135f7-de47-51b6-aa50-94d93a4794af",
+      "name": "Brick 1-5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 358.0,
+          "y": 400.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.94,
+              "g": 0.33,
+              "b": 0.33,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "41fa4e1f-48e6-5a20-8249-6f37ee64d342",
+      "name": "Brick 1-6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 434.0,
+          "y": 400.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.94,
+              "g": 0.33,
+              "b": 0.33,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "cf84fa61-4d32-53a7-8f46-b45a7f9e2c97",
+      "name": "Brick 1-7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 510.0,
+          "y": 400.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.94,
+              "g": 0.33,
+              "b": 0.33,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "30ba6622-0e7d-5c3e-a47f-3a53daec88b5",
+      "name": "Brick 1-8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 586.0,
+          "y": 400.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.94,
+              "g": 0.33,
+              "b": 0.33,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "13967ef4-8661-50dd-ad1f-ffe3563da529",
+      "name": "Brick 2-1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 54.0,
+          "y": 374.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.96,
+              "g": 0.6,
+              "b": 0.25,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "6898cb89-7990-5b89-bdaf-d25c5aa2140a",
+      "name": "Brick 2-2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 130.0,
+          "y": 374.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.96,
+              "g": 0.6,
+              "b": 0.25,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ec720778-de87-583a-9d3e-c28d6fbc8efe",
+      "name": "Brick 2-3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 206.0,
+          "y": 374.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.96,
+              "g": 0.6,
+              "b": 0.25,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "d6732063-a95f-5cc6-aee5-9b52bd8f7a51",
+      "name": "Brick 2-4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 282.0,
+          "y": 374.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.96,
+              "g": 0.6,
+              "b": 0.25,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "eb931438-ef7b-5739-8a7f-bdc5c8173aa4",
+      "name": "Brick 2-5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 358.0,
+          "y": 374.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.96,
+              "g": 0.6,
+              "b": 0.25,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "389058aa-8d81-542a-bbfb-64c58b91cfde",
+      "name": "Brick 2-6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 434.0,
+          "y": 374.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.96,
+              "g": 0.6,
+              "b": 0.25,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bb6fa189-4648-560d-a410-a2c340827fc1",
+      "name": "Brick 2-7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 510.0,
+          "y": 374.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.96,
+              "g": 0.6,
+              "b": 0.25,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "93532ab6-5a77-5daf-a345-1cae71518b65",
+      "name": "Brick 2-8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 586.0,
+          "y": 374.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.96,
+              "g": 0.6,
+              "b": 0.25,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "6aafd74e-9d68-5732-9028-a36788868605",
+      "name": "Brick 3-1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 54.0,
+          "y": 348.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.95,
+              "g": 0.85,
+              "b": 0.3,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "610cbfd8-0f93-567f-8ef7-cfd405d54db0",
+      "name": "Brick 3-2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 130.0,
+          "y": 348.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.95,
+              "g": 0.85,
+              "b": 0.3,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "8cea22d7-640f-5ebb-a18e-c0817f44833a",
+      "name": "Brick 3-3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 206.0,
+          "y": 348.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.95,
+              "g": 0.85,
+              "b": 0.3,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "9ad71ef0-0232-5fcf-a58e-56bede80c404",
+      "name": "Brick 3-4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 282.0,
+          "y": 348.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.95,
+              "g": 0.85,
+              "b": 0.3,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "800baf24-a4fd-525f-b558-2f07bf04c8b3",
+      "name": "Brick 3-5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 358.0,
+          "y": 348.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.95,
+              "g": 0.85,
+              "b": 0.3,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "455408db-9922-57e1-91d9-d382df1173c2",
+      "name": "Brick 3-6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 434.0,
+          "y": 348.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.95,
+              "g": 0.85,
+              "b": 0.3,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "d58e3792-150e-577e-8255-58858c21704e",
+      "name": "Brick 3-7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 510.0,
+          "y": 348.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.95,
+              "g": 0.85,
+              "b": 0.3,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "b5eb2dd9-4647-5a0b-a0ce-7317430bbf5d",
+      "name": "Brick 3-8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 586.0,
+          "y": 348.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.95,
+              "g": 0.85,
+              "b": 0.3,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "fa66abf6-016b-5d18-9386-61ce78c9c42f",
+      "name": "Brick 4-1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 54.0,
+          "y": 322.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.8,
+              "b": 0.4,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "fa54be73-dcaa-517e-8669-e6dfd3fe721c",
+      "name": "Brick 4-2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 130.0,
+          "y": 322.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.8,
+              "b": 0.4,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "a4690fb0-4e0b-57a6-a884-4322faed0df5",
+      "name": "Brick 4-3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 206.0,
+          "y": 322.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.8,
+              "b": 0.4,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6ecba5b-df42-5171-9cc4-7fef219479e9",
+      "name": "Brick 4-4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 282.0,
+          "y": 322.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.8,
+              "b": 0.4,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "e981132e-bb24-549c-a95f-bbd545424b23",
+      "name": "Brick 4-5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 358.0,
+          "y": 322.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.8,
+              "b": 0.4,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bd42fc55-e937-5522-bc4e-6edb894d36c7",
+      "name": "Brick 4-6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 434.0,
+          "y": 322.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.8,
+              "b": 0.4,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "77280c6b-be7d-53b0-ae5b-5483f7f47596",
+      "name": "Brick 4-7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 510.0,
+          "y": 322.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.8,
+              "b": 0.4,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "95949a4a-8b23-5537-86e9-81dcaf1829ea",
+      "name": "Brick 4-8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 586.0,
+          "y": 322.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.8,
+              "b": 0.4,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "61f069bd-10b2-5b30-ab7e-6782a1e64c49",
+      "name": "Brick 5-1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 54.0,
+          "y": 296.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.35,
+              "g": 0.6,
+              "b": 0.95,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "f9cf5a98-9a20-5f45-9256-59714ae8a4f9",
+      "name": "Brick 5-2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 130.0,
+          "y": 296.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.35,
+              "g": 0.6,
+              "b": 0.95,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "a70e0a17-5229-52ba-b73e-512b9addd7d4",
+      "name": "Brick 5-3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 206.0,
+          "y": 296.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.35,
+              "g": 0.6,
+              "b": 0.95,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "7d325be7-a1d7-58f5-a02f-489b330a544a",
+      "name": "Brick 5-4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 282.0,
+          "y": 296.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.35,
+              "g": 0.6,
+              "b": 0.95,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "23cde383-d7ad-5a32-89a6-88e6b38c318f",
+      "name": "Brick 5-5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 358.0,
+          "y": 296.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.35,
+              "g": 0.6,
+              "b": 0.95,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "fa67bf23-f631-52e5-beb2-635e6aa0e4e0",
+      "name": "Brick 5-6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 434.0,
+          "y": 296.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.35,
+              "g": 0.6,
+              "b": 0.95,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "4df671ec-fc68-5365-ad9a-1f0a023c8269",
+      "name": "Brick 5-7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 510.0,
+          "y": 296.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.35,
+              "g": 0.6,
+              "b": 0.95,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "3ccb464f-43c1-50e2-8b41-d5476a649382",
+      "name": "Brick 5-8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 586.0,
+          "y": 296.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 70.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.35,
+              "g": 0.6,
+              "b": 0.95,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "cfafa1c2-5c1a-582a-8441-9261748bd81e",
+      "name": "Paddle",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 40.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 90.0,
+            "height": 14.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.9,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/breakout/BreakoutPaddle.java",
+            "scriptClassName": "samples.breakout.BreakoutPaddle",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d4424ba7-47c8-56b6-b077-0c1861404b6e",
+      "name": "Ball",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 54.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 12.0,
+            "height": 12.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 1,
+              "g": 1,
+              "b": 1,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/breakout/BreakoutBall.java",
+            "scriptClassName": "samples.breakout.BreakoutBall",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d6162ddf-a9c9-5f31-9159-16454a5924bc",
+      "name": "Score Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Score: 0",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -14.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "950ca6e2-80df-5669-b1f1-2fb8e8a73c18",
+      "name": "Lives Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Lives: 3",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_RIGHT",
+            "offsetX": -16.0,
+            "offsetY": -14.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "38270ce8-490a-5fc8-9b0a-6a4cec0699cd",
+      "name": "Message Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Press Space to launch",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.6,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": -40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "08ef224f-ab3d-5125-b768-ec1c7b1f3c05",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "A/D or arrows: move   Space: launch   R: restart",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -6,6 +6,8 @@ apply plugin: 'java-library'
 dependencies {
   api project(':engine-core')
   api project(':engine-scene')
+  // Imported glTF models (TD-030); its types stay inside engine-render
+  implementation "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
 
   testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"

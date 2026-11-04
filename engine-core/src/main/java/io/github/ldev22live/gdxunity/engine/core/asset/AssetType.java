@@ -5,12 +5,14 @@ package io.github.ldev22live.gdxunity.engine.core.asset;
  */
 public enum AssetType {
     TEXTURE("png", "jpg", "jpeg"),
-    /** glTF 2.0 models (text or binary). Listed in the Content Browser; loading arrives with Phase 13. */
+    /** glTF 2.0 models (text or binary), loaded with gdx-gltf (TD-030). */
     MODEL("gltf", "glb"),
     /** Reusable entity trees saved by the editor (TD-027). */
     PREFAB("prefab"),
     /** Visual scripts (TD-029). */
     GRAPH("graph"),
+    /** Keyframe animation clips edited in the Timeline (TD-031). */
+    ANIMATION("anim"),
     UNKNOWN;
 
     private final String[] extensions;

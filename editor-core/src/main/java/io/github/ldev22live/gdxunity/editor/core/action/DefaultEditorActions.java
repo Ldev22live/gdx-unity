@@ -10,12 +10,18 @@ import io.github.ldev22live.gdxunity.editor.core.component.ComponentCatalog;
 import io.github.ldev22live.gdxunity.editor.core.file.SceneFileController;
 import io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher;
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
+import io.github.ldev22live.gdxunity.engine.render.RenderQuality3D;
+import io.github.ldev22live.gdxunity.engine.render.SceneRenderer3D;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.DirectionalLightComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.ToneMappingComponent;
 
+import java.io.File;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
@@ -36,6 +42,7 @@ public final class DefaultEditorActions {
 
     public static final String FILE_NEW_SCENE = "file.new-scene";
     public static final String FILE_OPEN_SCENE = "file.open-scene";
+    public static final String FILE_OPEN_SAMPLE = "file.open-sample";
     public static final String FILE_SAVE_SCENE = "file.save-scene";
     public static final String FILE_SAVE_SCENE_AS = "file.save-scene-as";
     public static final String FILE_EXIT = "file.exit";
@@ -50,6 +57,11 @@ public final class DefaultEditorActions {
     public static final String CREATE_PLANE = "create.plane";
     public static final String CREATE_DIRECTIONAL_LIGHT = "create.directional-light";
     public static final String CREATE_POINT_LIGHT = "create.point-light";
+    public static final String CREATE_SKY_LIGHT = "create.sky-light";
+    public static final String CREATE_TONE_MAPPING = "create.tone-mapping";
+    public static final String VIEW_TOGGLE_SHADOWS = "view.toggle-shadows";
+    /** Followed by the lowercase {@link RenderQuality3D} name, e.g. {@code view.lighting-quality.high}. */
+    public static final String VIEW_LIGHTING_QUALITY_PREFIX = "view.lighting-quality.";
     public static final String TOOL_SELECT = "tools.select";
     public static final String TOOL_MOVE = "tools.move";
     public static final String TOOL_ROTATE = "tools.rotate";
@@ -64,6 +76,8 @@ public final class DefaultEditorActions {
     private static final int GROUP_FIRST = 0;
     private static final int GROUP_SECOND = 1;
     private static final int GROUP_THIRD = 2;
+    /** Window menu group of the lighting entries: beside the desktop shell's Grid and Physics Debug toggles. */
+    private static final int GROUP_LIGHTING = GROUP_FIRST;
 
     private DefaultEditorActions() {}
 
@@ -118,9 +132,28 @@ public final class DefaultEditorActions {
             .build());
 
         // Help
-        registry.register(EditorAction.builder(HELP_ABOUT, "About GdxUnity",
-                () -> editorState.setStatusMessage("GdxUnity Editor — Java 21, libGDX", false))
+        registry.register(EditorAction.builder(HELP_ABOUT, "About Forgeroom",
+                () -> editorState.setStatusMessage("Forgeroom Editor — Java 21, libGDX", false))
             .menu(MENU_HELP, GROUP_FIRST)
+            .build());
+    }
+
+    /**
+     * Registers File → Open Sample..., which opens a scene from the project's sample games (TD-034). Samples are
+     * starting points: open one, then use Save Scene As to keep your own copy.
+     *
+     * @param samplesDirectory folder of sample scenes inside the project
+     */
+    public static void registerSampleActions(EditorActionRegistry registry, EditorState editorState,
+                                             SceneFileController files, File samplesDirectory) {
+        Objects.requireNonNull(registry, "registry cannot be null");
+        Objects.requireNonNull(editorState, "editorState cannot be null");
+        Objects.requireNonNull(files, "files cannot be null");
+        Objects.requireNonNull(samplesDirectory, "samplesDirectory cannot be null");
+        registry.register(EditorAction.builder(FILE_OPEN_SAMPLE, "Open Sample...",
+                () -> files.openFrom("Open Sample", samplesDirectory))
+            .menu(MENU_FILE, GROUP_FIRST)
+            .enabledWhen(() -> !editorState.isPlayModeActive() && samplesDirectory.isDirectory())
             .build());
     }
 
@@ -184,6 +217,39 @@ public final class DefaultEditorActions {
             DirectionalLightComponent::new);
         registerCreate(registry, editorState, canCreate, spawnPosition, CREATE_POINT_LIGHT, "Point Light", GROUP_THIRD,
             ComponentCatalog::createPointLight);
+        registerCreate(registry, editorState, canCreate, spawnPosition, CREATE_SKY_LIGHT, "Sky Light", GROUP_THIRD,
+            SkyLightComponent::new);
+        registerCreate(registry, editorState, canCreate, spawnPosition, CREATE_TONE_MAPPING, "Tone Mapping", GROUP_THIRD,
+            ToneMappingComponent::new);
+    }
+
+    /**
+     * Window menu entries for the 3D view's lighting: a shadows switch and one entry per {@link RenderQuality3D}
+     * preset. These are view settings of {@code renderer}, not scene data, so they are not undoable; each reports
+     * the new state in the status bar.
+     */
+    public static void registerLightingActions(EditorActionRegistry registry, EditorState editorState,
+                                               SceneRenderer3D renderer) {
+        Objects.requireNonNull(registry, "registry cannot be null");
+        Objects.requireNonNull(editorState, "editorState cannot be null");
+        Objects.requireNonNull(renderer, "renderer cannot be null");
+        registry.register(EditorAction.builder(VIEW_TOGGLE_SHADOWS, "Shadows", () -> {
+                renderer.setShadowsEnabled(!renderer.isShadowsEnabled());
+                editorState.setStatusMessage("Shadows " + (renderer.isShadowsEnabled() ? "on" : "off"), false);
+            })
+            .menu(MENU_WINDOW, GROUP_LIGHTING)
+            .build());
+        for (RenderQuality3D quality : RenderQuality3D.values()) {
+            String label = quality.name().charAt(0) + quality.name().substring(1).toLowerCase(Locale.ROOT);
+            registry.register(EditorAction.builder(VIEW_LIGHTING_QUALITY_PREFIX + quality.name().toLowerCase(Locale.ROOT),
+                    "Lighting Quality: " + label, () -> {
+                    renderer.setQuality(quality);
+                    editorState.setStatusMessage("Lighting quality " + label + " (shadow map "
+                        + quality.getShadowMapSize() + " px)", false);
+                })
+                .menu(MENU_WINDOW, GROUP_LIGHTING)
+                .build());
+        }
     }
 
     private static void registerCreate(EditorActionRegistry registry, EditorState editorState, BooleanSupplier canCreate,

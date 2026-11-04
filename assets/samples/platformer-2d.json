@@ -1,0 +1,983 @@
+{
+  "schemaVersion": 1,
+  "name": "2D Platformer",
+  "active": true,
+  "entities": [
+    {
+      "id": "8c56e936-e8b6-5772-88c0-4383c1d837e4",
+      "name": "Background",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1100.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2600.0,
+            "height": 700.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.11,
+              "g": 0.13,
+              "b": 0.22,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "970f76d7-f602-5ab7-abde-292ff5608b2e",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "ORTHOGRAPHIC",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/platformer/FollowCamera2D.java",
+            "scriptClassName": "samples.platformer.FollowCamera2D",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "3ba8fa98-ec83-57f1-a43b-23949a5281d0",
+      "name": "Platform Ground 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 20.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 600.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.36,
+              "g": 0.55,
+              "b": 0.32,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "6677d1d2-79a5-5408-943b-f8b1d9a41bcf",
+      "name": "Platform Ground 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 980.0,
+          "y": 20.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 440.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.36,
+              "g": 0.55,
+              "b": 0.32,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "4a1d690e-a542-566b-bb9e-7ab410acffe3",
+      "name": "Platform Ground 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1700.0,
+          "y": 20.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 600.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.36,
+              "g": 0.55,
+              "b": 0.32,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "88a0bb4d-0e85-5d12-a083-a01ad892be00",
+      "name": "Platform Ledge 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 430.0,
+          "y": 150.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 140.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.55,
+              "g": 0.45,
+              "b": 0.32,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ce3bd908-cdf9-5621-afec-59bab4aabd98",
+      "name": "Platform Ledge 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 640.0,
+          "y": 250.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 120.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.55,
+              "g": 0.45,
+              "b": 0.32,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "992899c0-fcf8-5a39-8c82-078c2108ba0b",
+      "name": "Platform Ledge 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1340.0,
+          "y": 130.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 120.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.55,
+              "g": 0.45,
+              "b": 0.32,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "8376fb5a-a47f-5573-90cb-19b349264564",
+      "name": "Platform Ledge 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1500.0,
+          "y": 230.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 120.0,
+            "height": 20.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.55,
+              "g": 0.45,
+              "b": 0.32,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "5efe0578-0e61-5571-930d-1f55c94d1ff7",
+      "name": "Platform Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1180.0,
+          "y": 90.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 100.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.55,
+              "g": 0.45,
+              "b": 0.32,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "8e658447-fc61-57b5-abf4-45670a99c487",
+      "name": "Coin 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 430.0,
+          "y": 185.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 16.0,
+            "height": 16.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 1.0,
+              "g": 0.84,
+              "b": 0.2,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "473a086c-4f42-594b-b35d-4237fd8869f5",
+      "name": "Coin 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 640.0,
+          "y": 285.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 16.0,
+            "height": 16.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 1.0,
+              "g": 0.84,
+              "b": 0.2,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "103451dd-f4ee-597d-a4f2-df642df65bf7",
+      "name": "Coin 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 900.0,
+          "y": 70.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 16.0,
+            "height": 16.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 1.0,
+              "g": 0.84,
+              "b": 0.2,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "c832fc99-53ad-5349-8482-105e7b3265e6",
+      "name": "Coin 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1000.0,
+          "y": 70.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 16.0,
+            "height": 16.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 1.0,
+              "g": 0.84,
+              "b": 0.2,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "1610fe3e-470d-5129-88ca-c5d41ad30d2a",
+      "name": "Coin 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1340.0,
+          "y": 165.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 16.0,
+            "height": 16.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 1.0,
+              "g": 0.84,
+              "b": 0.2,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "b22dba15-d053-55b7-ab81-2a7743156a94",
+      "name": "Coin 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1500.0,
+          "y": 265.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 16.0,
+            "height": 16.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 1.0,
+              "g": 0.84,
+              "b": 0.2,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "7fc61d4c-744d-5cb0-942c-6f7ec1c4f20d",
+      "name": "Coin 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1650.0,
+          "y": 70.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 16.0,
+            "height": 16.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 1.0,
+              "g": 0.84,
+              "b": 0.2,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "064abe42-ac3d-5e95-8c8d-36c842e2ccb8",
+      "name": "Coin 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1800.0,
+          "y": 70.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 16.0,
+            "height": 16.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 1.0,
+              "g": 0.84,
+              "b": 0.2,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "9263a704-1a49-5dec-8f15-4015ab5caabb",
+      "name": "Goal",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1960.0,
+          "y": 80.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 20.0,
+            "height": 80.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.95,
+              "g": 0.95,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "1c825626-8abe-5b63-911d-f1d2f067c0e8",
+      "name": "Player",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 80.0,
+          "y": 80.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 28.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.3,
+              "g": 0.65,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/platformer/PlatformerPlayer.java",
+            "scriptClassName": "samples.platformer.PlatformerPlayer",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a9aba4bc-9511-51e0-92d6-d05baac8a1eb",
+      "name": "Score Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Coins: 0 / 8",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "547712b2-1c5e-5291-afe2-ec1c157debc8",
+      "name": "Message Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 2.0,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "daeb5ada-4afe-59bc-96f3-0b1cc213f962",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "A/D or arrows: run   Space/W: jump   R: restart   Reach the white flag",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

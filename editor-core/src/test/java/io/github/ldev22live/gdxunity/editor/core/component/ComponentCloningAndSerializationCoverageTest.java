@@ -4,10 +4,20 @@ import com.badlogic.gdx.graphics.Color;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.command.DuplicateEntityCommand;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
+import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.serialization.CameraComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.render.components.serialization.TextComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.DirectionalLightComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.ToneMappingComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.DirectionalLightComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.SkyLightComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.ToneMappingComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptLanguage;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSerializerRegistry;
@@ -19,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Systematically tests cloning, serialization, and deserialization coverage
- * for every registered component type in GdxUnity.
+ * for every registered component type in Forgeroom.
  */
 class ComponentCloningAndSerializationCoverageTest {
     private EditorState editorState;
@@ -35,10 +45,92 @@ class ComponentCloningAndSerializationCoverageTest {
         registry.register(new io.github.ldev22live.gdxunity.engine.scene.physics.serialization.RigidBody2DComponentSerializer());
         registry.register(new io.github.ldev22live.gdxunity.engine.scene.physics.serialization.BoxCollider2DComponentSerializer());
         registry.register(new io.github.ldev22live.gdxunity.engine.scene.physics.serialization.CircleCollider2DComponentSerializer());
+        registry.register(new io.github.ldev22live.gdxunity.engine.render.components.serialization.ModelComponentSerializer());
+        registry.register(new io.github.ldev22live.gdxunity.engine.render.components.serialization.DynamicMeshComponentSerializer());
+        registry.register(new DirectionalLightComponentSerializer());
+        registry.register(new SkyLightComponentSerializer());
+        registry.register(new ToneMappingComponentSerializer());
+        registry.register(new CameraComponentSerializer());
+        registry.register(new TextComponentSerializer());
         serializer = new SceneSerializer(registry);
         editorState = new EditorState(serializer);
         scene = new Scene("ComponentTestScene");
         editorState.setActiveScene(scene);
+    }
+
+    @Test
+    void shouldSerializeLightingComponentStateAccurately() {
+        Entity entity = scene.createEntity("Lighting");
+        DirectionalLightComponent sun = new DirectionalLightComponent();
+        sun.setCastShadows(false);
+        entity.addComponent(sun);
+        SkyLightComponent sky = new SkyLightComponent();
+        sky.setGroundColor(new Color(0.1f, 0.1f, 0.1f, 1f));
+        sky.setIntensity(0.25f);
+        entity.addComponent(sky);
+        ToneMappingComponent toneMapping = new ToneMappingComponent();
+        toneMapping.setExposure(0.5f);
+        toneMapping.setOperator(ToneMappingComponent.Operator.NONE);
+        entity.addComponent(toneMapping);
+
+        // Serialization only: DuplicateEntityCommand copies just six component types (known gap)
+        Entity restored = serializer.fromJson(serializer.toJson(scene)).findEntityById(entity.getId());
+        assertFalse(restored.getComponent(DirectionalLightComponent.class).isCastShadows());
+        assertEquals(0.1f, restored.getComponent(SkyLightComponent.class).getGroundColor().r, 0.001f);
+        assertEquals(0.25f, restored.getComponent(SkyLightComponent.class).getIntensity(), 0.001f);
+        assertEquals(0.5f, restored.getComponent(ToneMappingComponent.class).getExposure(), 0.001f);
+        assertEquals(ToneMappingComponent.Operator.NONE, restored.getComponent(ToneMappingComponent.class).getOperator());
+    }
+
+    @Test
+    void shouldSerializeDynamicMeshComponentStateAccurately() {
+        Entity entity = scene.createEntity("Sculpt");
+        var mesh = new io.github.ldev22live.gdxunity.engine.render.components.DynamicMeshComponent("sculpts/rock.sculpt");
+        mesh.setColor(new Color(0.2f, 0.4f, 0.6f, 1f));
+        entity.addComponent(mesh);
+
+        // Serialization only: DuplicateEntityCommand copies just six component types (known gap)
+        Entity restored = serializer.fromJson(serializer.toJson(scene)).findEntityById(entity.getId());
+        var loaded = restored.getComponent(io.github.ldev22live.gdxunity.engine.render.components.DynamicMeshComponent.class);
+        assertEquals("sculpts/rock.sculpt", loaded.getMeshPath());
+        assertEquals(0.4f, loaded.getColor().g, 0.001f);
+    }
+
+    @Test
+    void shouldSerializeGameComponentStateAccurately() {
+        Entity entity = scene.createEntity("Game");
+        CameraComponent camera = entity.addComponent(new CameraComponent(CameraComponent.Projection.PERSPECTIVE));
+        camera.setFieldOfView(50f);
+        TextComponent text = entity.addComponent(new TextComponent("Lives: 3"));
+        text.setAnchor(TextComponent.Anchor.TOP_RIGHT);
+
+        // Serialization only: DuplicateEntityCommand copies just six component types (known gap)
+        Entity restored = serializer.fromJson(serializer.toJson(scene)).findEntityById(entity.getId());
+        assertEquals(CameraComponent.Projection.PERSPECTIVE, restored.getComponent(CameraComponent.class).getProjection());
+        assertEquals(50f, restored.getComponent(CameraComponent.class).getFieldOfView(), 0.001f);
+        assertEquals("Lives: 3", restored.getComponent(TextComponent.class).getText());
+        assertEquals(TextComponent.Anchor.TOP_RIGHT, restored.getComponent(TextComponent.class).getAnchor());
+    }
+
+    @Test
+    void shouldSerializeModelComponentStateAccurately() {
+        Entity entity = scene.createEntity("ModelHolder");
+        var model = new io.github.ldev22live.gdxunity.engine.render.components.ModelComponent("models/hero.glb");
+        model.setAnimation("Walk");
+        model.setImportScale(50f);
+        model.setLoop(false);
+        model.setSpeed(-2f);
+        entity.addComponent(model);
+
+        // Serialization only: DuplicateEntityCommand copies just the six component types above (known gap)
+        Scene restoredScene = serializer.fromJson(serializer.toJson(scene));
+        var restored = restoredScene.findEntityById(entity.getId())
+            .getComponent(io.github.ldev22live.gdxunity.engine.render.components.ModelComponent.class);
+        assertEquals("models/hero.glb", restored.getModelPath());
+        assertEquals("Walk", restored.getAnimation());
+        assertEquals(50f, restored.getImportScale(), 0.001f);
+        assertFalse(restored.isLoop());
+        assertEquals(-2f, restored.getSpeed(), 0.001f);
     }
 
     @Test

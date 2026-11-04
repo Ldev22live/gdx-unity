@@ -1,5 +1,5 @@
 ---
-description: Run GdxUnity builds and tests and record exact, verifiable results
+description: Run Forgeroom builds and tests and record exact, verifiable results
 ---
 
 # Verify build and tests

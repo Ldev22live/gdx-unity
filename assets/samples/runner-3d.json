@@ -1,0 +1,1259 @@
+{
+  "schemaVersion": 1,
+  "name": "3D Lane Runner",
+  "active": true,
+  "entities": [
+    {
+      "id": "c8bd0e8f-2c1c-5eb9-bd82-026a19125569",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "b33b64ce-f5d2-5e3e-9328-ae27cced71f7",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.72,
+            "skyB": 0.88,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2e81814d-6db4-5fd6-8c91-2c9dc6dfb9af",
+      "name": "Track",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -1600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 420.0,
+            "sizeY": 1.0,
+            "sizeZ": 4400.0,
+            "colorR": 0.3,
+            "colorG": 0.32,
+            "colorB": 0.36,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ae14eb54-30c6-57a5-8017-cac2b87e28b9",
+      "name": "Grass Left",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1400.0,
+          "y": -1.0,
+          "z": -1600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 2400.0,
+            "sizeY": 1.0,
+            "sizeZ": 4400.0,
+            "colorR": 0.35,
+            "colorG": 0.5,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "61237cea-3ead-5306-9b65-e04adaddb51e",
+      "name": "Grass Right",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1400.0,
+          "y": -1.0,
+          "z": -1600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 2400.0,
+            "sizeY": 1.0,
+            "sizeZ": 4400.0,
+            "colorR": 0.35,
+            "colorG": 0.5,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "828e6aba-53cf-5a3a-b59c-53480ed0819f",
+      "name": "Marker L1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -65.0,
+          "y": 1.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d148e925-20d7-5f85-abe8-f4ad72d497d7",
+      "name": "Marker R1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 65.0,
+          "y": 1.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "400c82fe-6a2b-5d6c-9541-ced36f878366",
+      "name": "Marker L2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -65.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "32dec0e6-b9ce-5da5-a0f7-25e5073c7c5b",
+      "name": "Marker R2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 65.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "73fcaa38-7ce3-5533-acf9-f24afcea3b03",
+      "name": "Marker L3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -65.0,
+          "y": 1.0,
+          "z": -400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "fd3dbf8d-94c2-5a69-8f84-13472517dc94",
+      "name": "Marker R3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 65.0,
+          "y": 1.0,
+          "z": -400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4b800694-e4a1-5baa-a394-2137d73e712f",
+      "name": "Marker L4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -65.0,
+          "y": 1.0,
+          "z": -800.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5513c46f-9d0a-5585-9999-d89a9d078912",
+      "name": "Marker R4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 65.0,
+          "y": 1.0,
+          "z": -800.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2e038a25-a6bd-594d-8211-cf9b54504dea",
+      "name": "Marker L5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -65.0,
+          "y": 1.0,
+          "z": -1200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9fb77cfe-c4c5-5fa3-b3f8-3012271fe8cb",
+      "name": "Marker R5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 65.0,
+          "y": 1.0,
+          "z": -1200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7a63afed-ae29-5ee5-92af-16832c65023b",
+      "name": "Marker L6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -65.0,
+          "y": 1.0,
+          "z": -1600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f0c1b220-1ce4-5710-9170-6b5a106f6b57",
+      "name": "Marker R6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 65.0,
+          "y": 1.0,
+          "z": -1600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8899087a-aa5d-550b-a2f9-eb4c57d6d739",
+      "name": "Marker L7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -65.0,
+          "y": 1.0,
+          "z": -2000.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "07c7b097-c6a3-5838-a1b1-17d1929ac0f5",
+      "name": "Marker R7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 65.0,
+          "y": 1.0,
+          "z": -2000.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f38f37b5-5ac5-5ec1-90eb-3aba502115ea",
+      "name": "Marker L8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -65.0,
+          "y": 1.0,
+          "z": -2400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a990e158-ab90-5698-b77e-5fa9ea257580",
+      "name": "Marker R8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 65.0,
+          "y": 1.0,
+          "z": -2400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "321034d7-8411-5f44-9d68-63fc0865dcdb",
+      "name": "Marker L9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -65.0,
+          "y": 1.0,
+          "z": -2800.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0f3ce81c-ba7f-5ce3-8961-e0ea07b82f58",
+      "name": "Marker R9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 65.0,
+          "y": 1.0,
+          "z": -2800.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e0959705-00be-58b2-8a55-deed100026a5",
+      "name": "Marker L10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -65.0,
+          "y": 1.0,
+          "z": -3200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "518c421a-e292-5c71-b05b-e820c4f13be0",
+      "name": "Marker R10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 65.0,
+          "y": 1.0,
+          "z": -3200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 2.0,
+            "sizeZ": 160.0,
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "49537791-5a7a-55b3-a668-bda6851a3744",
+      "name": "Player",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 25.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 50.0,
+            "sizeY": 50.0,
+            "sizeZ": 50.0,
+            "colorR": 0.3,
+            "colorG": 0.75,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/runner/RunnerPlayer.java",
+            "scriptClassName": "samples.runner.RunnerPlayer",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "05342f33-6796-5ccc-815f-3b2a974563b1",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 230.0,
+          "z": 420.0
+        },
+        "rotation": {
+          "x": -0.113599,
+          "y": -0.0,
+          "z": -0.0,
+          "w": 0.993527
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 65,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2287e01b-98c4-5f02-bf94-51b2b51994b8",
+      "name": "Game",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/runner/RunnerGame.java",
+            "scriptClassName": "samples.runner.RunnerGame",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8001d8c2-f991-5020-b60a-570d04fbd855",
+      "name": "Distance Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Distance: 0 m",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8fe8641b-e967-5505-8279-6dafe5f8f77e",
+      "name": "Message Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.8,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3479257-c533-5554-bce2-362178f286b4",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "A/D or arrows: change lane   Space: jump   R: restart",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

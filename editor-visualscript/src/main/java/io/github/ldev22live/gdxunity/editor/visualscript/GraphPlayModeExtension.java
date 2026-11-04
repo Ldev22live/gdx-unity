@@ -6,10 +6,10 @@ import io.github.ldev22live.gdxunity.editor.core.play.PlayModeController;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
-import io.github.ldev22live.gdxunity.engine.scene.physics.Collision2D;
 import io.github.ldev22live.gdxunity.engine.scene.physics.PhysicsSystem2D;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializationException;
 import io.github.ldev22live.gdxunity.engine.visualscript.Graph;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphCollisionForwarder;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphHost;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphInstance;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphRuntimeException;
@@ -38,7 +38,7 @@ public class GraphPlayModeExtension implements PlayModeController.Extension {
     private final GraphExecutionTrace trace;
     private final Map<GraphInstance, String> pathByInstance = new IdentityHashMap<>();
     private PhysicsSystem2D physics;
-    private final PhysicsSystem2D.CollisionListener collisionForwarder = this::forwardCollision;
+    private final PhysicsSystem2D.CollisionListener collisionForwarder = new GraphCollisionForwarder();
 
     public GraphPlayModeExtension(EditorState editorState, GraphAssets assets, NodeRegistry registry, EditorLog log,
                                   GraphExecutionTrace trace) {
@@ -117,25 +117,6 @@ public class GraphPlayModeExtension implements PlayModeController.Extension {
             physics = null;
         }
         pathByInstance.clear();
-    }
-
-    private void forwardCollision(Collision2D event) {
-        if (event.entity() == null) {
-            return;
-        }
-        for (GraphScriptComponent component : event.entity().getComponents(GraphScriptComponent.class)) {
-            GraphInstance instance = component.getInstance();
-            if (instance == null) {
-                continue;
-            }
-            switch (event.type()) {
-                case COLLISION_ENTER -> instance.collision(event.otherEntity());
-                case SENSOR_ENTER -> instance.triggerEnter(event.otherEntity());
-                default -> {
-                    // Exit events have no graph node yet
-                }
-            }
-        }
     }
 
     private String label(GraphInstance instance) {

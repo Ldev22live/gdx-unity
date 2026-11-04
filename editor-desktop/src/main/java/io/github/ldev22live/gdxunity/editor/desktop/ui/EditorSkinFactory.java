@@ -7,10 +7,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.SplitPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -35,10 +37,16 @@ public final class EditorSkinFactory implements Disposable {
     private static final String SEMIBOLD_FONT = "fonts/Inter-SemiBold.ttf";
     /** UI text size in logical pixels. */
     private static final int BASE_FONT_SIZE = 14;
+    /** Space between a drop-down's edge and its text, in pixels. */
+    private static final float SELECT_BOX_TEXT_INSET = 6f;
     /** Icon edge length in logical pixels. */
     private static final int ICON_SIZE = 12;
+    /** Size in UI units of the icons on the viewport tool strip. */
+    private static final int TOOL_ICON_SIZE = 16;
+    /** Prefix of the tool icon {@link ImageButton.ImageButtonStyle} names; the suffix is the lowercase {@link EditorIcon} name. */
+    public static final String TOOL_STYLE_PREFIX = "tool-";
     /** Typographic characters used in editor text beyond FreeType's default Latin-1 set. */
-    private static final String EXTRA_CHARACTERS = "—–…•·←→↑↓";
+    private static final String EXTRA_CHARACTERS = "—–…•·←→↑↓›";
 
     public Skin createSkin() {
         return createSkin(EditorThemePalette.createDarkPalette());
@@ -216,6 +224,18 @@ public final class EditorSkinFactory implements Disposable {
         skin.add("pause", iconButtonStyle(btnStyle, createIconDrawable(EditorIcon.PAUSE, iconColor)));
         skin.add("stop", iconButtonStyle(btnStyle, createIconDrawable(EditorIcon.STOP, iconColor)));
 
+        // Tool-strip icon buttons: the icon is drawn white and tinted by the button colour (accent when active)
+        for (EditorIcon icon : EditorIcon.values()) {
+            if (icon.tool) {
+                ImageButton.ImageButtonStyle toolStyle = new ImageButton.ImageButtonStyle();
+                toolStyle.over = btnOver;
+                toolStyle.down = btnDown;
+                toolStyle.checked = btnChecked;
+                toolStyle.imageUp = createIconDrawable(icon, Color.WHITE, TOOL_ICON_SIZE);
+                skin.add(TOOL_STYLE_PREFIX + icon.name().toLowerCase(java.util.Locale.ROOT), toolStyle);
+            }
+        }
+
         // 6. TextFieldStyle
         TextField.TextFieldStyle txtStyle = new TextField.TextFieldStyle();
         txtStyle.font = font;
@@ -239,6 +259,21 @@ public final class EditorSkinFactory implements Disposable {
         listStyle.selection = selection;
         skin.add("default", listStyle);
 
+        // 8b. SelectBoxStyle (drop-downs in Details, the Graph tab and the Timeline)
+        Drawable selectBg = createColorDrawable(palette.getBackground());
+        selectBg.setLeftWidth(SELECT_BOX_TEXT_INSET);
+        selectBg.setRightWidth(SELECT_BOX_TEXT_INSET);
+        Drawable selectOverBg = createColorDrawable(palette.getSurfaceElevated());
+        selectOverBg.setLeftWidth(SELECT_BOX_TEXT_INSET);
+        selectOverBg.setRightWidth(SELECT_BOX_TEXT_INSET);
+        ScrollPane.ScrollPaneStyle selectScrollStyle = new ScrollPane.ScrollPaneStyle();
+        selectScrollStyle.background = elevatedBg;
+        SelectBox.SelectBoxStyle selectStyle = new SelectBox.SelectBoxStyle(font, palette.getTextPrimary(), selectBg,
+            selectScrollStyle, listStyle);
+        selectStyle.backgroundOver = selectOverBg;
+        selectStyle.disabledFontColor = palette.getDisabled();
+        skin.add("default", selectStyle);
+
         // 9. WindowStyle / DialogStyle
         Window.WindowStyle winStyle = new Window.WindowStyle();
         winStyle.titleFont = font;
@@ -260,9 +295,16 @@ public final class EditorSkinFactory implements Disposable {
 
     /** Icons drawn procedurally at the display density, so no image assets are needed. */
     enum EditorIcon {
-        PLAY,
-        PAUSE,
-        STOP
+        PLAY(false), PAUSE(false), STOP(false),
+        SELECT(true), MOVE(true), ROTATE(true), SCALE(true), VIEW_MODE(true), FOCUS(true), GRID(true),
+        PHYSICS(true), RESET_VIEW(true), SCULPT(true);
+
+        /** True for the icons of the viewport tool strip. */
+        final boolean tool;
+
+        EditorIcon(boolean tool) {
+            this.tool = tool;
+        }
     }
 
     private static ImageTextButton.ImageTextButtonStyle iconButtonStyle(TextButton.TextButtonStyle base, Drawable icon) {
@@ -271,9 +313,124 @@ public final class EditorSkinFactory implements Disposable {
         return style;
     }
 
+    /** Draws a tool-strip icon in {@code color}; shapes are laid out in fractions of the icon size. */
+    private static void drawToolIcon(Pixmap pixmap, EditorIcon icon, int size, Color color) {
+        int max = size - 1;
+        int w = Math.max(1, Math.round(size * 0.12f));
+        switch (icon) {
+            case SELECT -> {
+                triangle(pixmap, max, 0.22f, 0.08f, 0.22f, 0.85f, 0.78f, 0.58f);
+                thickLine(pixmap, max, 0.5f, 0.6f, 0.8f, 0.92f, w);
+            }
+            case MOVE -> {
+                thickLine(pixmap, max, 0.5f, 0.15f, 0.5f, 0.85f, w);
+                thickLine(pixmap, max, 0.15f, 0.5f, 0.85f, 0.5f, w);
+                triangle(pixmap, max, 0.5f, 0.0f, 0.32f, 0.22f, 0.68f, 0.22f);
+                triangle(pixmap, max, 0.5f, 1.0f, 0.32f, 0.78f, 0.68f, 0.78f);
+                triangle(pixmap, max, 0.0f, 0.5f, 0.22f, 0.32f, 0.22f, 0.68f);
+                triangle(pixmap, max, 1.0f, 0.5f, 0.78f, 0.32f, 0.78f, 0.68f);
+            }
+            case ROTATE -> {
+                ring(pixmap, size, 0.42f, w, color);
+                triangle(pixmap, max, 0.95f, 0.18f, 0.62f, 0.12f, 0.88f, 0.48f);
+            }
+            case SCALE -> {
+                box(pixmap, max, 0.08f, 0.4f, 0.6f, 0.92f, w);
+                thickLine(pixmap, max, 0.4f, 0.6f, 0.82f, 0.18f, w);
+                triangle(pixmap, max, 0.95f, 0.05f, 0.55f, 0.12f, 0.88f, 0.45f);
+            }
+            case VIEW_MODE -> {
+                // A cube seen from a corner
+                thickLine(pixmap, max, 0.5f, 0.05f, 0.9f, 0.27f, w);
+                thickLine(pixmap, max, 0.9f, 0.27f, 0.9f, 0.73f, w);
+                thickLine(pixmap, max, 0.9f, 0.73f, 0.5f, 0.95f, w);
+                thickLine(pixmap, max, 0.5f, 0.95f, 0.1f, 0.73f, w);
+                thickLine(pixmap, max, 0.1f, 0.73f, 0.1f, 0.27f, w);
+                thickLine(pixmap, max, 0.1f, 0.27f, 0.5f, 0.05f, w);
+                thickLine(pixmap, max, 0.1f, 0.27f, 0.5f, 0.5f, w);
+                thickLine(pixmap, max, 0.9f, 0.27f, 0.5f, 0.5f, w);
+                thickLine(pixmap, max, 0.5f, 0.5f, 0.5f, 0.95f, w);
+            }
+            case FOCUS -> {
+                ring(pixmap, size, 0.3f, w, color);
+                thickLine(pixmap, max, 0.5f, 0.0f, 0.5f, 0.2f, w);
+                thickLine(pixmap, max, 0.5f, 0.8f, 0.5f, 1.0f, w);
+                thickLine(pixmap, max, 0.0f, 0.5f, 0.2f, 0.5f, w);
+                thickLine(pixmap, max, 0.8f, 0.5f, 1.0f, 0.5f, w);
+                pixmap.fillCircle(max / 2, max / 2, Math.max(1, Math.round(size * 0.08f)));
+            }
+            case GRID -> {
+                box(pixmap, max, 0.08f, 0.08f, 0.92f, 0.92f, w);
+                thickLine(pixmap, max, 0.36f, 0.08f, 0.36f, 0.92f, w);
+                thickLine(pixmap, max, 0.64f, 0.08f, 0.64f, 0.92f, w);
+                thickLine(pixmap, max, 0.08f, 0.36f, 0.92f, 0.36f, w);
+                thickLine(pixmap, max, 0.08f, 0.64f, 0.92f, 0.64f, w);
+            }
+            case PHYSICS -> {
+                // A collider: a circle inside its bounding box
+                ring(pixmap, size, 0.32f, w, color);
+                box(pixmap, max, 0.05f, 0.05f, 0.95f, 0.95f, Math.max(1, w / 2));
+            }
+            case RESET_VIEW -> {
+                // A house: roof and body
+                triangle(pixmap, max, 0.5f, 0.05f, 0.05f, 0.5f, 0.95f, 0.5f);
+                box(pixmap, max, 0.2f, 0.5f, 0.8f, 0.95f, w);
+            }
+            case SCULPT -> {
+                // A blob of clay on a tool handle
+                pixmap.fillCircle(Math.round(max * 0.34f), Math.round(max * 0.66f), Math.max(2, Math.round(size * 0.26f)));
+                thickLine(pixmap, max, 0.45f, 0.55f, 0.92f, 0.08f, w + 1);
+            }
+            default -> throw new IllegalArgumentException("Not a tool icon: " + icon);
+        }
+    }
+
+    private static void triangle(Pixmap pixmap, int max, float x1, float y1, float x2, float y2, float x3, float y3) {
+        pixmap.fillTriangle(Math.round(x1 * max), Math.round(y1 * max), Math.round(x2 * max), Math.round(y2 * max),
+            Math.round(x3 * max), Math.round(y3 * max));
+    }
+
+    /** Draws a line {@code width} pixels thick by stacking offset 1-pixel lines. */
+    private static void thickLine(Pixmap pixmap, int max, float x1, float y1, float x2, float y2, int width) {
+        int ax = Math.round(x1 * max);
+        int ay = Math.round(y1 * max);
+        int bx = Math.round(x2 * max);
+        int by = Math.round(y2 * max);
+        boolean mostlyVertical = Math.abs(by - ay) >= Math.abs(bx - ax);
+        for (int i = 0; i < width; i++) {
+            int offset = i - width / 2;
+            if (mostlyVertical) {
+                pixmap.drawLine(ax + offset, ay, bx + offset, by);
+            } else {
+                pixmap.drawLine(ax, ay + offset, bx, by + offset);
+            }
+        }
+    }
+
+    private static void box(Pixmap pixmap, int max, float x1, float y1, float x2, float y2, int width) {
+        thickLine(pixmap, max, x1, y1, x2, y1, width);
+        thickLine(pixmap, max, x1, y2, x2, y2, width);
+        thickLine(pixmap, max, x1, y1, x1, y2, width);
+        thickLine(pixmap, max, x2, y1, x2, y2, width);
+    }
+
+    /** Draws a circle outline by filling a disc and clearing its inside; leaves the pixmap colour as {@code color}. */
+    private static void ring(Pixmap pixmap, int size, float radiusFraction, int width, Color color) {
+        int center = (size - 1) / 2;
+        int radius = Math.round(size * radiusFraction);
+        pixmap.fillCircle(center, center, radius);
+        pixmap.setColor(0f, 0f, 0f, 0f);
+        pixmap.fillCircle(center, center, Math.max(0, radius - width));
+        pixmap.setColor(color);
+    }
+
     private Drawable createIconDrawable(EditorIcon icon, Color color) {
+        return createIconDrawable(icon, color, ICON_SIZE);
+    }
+
+    private Drawable createIconDrawable(EditorIcon icon, Color color, int iconSize) {
         float density = uiDensity();
-        int size = Math.max(8, Math.round(ICON_SIZE * density));
+        int size = Math.max(8, Math.round(iconSize * density));
         Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
         pixmap.setBlending(Pixmap.Blending.None);
         pixmap.setColor(0f, 0f, 0f, 0f);
@@ -289,13 +446,14 @@ public final class EditorSkinFactory implements Disposable {
                 pixmap.fillRectangle(far - barWidth + 1, inset, barWidth, far - inset + 1);
             }
             case STOP -> pixmap.fillRectangle(inset, inset, far - inset + 1, far - inset + 1);
+            default -> drawToolIcon(pixmap, icon, size, color);
         }
         Texture texture = new Texture(pixmap);
         texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         pixmap.dispose();
         ownedResources.add(texture);
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(texture));
-        drawable.setMinSize(ICON_SIZE, ICON_SIZE);
+        drawable.setMinSize(iconSize, iconSize);
         return drawable;
     }
 

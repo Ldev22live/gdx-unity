@@ -30,6 +30,13 @@ public class PlayModeController {
      * with play. {@link #onPlay} runs after scripts and 2D physics are ready, before the first update.
      */
     public interface Extension {
+        /**
+         * Called before the authored scene is copied for play, so temporary editor changes to it (such as a Timeline
+         * preview pose) can be undone first and are not carried into play.
+         */
+        default void beforePlay(Scene authoredScene) {
+        }
+
         /** @return problems that prevent playing; empty to allow play */
         List<String> onPlay(Scene runtimeScene, PlayModeController controller);
 
@@ -130,6 +137,10 @@ public class PlayModeController {
             String err = "Cannot play: Scene contains unsupported components: " + String.join(", ", unsupported);
             editorState.setStatusMessage(err, true);
             return false;
+        }
+
+        for (Extension extension : extensions) {
+            extension.beforePlay(currentAuthored);
         }
 
         // Clone authored scene via versioned serializer

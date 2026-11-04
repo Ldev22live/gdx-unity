@@ -2,69 +2,99 @@ package io.github.ldev22live.gdxunity.engine.desktop;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.graphics.Color;
 import io.github.ldev22live.gdxunity.engine.core.EngineApplication;
-import io.github.ldev22live.gdxunity.engine.render.SceneRenderer2D;
-import io.github.ldev22live.gdxunity.engine.render.camera.OrthographicCamera2D;
-import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
-import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.core.EngineState;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 /**
- * Launches the desktop (LWJGL3) application demonstrating camera-driven scene entity rendering.
+ * Game runtime (TD-035): plays one scene file in a window, with the same systems as the editor's Play button.
+ * See {@link GameLaunchOptions} for the command line.
  */
-public class DesktopLauncher {
+public final class DesktopLauncher {
+    /** Initial window size in pixels; the window can be resized. */
+    static final int WINDOW_WIDTH = 1280;
+    static final int WINDOW_HEIGHT = 720;
+    static final int EXIT_OK = 0;
+    static final int EXIT_FAILURE = 1;
+
+    private DesktopLauncher() {
+    }
+
     public static void main(String[] args) {
-        if (StartupHelper.startNewJvmIfRequired()) return;
-        createApplication();
+        if (StartupHelper.startNewJvmIfRequired(args)) {
+            return;
+        }
+        System.exit(run(args));
     }
 
-    private static Lwjgl3Application createApplication() {
-        // Setup demonstration scene with multiple entities in a parent-child hierarchy
-        Scene demoScene = createDemoScene();
+    /** Runs the game and returns the process exit code. */
+    static int run(String[] args) {
+        GameLaunchOptions options;
+        GameSession session;
+        try {
+            options = GameLaunchOptions.parse(args, new File("."), System.getProperty(GameLaunchOptions.SCRIPTS_PROPERTY));
+            Scene scene = GameSession.loadScene(options.scene());
+            session = new GameSession(options.project(), scene,
+                new GameScripts(options.scripts(), DesktopLauncher.class.getClassLoader()), GameSession.CONSOLE);
+        } catch (IllegalArgumentException | IOException e) {
+            System.err.println("Cannot start the game: " + e.getMessage());
+            return EXIT_FAILURE;
+        }
 
-        // Setup camera-driven renderer
-        OrthographicCamera2D camera = new OrthographicCamera2D(640, 480);
-        SceneRenderer2D renderer = new SceneRenderer2D(camera);
-        renderer.setActiveScene(demoScene);
+        List<String> problems = session.start();
+        if (!problems.isEmpty()) {
+            System.err.println("Cannot play " + options.scene() + ":");
+            problems.forEach(problem -> System.err.println("  " + problem));
+            disposeAfterFailedStart(session);
+            return EXIT_FAILURE;
+        }
 
-        return new Lwjgl3Application(new EngineApplication(renderer), getDefaultConfiguration());
+        GameRenderer renderer = new GameRenderer(session, options.project());
+        renderer.setExitAfterFrames(options.smokeTestFrames());
+        EngineApplication application = new EngineApplication(renderer);
+        try {
+            new Lwjgl3Application(application, configuration(session.getScene().getName()));
+        } catch (RuntimeException e) {
+            System.err.println("The game stopped with an error:");
+            e.printStackTrace(System.err);
+            return EXIT_FAILURE;
+        }
+        if (application.getState() == EngineState.FAILED) {
+            return EXIT_FAILURE;
+        }
+        if (options.isSmokeTest()) {
+            return smokeTestResult(options, renderer, session);
+        }
+        return EXIT_OK;
     }
 
-    public static Scene createDemoScene() {
-        Scene scene = new Scene("Milestone 3 Demo Scene");
-
-        // 1. Root Entity: Sun / Parent Core (Center of 640x480 screen = 320, 240)
-        Entity parentCore = scene.createEntity("ParentCore");
-        parentCore.getTransform().setLocalPosition(320f, 240f, 0f);
-        parentCore.addComponent(new ShapeRendererComponent(120f, 120f, new Color(0.2f, 0.7f, 0.9f, 1.0f))); // Cyan square
-
-        // 2. Child Entity 1: Orbiting Planet (Inherits parent transform + offset (100, 50))
-        Entity childPlanet = scene.createEntity("ChildPlanet");
-        childPlanet.getTransform().setLocalPosition(100f, 50f, 0f);
-        childPlanet.getTransform().setParent(parentCore.getTransform());
-        childPlanet.addComponent(new ShapeRendererComponent(50f, 50f, new Color(0.9f, 0.4f, 0.2f, 1.0f))); // Orange square
-
-        // 3. Child Entity 2: Moon (Child of planet, offset (40, 20), inherits multi-level world transform)
-        Entity moon = scene.createEntity("Moon");
-        moon.getTransform().setLocalPosition(40f, 20f, 0f);
-        moon.getTransform().setParent(childPlanet.getTransform());
-        moon.addComponent(new ShapeRendererComponent(20f, 20f, new Color(0.9f, 0.9f, 0.3f, 1.0f))); // Yellow square
-
-        // 4. Independent Entity: Ground Platform (Bottom center = 320, 40)
-        Entity ground = scene.createEntity("GroundPlatform");
-        ground.getTransform().setLocalPosition(320f, 40f, 0f);
-        ground.addComponent(new ShapeRendererComponent(400f, 30f, new Color(0.3f, 0.8f, 0.4f, 1.0f))); // Green bar
-
-        return scene;
+    private static int smokeTestResult(GameLaunchOptions options, GameRenderer renderer, GameSession session) {
+        List<String> errors = session.getRuntimeErrors();
+        boolean allFrames = renderer.getFramesRendered() >= options.smokeTestFrames();
+        System.out.println("Smoke test: " + renderer.getFramesRendered() + " of " + options.smokeTestFrames()
+            + " frames, " + errors.size() + " runtime error(s)");
+        errors.forEach(error -> System.out.println("  " + error));
+        return allFrames && errors.isEmpty() ? EXIT_OK : EXIT_FAILURE;
     }
 
-    private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
+    private static void disposeAfterFailedStart(GameSession session) {
+        try {
+            session.dispose();
+        } catch (RuntimeException e) {
+            System.err.println("Cleaning up after the failed start also failed: " + e.getMessage());
+        }
+    }
+
+    private static Lwjgl3ApplicationConfiguration configuration(String title) {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("GdxUnity Engine — Milestone 3");
+        configuration.setTitle(title);
         configuration.useVsync(true);
         configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
-        configuration.setWindowedMode(640, 480);
+        configuration.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
         return configuration;
     }
 }

@@ -1,0 +1,6 @@
+node_modules/
+dist/
+# Copied from ../assets/samples by `npm run sync-samples`; the originals are the source of truth
+public/samples/
+# Copied from ../assets/music by the same script
+public/music/

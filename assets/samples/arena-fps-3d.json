@@ -1,0 +1,3098 @@
+{
+  "schemaVersion": 1,
+  "name": "3D Arena Shooter",
+  "active": true,
+  "entities": [
+    {
+      "id": "c07adf83-78ea-53db-84ab-8b5956232abd",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1200.0,
+          "z": 600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.45,
+            "directionY": -1.0,
+            "directionZ": -0.3,
+            "colorR": 1.0,
+            "colorG": 0.93,
+            "colorB": 0.85,
+            "colorA": 1.0,
+            "intensity": 0.9,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "10a965ce-749f-5174-b175-c109eed982be",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.55,
+            "skyG": 0.62,
+            "skyB": 0.8,
+            "groundR": 0.3,
+            "groundG": 0.28,
+            "groundB": 0.26,
+            "intensity": 0.7
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7a024a68-854c-5c79-8265-fea8c607f863",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 1800.0,
+            "sizeY": 1.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.42,
+            "colorG": 0.44,
+            "colorB": 0.48,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "68a56afb-b019-5696-9957-aad9c89b6c06",
+      "name": "Floor Stripe 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -800.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 6.0,
+            "sizeY": 1.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.34,
+            "colorG": 0.36,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "dd62c90a-92e9-58e4-9727-dd9d1c555b1b",
+      "name": "Floor Stripe 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -600.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 6.0,
+            "sizeY": 1.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.34,
+            "colorG": 0.36,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "75eed926-7b69-5e2c-8f74-674d09053cfd",
+      "name": "Floor Stripe 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -400.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 6.0,
+            "sizeY": 1.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.34,
+            "colorG": 0.36,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4ea4c75a-f36f-5808-b37b-6bcb86203087",
+      "name": "Floor Stripe 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -200.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 6.0,
+            "sizeY": 1.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.34,
+            "colorG": 0.36,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f1a182cc-7827-50b9-9685-85e8999a94f2",
+      "name": "Floor Stripe 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 6.0,
+            "sizeY": 1.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.34,
+            "colorG": 0.36,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a8bc102b-d2c0-5d56-9e67-23e08556bfa7",
+      "name": "Floor Stripe 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 200.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 6.0,
+            "sizeY": 1.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.34,
+            "colorG": 0.36,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e47eab6a-9c00-5ab0-bc39-334f9ce2355c",
+      "name": "Floor Stripe 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 400.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 6.0,
+            "sizeY": 1.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.34,
+            "colorG": 0.36,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3fdf5ca6-18fe-58c1-a4ad-79e5f5ec1b97",
+      "name": "Floor Stripe 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 600.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 6.0,
+            "sizeY": 1.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.34,
+            "colorG": 0.36,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5bc7e801-fac7-5601-8c8a-1003acfbd240",
+      "name": "Floor Stripe 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 800.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 6.0,
+            "sizeY": 1.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.34,
+            "colorG": 0.36,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f9ffacd4-08f6-5471-b673-b612b8fb4faf",
+      "name": "Wall North",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 70.0,
+          "z": -920.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1880.0,
+            "sizeY": 140.0,
+            "sizeZ": 40.0,
+            "colorR": 0.6,
+            "colorG": 0.56,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "dd893533-2ef8-518a-8744-bf30ca36e281",
+      "name": "Wall South",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 70.0,
+          "z": 920.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1880.0,
+            "sizeY": 140.0,
+            "sizeZ": 40.0,
+            "colorR": 0.6,
+            "colorG": 0.56,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "31a3a8a7-04c7-5c32-a0b1-dcdc0752410b",
+      "name": "Wall West",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -920.0,
+          "y": 70.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 140.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.6,
+            "colorG": 0.56,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "604851d9-2ec1-52e2-a80e-f5a8e5f5c66c",
+      "name": "Wall East",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 920.0,
+          "y": 70.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 140.0,
+            "sizeZ": 1800.0,
+            "colorR": 0.6,
+            "colorG": 0.56,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a2675416-c189-5f87-b1fc-a056762cb15e",
+      "name": "Wall Divider West",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -480.0,
+          "y": 50.0,
+          "z": -150.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 360.0,
+            "sizeY": 100.0,
+            "sizeZ": 30.0,
+            "colorR": 0.6,
+            "colorG": 0.56,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d4ee0ed5-0741-5edc-abc5-68aad27a1d30",
+      "name": "Wall Divider East",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 480.0,
+          "y": 50.0,
+          "z": 150.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 360.0,
+            "sizeY": 100.0,
+            "sizeZ": 30.0,
+            "colorR": 0.6,
+            "colorG": 0.56,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "17169458-3087-5d0a-9d9e-e990b5ae8cb4",
+      "name": "Pillar 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -400.0,
+          "y": 90.0,
+          "z": -450.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 180.0,
+            "sizeZ": 70.0,
+            "colorR": 0.7,
+            "colorG": 0.68,
+            "colorB": 0.64,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a1935a76-f7cd-5f21-b604-4ef39ec006c2",
+      "name": "Pillar 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 400.0,
+          "y": 90.0,
+          "z": -450.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 180.0,
+            "sizeZ": 70.0,
+            "colorR": 0.7,
+            "colorG": 0.68,
+            "colorB": 0.64,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e412b0f7-930e-5305-b8be-13b5f8aa9ff7",
+      "name": "Pillar 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -400.0,
+          "y": 90.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 180.0,
+            "sizeZ": 70.0,
+            "colorR": 0.7,
+            "colorG": 0.68,
+            "colorB": 0.64,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a310b35f-6b55-5cdf-b91f-93b572ed5d3a",
+      "name": "Pillar 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 400.0,
+          "y": 90.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 180.0,
+            "sizeZ": 70.0,
+            "colorR": 0.7,
+            "colorG": 0.68,
+            "colorB": 0.64,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "593d66c5-142d-599a-8179-d79d4dd5679c",
+      "name": "Crate 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 45.0,
+          "z": -250.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 90.0,
+            "sizeZ": 90.0,
+            "colorR": 0.62,
+            "colorG": 0.44,
+            "colorB": 0.24,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "71f70e7d-2410-5a12-af50-661a89470b23",
+      "name": "Crate 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -650.0,
+          "y": 40.0,
+          "z": 250.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.62,
+            "colorG": 0.44,
+            "colorB": 0.24,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8cab9d11-5d19-55be-bef7-afc6b274e8d7",
+      "name": "Crate 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 650.0,
+          "y": 40.0,
+          "z": -300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.62,
+            "colorG": 0.44,
+            "colorB": 0.24,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c290d461-bb22-519d-a2fd-56763b55b308",
+      "name": "Crate 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 200.0,
+          "y": 35.0,
+          "z": 560.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 70.0,
+            "sizeZ": 70.0,
+            "colorR": 0.62,
+            "colorG": 0.44,
+            "colorB": 0.24,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3ae4752-e951-5596-a00d-5f69c607acb2",
+      "name": "Crate 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -220.0,
+          "y": 35.0,
+          "z": 620.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 70.0,
+            "sizeZ": 70.0,
+            "colorR": 0.62,
+            "colorG": 0.44,
+            "colorB": 0.24,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "55c62230-86b0-518a-be17-0bbf8b056ed7",
+      "name": "Crate 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -120.0,
+          "y": 40.0,
+          "z": -620.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.62,
+            "colorG": 0.44,
+            "colorB": 0.24,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e846943b-c383-5a76-9875-755088065bd0",
+      "name": "Crate 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 720.0,
+          "y": 45.0,
+          "z": 620.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 90.0,
+            "sizeZ": 90.0,
+            "colorR": 0.62,
+            "colorG": 0.44,
+            "colorB": 0.24,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "98fe1b75-e6f9-5259-a7be-b046745144c8",
+      "name": "Crate 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -720.0,
+          "y": 35.0,
+          "z": -700.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 70.0,
+            "sizeZ": 70.0,
+            "colorR": 0.62,
+            "colorG": 0.44,
+            "colorB": 0.24,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6144eaa0-e694-5a52-bcfd-b63136287e86",
+      "name": "Spawn 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -780.0,
+          "y": 50.0,
+          "z": -780.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "33f34dc0-63fd-5fb1-8dc9-1b3ba66b7581",
+      "name": "Spawn 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 780.0,
+          "y": 50.0,
+          "z": -780.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "c646d75e-c11a-5003-9c31-092215e1453d",
+      "name": "Spawn 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 50.0,
+          "z": -820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "88385367-b3e6-585a-8e57-701eacdd3c91",
+      "name": "Spawn 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 800.0,
+          "y": 50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "a6088729-1c5f-55a2-a983-bd4405cafbb3",
+      "name": "Spawn 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -800.0,
+          "y": 50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "03bd0e02-e1c5-503f-84cd-f5f0852d00d8",
+      "name": "Enemy 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -700.0,
+          "y": 50.0,
+          "z": -820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.85,
+            "colorG": 0.2,
+            "colorB": 0.22,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1e1f7cc8-e299-5774-8186-bc7168b1ebba",
+      "name": "Eye (Enemy 1)",
+      "active": true,
+      "parentId": "03bd0e02-e1c5-503f-84cd-f5f0852d00d8",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4.0,
+          "z": -20.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 16.0,
+            "sizeY": 16.0,
+            "sizeZ": 16.0,
+            "colorR": 1.0,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "30ec201b-3ea8-55b5-ab57-44b324e858df",
+      "name": "Fin Left (Enemy 1)",
+      "active": true,
+      "parentId": "03bd0e02-e1c5-503f-84cd-f5f0852d00d8",
+      "transform": {
+        "position": {
+          "x": -26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f4a743ff-db63-5571-b696-a52dcff8ec74",
+      "name": "Fin Right (Enemy 1)",
+      "active": true,
+      "parentId": "03bd0e02-e1c5-503f-84cd-f5f0852d00d8",
+      "transform": {
+        "position": {
+          "x": 26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8ca20607-9cd5-5a33-8986-d78cc86314e5",
+      "name": "Enemy 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -500.0,
+          "y": 50.0,
+          "z": -820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.85,
+            "colorG": 0.2,
+            "colorB": 0.22,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4d73a30-8f3f-51f5-832e-f41726b21193",
+      "name": "Eye (Enemy 2)",
+      "active": true,
+      "parentId": "8ca20607-9cd5-5a33-8986-d78cc86314e5",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4.0,
+          "z": -20.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 16.0,
+            "sizeY": 16.0,
+            "sizeZ": 16.0,
+            "colorR": 1.0,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6f37d909-68e4-5890-beff-132ea0e78c7c",
+      "name": "Fin Left (Enemy 2)",
+      "active": true,
+      "parentId": "8ca20607-9cd5-5a33-8986-d78cc86314e5",
+      "transform": {
+        "position": {
+          "x": -26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "def2f378-dbf5-5a3c-ab2b-62547073a555",
+      "name": "Fin Right (Enemy 2)",
+      "active": true,
+      "parentId": "8ca20607-9cd5-5a33-8986-d78cc86314e5",
+      "transform": {
+        "position": {
+          "x": 26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f5f0002b-8966-5663-b231-905e51d38a73",
+      "name": "Enemy 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -300.0,
+          "y": 50.0,
+          "z": -820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.85,
+            "colorG": 0.2,
+            "colorB": 0.22,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7194620f-d2e9-556d-95f1-535c583f84c4",
+      "name": "Eye (Enemy 3)",
+      "active": true,
+      "parentId": "f5f0002b-8966-5663-b231-905e51d38a73",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4.0,
+          "z": -20.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 16.0,
+            "sizeY": 16.0,
+            "sizeZ": 16.0,
+            "colorR": 1.0,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1847ddc7-8c03-5dae-b070-8f329b6bab50",
+      "name": "Fin Left (Enemy 3)",
+      "active": true,
+      "parentId": "f5f0002b-8966-5663-b231-905e51d38a73",
+      "transform": {
+        "position": {
+          "x": -26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "99d653f6-a364-5c92-b984-f5f62cf16c40",
+      "name": "Fin Right (Enemy 3)",
+      "active": true,
+      "parentId": "f5f0002b-8966-5663-b231-905e51d38a73",
+      "transform": {
+        "position": {
+          "x": 26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3991ed34-f850-55f6-8e87-96f1b0393219",
+      "name": "Enemy 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -100.0,
+          "y": 50.0,
+          "z": -820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.85,
+            "colorG": 0.2,
+            "colorB": 0.22,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0cec50c7-7d62-57d3-b2c7-00b4943af3eb",
+      "name": "Eye (Enemy 4)",
+      "active": true,
+      "parentId": "3991ed34-f850-55f6-8e87-96f1b0393219",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4.0,
+          "z": -20.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 16.0,
+            "sizeY": 16.0,
+            "sizeZ": 16.0,
+            "colorR": 1.0,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "73d86490-ec94-5cda-980b-17ee9c206286",
+      "name": "Fin Left (Enemy 4)",
+      "active": true,
+      "parentId": "3991ed34-f850-55f6-8e87-96f1b0393219",
+      "transform": {
+        "position": {
+          "x": -26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "30f56350-57ef-5280-988f-bea2870d0f3f",
+      "name": "Fin Right (Enemy 4)",
+      "active": true,
+      "parentId": "3991ed34-f850-55f6-8e87-96f1b0393219",
+      "transform": {
+        "position": {
+          "x": 26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a0915248-79f1-56a6-9f9f-9cee9a72c76b",
+      "name": "Enemy 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 50.0,
+          "z": -820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.85,
+            "colorG": 0.2,
+            "colorB": 0.22,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "10d06e00-4381-5f17-bfd5-c38e91874601",
+      "name": "Eye (Enemy 5)",
+      "active": true,
+      "parentId": "a0915248-79f1-56a6-9f9f-9cee9a72c76b",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4.0,
+          "z": -20.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 16.0,
+            "sizeY": 16.0,
+            "sizeZ": 16.0,
+            "colorR": 1.0,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4bbed94d-0666-5393-a777-aecd17313a3a",
+      "name": "Fin Left (Enemy 5)",
+      "active": true,
+      "parentId": "a0915248-79f1-56a6-9f9f-9cee9a72c76b",
+      "transform": {
+        "position": {
+          "x": -26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8d69fc5d-3c08-500c-ab87-b24ac384daef",
+      "name": "Fin Right (Enemy 5)",
+      "active": true,
+      "parentId": "a0915248-79f1-56a6-9f9f-9cee9a72c76b",
+      "transform": {
+        "position": {
+          "x": 26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "913bf140-5ddc-54d5-afbc-a0d848fe9332",
+      "name": "Enemy 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 50.0,
+          "z": -820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.85,
+            "colorG": 0.2,
+            "colorB": 0.22,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "eb462cb4-a5ee-5960-b1e8-d89de3278eeb",
+      "name": "Eye (Enemy 6)",
+      "active": true,
+      "parentId": "913bf140-5ddc-54d5-afbc-a0d848fe9332",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4.0,
+          "z": -20.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 16.0,
+            "sizeY": 16.0,
+            "sizeZ": 16.0,
+            "colorR": 1.0,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "bbd7f137-c418-5b23-80a6-b863580add8f",
+      "name": "Fin Left (Enemy 6)",
+      "active": true,
+      "parentId": "913bf140-5ddc-54d5-afbc-a0d848fe9332",
+      "transform": {
+        "position": {
+          "x": -26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "85a8ca4e-c24a-5c1f-9173-312effd9e030",
+      "name": "Fin Right (Enemy 6)",
+      "active": true,
+      "parentId": "913bf140-5ddc-54d5-afbc-a0d848fe9332",
+      "transform": {
+        "position": {
+          "x": 26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3fcd610-2e20-5915-8e4d-e2fe80a8a8a6",
+      "name": "Enemy 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 500.0,
+          "y": 50.0,
+          "z": -820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.85,
+            "colorG": 0.2,
+            "colorB": 0.22,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d2b6041a-0f4d-5376-8654-d58526cf911f",
+      "name": "Eye (Enemy 7)",
+      "active": true,
+      "parentId": "c3fcd610-2e20-5915-8e4d-e2fe80a8a8a6",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4.0,
+          "z": -20.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 16.0,
+            "sizeY": 16.0,
+            "sizeZ": 16.0,
+            "colorR": 1.0,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7df99724-b673-5303-9266-fee984bee636",
+      "name": "Fin Left (Enemy 7)",
+      "active": true,
+      "parentId": "c3fcd610-2e20-5915-8e4d-e2fe80a8a8a6",
+      "transform": {
+        "position": {
+          "x": -26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "54dc5ac2-62c0-50c5-a22e-300fde13883c",
+      "name": "Fin Right (Enemy 7)",
+      "active": true,
+      "parentId": "c3fcd610-2e20-5915-8e4d-e2fe80a8a8a6",
+      "transform": {
+        "position": {
+          "x": 26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a1268e78-d200-5463-9b5a-3cfa6043be25",
+      "name": "Enemy 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 700.0,
+          "y": 50.0,
+          "z": -820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.85,
+            "colorG": 0.2,
+            "colorB": 0.22,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ba831866-7271-5a43-9521-9e75ee406c36",
+      "name": "Eye (Enemy 8)",
+      "active": true,
+      "parentId": "a1268e78-d200-5463-9b5a-3cfa6043be25",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4.0,
+          "z": -20.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 16.0,
+            "sizeY": 16.0,
+            "sizeZ": 16.0,
+            "colorR": 1.0,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a8fd12f4-21aa-5291-8d47-2e45866b0ee3",
+      "name": "Fin Left (Enemy 8)",
+      "active": true,
+      "parentId": "a1268e78-d200-5463-9b5a-3cfa6043be25",
+      "transform": {
+        "position": {
+          "x": -26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8c6c543e-97ea-5118-90aa-b98b7798481a",
+      "name": "Fin Right (Enemy 8)",
+      "active": true,
+      "parentId": "a1268e78-d200-5463-9b5a-3cfa6043be25",
+      "transform": {
+        "position": {
+          "x": 26.0,
+          "y": 0.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12.0,
+            "sizeY": 6.0,
+            "sizeZ": 26.0,
+            "colorR": 0.35,
+            "colorG": 0.08,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "16f94262-96ad-5265-a8cc-0554dbe0adda",
+      "name": "Player",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 60.0,
+          "z": 700.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 70.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a79e21bb-6202-517d-a190-a4dc3b26468d",
+      "name": "Gun (Player)",
+      "active": true,
+      "parentId": "16f94262-96ad-5265-a8cc-0554dbe0adda",
+      "transform": {
+        "position": {
+          "x": 14.0,
+          "y": -14.0,
+          "z": -30.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 8.0,
+            "sizeY": 10.0,
+            "sizeZ": 34.0,
+            "colorR": 0.18,
+            "colorG": 0.19,
+            "colorB": 0.22,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "47d75050-7dbe-5a6d-9714-f6fcfd69a725",
+      "name": "Gun Barrel (Player)",
+      "active": true,
+      "parentId": "a79e21bb-6202-517d-a190-a4dc3b26468d",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 2.0,
+          "z": -22.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 4.0,
+            "sizeY": 4.0,
+            "sizeZ": 12.0,
+            "colorR": 0.1,
+            "colorG": 0.1,
+            "colorB": 0.12,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b1903ded-7a7f-5b5b-a2f1-ad715af7c830",
+      "name": "Muzzle Flash (Player)",
+      "active": true,
+      "parentId": "a79e21bb-6202-517d-a190-a4dc3b26468d",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 2.0,
+          "z": -31.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 9.0,
+            "sizeY": 9.0,
+            "sizeZ": 9.0,
+            "colorR": 1.0,
+            "colorG": 0.85,
+            "colorB": 0.35,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d9fd2b50-8ff5-5cb3-b8e7-ca22a0e32086",
+      "name": "Impact Spark",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -100.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 10.0,
+            "sizeY": 10.0,
+            "sizeZ": 10.0,
+            "colorR": 1.0,
+            "colorG": 0.95,
+            "colorB": 0.6,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "20f2c7c7-0783-54d6-b1f0-8ba36325134a",
+      "name": "Game",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/fps/FpsGame.java",
+            "scriptClassName": "samples.fps.FpsGame",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "6f6fba27-65d7-57e7-bdb7-6be28f80876c",
+      "name": "Crosshair Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "+",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.6,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2508aa0a-a7e2-5b4c-b98e-f7a7c2c1682d",
+      "name": "Health Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Health 100",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "100320e2-4b22-50df-83e1-f289fb83d8f7",
+      "name": "Wave Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Wave 1 / 3",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_RIGHT",
+            "offsetX": -16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6d050d2c-332a-5635-88fd-87d704c5d91d",
+      "name": "Enemies Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Drones left 0",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_RIGHT",
+            "offsetX": -16.0,
+            "offsetY": -48.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6b48296f-6f03-5a1c-8e88-74c69d5e003a",
+      "name": "Message Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Press Space to start",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 2.0,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f8afb7fb-2c3a-59f8-9ba2-1fbd57761ad2",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "WASD: move   Arrows: turn and look   Space: fire   R: restart",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

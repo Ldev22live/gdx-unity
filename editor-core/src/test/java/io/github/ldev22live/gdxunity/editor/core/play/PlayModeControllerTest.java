@@ -53,6 +53,34 @@ class PlayModeControllerTest {
     }
 
     @Test
+    void shouldLetExtensionsUndoTemporaryEditsBeforeSceneIsCopied() {
+        Entity entity = editorState.getActiveScene().createEntity("Previewed");
+        // A temporary pose (as a Timeline preview would set) that must not reach play
+        entity.getTransform().setLocalPosition(500f, 0f, 0f);
+        controller.addExtension(new PlayModeController.Extension() {
+            @Override
+            public void beforePlay(Scene authoredScene) {
+                authoredScene.getAllEntities().get(0).getTransform().setLocalPosition(0f, 0f, 0f);
+            }
+
+            @Override
+            public List<String> onPlay(Scene runtimeScene, PlayModeController c) {
+                return List.of();
+            }
+
+            @Override
+            public void onStop(Scene runtimeScene) {
+            }
+        });
+
+        assertTrue(controller.play());
+
+        Entity runtime = controller.getRuntimeScene().getAllEntities().get(0);
+        assertEquals(0f, runtime.getTransform().getLocalPosition().x);
+        controller.stop();
+    }
+
+    @Test
     void shouldStartPlayModeAndIsolateAuthoredScene() {
         Scene authored = editorState.getActiveScene();
         Entity entity = authored.createEntity("Hero");

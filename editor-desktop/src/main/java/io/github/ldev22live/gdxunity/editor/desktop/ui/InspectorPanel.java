@@ -138,6 +138,10 @@ public class InspectorPanel extends Table {
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.MeshPrimitiveComponentEditorProvider());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Directional());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Point());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Sky());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.ToneMapping());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.GameComponentEditorProviders.Camera());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.GameComponentEditorProviders.Text());
         reg.register(new Physics3DComponentEditorProviders.RigidBody());
         reg.register(new Physics3DComponentEditorProviders.Box());
         reg.register(new Physics3DComponentEditorProviders.Sphere());

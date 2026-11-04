@@ -19,8 +19,8 @@ public class SceneFileController {
 
     /** Scene files are versioned JSON (TD-010). */
     public static final String SCENE_EXTENSION = "json";
-    public static final String SCENE_FILTER_DESCRIPTION = "GdxUnity Scene (*.json)";
-    public static final String APPLICATION_NAME = "GdxUnity Editor";
+    public static final String SCENE_FILTER_DESCRIPTION = "Forgeroom Scene (*.json)";
+    public static final String APPLICATION_NAME = "Forgeroom Editor";
     static final String UNTITLED_NAME = "Untitled";
 
     /** Notified when the file, dirty flag or title changes. */
@@ -32,6 +32,7 @@ public class SceneFileController {
     private final EditorDialogService dialogs;
     private final File defaultDirectory;
     private final List<Listener> listeners = new CopyOnWriteArrayList<>();
+    private final List<Runnable> beforeSaveHooks = new CopyOnWriteArrayList<>();
 
     private File currentFile;
     private boolean dirty;
@@ -50,6 +51,14 @@ public class SceneFileController {
         listeners.add(Objects.requireNonNull(listener, "listener cannot be null"));
     }
 
+    /**
+     * Runs {@code hook} before every save, so temporary editor changes to the scene (such as a Timeline preview pose)
+     * can be undone first and are not written to the file.
+     */
+    public void addBeforeSaveHook(Runnable hook) {
+        beforeSaveHooks.add(Objects.requireNonNull(hook, "hook cannot be null"));
+    }
+
     public boolean isDirty() {
         return dirty;
     }
@@ -63,7 +72,7 @@ public class SceneFileController {
         return currentFile != null ? currentFile.getName() : UNTITLED_NAME;
     }
 
-    /** E.g. {@code "level1.json* - GdxUnity Editor"}; the asterisk marks unsaved changes. */
+    /** E.g. {@code "level1.json* - Forgeroom Editor"}; the asterisk marks unsaved changes. */
     public String getWindowTitle() {
         return getDocumentName() + (dirty ? "*" : "") + " - " + APPLICATION_NAME;
     }
@@ -81,10 +90,21 @@ public class SceneFileController {
 
     /** Asks for a scene file and opens it, after offering to save unsaved changes. */
     public boolean open() {
+        return openFrom("Open Scene", dialogDirectory());
+    }
+
+    /**
+     * Like {@link #open()}, but the dialog starts in {@code directory}, for example the project's sample games.
+     *
+     * @param title dialog title
+     */
+    public boolean openFrom(String title, File directory) {
+        Objects.requireNonNull(title, "title cannot be null");
+        Objects.requireNonNull(directory, "directory cannot be null");
         if (rejectDuringPlayMode() || !confirmDiscardChanges()) {
             return false;
         }
-        Optional<File> chosen = dialogs.chooseOpenFile("Open Scene", dialogDirectory(), SCENE_FILTER_DESCRIPTION, SCENE_EXTENSION);
+        Optional<File> chosen = dialogs.chooseOpenFile(title, directory, SCENE_FILTER_DESCRIPTION, SCENE_EXTENSION);
         return chosen.isPresent() && openFile(chosen.get());
     }
 
@@ -142,6 +162,9 @@ public class SceneFileController {
     }
 
     private boolean writeTo(File file) {
+        for (Runnable hook : beforeSaveHooks) {
+            hook.run();
+        }
         try {
             editorState.saveSceneToFile(file);
         } catch (Exception e) {

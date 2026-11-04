@@ -1,4 +1,4 @@
-# AGENTS.md — GdxUnity Engineering Rules
+# AGENTS.md — Forgeroom Engineering Rules
 
 Concrete rules for AI agents (Windsurf, Claude Code, others) and humans working in this repository.
 The product vision and full engineering brief live in [`docs/design-doc.md.txt`](docs/design-doc.md.txt);
@@ -65,12 +65,16 @@ Only the modules in `settings.gradle` are part of the build:
 |---|---|---|
 | `engine-core` | Lifecycle, time, resource ownership (`ResourceManager`), asset references/catalog | LibGDX core |
 | `engine-scene` | `Entity`, `Component`, `Transform`, `Scene`, serialization, 2D physics, lights, script components | `engine-core` |
-| `engine-render` | Cameras (`OrthographicCamera2D`, `PerspectiveCamera3D`), `SceneRenderer2D`, `SceneRenderer3D`, render components | `engine-core`, `engine-scene` |
+| `engine-render` | Cameras (`OrthographicCamera2D`, `PerspectiveCamera3D`), `SceneRenderer2D`, `SceneRenderer3D`, render components, glTF models via gdx-gltf (`ModelAssets`, `ModelComponent`, TD-030) | `engine-core`, `engine-scene`, gdx-gltf (internal) |
 | `engine-visualscript` | Visual scripting runtime: graph model, nodes, validator, `.graph` files, interpreter (TD-029) | `engine-scene` |
-| `engine-desktop` | Runtime desktop launcher (no editor code) | engine modules |
+| `engine-animation` | Keyframe curves, tracks, `.anim` clips, `AnimatorComponent`, skeleton FK / two-bone IK (TD-031) | `engine-render` |
+| `engine-audio` | Music and sound core (TD-040): synth, drums, sampler, SoundFont reader, sfxr, effects, mixer, song model, player, exporter; headless, no sound device | `engine-core` |
+| `engine-desktop` | Game runtime (TD-035): plays a scene file like editor Play (`GameSession`, `GameRenderer`, precompiled `GameScripts`), shared component serializer list (`GameComponentSerializers`); no editor code | engine modules |
 | `editor-core` | Headless editor logic: state, commands/undo, gizmo math, picking, play mode, scripting compiler, AI agent tools | engine modules |
 | `editor-visualscript` | Headless graph editing: documents, undoable commands, graph assets, play mode extension (TD-029) | `editor-core`, `engine-visualscript` |
-| `editor-desktop` | scene2d.ui editor shell, panels, renderers for gizmos/grid/physics debug, graph canvas | `editor-core`, `editor-visualscript`, engine modules |
+| `editor-animation` | Headless Timeline: clip documents, undoable key edits, preview, auto-key, play mode extension (TD-031) | `editor-core`, `engine-animation` |
+| `editor-audio` | Headless music editing: song documents, undoable edits, piano roll operations, sessions, WAV export (TD-040) | `editor-core`, `engine-audio` |
+| `editor-desktop` | scene2d.ui editor shell, panels, renderers for gizmos/grid/physics debug/bones, graph canvas, Timeline | `editor-core`, `editor-visualscript`, `editor-animation`, engine modules (including `engine-desktop`, for the shared serializer list) |
 
 Rules:
 - Engine modules must never depend on editor modules.
@@ -91,7 +95,10 @@ Run from the repository root (`gradlew.bat` on Windows cmd/PowerShell, `./gradle
 ./gradlew :editor-core:test               # one module
 ./gradlew :editor-core:test --tests "*TransformGizmoTest"   # one class
 ./gradlew :editor-desktop:run             # launch the editor (needs a display)
-./gradlew :engine-desktop:run             # launch the runtime
+./gradlew :engine-desktop:run             # game runtime; plays samples/platformer-2d.json (TD-035)
+./gradlew :engine-desktop:run --args="--scene samples/hopper-3d.json --smoke-test=240"   # another scene; exit 0/1
+./gradlew :editor-desktop:zipEditorPackage   # packaged editor for the host OS (TD-033), in editor-desktop/build/package
+./gradlew :editor-desktop:run --args="--smoke-test"   # render a few seconds, exit 0/1 (needs a display)
 ```
 
 `gradle.properties` sets `org.gradle.logging.level=quiet`, so a passing run prints almost nothing. Do not

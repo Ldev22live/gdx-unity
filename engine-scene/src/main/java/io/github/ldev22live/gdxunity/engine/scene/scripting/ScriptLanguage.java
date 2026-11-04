@@ -1,7 +1,7 @@
 package io.github.ldev22live.gdxunity.engine.scene.scripting;
 
 /**
- * Supported programming languages for user scripts in GdxUnity.
+ * Supported programming languages for user scripts in Forgeroom.
  */
 public enum ScriptLanguage {
     JAVA("java", "Java"),

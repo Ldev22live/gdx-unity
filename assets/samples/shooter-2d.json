@@ -1,0 +1,2016 @@
+{
+  "schemaVersion": 1,
+  "name": "2D Space Shooter",
+  "active": true,
+  "entities": [
+    {
+      "id": "22e69518-f639-5550-89b2-61687d29a0b8",
+      "name": "Background",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 640.0,
+            "height": 480.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.03,
+              "g": 0.03,
+              "b": 0.08,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "d2726273-cf96-5a0e-a054-31fd8736e3b2",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "ORTHOGRAPHIC",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f008db23-b8eb-5597-8324-90f09fcaef9e",
+      "name": "Star 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 378.4,
+          "y": 62.6,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "6a84424f-3548-50d6-870e-75c16f78af3d",
+      "name": "Star 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 399.2,
+          "y": 31.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "b12135bc-c5ed-5b2b-83bc-141726f93309",
+      "name": "Star 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 577.6,
+          "y": 225.2,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "d389312f-8f74-591d-a6cb-ef743d983157",
+      "name": "Star 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 125.8,
+          "y": 344.2,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "b2276d78-4127-5ae3-be06-e53bf059f11e",
+      "name": "Star 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 255.2,
+          "y": 413.3,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "e1f63e14-2d1f-58a3-aca4-a8a5fd26296e",
+      "name": "Star 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 405.0,
+          "y": 416.7,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "524e1e9e-277a-5090-8d98-f5be00d2bc58",
+      "name": "Star 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 472.0,
+          "y": 322.3,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "76fecad9-ab0a-5b96-9032-bfd554d338a9",
+      "name": "Star 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 105.4,
+          "y": 459.6,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "faa1e47d-7605-579b-9d7c-714e718e2cb3",
+      "name": "Star 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 194.8,
+          "y": 14.9,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "f0ef2c5f-fd09-5ef1-bfe0-6bdbd2218260",
+      "name": "Star 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 302.8,
+          "y": 345.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "b7397300-9ee4-5a78-9c87-b5c288872b7e",
+      "name": "Star 11",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 454.9,
+          "y": 442.1,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3e39061-5ec9-552b-a4b5-4c09eec9288d",
+      "name": "Star 12",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 463.7,
+          "y": 276.9,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6b64a04-3361-5469-9fd3-a0643695ecc0",
+      "name": "Star 13",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 558.7,
+          "y": 46.8,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "60eadaf3-aa39-51f0-8a82-a9a7ff402ec9",
+      "name": "Star 14",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 316.8,
+          "y": 123.8,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "528504e7-f7ce-52d7-9631-870c4bd26ac7",
+      "name": "Star 15",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 495.8,
+          "y": 410.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "2950c519-8949-5a81-8a96-f717060dbe3b",
+      "name": "Star 16",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 324.6,
+          "y": 185.2,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ee16a296-93e5-5b17-b5ef-9dd13386e768",
+      "name": "Star 17",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 341.5,
+          "y": 195.6,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "39ef4c0b-886c-551c-87fc-59fcecf0d0d0",
+      "name": "Star 18",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 574.6,
+          "y": 327.4,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "3b01f7fa-6107-529f-959f-60257529aa26",
+      "name": "Star 19",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 544.5,
+          "y": 475.7,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "683b7fa7-194b-5dab-9eee-35b063ecf118",
+      "name": "Star 20",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 445.1,
+          "y": 156.7,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "61411762-78eb-570a-891f-a4d183c98046",
+      "name": "Star 21",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 454.7,
+          "y": 101.3,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "9b0dc6c8-b557-566f-93d3-ce28f43cb303",
+      "name": "Star 22",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 184.5,
+          "y": 30.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "263e439d-41f4-5845-a3d8-19ee78879950",
+      "name": "Star 23",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 60.8,
+          "y": 384.3,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "1a083c8f-8f7d-5f00-82ba-9fae5fd7082d",
+      "name": "Star 24",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 570.2,
+          "y": 9.7,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "44fceaea-de92-5481-8c5b-fdd601e155e5",
+      "name": "Star 25",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 489.3,
+          "y": 418.9,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "f62ac052-09d8-507a-af18-7c3122a0cce4",
+      "name": "Star 26",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 386.1,
+          "y": 365.6,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "07ae56d4-195e-5e8d-b300-74a831251929",
+      "name": "Star 27",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 457.6,
+          "y": 158.9,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "df2b5e35-e2a9-5b4d-8980-2fb15106c834",
+      "name": "Star 28",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 323.4,
+          "y": 479.3,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "0d30fffb-1914-5372-8dcf-84d17c8cbe06",
+      "name": "Star 29",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 9.6,
+          "y": 51.9,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "9eeee74c-24c4-5532-9133-42e169c6e388",
+      "name": "Star 30",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 602.8,
+          "y": 466.3,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "d15ee322-14c9-5388-a8ca-232dbfa239fa",
+      "name": "Star 31",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 389.6,
+          "y": 75.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "8bd11b78-972f-5ce0-a899-b686388fbf79",
+      "name": "Star 32",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 622.3,
+          "y": 163.1,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "1dd7242d-7bf8-5852-a32f-a89fa4b9c753",
+      "name": "Star 33",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 609.0,
+          "y": 430.4,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "dcef18c0-f6e2-5f61-a3d6-d2e9bf93cc19",
+      "name": "Star 34",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 242.4,
+          "y": 417.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "e40852ce-9311-54ae-8402-6178a4d7a620",
+      "name": "Star 35",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 410.6,
+          "y": 285.9,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 3.0,
+            "height": 3.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ed18e90c-3d48-5164-b07f-16b4ad4d93a4",
+      "name": "Star 36",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 395.7,
+          "y": 451.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bbbd8a64-c0ec-5e5e-b3c0-7204de56fc0b",
+      "name": "Star 37",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 276.7,
+          "y": 345.7,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "af2682d4-bd3b-52c0-ba7a-e418a4d355a0",
+      "name": "Star 38",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 595.0,
+          "y": 210.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "7e9d5408-05d3-5b82-bf45-768b59075009",
+      "name": "Star 39",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 333.3,
+          "y": 263.2,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "8ee66632-08c7-5a60-bf5e-e7b5de5f9ccc",
+      "name": "Star 40",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 501.7,
+          "y": 474.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 2.0,
+            "height": 2.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.8,
+              "g": 0.85,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "609d1712-fe4c-5b60-819a-de367d034a29",
+      "name": "Ship",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 70.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 34.0,
+            "height": 22.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.35,
+              "g": 0.9,
+              "b": 1.0,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/shooter/ShooterShip.java",
+            "scriptClassName": "samples.shooter.ShooterShip",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c1b8996e-e742-50e2-9dff-d731dbc8fff3",
+      "name": "Game",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/shooter/ShooterGame.java",
+            "scriptClassName": "samples.shooter.ShooterGame",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b7f6f117-865e-5a7c-bc01-0f0e122af9f1",
+      "name": "Score Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Score: 0",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2a0c6c17-7b23-5c32-acee-d332fb620473",
+      "name": "Lives Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Lives: 3",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_RIGHT",
+            "offsetX": -16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ad85991b-4c46-5fa5-a7b0-4eee873fb80e",
+      "name": "Message Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.8,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "388417f5-3f08-51ca-ae52-5d43cd38e2f7",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "WASD or arrows: fly   Space: fire   R: restart",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,491 @@
+{
+  "schemaVersion": 1,
+  "name": "3D Crate Puzzle",
+  "active": true,
+  "entities": [
+    {
+      "id": "70618edd-4b2b-5835-b9a9-bfac4aa5a0a8",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1000.0,
+          "z": 600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.35,
+            "directionY": -1.0,
+            "directionZ": -0.5,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.9,
+            "colorA": 1.0,
+            "intensity": 0.95,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "64fb32a7-b0d9-5297-af6d-75d95b814308",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.7,
+            "skyB": 0.85,
+            "groundR": 0.3,
+            "groundG": 0.28,
+            "groundB": 0.3,
+            "intensity": 0.7
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a07e0492-2ce1-5edb-9ba5-37000eaef0b9",
+      "name": "Backdrop",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -6.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 6000.0,
+            "sizeY": 1.0,
+            "sizeZ": 6000.0,
+            "colorR": 0.22,
+            "colorG": 0.26,
+            "colorB": 0.34,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cee44bf7-4b4e-552b-93ae-37f4d9aadc47",
+      "name": "Player",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 35.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 70.0,
+            "sizeY": 70.0,
+            "sizeZ": 70.0,
+            "colorR": 0.25,
+            "colorG": 0.5,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ecd18144-d988-5ac6-bf3f-44a0036e2ce2",
+      "name": "Eye Left (Player)",
+      "active": true,
+      "parentId": "cee44bf7-4b4e-552b-93ae-37f4d9aadc47",
+      "transform": {
+        "position": {
+          "x": -14.0,
+          "y": 14.0,
+          "z": -28.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 14.0,
+            "sizeY": 14.0,
+            "sizeZ": 14.0,
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "785ce7e5-0363-54ba-8ffa-de27cba8532d",
+      "name": "Eye Right (Player)",
+      "active": true,
+      "parentId": "cee44bf7-4b4e-552b-93ae-37f4d9aadc47",
+      "transform": {
+        "position": {
+          "x": 14.0,
+          "y": 14.0,
+          "z": -28.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 14.0,
+            "sizeY": 14.0,
+            "sizeZ": 14.0,
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3a2b6da1-6edf-5c26-ada4-4e6234651366",
+      "name": "Game",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/puzzle/PuzzleGame.java",
+            "scriptClassName": "samples.puzzle.PuzzleGame",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "5c3d0d20-d6d0-563e-9a46-14c241c1418b",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 700.0,
+          "z": 500.0
+        },
+        "rotation": {
+          "x": -0.461749,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.887011
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 50.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1984fb92-92c5-5c24-a163-403e807adf4c",
+      "name": "Level Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Puzzle 1 / 4",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "46ae2e6c-6ff3-5548-8b59-b2b4e06523d0",
+      "name": "Moves Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Moves 0",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_RIGHT",
+            "offsetX": -16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "28238c9e-264a-5e92-8ecc-3c69a931f6b8",
+      "name": "Message Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.6,
+            "anchor": "TOP",
+            "offsetX": 0.0,
+            "offsetY": -60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "22492b31-c0e7-5691-a9fd-5ce611d4882c",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Push every crate onto a yellow tile.   WASD or arrows: move   U or Z: undo   R: restart puzzle",
+            "colorR": 0.85,
+            "colorG": 0.88,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

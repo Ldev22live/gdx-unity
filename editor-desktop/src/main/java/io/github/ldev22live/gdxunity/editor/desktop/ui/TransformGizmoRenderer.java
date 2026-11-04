@@ -28,6 +28,8 @@ public class TransformGizmoRenderer {
     private final EditorState editorState;
     private final GizmoInteractionController controller;
     private final Camera camera;
+    /** Draw the full three-axis handles even for a non-perspective camera (the axis views, TD-039). */
+    private final boolean full3D;
 
     // Handle colors (Unity style: X = Red, Y = Green, Z = Blue, Center/Uniform = Cyan/Yellow)
     private static final Color COLOR_X = new Color(0.9f, 0.2f, 0.2f, 1.0f);
@@ -40,6 +42,16 @@ public class TransformGizmoRenderer {
     private static final Color COLOR_PLANE_YZ = new Color(0.2f, 0.9f, 0.9f, 0.4f);
 
     public TransformGizmoRenderer(EditorState editorState, GizmoInteractionController controller, Camera camera) {
+        this(editorState, controller, camera, false);
+    }
+
+    /**
+     * @param full3D draw the three-axis handles also when the camera is orthographic, as in an axis view; the size is
+     *               then the {@code scaleFactor} given to {@link #render}
+     */
+    public TransformGizmoRenderer(EditorState editorState, GizmoInteractionController controller, Camera camera,
+                                  boolean full3D) {
+        this.full3D = full3D;
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.controller = Objects.requireNonNull(controller, "controller cannot be null");
         this.camera = Objects.requireNonNull(camera, "camera cannot be null");
@@ -73,7 +85,7 @@ public class TransformGizmoRenderer {
         float rotRadius = TransformGizmoMath.DEFAULT_ROTATION_RADIUS * effectiveScale;
 
         GizmoHandle activeHandle = controller.isDragging() ? controller.getActiveHandle() : GizmoHandle.NONE;
-        boolean perspective = camera instanceof PerspectiveCamera3D;
+        boolean perspective = camera instanceof PerspectiveCamera3D || full3D;
 
         // Save original ShapeRenderer transform matrix
         Matrix4 origMatrix = new Matrix4(shapeRenderer.getTransformMatrix());

@@ -668,12 +668,512 @@ scene's; the open graph is saved before play so play always runs what is on scre
 
 ---
 
+## Phase 17 Decisions (Animation)
+
+### TD-030: Adopt gdx-gltf 2.3.0 for glTF Import, PBR Shading and Skinning
+
+**Status**: Approved (project owner, 2026-10-29: spike and adoption approved together with Phase 17)
+
+**Context**: Phase 13 steps A/B and Phase 17's skeletal animation need glTF import. The evaluation
+(`docs/reports/gdx-gltf-evaluation.md`) recommended gdx-gltf if a compatibility spike passed.
+
+**Spike result (2026-10-29, scratch project outside the repository)**: gdx-gltf 2.3.0 from JitPack against libGDX
+1.14.2 headless: no linkage errors; the minimal triangle loads (1 node, 1 mesh, 3 vertices);
+`PBRShaderProvider.createDefaultConfig()` links; a generated two-joint skinned glTF loads with 1 clip (1 s), 2 bones,
+and LibGDX's `AnimationController` poses the joint at 45 degrees halfway. Headless runs need a stub GL (libGDX 1.14 has
+no mock GL); animation writes to `Node.localTransform`, not `Node.rotation`.
+
+**Decision**: `com.github.mgsx-dev.gdx-gltf:gltf:2.3.0` (version in `gradle.properties` as `gltfVersion`) is an
+`implementation` dependency of `engine-render` only. Its types stay inside `ModelAssets` / `SceneRenderer3D`: the
+scene stores a `ModelComponent` with an asset path; imported models draw through a second `ModelBatch` with
+`PBRShaderProvider` (64 bones). Clips are posed at an exact time by `ModelPoser` (no clock of its own).
+
+**Consequences**: builds depend on JitPack for this artifact (dependency verification not yet enabled). Shadows and
+image-based lighting (Phase 13-B) are not set up. The runtime launcher does not register `ModelComponent` yet.
+
+### TD-031: Keyframe Animation and Timeline in Two New Modules
+
+**Status**: Approved (project owner, 2026-10-29: "two new modules")
+
+**Context**: Phase 17 adds a sequencer-style timeline and skeletal animation (Unreal: Sequencer, Animation Blueprint
+basics). Like TD-029, keeping it out of `engine-scene` / `editor-core` keeps those modules focused.
+
+**Decision**:
+- `engine-animation` (depends on `engine-render`): `AnimationCurve` (stepped / linear / Bezier with automatic tangents),
+  `AnimationTrack` (child path + property id), `AnimationClip` (`.anim` JSON, format 1), `AnimatedProperties`
+  (transform channels as yaw/pitch/roll, mesh color, light intensities, imported model clip time), `ClipSampler`
+  (apply, problems, snapshot/restore), `AnimatorComponent`, and skeleton math (`Skeleton`, `Pose` FK, `TwoBoneIk`,
+  `Skeletons.fromModel`).
+- `editor-animation`: `TimelineDocument` (own undo history, like graphs), `TimelineCommands`, `AnimationAssets`,
+  `TimelineSession` (preview, editor playback, auto-key), `AnimationPlayModeExtension`.
+- Skeletal clips from imported files play through `ModelComponent`; a clip can drive them with a "Model Clip Time"
+  track instead of re-implementing skeletal sampling.
+- Editor preview poses the real scene and restores it; `PlayModeController.Extension.beforePlay` and
+  `SceneFileController.addBeforeSaveHook` guarantee a preview pose is never saved or carried into play.
+
+**Alternatives**: editing a separate preview copy of the scene (no restore needed, but every other panel would show
+the unposed scene); sampling glTF skeletons in our own code (duplicates gdx-gltf / LibGDX).
+
+**Consequences**: two more modules; clips are per entity tree (child paths by name, so renaming a child breaks its
+tracks and is reported); IK is engine math only, not yet a component.
+
+---
+
+## Phase 13-B Decisions (Lighting Quality)
+
+### TD-032: Shadows, Sky Light and Tone Mapping Through gdx-gltf, One PBR Shading Model
+
+**Status**: Approved (project owner, 2026-10-30: "go" on the Phase 13-B plan that proposed it)
+
+**Context**: Phase 13 step B needs directional shadows, image-based lighting (IBL) and tone mapping. Primitives used
+LibGDX's default shader and imported models gdx-gltf's PBR shader, so the two looked different under the same light.
+Spike against gdx-gltf 2.3.0 (bytecode and shader sources in the jar):
+- `DirectionalShadowLight` (one shadow map; `CascadeShadowMap` also exists), `PBRDepthShaderProvider`, `IBLBuilder`
+  (procedural sky to irradiance/radiance cubemaps), `brdfLUT.png`, `SceneSkybox` are available.
+- There is **no tone mapping or exposure**: `pbr.fs.glsl` sums light in linear space, adds emissive, applies gamma.
+- The PBR shader shadows only directional light 0. Point lights fall off as `1 / (1 + d²)`, like LibGDX's default shader.
+- Rough reflections need `textureLod`; gdx-gltf enables it only on GL 3 or with `EXT_shader_texture_lod`, and only
+  when the specular cubemap is mip-mapped. The editor does not request a GL 3 context.
+- LibGDX 1.14.2 frame buffers do not nest (`end()` binds the default frame buffer), and the editor renders the scene
+  into its own frame buffer.
+
+**Decision**:
+- Primitives and imported models share one PBR batch. Component colors are treated as sRGB and converted to linear
+  (gamma 2.2); direct light is multiplied by π to keep LibGDX's former brightness for intensity 1.
+- Shadows: one `DirectionalShadowLight` for the first enabled directional light with `castShadows` (new field,
+  default true; old scenes load with it on), placed by `ShadowBounds` (texel-snapped box in front of the camera).
+  The shadow pass saves and restores the host's frame buffer binding and viewport.
+- Sky light: new `SkyLightComponent` (sky color, ground color, intensity); `BakedSkyLightMaps` bakes it with
+  `IBLBuilder` only when colors or quality change. Without texture LOD support the radiance map is skipped and
+  surfaces reflect the blurred irradiance map (documented degradation, no context change).
+- Tone mapping: new `ToneMappingComponent` (exposure, operator NONE / REINHARD / ACES_FILMIC). Exposure scales the
+  light colors (no shader uniform needed); the operator is one line inserted by `ToneMappingShader` into gdx-gltf's
+  fragment shader after emissive and before gamma, failing loudly if gdx-gltf's source layout changes.
+- `RenderQuality3D` presets (shadow map and cubemap sizes); Window menu: Shadows, Lighting Quality.
+
+**Alternatives**: own shadow/IBL/tone mapping shaders (several milestones); a post-processing tone mapping pass
+(needs an HDR frame buffer and changes the editor's compositing); requesting a GL 3.2 core context for sharp
+reflections (every existing scene2d/ShapeRenderer shader would need a GLSL 1.50 prelude; not verifiable headless);
+cascaded shadow maps (left for later; one map is simpler to tune first).
+
+**Consequences**: the look of primitives and imported models changes (linear lighting, gamma). Tone mapping depends on
+gdx-gltf's shader text; a gdx-gltf upgrade must re-run `ToneMappingShaderTest`. Exposure does not scale emissive
+surfaces; unlit materials are not tone mapped. No sky background is drawn yet. `engine-desktop` does not render 3D.
+
+---
+
+## Phase 18 Decisions (Packaging)
+
+### TD-033: Package the Editor With jpackage; Projects Located Explicitly, Preferences Per User
+
+**Status**: Proposed and applied in 18-A (2026-10-30). The project owner said "continue with the next phase" after
+an 18-A outline (package the editor, Windows first); this text itself has not been reviewed. Constraints from the
+owner: end-to-end testing runs on a Windows executable, and the engine stays cross-platform.
+
+**Context**: The editor used its working directory as the project (assets, scripts, scene dialogs) and stored
+preferences there. `gradlew run` hides this by starting in `assets/`. A packaged app starts in an unrelated, often
+read-only folder. In-editor Java scripts need `jdk.compiler`. There was no packaging task.
+
+**Decision**:
+- Package the editor with the JDK's own `jpackage` as an app image (launcher + `app/` + bundled runtime), built by
+  `:editor-desktop:packageEditor` for the host OS. No Gradle plugin and no new dependency. The bundled runtime is the
+  JDK that runs the build (it compiles with `--release 21`); `jpackage`'s default module set includes `jdk.compiler`.
+- A project is a folder with a `gdxunity.project` marker file. `EditorProjectLocator` picks `--project <dir>`, else the
+  working directory (or its `assets/`), else `<Documents>/GdxUnity/Sample Project`, installed once from the sample
+  bundled with the app. Nothing is guessed: a `--project` folder without the marker is an error.
+- Editor preferences (theme, layout) and crash logs live in per-user folders from `PlatformDirectories`
+  (Windows `%APPDATA%` / `%LOCALAPPDATA%`, macOS `~/Library`, Linux XDG).
+- `--smoke-test` renders a number of frames and exits with a status code, so a packaged build can be checked
+  automatically on each OS.
+
+**Alternatives**: the `org.beryx.runtime` / `badass-jlink` Gradle plugins (extra plugin for what one `jpackage`
+call does); Construo / Packr (libGDX-specific packagers; less control over the runtime modules); a single fat jar
+(needs an installed Java and still has the working-directory problem); a trimmed `jlink` module list (smaller, but a
+missing module only shows up at run time, e.g. in the Kotlin compiler).
+
+**Consequences**: the app image is about 200 MB. Builds are per OS. Preferences stored in `assets/` by earlier dev runs
+are no longer read. Installers, signing and icons are later steps. The repository's `assets/` folder gains the
+`gdxunity.project` marker.
+
+---
+
+### TD-034: Game Camera, Screen Text and Sample Games
+
+**Status**: Proposed and applied (2026-10-30). The owner asked for "at least 3 2D and at least 3 3D runnable sample
+games ... as starting templates"; the engine additions below were needed for that and have not been reviewed
+separately.
+
+**Context**: Play mode drew through the editor cameras, with the grid, gizmos and selection still showing, and there
+was no way for a game to show text. Scripts could not reach Box2D bodies or collision events, and there is no 3D
+physics simulation (TD-028). Scene files could only be opened through a file dialog.
+
+**Decision**:
+- `CameraComponent` (engine-render): orthographic (visible height) or perspective (field of view, clip planes),
+  placed by its entity. `GameCameraRig` turns the first enabled camera into a renderer camera. While playing a scene
+  with a camera, the scene view draws through it without editor overlays, and `GameViewPlayModeExtension` switches
+  to the matching 2D or 3D view and restores the previous view on Stop.
+- `TextComponent` (engine-render): screen-space text anchored to the view, drawn by `HudRenderer` with LibGDX's
+  built-in font in every view.
+- Seven sample scenes in the project's `samples/` folder (four 2D including a Box2D sandbox, three 3D) with Java
+  scripts in `scripts/samples/`. Collision is written in the scripts (box overlap) rather than adding physics APIs
+  for scripts. File → Open Sample...; launcher options `--scene <file>` and `--play`. In smoke-test mode, dialogs
+  are replaced by `NonInteractiveDialogService`, so an unattended run cannot block.
+- `EditorApplication.registerComponentSerializers` is the single list of the editor's component serializers,
+  shared with `SampleGamesTest`, which plays every sample headlessly.
+
+**Alternatives**: driving the editor cameras from the scene (they would need save/restore, and editor navigation
+would fight the game); world-space text (games mostly need a HUD); exposing Box2D bodies and collision events to
+scripts first (a larger API decision, left for later); prefab-based spawning (prefab instantiation goes through
+undoable commands that are rejected during Play).
+
+**Consequences**: two new component types with serializers, catalog entries ("Game") and Details panels. The bundled
+sample project grows by the samples. Samples rely on name conventions and hard-coded tuning constants until scripts
+can take parameters. `engine-desktop` still cannot run these scenes (Phase 18-B).
+
+### TD-035: Game Runtime Plays Scene Files Like Editor Play; Scripts Precompiled
+
+**Status**: Proposed and applied (2026-10-30, Phase 18-B, "go" on the proposed scope). Not reviewed separately.
+The proposal said the editor's Play setup would move into shared code. That was only partly done. See
+*Deviation* below.
+
+**Context**: `engine-desktop` showed a hard-coded 2D demo. It could not load scene files, draw 3D, or run scripts,
+graphs or Animators. A game export (18-C) needs a runtime that behaves the same as editor Play.
+
+**Decision**:
+- `engine-desktop` is the game runtime. It plays one scene file from a project folder:
+  `--scene <file> [--project <folder>] [--scripts <folder or jar>] [--smoke-test[=N]]` (`GameLaunchOptions`).
+  Asset paths are read from the project folder. The runtime jar no longer bundles `assets/` as classpath
+  resources.
+- `GameSession` (headless, unit-tested) starts the same systems as `PlayModeController`, in the same order:
+  script binding, `PhysicsSystem2D`, graphs and then Animators. Each frame it steps physics and then the scene,
+  with the same 0.1 s cap on the frame step. A scene without an enabled Camera is refused with an explanation.
+- Scripts are **precompiled**. The runtime ships no compiler. `GameScripts` loads classes from a folder or jar. The
+  folder is `<project>/build/scripts` by default, which is where editor Play compiles to, so pressing Play in the
+  editor once is enough. `:engine-desktop:run` compiles `assets/scripts` with a Gradle source set and passes it in
+  through the `gdxunity.scripts` property.
+- `GameRenderer` draws like the editor's game view (TD-034): the 3D pass with models, lights, shadows, sky light and
+  tone mapping, then the 2D pass through the scene camera, then `HudRenderer`. The fallback sun is on when the scene
+  has no directional light, as in the editor. A model that fails to load becomes a runtime error, because the
+  runtime has no Details panel to show it.
+- `GameComponentSerializers` (engine-desktop) is the single list of component serializers. The editor delegates to
+  it, so any scene the editor saves can be loaded by the runtime. `PrefabInstanceComponent` is now part of the list.
+- `GraphCollisionForwarder` (engine-visualscript) forwards 2D collisions to graphs. The editor extension and the
+  runtime share it.
+- **Module dependency change:** `editor-desktop` now depends on `engine-desktop` for the shared serializer list.
+  `engine-desktop` gains `engine-visualscript` and `engine-animation`.
+
+**Deviation and parity check**: `PlayModeController` (editor-core) was not rebuilt on top of `GameSession`. Sharing
+the code properly would need a new module that both `editor-core` and the runtime can use. AGENTS.md §4 says
+creating a module needs approval first. `editor-core` cannot depend on `engine-desktop` without pulling LWJGL into a
+headless module. Instead, `SampleGamesTest.shouldPlayEverySampleTheSameInTheGameRuntimeAsInEditorPlayMode` plays all
+ten samples through both paths with the same key presses for 240 frames. It requires every entity's position,
+active state and text to match within 0.001 units. A runtime stepped 1% slower fails it.
+
+**Alternatives**: a new `engine-runtime` module holding `GameSession`, used by `PlayModeController` (cleanest, but
+needs a module approval); compiling scripts at game start (ships `jdk.compiler` and source with every game); keeping
+the demo launcher and adding 3D to it (no scene files, so it could not test anything).
+
+**Consequences**: two copies of the start-up sequence (`PlayModeController` with its extensions, and
+`GameSession`), kept equal by the parity test. A new engine system has to be added to both. Kotlin scripts run in
+the runtime only if they were compiled by the editor, because the Gradle run task compiles Java only. The runtime
+writes errors to stderr only; a windowed exe without a console needs a crash log (18-C).
+
+---
+
+## Web Runtime Decisions
+
+### TD-036: Web Game Runtime via gdx-teavm; the Editor Stays Desktop-Only
+
+**Status**: Applied (2026-11-02). The user chose "web game player" as the scope for a web version that can be
+deployed to a VPS, approved the radiance fix, then asked to "continue with the next phase" (the follow-ups below).
+Not reviewed separately.
+Report: [web-runtime-spike-report.md](reports/web-runtime-spike-report.md).
+
+**Context**: The user asked for a web version of GdxUnity that can be hosted on a VPS. The editor compiles
+Java/Kotlin scripts in-process (TD-019) and reads and writes project files through `java.io`/`java.nio`. Neither
+works in a browser. The game runtime (TD-035) only plays scene files, so it is the part that can move to the web.
+
+**Decision (proposed)**:
+- New module `engine-web`. It depends on the engine modules and on `engine-desktop` for the shared runtime
+  (`GameSession`, `GameRenderer`, `GameComponentSerializers`, `ScriptRegistry`), and is built with the **gdx-teavm** Gradle plugin (`com.github.xpenatan.gdx-teavm`, version
+  `gdxTeavmVersion=1.6.2`, which targets libGDX 1.14.2 and TeaVM 0.15). The output is a static site.
+- Box2D on the web uses libGDX's pure-Java **`gdx-box2d-gwt:1.14.2`** (same API, `transitive = false`). The JNI
+  `gdx-box2d` and the LWJGL backend are excluded from the module's configurations. gdx-teavm has no current
+  Box2D extension.
+- Deployment is a multi-stage Docker image (JDK 21 build, nginx serve, `engine-web/deploy/`) or a plain copy of
+  `build/dist/js/release/webapp`.
+- `PhysicsSystem2D` queues collision events in an `ArrayDeque` instead of a `ConcurrentLinkedQueue`. That queue is
+  filled and drained on the stepping thread, and TeaVM has no `ConcurrentLinkedQueue`.
+
+**Follow-up** (items 1 to 3 done on 2026-11-02):
+1. **Done:** runtime file access goes through `AssetSource` (engine-core), which resolves an `AssetReference` to a
+   `FileHandle`: `AssetSource.directory(File)` on desktop, `AssetSource.internal()` (bundled files) on the web.
+   `GameSession`, `GameRenderer`, `ModelAssets` and `AssetService` take one. The `File` constructors remain and
+   delegate. `AssetCatalog` implements `AssetSource`. `AssetService(AssetSource)` has no catalog (`hasCatalog()`).
+   No new module was created: the shared runtime stays in `engine-desktop`, and `engine-web` excludes LWJGL from
+   it. `AssetReference` no longer uses `java.nio.file.Path`, which TeaVM cannot iterate, to detect `..` segments.
+2. **Done:** `ScriptFactory` (engine-desktop) creates scripts by class name, and `ScriptBinder` binds them.
+   `GameScripts` (class loader, desktop) and `ScriptRegistry` (class name → constructor reference, no reflection)
+   implement it. `:engine-web:generateScriptRegistry` compiles `assets/scripts` (Java only) and writes
+   `GeneratedScripts` from the compiled classes. A script that cannot be constructed that way is left out with a
+   warning.
+3. ~~Fix the sky-light bake~~ **Done (2026-11-02):** `BakedSkyLightMaps` passed the face size (64/128/256) to
+   gdx-gltf's `IBLBuilder.buildRadianceMap(int mipMapLevels)`. It now passes
+   `RenderQuality3D.getRadianceMipLevels()` (7/8/9).
+4. Reflection policy: not needed so far. Scenes, graphs, clips and the sample glTF load without one. Add one if a
+   glTF file with features the sample lacks fails to load on the web.
+
+**Embedding (2026-11-02, the user's target is urconnex.com/games):**
+- The runtime is served as static files at `/games/engine/`, and site pages embed `index.html?scene=…` in a
+  same-origin iframe.
+- The build ships its own `index.html` (no scrollbars), a catalog `assets/games.json`, URL-decoding of `?scene=`,
+  and caught browser keys. The container's nginx sends `frame-ancestors 'self'`.
+- No data bridge to the host site yet.
+- Guide: [engine-web/EMBEDDING.md](../engine-web/EMBEDDING.md).
+
+**Editor on the web:** see TD-037. The editor is streamed, not compiled to the browser, so "the editor stays
+desktop-only" above means the editor code is not compiled with TeaVM.
+
+**Alternatives**: the official GWT backend (needs Java 11-level source and no reflection, so it would mean
+rewriting Java 21 code such as records and pattern matching); streaming the desktop editor from the VPS
+(Xpra/noVNC; single-user, needs software GL on the server); WebAssembly via the same plugin (`wasm {}`, not tried).
+
+**Consequences**: one more module and a third-party backend maintained by one person. Each new runtime API must
+avoid `java.io.File`, `java.nio.file`, threads, class loading and classes that TeaVM lacks, or isolate them. Kotlin
+scripts do not run on the web. A web build contains the project's scripts and assets, so one build is one game.
+
+### TD-037: The Web Editor Is the Desktop Editor, Streamed From the VPS
+
+**Status**: Proposed (2026-11-02). The user asked for the editor to work on the web. Of the options offered
+(stream the real editor; port it to the browser with TeaVM; port scene editing only), the user chose "Stream the
+real editor" for "Logged-in UrConnex users". The image and scripts are written; **nothing but the session script
+has been run** (no Docker or Linux on the development machine). See [editor-streaming.md](editor-streaming.md).
+
+**Context**: The editor compiles Java and Kotlin scripts in-process (`javax.tools`, the embedded Kotlin compiler,
+`ScriptClassLoader`), opens native file dialogs (LWJGL tinyfd), and reads and writes the project through `java.io`
+and `java.nio` (24 files, about 23,000 lines across the editor modules). Compiling it with TeaVM would need a new
+storage layer, replacements for the dialogs and FreeType, and a server-side compile service, and it would supersede
+TD-019. That is weeks of work and a new decision record.
+
+**Decision (proposed)**:
+- The unchanged desktop editor runs in a container (`editor-desktop/deploy/stream/`): Xvfb display, openbox,
+  software OpenGL (Mesa llvmpipe), x11vnc, websockify and noVNC. The browser shows the noVNC page.
+- One container per logged-in user with a volume for `/data` (project, preferences, logs). The sample project is
+  installed on first start. The editor needs no code change: Linux natives, XDG folders and `--project` exist.
+- The web application never touches Docker. `editor-session.sh start|stop|status|list <user-id>` is the only
+  interface, called with `sudo` for exactly that script. It validates the user id, limits sessions
+  (`GDXUNITY_MAX_SESSIONS`), and starts containers with no published ports, all capabilities dropped,
+  `no-new-privileges`, a non-root user, a read-only root file system, memory, CPU and process limits, on an
+  `internal` network with `enable_icc=false`. nginx `auth_request` asks Spring Boot which container belongs to the
+  logged-in user and proxies the WebSocket there. Sessions end after 30 idle minutes.
+- The pages and endpoints on the UrConnex side are specified in editor-streaming.md as snippets; they live in the
+  UrConnex repository, which this repository's agents do not touch (AGENTS.md section 2).
+
+**Alternatives**: a TeaVM port (above); a port limited to scene editing without script compilation (smaller, but
+still needs the storage layer and dialogs, and scripts could not be edited); the Xpra HTML5 client or KasmVNC instead
+of x11vnc and noVNC (better latency, but not in Ubuntu's repositories in a form that is as simple to install).
+
+**Consequences**:
+- Every open editor is an OS process with up to 3 GB of memory and 2 CPUs on the VPS, drawn without a GPU.
+  Capacity and the defaults are estimates until measured.
+- Users run arbitrary code (TD-019) on the VPS inside a container. Container isolation is the only barrier; stronger
+  isolation (gVisor, a VM per user), disk quotas and file upload and download are not done.
+- No audio. Clipboard and file transfer between the user's computer and the editor are limited to what noVNC offers.
+- `engine-web` (the game player, TD-036) is unaffected and stays the way to publish games.
+
+## Phase 19 Decisions (Sculpting)
+
+### TD-038: Sculpting as Fixed-Topology Vertex Editing in Separate Modules
+
+**Status**: Proposed (2026-11-02). The user asked for "a sculpting feature similar to Mudbox or ZBrush" in the 3D
+model editor, then chose: fixed-topology sculpting for the first milestone, new modules `engine-sculpt` and
+`editor-sculpt`, desktop first. Plan: [phase-19-sculpting.md](milestones/phase-19-sculpting.md).
+
+**Context**: There is no 3D model editor yet. Meshes are primitives (`ModelBuilder` box and sphere) or imported
+glTF models, and picking uses oriented bounding boxes. The deferred Mesh Studio (TD-026) is a low-poly half-edge
+polygon modeler, a different tool. Sculpting needs dense meshes (100k+ triangles), brushes, fast spatial queries,
+incremental normals and per-stroke undo. The desktop-only constraint matters because the streamed web editor
+(TD-037) has no GPU.
+
+**Decision (proposed)**:
+- First milestone: **fixed topology**. Triangles are never added or removed while sculpting. The vertex set is
+  moved by brushes (draw, inflate, smooth, flatten, pinch, grab) with radius, strength, falloff and symmetry.
+  Multi-resolution levels and dynamic topology are out of scope.
+- `engine-sculpt` (headless, depends on `engine-core` only): `SculptMesh` (indexed triangles, adjacency, normals),
+  `SculptMeshFactory` (cube-sphere, welding), `Subdivision`, `TriangleBvh` (ray picking, sphere queries, partial
+  refit), `SculptSurface`, brushes and `SculptStroke` (spaced dabs, symmetry, `StrokeDelta` for undo),
+  `SculptMeshIO` (lossless `.sculpt` file). No OpenGL, no gdx-gltf.
+- `editor-sculpt` (19-B, same pattern as `editor-animation`): open sculpts and the brush (`SculptSession`), sculpt
+  mode in the 3D view, undoable stroke commands, menu and key actions. It depends on `editor-core` and
+  `engine-sculpt`, not on a graphics context.
+- Display (19-B): `engine-render` gets `DynamicMesh` and `DynamicMeshSource` interfaces and a
+  `DynamicMeshComponent` that refers to a mesh by path. The renderer asks the source for the geometry each frame and
+  re-uploads only chunks whose revision changed (`engine-sculpt` cuts a mesh into chunks of at most 60,000
+  vertices, because LibGDX meshes use 16-bit indices). `engine-render` does not depend on `engine-sculpt`; the editor
+  supplies the source. glTF export (19-C) will also go through `engine-render`, where gdx-gltf types stay (TD-030);
+  gdx-gltf 2.3.0 contains `net.mgsx.gltf.exporters`.
+- Original implementation with generic names (Sculpt Mode, Draw, Smooth, Grab). No Mudbox or ZBrush names, assets or
+  code (TD-020 applies to trademarks in general).
+- No pen pressure: libGDX/GLFW give no tablet pressure; strength is a setting.
+
+**Alternatives**: multires subdivision levels (Mudbox-like; needs a subdivision scheme and level projection);
+dynamic topology (ZBrush Dynamesh/DynTopo style; remeshing and a different data structure; not first-milestone
+size); putting the code in `engine-render`/`editor-core` (those modules are already large and the code could not be
+tested on its own); building the half-edge Mesh Studio first (delays sculpting).
+
+**Consequences**: two more modules. A sculpt is edited as a `.sculpt` file. **Changed in 19-B:** while editing, a
+scene refers to the `.sculpt` file through a `DynamicMeshComponent` (scene files store only its path and colour).
+The game runtime and the web player have no source for it yet, so they draw nothing for such components until
+19-C adds export to glTF or a loader (the first plan was that scenes would only ever reference the exported
+model). Dense meshes
+are slow in the streamed web editor (software OpenGL). Brush speed on 480,000 triangles was measured in 19-A (a dab costs 0.2 to 8 ms headless), so the GPU upload of changed vertices is the open performance question for 19-B.
+
+---
+
+## Viewport Decisions
+
+### TD-039: A Multi-Pane 3D Scene View With Axis Views
+
+**Status**: Proposed (2026-11-03). The user asked for customizable viewports "similar to how old Blender worked":
+when the editor starts in 3D mode the scene view is divided into four panes (1 world view, 2 X axis, 3 Y axis,
+4 Z axis), plus a feature that enables sculpt mode. Interpretation chosen by me, not confirmed: "customizable" means
+split, close, retype, resize and maximize panes; the layout is saved per user.
+
+**Context**: The scene view was one widget with one frame buffer and one camera per mode; the grid, gizmo, outline,
+collider and skeleton renderers were each tied to one camera.
+
+**Decision (proposed)**:
+- `ViewportLayout` (editor-core, headless): a tree of panes and splits. It can split, close (never the last pane),
+  change a pane's `ViewKind`, drag a divider (ratio 0.1 to 0.9), maximize and restore, compute pane and divider
+  rectangles, and read and write JSON; at most 8 panes. The default is `quad()`.
+- `ViewKind`: perspective, or an orthographic view along the X, Y or Z axis (X looks along -X with Y up, Y looks down
+  with -Z up so X is across, Z looks along -Z with Y up).
+- Axis views use `OrthographicViewCamera` (a wrapper around the existing screen-filling orthographic camera) and
+  `OrthographicViewInteraction`: left button gizmo or pick, middle or right button or Alt+left pans, the wheel zooms.
+  The gizmo maths already accepts any ray; only the handle size differs (`orthographicScaleFactor`).
+- Desktop: `MultiViewportArea` shows one `SceneViewportWidget` (one frame buffer) per pane with a header (view name,
+  split side by side, split stacked, maximize, close) and draggable dividers. `ScenePaneFactory` builds the panes; the
+  first perspective pane is the editor's existing main camera, so its navigation carries over. Each pane draws its
+  own grid, outline, collider, skeleton and gizmo overlays through `SceneEditorWorkspace.renderPane3D`.
+- The area replaces the single view only while editing in 3D; 2D and Play keep the single view. The editor now
+  **starts in the 3D view** (it started in 2D). The layout is saved to `viewport_layout.json` in the settings folder.
+- Sculpting: `SculptViewportInteraction` accepts any camera, so every pane sculpts; the toolbar has a Sculpt button
+  (highlighted while on) and F4 toggles sculpt mode.
+
+**Alternatives**: one frame buffer split by scissor rectangles (cheaper, but each pane's widget and input would be
+hand-routed); linked quad dividers as in old Blender (the tree lets each row move on its own); a new
+`engine`-level orthographic 3D camera class (the 2D camera already does it).
+
+**Consequences**: the scene is drawn once per pane every frame, including the shadow pass, so four panes cost about
+four times one, noticeably with a dense sculpt. Dropping a Content Browser asset onto the multi-pane view places it
+at the orbit target, not under the mouse. Wheel zoom in an axis view zooms about the last click position, because
+the viewport widget forwards no hover movement.
+
+### TD-040: A Music Studio From Two New Audio Modules, Our Own Synth and a Built-In SoundFont Reader
+
+**Status**: Proposed (2026-11-03). The user asked for "a music editor that looks and functions similar to LMMS or
+FL Studio", chose the full Phase 11 scope of the studio roadmap, new modules `engine-audio` and `editor-audio`,
+and SoundFont support. Creating modules was approved in that answer; the decisions below are mine and unconfirmed.
+
+**Context**: The roadmap (`ALL_IN_ONE_STUDIO_ROADMAP.md` §4.3, Phase 11) plans a software synth, step sequencer,
+piano roll, mixer and effects. The engine had no audio code at all.
+
+**Decision (proposed)**:
+- `engine-audio` (headless, pure Java plus libGDX's JSON reader, no OpenGL and no sound device): oscillators with
+  PolyBLEP, ADSR, biquad filter, `Synthesizer` (16 voices, two oscillators, filter envelope, LFO), `DrumKit` (generated
+  kick, snare, clap, hats, tom, crash), `SampleInstrument` with `WavIO`, `SoundFont` + `SoundFontInstrument`,
+  `SfxrGenerator` (retro effects; presets, mutate, randomize), `DelayEffect`, `ReverbEffect`, `FilterEffect`,
+  `Mixer` (8 inserts and a master with volume, constant-power pan, mute, solo, four effects each, meters and a
+  soft limiter), and the song model: `Song` (ticks, 96 per beat, 4/4), `Channel`, `Pattern`, `Note`,
+  `PlaylistClip`, `StepGrid`, `Schedule` (the song flattened to timed events with swing), `SongPlayer`
+  (sample-accurate events, loop, seek, live preview), `SongExporter` (offline render, tail until silence) and
+  `SongIO` (the `.song` JSON file). Sound output is the caller's job.
+- `editor-audio` (headless): `MusicDocument` with its own undo history (like a graph or a clip), `MusicCommands`,
+  `PianoRollOps` (pure note edits), `GridSnap`, `MusicSession` (open song, selection, save, close, WAV export).
+- `editor-desktop`: a **Music** tab beside Viewport and Graph with the channel rack and step sequencer, piano roll,
+  playlist, mixer and instrument settings; sound goes to a libGDX `AudioDevice` from a background thread that
+  starts on the first Play. Songs are `*.song` files in the project assets.
+- **SoundFont**: I first proposed the JDK's built-in Gervill synthesizer (no dependency). Its public API cannot render
+  to memory (only `com.sun.media.sound.SoftSynthesizer.openStream` can, and that package is not exported), and it
+  could not run in the web player. So `SoundFont` is **our own reader**: 16 bit sample data, presets, instrument
+  zones, key and velocity ranges, root key, tuning, pan, attenuation, volume envelope, loops. **No filters, no
+  modulators, no 24 bit samples, no SF3.** No new dependency was added.
+- Output is passed through a soft limiter (linear to 0.8, bent towards 1.0), because several instruments added
+  past full scale and the sample demo song peaked at 1.66 before it was added. Meters show the true level.
+
+**Alternatives**: a third-party SoundFont library (needs an evaluation and approval, and probably cannot run in the
+web); MIDI through `javax.sound.midi` (no offline rendering); one `editor-studios` module as drawn in the roadmap
+(chosen against by the user in favour of the `engine-x`/`editor-x` pair used for sculpting).
+
+**Consequences**: no VST plug-ins, no recording, no automation lanes, no audio clips on the playlist, 4/4 only, and
+ogg is neither read nor written (WAV only). Songs do not yet play in the game runtime or the web player: there is
+no `AudioSourceComponent` (Phase 20-C). Editing while playing releases the notes that are sounding.
+
+### TD-041: A JavaScript Web Player and Editor on Babylon.js (`engine-babylon`)
+
+**Status**: Proposed (2026-11-04). The user created the `engine-babylon` folder and asked for "a web clone of the
+gdx-unity using babylonjs and perhaps threejs". Asked for the scope, they chose **both a player and an editor, player
+first**, and **Babylon.js only** (three.js is not used). The decisions below are mine and unconfirmed.
+
+**Context**: TD-036 put a game player on the web by compiling the Java runtime with gdx-teavm and said the editor stays
+desktop-only; TD-037 proposed streaming the desktop editor instead. Neither gives a web editor built from web
+technology. This record adds one, as a separate implementation, without removing either of those.
+
+**Decision (proposed)**:
+- `engine-babylon` is a Vite + TypeScript project (npm, not Gradle; it is not in `settings.gradle`). Runtime
+  dependencies: `@babylonjs/core` (rendering) and `planck` (a JavaScript port of Box2D, for the 2D physics). Dev
+  tools: Vite, TypeScript, Vitest.
+- **The scene file is the contract.** The player reads the desktop editor's `.json` scene files unchanged
+  (`schemaVersion` 1); `npm run sync-samples` copies `assets/samples/*.json` so both programs play the same files.
+  Babylon runs right-handed (`scene.useRightHandedSystem`), so positions and rotations need no conversion; a test
+  checks that a camera with an identity rotation looks along -Z, as in the desktop engine.
+- **Scripts are ported by hand.** The scenes name Java classes (`samples.collector.CollectorGame`), which cannot run
+  in a browser outside the teavm build. A TypeScript `ScriptComponent` mirrors the Java one and a `ScriptRegistry`
+  maps the Java class name to the port. Scripts without a port are listed by the player, never skipped quietly.
+- **Stages**: (1) player: scenes, lights, shadows, tone mapping, game cameras, text, 2D physics, scripts, (done); (2) port the samples' scripts (10 of 14 done) and add
+  3D physics; (3) the editor:
+  outline, details, viewport with gizmos, undo, scene load and save in the same file format, play mode (first version
+  built: one page, `editor.html`, sharing the player's scene builder; its undo keeps whole-scene snapshots).
+
+**Consequences**: two web players now exist (`engine-web` runs all 14 samples with their scripts today;
+`engine-babylon` runs 10 of them). Every new component or scene field has to be implemented twice, in Java
+and in TypeScript, until one of the two is dropped. Importing from Babylon's main entry point gives a 6.5 MB bundle
+(1.4 MB gzipped); deep imports would shrink it. TD-036's "the editor stays desktop-only" no longer holds once stage 3 is
+built.
+
+### TD-042: The Product Is Renamed From GdxUnity to Forgeroom
+
+**Status**: Approved by the user (2026-11-04: "can you update both the desktop version and the web version to be
+forgeroom"). The name was suggested by me and accepted. **Trademark and domain availability were not checked.**
+
+**Context**: "GdxUnity" borrows the name of another engine and says only that libGDX is used. The product is now a
+game editor with sculpting, a music studio, visual scripting and animation on desktop and web.
+
+**Decision**: The product name is **Forgeroom**. Renamed: window titles and the About box, crash reports, error
+messages, the AI agent's prompt, the scene file dialog, the editor's brand label, the package name and zip file
+(`ForgeroomEditor-<version>-<os>-<arch>.zip`, application name `ForgeroomEditor`), the web player and editor pages,
+`engine-babylon/package.json`, and the current docs (README, AGENTS.md, INDEX, design brief, deployment and streaming
+guides, `engine-web`, workflows).
+
+**Deliberately not renamed**:
+- The Java package `io.github.ldev22live.gdxunity` and the module names: a package rename touches every source file
+  and the user's many uncommitted changes. Say so if it is wanted.
+- The repository folder `gdx-unity`.
+- The per-user data folders `GdxUnity` (settings, logs, and `~/Documents/GdxUnity` projects, `PlatformDirectories`):
+  renaming them without a migration would hide existing projects and settings. A migration is a separate decision.
+- Historical reports and milestone documents, which record what was true when written.
+- The unbuilt `core/` and `lwjgl3/` template leftovers.
+
+**Consequences**: Old zip names, bookmarks and shortcuts that use `GdxUnityEditor` stop matching. The scene and song
+file formats are unchanged, so existing files open as before.
+
+---
+
 ## Future Decisions
 
 The following decisions will be made in future milestones:
 
 - Physics engine selection: evaluated in TD-028 (Proposed)
-- Animation system design (Later milestone)
 
 ## Decision Review Process
 

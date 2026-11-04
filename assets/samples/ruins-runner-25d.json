@@ -1,0 +1,2140 @@
+{
+  "schemaVersion": 1,
+  "name": "2.5D Ruins Runner",
+  "active": true,
+  "entities": [
+    {
+      "id": "ab90dca6-6982-5d95-8ad2-12a5a6c52b5d",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.35,
+            "directionY": -1.0,
+            "directionZ": -0.45,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "0062d0a0-9d9e-5b33-8aa5-173f82744f94",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.72,
+            "skyB": 0.88,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.55
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e399f744-b1f7-5604-8629-f4c4f5d86d20",
+      "name": "Decor Backdrop",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1600.0,
+          "y": 300.0,
+          "z": -1400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 6600.0,
+            "sizeY": 1800.0,
+            "sizeZ": 20.0,
+            "colorR": 0.2,
+            "colorG": 0.24,
+            "colorB": 0.32,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d4b87f53-8fab-5968-ab8f-c326aa346941",
+      "name": "Decor Pillar 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -200.0,
+          "y": 250.0,
+          "z": -650.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 600.0,
+            "sizeZ": 90.0,
+            "colorR": 0.42,
+            "colorG": 0.4,
+            "colorB": 0.38,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e677b5c0-7116-5a43-a506-bd30aad907e8",
+      "name": "Decor Far Column 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 350.0,
+          "z": -1100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 900.0,
+            "sizeZ": 140.0,
+            "colorR": 0.2,
+            "colorG": 0.24,
+            "colorB": 0.32,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2e6668b5-2705-58b9-91c3-e2cc8c6260f1",
+      "name": "Decor Pillar 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 250.0,
+          "y": 250.0,
+          "z": -650.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 600.0,
+            "sizeZ": 90.0,
+            "colorR": 0.42,
+            "colorG": 0.4,
+            "colorB": 0.38,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0e4a6ebb-1be8-5d91-a45b-65d82b582d50",
+      "name": "Decor Far Column 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 450.0,
+          "y": 350.0,
+          "z": -1100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 900.0,
+            "sizeZ": 140.0,
+            "colorR": 0.2,
+            "colorG": 0.24,
+            "colorB": 0.32,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5e1b4bb6-1ac8-514b-b442-43e5998b6217",
+      "name": "Decor Pillar 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 700.0,
+          "y": 250.0,
+          "z": -650.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 600.0,
+            "sizeZ": 90.0,
+            "colorR": 0.42,
+            "colorG": 0.4,
+            "colorB": 0.38,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3af69855-5544-5de4-9fae-109e7c2bfd43",
+      "name": "Decor Far Column 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 900.0,
+          "y": 350.0,
+          "z": -1100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 900.0,
+            "sizeZ": 140.0,
+            "colorR": 0.2,
+            "colorG": 0.24,
+            "colorB": 0.32,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4518f5ad-3524-52ed-9b8a-932b77d8d94d",
+      "name": "Decor Pillar 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1150.0,
+          "y": 250.0,
+          "z": -650.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 600.0,
+            "sizeZ": 90.0,
+            "colorR": 0.42,
+            "colorG": 0.4,
+            "colorB": 0.38,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "12a14b99-bf51-5915-82e2-8ef2bac77021",
+      "name": "Decor Far Column 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1350.0,
+          "y": 350.0,
+          "z": -1100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 900.0,
+            "sizeZ": 140.0,
+            "colorR": 0.2,
+            "colorG": 0.24,
+            "colorB": 0.32,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0d87017d-e93c-5b44-acd9-431b40c0a313",
+      "name": "Decor Pillar 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1600.0,
+          "y": 250.0,
+          "z": -650.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 600.0,
+            "sizeZ": 90.0,
+            "colorR": 0.42,
+            "colorG": 0.4,
+            "colorB": 0.38,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5ee065a5-4774-5500-bbb5-a1fc7567d982",
+      "name": "Decor Far Column 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1800.0,
+          "y": 350.0,
+          "z": -1100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 900.0,
+            "sizeZ": 140.0,
+            "colorR": 0.2,
+            "colorG": 0.24,
+            "colorB": 0.32,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6c8216a0-3701-5d9d-b078-3ba572920d8c",
+      "name": "Decor Pillar 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2050.0,
+          "y": 250.0,
+          "z": -650.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 600.0,
+            "sizeZ": 90.0,
+            "colorR": 0.42,
+            "colorG": 0.4,
+            "colorB": 0.38,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "677a33eb-493a-5dad-b53a-1c979af403cc",
+      "name": "Decor Far Column 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2250.0,
+          "y": 350.0,
+          "z": -1100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 900.0,
+            "sizeZ": 140.0,
+            "colorR": 0.2,
+            "colorG": 0.24,
+            "colorB": 0.32,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c62f7ecd-3f7a-53ee-be6e-f734f0183e5b",
+      "name": "Decor Pillar 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2500.0,
+          "y": 250.0,
+          "z": -650.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 600.0,
+            "sizeZ": 90.0,
+            "colorR": 0.42,
+            "colorG": 0.4,
+            "colorB": 0.38,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "30f84358-a888-58bd-a798-f88d0578ae11",
+      "name": "Decor Far Column 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2700.0,
+          "y": 350.0,
+          "z": -1100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 900.0,
+            "sizeZ": 140.0,
+            "colorR": 0.2,
+            "colorG": 0.24,
+            "colorB": 0.32,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3f37c37d-5a5a-5710-9ac9-6a2afaf8b893",
+      "name": "Decor Pillar 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2950.0,
+          "y": 250.0,
+          "z": -650.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 600.0,
+            "sizeZ": 90.0,
+            "colorR": 0.42,
+            "colorG": 0.4,
+            "colorB": 0.38,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1ab55cb1-7a94-5ad7-9177-2283c9583632",
+      "name": "Decor Far Column 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 3150.0,
+          "y": 350.0,
+          "z": -1100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 900.0,
+            "sizeZ": 140.0,
+            "colorR": 0.2,
+            "colorG": 0.24,
+            "colorB": 0.32,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6bdcaca9-717f-5202-91df-c2eb53efb106",
+      "name": "Decor Pillar 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 3400.0,
+          "y": 250.0,
+          "z": -650.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 90.0,
+            "sizeY": 600.0,
+            "sizeZ": 90.0,
+            "colorR": 0.42,
+            "colorG": 0.4,
+            "colorB": 0.38,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "298a3a6e-0e48-5447-9842-fdd2c3ad8f07",
+      "name": "Decor Far Column 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 3600.0,
+          "y": 350.0,
+          "z": -1100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 900.0,
+            "sizeZ": 140.0,
+            "colorR": 0.2,
+            "colorG": 0.24,
+            "colorB": 0.32,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "49dd548b-24e4-501d-8a12-22fce18ca9c7",
+      "name": "Decor Foreground Rock 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -50.0,
+          "y": -70.0,
+          "z": 380.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 70.0,
+            "sizeZ": 90.0,
+            "colorR": 0.25,
+            "colorG": 0.22,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e126432b-3203-53da-ba61-6068b10bba26",
+      "name": "Decor Foreground Rock 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 650.0,
+          "y": -70.0,
+          "z": 380.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 70.0,
+            "sizeZ": 90.0,
+            "colorR": 0.25,
+            "colorG": 0.22,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ae22bda6-7aac-5883-b986-8295bf908254",
+      "name": "Decor Foreground Rock 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1350.0,
+          "y": -70.0,
+          "z": 380.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 70.0,
+            "sizeZ": 90.0,
+            "colorR": 0.25,
+            "colorG": 0.22,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "46ef9cdf-4312-56c8-9f6d-9a149bea381d",
+      "name": "Decor Foreground Rock 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2050.0,
+          "y": -70.0,
+          "z": 380.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 70.0,
+            "sizeZ": 90.0,
+            "colorR": 0.25,
+            "colorG": 0.22,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "990cca9d-69f6-51a3-b280-9a6e2603cd90",
+      "name": "Decor Foreground Rock 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2750.0,
+          "y": -70.0,
+          "z": 380.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 70.0,
+            "sizeZ": 90.0,
+            "colorR": 0.25,
+            "colorG": 0.22,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7d9108af-a20b-548e-8a34-85e6018cec83",
+      "name": "Platform Ground A",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 350.0,
+          "y": -40.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1100.0,
+            "sizeY": 80.0,
+            "sizeZ": 400.0,
+            "colorR": 0.38,
+            "colorG": 0.5,
+            "colorB": 0.34,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ea78bbc7-d7e5-5720-a111-9acedea75294",
+      "name": "Mover X 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1100.0,
+          "y": -15.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 30.0,
+            "sizeZ": 160.0,
+            "colorR": 0.7,
+            "colorG": 0.55,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6e6d197f-31e0-5fca-9705-624c83e9f78b",
+      "name": "Platform Ground B",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1650.0,
+          "y": -40.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 700.0,
+            "sizeY": 80.0,
+            "sizeZ": 400.0,
+            "colorR": 0.38,
+            "colorG": 0.5,
+            "colorB": 0.34,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "61eaa3cd-9774-5db7-a5e5-ac5cfc53fa71",
+      "name": "Platform Ledge 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2080.0,
+          "y": 120.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 30.0,
+            "sizeZ": 160.0,
+            "colorR": 0.55,
+            "colorG": 0.52,
+            "colorB": 0.48,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "64640f5b-dd47-5abb-9941-e836c99b58ed",
+      "name": "Mover Y 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2330.0,
+          "y": 120.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 30.0,
+            "sizeZ": 140.0,
+            "colorR": 0.7,
+            "colorG": 0.55,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e90dd680-6c76-53c5-b307-603078b04e9d",
+      "name": "Platform Ledge 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2580.0,
+          "y": 300.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 30.0,
+            "sizeZ": 160.0,
+            "colorR": 0.55,
+            "colorG": 0.52,
+            "colorB": 0.48,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1bc7b4fe-1de1-55ec-8ed2-5ae04937903c",
+      "name": "Platform Ground C",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 3050.0,
+          "y": -40.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 700.0,
+            "sizeY": 80.0,
+            "sizeZ": 400.0,
+            "colorR": 0.38,
+            "colorG": 0.5,
+            "colorB": 0.34,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cfaf75e2-1e50-54de-ade0-219d7aa75a51",
+      "name": "Checkpoint 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1400.0,
+          "y": 60.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 14.0,
+            "sizeY": 120.0,
+            "sizeZ": 14.0,
+            "colorR": 0.4,
+            "colorG": 0.9,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1da1d9c3-523f-54b5-bb14-4956d1bb50f7",
+      "name": "Checkpoint 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2760.0,
+          "y": 60.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 14.0,
+            "sizeY": 120.0,
+            "sizeZ": 14.0,
+            "colorR": 0.4,
+            "colorG": 0.9,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "070b7877-8e18-5adb-b4ca-18cee5519b74",
+      "name": "Spikes 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1650.0,
+          "y": 10.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 120.0,
+            "sizeY": 20.0,
+            "sizeZ": 120.0,
+            "colorR": 0.9,
+            "colorG": 0.2,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b0641989-26b9-5744-bcc0-7b373af01e01",
+      "name": "Spikes 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2950.0,
+          "y": 10.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 100.0,
+            "sizeY": 20.0,
+            "sizeZ": 120.0,
+            "colorR": 0.9,
+            "colorG": 0.2,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6b57cdb-1c51-51b7-9b36-7092aec66484",
+      "name": "Orb 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 450.0,
+          "y": 120.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24.0,
+            "sizeY": 24.0,
+            "sizeZ": 24.0,
+            "colorR": 0.4,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4a84f359-7067-572b-8956-040ec6be0859",
+      "name": "Orb 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1100.0,
+          "y": 100.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24.0,
+            "sizeY": 24.0,
+            "sizeZ": 24.0,
+            "colorR": 0.4,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "53e3c5cb-4c6d-58d1-b446-19c59db483d9",
+      "name": "Orb 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1650.0,
+          "y": 140.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24.0,
+            "sizeY": 24.0,
+            "sizeZ": 24.0,
+            "colorR": 0.4,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "dc44aa0a-46e9-5c23-a7e7-121d0b95415a",
+      "name": "Orb 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2080.0,
+          "y": 200.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24.0,
+            "sizeY": 24.0,
+            "sizeZ": 24.0,
+            "colorR": 0.4,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "552a280d-39ee-503d-930b-53ee5dfe0d54",
+      "name": "Orb 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2330.0,
+          "y": 330.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24.0,
+            "sizeY": 24.0,
+            "sizeZ": 24.0,
+            "colorR": 0.4,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "888706d2-7db1-584b-9710-aa7499a9e00b",
+      "name": "Orb 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2580.0,
+          "y": 380.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24.0,
+            "sizeY": 24.0,
+            "sizeZ": 24.0,
+            "colorR": 0.4,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "96ae9478-5d77-58c7-bbf9-4a8495df7e0f",
+      "name": "Orb 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2950.0,
+          "y": 140.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24.0,
+            "sizeY": 24.0,
+            "sizeZ": 24.0,
+            "colorR": 0.4,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e209084c-03a2-5861-9627-d1c197142136",
+      "name": "Orb 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 3150.0,
+          "y": 60.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24.0,
+            "sizeY": 24.0,
+            "sizeZ": 24.0,
+            "colorR": 0.4,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7142f7d6-ef35-5044-8f44-dfee7b4888a1",
+      "name": "Goal",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 3300.0,
+          "y": 60.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b39f7d4e-da34-5f4a-9db0-9c4aea19a485",
+      "name": "Player",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 35.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 70.0,
+            "sizeZ": 40.0,
+            "colorR": 1.0,
+            "colorG": 0.5,
+            "colorB": 0.25,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "23ce4214-3ebb-5a26-a8b9-aa49e64526b4",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 185.0,
+          "z": 1000.0
+        },
+        "rotation": {
+          "x": -0.061049,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.998135
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 50,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/common/SideCamera25D.java",
+            "scriptClassName": "samples.common.SideCamera25D",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "58341e07-d53b-5eda-8d3e-2252a8453662",
+      "name": "Game",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/ruins/RuinsGame.java",
+            "scriptClassName": "samples.ruins.RuinsGame",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "86566c6b-be59-5dd5-b7b5-2b10a69aac1e",
+      "name": "Collected Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Orbs: 0 / 8",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6ea3b878-ec57-5899-843f-a59f24a3cc84",
+      "name": "Deaths Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Deaths: 0",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_RIGHT",
+            "offsetX": -16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "741e3c26-e7f2-56fa-ab19-71eda3cb70c8",
+      "name": "Message Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.8,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "693924a7-b797-5d88-9ff1-8446291e59ae",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "A/D or arrows: run   Space/W: jump   R: restart   Avoid red spikes, reach the gold pillar",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

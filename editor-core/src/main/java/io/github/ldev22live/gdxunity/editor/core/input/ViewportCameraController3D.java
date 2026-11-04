@@ -272,6 +272,16 @@ public class ViewportCameraController3D {
         this.orbitSensitivity = orbitSensitivity;
     }
 
+    /** The pan sensitivity set by {@link #setPanSensitivity}. */
+    public float getPanSensitivity() {
+        return panSensitivity;
+    }
+
+    /** The zoom (dolly) sensitivity set by {@link #setZoomSensitivity}. */
+    public float getZoomSensitivity() {
+        return zoomSensitivity;
+    }
+
     public void setPanSensitivity(float panSensitivity) {
         this.panSensitivity = panSensitivity;
     }

@@ -296,6 +296,8 @@ Phase 0 ──► Phase 8  ──►  Phase 9  ──►  Phase 10 ──►  Ph
 
 **Objective**: Implement software sound synthesis, procedural SFX generation, 16-step sequencing, piano roll, and mixer channels.
 
+> **Status (2026-11-03)**: built as Phase 20 (TD-040) in `engine-audio` and `editor-audio`: synth, drums, SoundFont reader, sfxr, step sequencer, piano roll, playlist, mixer with delay and reverb, WAV export. Not yet done: `AudioSourceComponent` / `AudioListenerComponent`, runtime playback, `.ogg` export. See [phase-20-music-studio.md](milestones/phase-20-music-studio.md).
+
 **Key Deliverables**:
 - [ ] Create `engine-audio` module.
 - [ ] Implement real-time audio generation via LibGDX `AudioDevice`:

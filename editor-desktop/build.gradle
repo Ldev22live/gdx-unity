@@ -5,7 +5,7 @@ apply plugin: 'application'
 
 sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
 application.mainClass = 'io.github.ldev22live.gdxunity.editor.desktop.EditorLauncher'
-application.applicationName = 'GdxUnityEditor'
+application.applicationName = 'ForgeroomEditor'
 java.sourceCompatibility = 21
 java.targetCompatibility = 21
 if (JavaVersion.current().isJava9Compatible()) {
@@ -16,8 +16,15 @@ dependencies {
   implementation project(':engine-core')
   implementation project(':engine-scene')
   implementation project(':engine-render')
+  // Shared scene component list (GameComponentSerializers, TD-035)
+  implementation project(':engine-desktop')
   implementation project(':editor-core')
   implementation project(':editor-visualscript')
+  implementation project(':editor-animation')
+  // Sculpting (TD-038): sculpt mode, brushes, undoable strokes
+  implementation project(':editor-sculpt')
+  // Music editor (TD-040): song documents, undoable edits, export
+  implementation project(':editor-audio')
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
@@ -50,4 +57,73 @@ run {
   jvmArgs += "--enable-native-access=ALL-UNNAMED"
   def os = System.properties['os.name'].toLowerCase(Locale.ROOT)
   if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
+}
+
+// Packaged editor (TD-033): an app image for the host OS with a bundled Java runtime, made by the JDK's jpackage.
+// jpackage cannot cross-build: run these tasks on each target OS. Override the JDK with -PjpackageJdk=<jdk folder>.
+def hostOsName = System.properties['os.name'].toLowerCase(Locale.ROOT)
+def packageOs = hostOsName.contains('win') ? 'windows' : hostOsName.contains('mac') ? 'macos' : 'linux'
+def packageArch = System.properties['os.arch'] in ['amd64', 'x86_64'] ? 'x64' : System.properties['os.arch']
+def packageDir = layout.buildDirectory.dir('package')
+// Natives jars for other operating systems and 32-bit/ARM variants the bundled runtime cannot load
+def foreignNatives = [
+  windows: ['*natives-linux*', '*natives-macos*', '*natives-windows-x86*', '*natives-windows-arm64*'],
+  macos  : ['*natives-linux*', '*natives-windows*'],
+  linux  : ['*natives-windows*', '*natives-macos*', '*natives-linux-arm32*'],
+][packageOs]
+// Editor preferences and build output that must not ship in the sample project
+def sampleProjectExcludes = ['build/**', 'assets.txt', 'workspace_layout.json', 'editor_theme.json', 'scene_backup.json']
+
+tasks.register('prepareEditorPackageInput', Sync) {
+  group = 'distribution'
+  description = 'Collects the editor jars for the host OS and the sample project for jpackage.'
+  into packageDir.map { it.dir('input') }
+  from(tasks.named('jar'))
+  from(configurations.runtimeClasspath) { exclude foreignNatives }
+  into('sample-project') {
+    from(rootProject.file('assets')) { exclude sampleProjectExcludes }
+  }
+}
+
+tasks.register('packageEditor', Exec) {
+  group = 'distribution'
+  description = 'Builds build/package/image/ForgeroomEditor: the editor with a bundled Java runtime, for the host OS.'
+  dependsOn 'prepareEditorPackageInput'
+  def inputDir = packageDir.get().dir('input').asFile
+  def imageDir = packageDir.get().dir('image').asFile
+  def jdkHome = new File(project.findProperty('jpackageJdk') ?: System.getProperty('java.home'))
+  def jpackage = new File(jdkHome, 'bin/jpackage' + (packageOs == 'windows' ? '.exe' : ''))
+  def javaOptions = [
+    '--enable-native-access=ALL-UNNAMED',
+    // $APPDIR is expanded by the jpackage launcher to the folder holding the jars
+    '-Dgdxunity.sampleProject=$APPDIR/sample-project',
+  ]
+  if (packageOs == 'macos') javaOptions += '-XstartOnFirstThread'
+  inputs.dir(inputDir)
+  outputs.dir(imageDir)
+  executable = jpackage
+  args = ['--type', 'app-image',
+          '--name', 'ForgeroomEditor',
+          '--app-version', project.version.toString(),
+          '--vendor', 'Forgeroom',
+          '--input', inputDir.path,
+          '--main-jar', tasks.named('jar').get().archiveFileName.get(),
+          '--main-class', application.mainClass.get(),
+          '--dest', imageDir.path] + javaOptions.collectMany { ['--java-options', it] }
+  doFirst {
+    if (!jpackage.isFile()) {
+      throw new GradleException("jpackage not found at ${jpackage}; build with a full JDK or pass -PjpackageJdk=<jdk folder>")
+    }
+    // jpackage refuses to write into an existing app image
+    delete imageDir
+  }
+}
+
+tasks.register('zipEditorPackage', Zip) {
+  group = 'distribution'
+  description = 'Zips the packaged editor as build/package/ForgeroomEditor-<version>-<os>-<arch>.zip.'
+  dependsOn 'packageEditor'
+  from(packageDir.map { it.dir('image') })
+  archiveFileName = "ForgeroomEditor-${project.version}-${packageOs}-${packageArch}.zip"
+  destinationDirectory = packageDir
 }

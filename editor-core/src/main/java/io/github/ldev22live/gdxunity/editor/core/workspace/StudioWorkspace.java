@@ -2,7 +2,7 @@ package io.github.ldev22live.gdxunity.editor.core.workspace;
 
 /**
  * Fundamental contract representing an independent creative environment (studio)
- * inside GdxUnity. Decoupled from concrete desktop windowing or UI toolkits.
+ * inside Forgeroom. Decoupled from concrete desktop windowing or UI toolkits.
  */
 public interface StudioWorkspace {
     /**

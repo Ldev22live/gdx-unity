@@ -29,6 +29,7 @@ public class DirectionalLightComponentSerializer implements ComponentSerializer<
         json.writeValue("directionZ", component.getDirection().z);
         LightColorJson.write(json, component.getColor());
         json.writeValue("intensity", component.getIntensity());
+        json.writeValue("castShadows", component.isCastShadows());
     }
 
     @Override
@@ -40,6 +41,8 @@ public class DirectionalLightComponentSerializer implements ComponentSerializer<
             jsonData.getFloat("directionZ", -0.5f));
         component.setColor(LightColorJson.read(jsonData, Color.WHITE));
         component.setIntensity(jsonData.getFloat("intensity", 1f));
+        // Scenes saved before Phase 13-B have no flag; their sun casts shadows like a new one
+        component.setCastShadows(jsonData.getBoolean("castShadows", true));
         return component;
     }
 }

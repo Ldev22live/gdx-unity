@@ -64,7 +64,7 @@ configure(subprojects) {
 
 subprojects {
   version = "$projectVersion"
-  ext.appName = 'GdxUnity'
+  ext.appName = 'Forgeroom'
   repositories {
     mavenCentral()
     // You may want to remove the following line if you have errors downloading dependencies.
@@ -77,4 +77,4 @@ subprojects {
   java.targetCompatibility = 21
 }
 
-eclipse.project.name = 'GdxUnity' + '-parent'
+eclipse.project.name = 'Forgeroom' + '-parent'

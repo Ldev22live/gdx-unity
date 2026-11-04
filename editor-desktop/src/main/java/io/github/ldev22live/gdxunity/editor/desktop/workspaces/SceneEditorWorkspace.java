@@ -9,10 +9,15 @@ import io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.TransformGizmoRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.ViewportGridRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ViewportGridRenderer3D;
+import io.github.ldev22live.gdxunity.engine.render.HudRenderer;
 import io.github.ldev22live.gdxunity.engine.render.SceneRenderer2D;
 import io.github.ldev22live.gdxunity.engine.render.SceneRenderer3D;
+import io.github.ldev22live.gdxunity.engine.render.camera.Camera;
+import io.github.ldev22live.gdxunity.engine.render.camera.GameCameraRig;
 import io.github.ldev22live.gdxunity.engine.render.camera.OrthographicCamera2D;
 import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
+import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
+import io.github.ldev22live.gdxunity.engine.scene.Scene;
 
 import java.util.Objects;
 
@@ -40,6 +45,14 @@ public class SceneEditorWorkspace implements StudioWorkspace {
     private SelectionOutlineRenderer selectionOutline2D;
     private SelectionOutlineRenderer selectionOutline3D;
     private Collider3DRenderer colliderRenderer3D;
+    private io.github.ldev22live.gdxunity.editor.desktop.ui.SkeletonOverlayRenderer skeletonOverlay3D;
+
+    /** Game view while playing a scene with a camera (TD-034). */
+    private final GameCameraRig gameCameras = new GameCameraRig();
+    /** Screen-space text, drawn over the scene in every view. */
+    private final HudRenderer hudRenderer = new HudRenderer();
+    private int viewWidth;
+    private int viewHeight;
 
     public SceneEditorWorkspace(SceneRenderer2D sceneRenderer,
                                 OrthographicCamera2D sceneCamera,
@@ -108,8 +121,44 @@ public class SceneEditorWorkspace implements StudioWorkspace {
     }
 
     /** Sets the 3D collider wireframe renderer (null to disable). */
+    /** Bones of selected imported models, drawn in the 3D view. */
+    public void setSkeletonOverlay3D(io.github.ldev22live.gdxunity.editor.desktop.ui.SkeletonOverlayRenderer overlay) {
+        this.skeletonOverlay3D = overlay;
+    }
+
     public void setColliderRenderer3D(Collider3DRenderer renderer) {
         this.colliderRenderer3D = renderer;
+    }
+
+    /** What a pane draws around the scene besides the scene itself (TD-039): its grid and its overlays. */
+    public interface PaneOverlays {
+        /** Draws the pane's grid, before the scene. */
+        void renderGrid(com.badlogic.gdx.graphics.glutils.ShapeRenderer shapeRenderer);
+
+        /** Draws colliders, the selection outline, skeletons and the gizmo, after the scene. */
+        void renderOverlays(com.badlogic.gdx.graphics.glutils.ShapeRenderer shapeRenderer);
+    }
+
+    /**
+     * Draws the 3D scene through any camera for one pane of the multi-view layout: grid, scene, 2D entities, overlays.
+     * The caller has set up the pane's frame buffer.
+     */
+    public void renderPane3D(Camera camera, PaneOverlays overlays, float deltaTime) {
+        Objects.requireNonNull(camera, "camera cannot be null");
+        Objects.requireNonNull(overlays, "overlays cannot be null");
+        camera.update();
+        sceneRenderer.setCamera(camera);
+        if (sceneRenderer.getShapeRenderer() != null && gridRenderer.isEnabled()) {
+            overlays.renderGrid(sceneRenderer.getShapeRenderer());
+        }
+        if (sceneRenderer3D != null) {
+            sceneRenderer3D.setCamera(camera);
+            sceneRenderer3D.render(deltaTime);
+        }
+        sceneRenderer.render(deltaTime);
+        if (sceneRenderer.getShapeRenderer() != null) {
+            overlays.renderOverlays(sceneRenderer.getShapeRenderer());
+        }
     }
 
     private boolean is3DActive() {
@@ -123,10 +172,34 @@ public class SceneEditorWorkspace implements StudioWorkspace {
 
     @Override
     public void render(float deltaTime) {
-        if (is3DActive()) {
+        Scene scene = editorState != null ? editorState.getActiveScene() : null;
+        CameraComponent gameCamera = editorState != null && editorState.isPlayModeActive()
+            ? GameCameraRig.findActiveCamera(scene) : null;
+        if (gameCamera != null && viewWidth > 0 && viewHeight > 0) {
+            renderGameView(gameCamera, deltaTime);
+        } else if (is3DActive()) {
             render3D(deltaTime);
-            return;
+        } else {
+            render2D(deltaTime);
         }
+        hudRenderer.render(scene, viewWidth, viewHeight);
+    }
+
+    /**
+     * Playing a scene with a camera: the scene through the game camera, without grid, gizmos, selection or debug
+     * overlays, as the game will look.
+     */
+    private void renderGameView(CameraComponent gameCamera, float deltaTime) {
+        Camera camera = gameCameras.apply(gameCamera);
+        if (sceneRenderer3D != null) {
+            sceneRenderer3D.setCamera(camera);
+            sceneRenderer3D.render(deltaTime);
+        }
+        sceneRenderer.setCamera(camera);
+        sceneRenderer.render(deltaTime);
+    }
+
+    private void render2D(float deltaTime) {
         sceneRenderer.setCamera(sceneCamera);
         if (sceneRenderer != null) {
             // 1. Render viewport background grid
@@ -182,12 +255,20 @@ public class SceneEditorWorkspace implements StudioWorkspace {
             if (selectionOutline3D != null) {
                 selectionOutline3D.render(sceneRenderer.getShapeRenderer());
             }
+            if (skeletonOverlay3D != null) {
+                skeletonOverlay3D.render(sceneRenderer.getShapeRenderer());
+            }
             gizmoRenderer3D.render(sceneRenderer.getShapeRenderer(), 1f);
         }
     }
 
     @Override
     public void resize(int width, int height) {
+        if (width > 0 && height > 0) {
+            viewWidth = width;
+            viewHeight = height;
+            gameCameras.resize(width, height);
+        }
         sceneCamera.resize(width, height);
         if (camera3D != null) {
             camera3D.resize(width, height);
@@ -196,6 +277,7 @@ public class SceneEditorWorkspace implements StudioWorkspace {
 
     @Override
     public void dispose() {
+        hudRenderer.dispose();
         if (physicsDebugRenderer != null) {
             physicsDebugRenderer.dispose();
         }

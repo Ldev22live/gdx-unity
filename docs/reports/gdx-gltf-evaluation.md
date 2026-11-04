@@ -1,7 +1,7 @@
 # gdx-gltf Evaluation for Phase 13 (3D Asset Pipeline)
 
 **Date:** 2026-10-29 · **Decision context:** TD-026 (Phase 13 = asset pipeline), `AGENTS.md` §1 (new dependencies
-need approval) · **Status:** Recommendation pending a compatibility spike
+need approval) · **Status:** Spike passed and library adopted (TD-030, 2026-10-29)
 
 ## 1. Question
 

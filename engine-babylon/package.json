@@ -1,0 +1,25 @@
+{
+  "name": "gdx-unity-babylon",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Forgeroom scene player (and, later, editor) for the web, built on Babylon.js",
+  "type": "module",
+  "scripts": {
+    "sync-samples": "node scripts/sync-samples.mjs",
+    "dev": "npm run sync-samples && vite",
+    "build": "npm run sync-samples && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^9.33.2",
+    "planck": "^1.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.1.0"
+  }
+}

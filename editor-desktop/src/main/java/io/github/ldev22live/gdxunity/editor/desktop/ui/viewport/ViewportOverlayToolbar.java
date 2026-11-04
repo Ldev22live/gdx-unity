@@ -2,6 +2,10 @@ package io.github.ldev22live.gdxunity.editor.desktop.ui.viewport;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -13,8 +17,10 @@ import io.github.ldev22live.gdxunity.editor.core.action.DefaultEditorActions;
 import io.github.ldev22live.gdxunity.editor.core.action.EditorActionRegistry;
 
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /**
@@ -24,19 +30,29 @@ import java.util.function.Supplier;
 public class ViewportOverlayToolbar extends Table {
 
     private static final float BUTTON_HEIGHT = 24f;
+    /** Width of an icon-only button. */
+    private static final float ICON_BUTTON_WIDTH = 28f;
 
     private final EditorState editorState;
     private final EditorActionRegistry actions;
     private final Skin skin;
-    private final Map<ToolMode, TextButton> toolButtons = new EnumMap<>(ToolMode.class);
+    private final Map<ToolMode, Button> toolButtons = new EnumMap<>(ToolMode.class);
     private final Label infoLabel;
+    private final Map<String, Button> actionButtons = new LinkedHashMap<>();
+    private final Map<String, BooleanSupplier> toggles = new LinkedHashMap<>();
+    private final Map<String, String> iconStyles;
     private Supplier<String> infoText = () -> "";
+    /** Label of the button under the mouse, shown in place of the info text; empty when none. */
+    private String hoverText = "";
 
     /**
+     * @param iconStyles    skin style name of the icon for each action id; an action without an entry is a text button
      * @param viewActionIds ids of view actions (grid, physics overlay, reset view) shown after the tools
      */
-    public ViewportOverlayToolbar(EditorState editorState, EditorActionRegistry actions, Skin skin, String... viewActionIds) {
+    public ViewportOverlayToolbar(EditorState editorState, EditorActionRegistry actions, Skin skin,
+                                  Map<String, String> iconStyles, String... viewActionIds) {
         super(skin);
+        this.iconStyles = Map.copyOf(Objects.requireNonNull(iconStyles, "iconStyles cannot be null"));
         this.infoLabel = new Label("", skin, "muted");
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.actions = Objects.requireNonNull(actions, "actions cannot be null");
@@ -51,7 +67,9 @@ public class ViewportOverlayToolbar extends Table {
 
         add(new Label("|", skin, "muted")).padLeft(4).padRight(4);
         for (String id : viewActionIds) {
-            add(createActionButton(id)).height(BUTTON_HEIGHT).padLeft(1).padRight(1);
+            Button button = createActionButton(id);
+            actionButtons.put(id, button);
+            addSized(button);
         }
         add(infoLabel).padLeft(8).padRight(4);
 
@@ -65,6 +83,17 @@ public class ViewportOverlayToolbar extends Table {
     }
 
     /** Short live text shown at the end of the strip (e.g. the 3D fly speed); refreshed every frame. */
+    /**
+     * Makes one of the view-action buttons show a state: it is drawn in the accent colour while {@code active} is true,
+     * like the selected tool.
+     */
+    public void setToggle(String actionId, BooleanSupplier active) {
+        if (!actionButtons.containsKey(actionId)) {
+            throw new IllegalArgumentException("No toolbar button for action " + actionId);
+        }
+        toggles.put(actionId, Objects.requireNonNull(active, "active cannot be null"));
+    }
+
     public void setInfoText(Supplier<String> infoText) {
         this.infoText = Objects.requireNonNull(infoText, "infoText cannot be null");
     }
@@ -72,23 +101,49 @@ public class ViewportOverlayToolbar extends Table {
     @Override
     public void act(float delta) {
         super.act(delta);
-        String text = infoText.get();
+        for (Map.Entry<String, BooleanSupplier> toggle : toggles.entrySet()) {
+            actionButtons.get(toggle.getKey()).setColor(skin.getColor(toggle.getValue().getAsBoolean() ? "accent" : "text-primary"));
+        }
+        String text = hoverText.isEmpty() ? infoText.get() : hoverText;
         if (!text.contentEquals(infoLabel.getText())) {
             infoLabel.setText(text);
         }
     }
 
     private void addToolButton(ToolMode mode, String actionId) {
-        TextButton button = createActionButton(actionId);
+        Button button = createActionButton(actionId);
         toolButtons.put(mode, button);
-        add(button).height(BUTTON_HEIGHT).padLeft(1).padRight(1);
+        addSized(button);
     }
 
-    private TextButton createActionButton(String actionId) {
+    private void addSized(Button button) {
+        float width = button instanceof TextButton ? 0f : ICON_BUTTON_WIDTH;
+        add(button).height(BUTTON_HEIGHT).width(width > 0f ? width : button.getPrefWidth()).padLeft(1).padRight(1);
+    }
+
+    private Button createActionButton(String actionId) {
         String label = actions.find(actionId)
             .map(action -> action.hasShortcut() ? action.getLabel() + " (" + action.getShortcutText() + ")" : action.getLabel())
             .orElseThrow(() -> new IllegalArgumentException("Unknown editor action id: " + actionId));
-        TextButton button = new TextButton(label, skin, "flat");
+        String iconStyle = iconStyles.get(actionId);
+        Button button = iconStyle != null ? new ImageButton(skin.get(iconStyle, ImageButton.ImageButtonStyle.class))
+            : new TextButton(label, skin, "flat");
+        if (iconStyle != null) {
+            // Icon-only buttons name themselves in the strip while the mouse is over them
+            button.addListener(new InputListener() {
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    hoverText = label;
+                }
+
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    if (label.equals(hoverText)) {
+                        hoverText = "";
+                    }
+                }
+            });
+        }
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -102,7 +157,7 @@ public class ViewportOverlayToolbar extends Table {
         Color active = skin.getColor("accent");
         Color normal = skin.getColor("text-primary");
         ToolMode current = editorState.getToolMode();
-        for (Map.Entry<ToolMode, TextButton> entry : toolButtons.entrySet()) {
+        for (Map.Entry<ToolMode, Button> entry : toolButtons.entrySet()) {
             entry.getValue().setColor(entry.getKey() == current ? active : normal);
         }
     }

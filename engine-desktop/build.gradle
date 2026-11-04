@@ -3,7 +3,14 @@ eclipse.project.name = appName + '-engine-desktop'
 
 apply plugin: 'application'
 
-sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+// Game runtime (TD-035): plays a scene file from a project folder; assets are read from that folder, not the classpath
+sourceSets {
+  // The project's scripts, compiled ahead of time for :engine-desktop:run (the runtime has no compiler)
+  gameScripts {
+    java.srcDirs = [ rootProject.file('assets/scripts') ]
+    compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+  }
+}
 application.mainClass = 'io.github.ldev22live.gdxunity.engine.desktop.DesktopLauncher'
 application.applicationName = appName
 java.sourceCompatibility = 21
@@ -16,6 +23,8 @@ dependencies {
   implementation project(':engine-core')
   implementation project(':engine-scene')
   implementation project(':engine-render')
+  implementation project(':engine-visualscript')
+  implementation project(':engine-animation')
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
@@ -34,8 +43,12 @@ jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+// Plays a sample by default; pass --args="--scene <file>" for another scene of assets/
 run {
+  dependsOn gameScriptsClasses
   workingDir = rootProject.file('assets').path
+  args = ['--scene', 'samples/platformer-2d.json']
+  systemProperty 'gdxunity.scripts', sourceSets.gameScripts.java.destinationDirectory.get().asFile.path
   jvmArgs += "--enable-native-access=ALL-UNNAMED"
   def os = System.properties['os.name'].toLowerCase(Locale.ROOT)
   if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"

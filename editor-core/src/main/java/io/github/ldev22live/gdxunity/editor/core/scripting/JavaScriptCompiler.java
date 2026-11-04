@@ -41,7 +41,7 @@ public class JavaScriptCompiler {
                     null,
                     0,
                     0,
-                    "No system Java compiler available. Make sure GdxUnity is running on a JDK (Java Development Kit), not a JRE."
+                    "No system Java compiler available. Make sure Forgeroom is running on a JDK (Java Development Kit), not a JRE."
                 )
             ));
         }

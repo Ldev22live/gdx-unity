@@ -6,6 +6,7 @@ import io.github.ldev22live.gdxunity.editor.core.command.CreateEntityCommand;
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
+import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
 
 import java.util.List;
@@ -54,9 +55,10 @@ public final class AssetPlacement {
                 return prefabs.instantiate(asset, position) != null ? Result.PLACED : Result.REJECTED;
             }
             case MODEL -> {
-                editorState.setStatusMessage("Cannot place " + asset.getFileName()
-                    + ": model loading is part of Phase 13 and waits on the glTF loader decision", true);
-                return Result.UNSUPPORTED_TYPE;
+                String name = baseName(asset.getFileName());
+                ModelComponent model = new ModelComponent(asset.getPath());
+                boolean created = editorState.executeCommand(new CreateEntityCommand(editorState, name, position, List.of(model)));
+                return created ? Result.PLACED : Result.REJECTED;
             }
             default -> {
                 editorState.setStatusMessage("Cannot place " + asset.getFileName() + ": unsupported asset type", true);

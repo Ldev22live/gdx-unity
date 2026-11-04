@@ -1,7 +1,5 @@
 package io.github.ldev22live.gdxunity.engine.core.asset;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
@@ -43,14 +41,10 @@ public final class AssetReference {
             throw new IllegalArgumentException("Absolute paths are not permitted in AssetReference: " + rawPath);
         }
 
-        // Validate path traversal
-        Path p = Paths.get(normalized);
-        if (p.isAbsolute()) {
-            throw new IllegalArgumentException("Absolute paths are not permitted in AssetReference: " + rawPath);
-        }
-        for (Path part : p) {
-            String name = part.toString();
-            if (name.equals("..")) {
+        // Validate path traversal. Split by hand rather than with java.nio.file.Path: the web runtime's class
+        // library (TeaVM) cannot iterate a Path, and leading slashes and drive letters are already handled above.
+        for (String part : normalized.split("/")) {
+            if (part.equals("..")) {
                 throw new IllegalArgumentException("Path traversal ('..') is not permitted: " + rawPath);
             }
         }

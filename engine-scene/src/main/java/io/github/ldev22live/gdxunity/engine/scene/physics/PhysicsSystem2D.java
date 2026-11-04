@@ -9,7 +9,6 @@ import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.Transform;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Runtime system managing the 2D physics simulation, Box2D World lifecycle,
@@ -35,7 +34,9 @@ public class PhysicsSystem2D implements Disposable {
     private final Map<Body, Entity> bodyEntities = new HashMap<>();
     private final Map<Fixture, Collider2DComponent> fixtureColliders = new HashMap<>();
 
-    private final Queue<Collision2D> eventQueue = new ConcurrentLinkedQueue<>();
+    // Filled by Box2D's contact callbacks, which run synchronously inside world.step() on the calling thread,
+    // and drained right after the step; single-threaded, so no concurrent queue (also unavailable on TeaVM web)
+    private final Queue<Collision2D> eventQueue = new ArrayDeque<>();
     private final List<CollisionListener> listeners = new ArrayList<>();
 
     private float accumulator = 0.0f;

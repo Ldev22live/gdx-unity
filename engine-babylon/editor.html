@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forgeroom Web Editor</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="/src/editor/editor.css" />
+    <link rel="stylesheet" href="/src/editor/music/music.css" />
+  </head>
+  <body class="editor">
+    <header id="bar">
+      <strong class="brand">Forgeroom Web Editor</strong>
+      <button id="tab-viewport" class="tab active" title="The scene">Viewport</button>
+      <button id="tab-music" class="tab" title="The music studio">Music</button>
+      <button id="new" title="New scene">New</button>
+      <button id="open" title="Open a scene file">Open…</button>
+      <select id="samples" title="Open a sample scene"><option value="">Samples…</option></select>
+      <button id="save" title="Save (Ctrl+S)">Save</button>
+      <span class="sep"></span>
+      <button id="undo" title="Undo (Ctrl+Z)">↶</button>
+      <button id="redo" title="Redo (Ctrl+Y)">↷</button>
+      <span class="sep"></span>
+      <select id="add" title="Add an entity"><option value="">Add…</option></select>
+      <button id="duplicate" title="Duplicate (Ctrl+D)">Duplicate</button>
+      <button id="delete" title="Delete (Del)">Delete</button>
+      <span class="sep"></span>
+      <button id="tool-select" title="Select (Q)">Select</button>
+      <button id="tool-move" title="Move (W)">Move</button>
+      <button id="tool-rotate" title="Rotate (E)">Rotate</button>
+      <button id="tool-scale" title="Scale (R)">Scale</button>
+      <button id="tool-sculpt" title="Sculpt the selected sculpt (B)">Sculpt</button>
+      <button id="frame" title="Frame everything">Frame</button>
+      <span class="sep"></span>
+      <button id="play" class="primary" title="Play the scene">▶ Play</button>
+      <span class="title"><span id="title"></span> <span id="dirty" title="Unsaved changes"></span></span>
+      <a class="link" href="./index.html">Player</a>
+    </header>
+    <main id="workspace">
+      <aside id="left"><h2>Outline</h2><div id="hierarchy"></div></aside>
+      <section id="stage">
+        <canvas id="view" tabindex="0"></canvas>
+        <div id="hud"></div>
+        <div id="sculpt-bar" hidden></div>
+      </section>
+      <aside id="right"><h2>Details</h2><div id="inspector"></div></aside>
+    </main>
+    <footer id="status"></footer>
+    <script type="module" src="/src/editor-main.ts"></script>
+  </body>
+</html>

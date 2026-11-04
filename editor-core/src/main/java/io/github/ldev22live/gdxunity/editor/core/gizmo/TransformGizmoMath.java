@@ -440,6 +440,13 @@ public final class TransformGizmoMath {
      *
      * @param fieldOfViewDegrees vertical field of view of the perspective camera
      */
+    public static float orthographicScaleFactor(float visibleHeight) {
+        return Math.max(MIN_SCALE, Math.abs(visibleHeight) * PERSPECTIVE_VIEW_FRACTION / DEFAULT_AXIS_LENGTH);
+    }
+
+    /**
+     * Gizmo size factor for a perspective camera; see {@link #orthographicScaleFactor(float)} for orthographic views.
+     */
     public static float perspectiveScaleFactor(Vector3 cameraPosition, Vector3 origin, float fieldOfViewDegrees) {
         float distance = cameraPosition.dst(origin);
         float visibleHeight = 2f * distance * (float) Math.tan(Math.toRadians(fieldOfViewDegrees) * 0.5);

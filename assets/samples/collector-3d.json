@@ -1,0 +1,989 @@
+{
+  "schemaVersion": 1,
+  "name": "3D Gem Collector",
+  "active": true,
+  "entities": [
+    {
+      "id": "f7ab3bc0-9b15-5e5b-8f7c-c5a626825fd7",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "62fd27d8-9fd0-55ba-966f-c15a33c8de4f",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.72,
+            "skyB": 0.88,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "31924df0-3316-545d-bec6-b8a2abe3b57d",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 1600.0,
+            "sizeY": 1.0,
+            "sizeZ": 1600.0,
+            "colorR": 0.42,
+            "colorG": 0.55,
+            "colorB": 0.42,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "61c5b27a-ab0d-5d84-bd9b-46191999b876",
+      "name": "Wall North",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 40.0,
+          "z": -800.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1640.0,
+            "sizeY": 80.0,
+            "sizeZ": 40.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "42b86de3-f915-5c35-828f-8121fc48bb5a",
+      "name": "Wall South",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 40.0,
+          "z": 800.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1640.0,
+            "sizeY": 80.0,
+            "sizeZ": 40.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3cc9ee89-64e4-5cb0-bcb3-1355e0268144",
+      "name": "Wall West",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -800.0,
+          "y": 40.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 80.0,
+            "sizeZ": 1600.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "fa15d26d-01f2-5178-ac3c-9614d1244d95",
+      "name": "Wall East",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 800.0,
+          "y": 40.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 80.0,
+            "sizeZ": 1600.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4bda94fd-50aa-50db-87fb-8b299a28c8f3",
+      "name": "Gem 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -500.0,
+          "y": 45.0,
+          "z": -500.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 34.0,
+            "sizeY": 34.0,
+            "sizeZ": 34.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d6ced99e-561a-58f2-a2b1-65268f7af3f4",
+      "name": "Gem 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 45.0,
+          "z": -620.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 34.0,
+            "sizeY": 34.0,
+            "sizeZ": 34.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "02d6f994-86ad-5e5c-a460-a276d96f2679",
+      "name": "Gem 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 500.0,
+          "y": 45.0,
+          "z": -500.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 34.0,
+            "sizeY": 34.0,
+            "sizeZ": 34.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7fa5016b-e6fc-5c46-a8ae-d909d86b1ded",
+      "name": "Gem 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -620.0,
+          "y": 45.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 34.0,
+            "sizeY": 34.0,
+            "sizeZ": 34.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f2f9886d-cb8c-597c-adef-b6768da05220",
+      "name": "Gem 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 620.0,
+          "y": 45.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 34.0,
+            "sizeY": 34.0,
+            "sizeZ": 34.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b797c6ca-a31c-5767-8255-71b58115a1e9",
+      "name": "Gem 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -500.0,
+          "y": 45.0,
+          "z": 500.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 34.0,
+            "sizeY": 34.0,
+            "sizeZ": 34.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6c605a6b-ebec-5bf8-b186-be612ef9265b",
+      "name": "Gem 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 45.0,
+          "z": 620.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 34.0,
+            "sizeY": 34.0,
+            "sizeZ": 34.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "deae13d9-924f-588f-a75a-3234557d6ced",
+      "name": "Gem 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 500.0,
+          "y": 45.0,
+          "z": 500.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 34.0,
+            "sizeY": 34.0,
+            "sizeZ": 34.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b9649e5d-af36-5600-9199-3f9103335d3f",
+      "name": "Gem 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -220.0,
+          "y": 45.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 34.0,
+            "sizeY": 34.0,
+            "sizeZ": 34.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9f963151-4b35-55e2-bad6-45135334f95d",
+      "name": "Gem 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 240.0,
+          "y": 45.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 34.0,
+            "sizeY": 34.0,
+            "sizeZ": 34.0,
+            "colorR": 1.0,
+            "colorG": 0.8,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9ea9ea4e-f9cc-507d-bcf1-0b2cdd9645cf",
+      "name": "Player",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 30.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 60.0,
+            "sizeY": 60.0,
+            "sizeZ": 60.0,
+            "colorR": 0.25,
+            "colorG": 0.55,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/collector/CollectorPlayer.java",
+            "scriptClassName": "samples.collector.CollectorPlayer",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "6804d863-c047-5a50-87b7-bd62ece052f7",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 370.0,
+          "z": 520.0
+        },
+        "rotation": {
+          "x": -0.258664,
+          "y": -0.0,
+          "z": -0.0,
+          "w": 0.965967
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/common/FollowCamera3D.java",
+            "scriptClassName": "samples.common.FollowCamera3D",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d5910472-6a7c-5c20-8fc1-e1b6dd337c06",
+      "name": "Game",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/collector/CollectorGame.java",
+            "scriptClassName": "samples.collector.CollectorGame",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "41662761-cf7d-5143-9a59-6bb6369bce33",
+      "name": "Collected Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Gems: 0 / 10",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d34a59c8-08e9-50f1-b35b-fcf6d5065373",
+      "name": "Time Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Time: 0.0",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_RIGHT",
+            "offsetX": -16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "93ab3119-c56d-573e-8817-a53e32d76664",
+      "name": "Message Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.8,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7a5ad771-2d9f-5ccf-9043-9cbc909e362a",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "WASD or arrows: roll   R: restart",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

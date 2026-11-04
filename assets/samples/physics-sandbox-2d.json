@@ -1,0 +1,1555 @@
+{
+  "schemaVersion": 1,
+  "name": "2D Physics Sandbox",
+  "active": true,
+  "entities": [
+    {
+      "id": "d025b4c6-e8e5-5a9a-82f9-48fe7dbd9f27",
+      "name": "Background",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 640.0,
+            "height": 480.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.1,
+              "g": 0.11,
+              "b": 0.15,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "adaa36a3-c454-5270-9f66-6d17be90a450",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "ORTHOGRAPHIC",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "19055c86-a4e0-58d4-a013-fd108eb9f057",
+      "name": "Ground",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 320.0,
+          "y": 15.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 640.0,
+            "height": 30.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.45,
+              "g": 0.5,
+              "b": 0.6,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "STATIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 640.0,
+            "height": 30.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 0.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "cf39bd43-27a2-5fa4-b738-bbd5610b99e0",
+      "name": "Wall Left",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 5.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 10.0,
+            "height": 480.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.45,
+              "g": 0.5,
+              "b": 0.6,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "STATIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 10.0,
+            "height": 480.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 0.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "e7d33813-4f49-5f04-a747-35c8fb8cac32",
+      "name": "Wall Right",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 635.0,
+          "y": 240.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 10.0,
+            "height": 480.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.45,
+              "g": 0.5,
+              "b": 0.6,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "STATIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 10.0,
+            "height": 480.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 0.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "e9974ef0-4643-51cf-91f8-9b5ad9e2aa05",
+      "name": "Ramp Left",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 150.0,
+          "y": 260.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.156434,
+          "w": 0.987688
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 220.0,
+            "height": 14.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.45,
+              "g": 0.5,
+              "b": 0.6,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "STATIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 220.0,
+            "height": 14.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 0.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "1703d822-9a93-538b-bb30-49c47850b4d1",
+      "name": "Ramp Right",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 500.0,
+          "y": 300.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.139173,
+          "w": 0.990268
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 200.0,
+            "height": 14.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.45,
+              "g": 0.5,
+              "b": 0.6,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "STATIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 200.0,
+            "height": 14.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 0.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "219051b7-d921-5ec6-bed5-e68eaf7a8fee",
+      "name": "Crate 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 420.0,
+          "y": 50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.62,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "a37bb495-7e73-56c1-8185-8bd9102f1e13",
+      "name": "Crate 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 462.0,
+          "y": 50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.62,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "6278e23b-af1d-563b-a4fe-70a8530cb27d",
+      "name": "Crate 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 504.0,
+          "y": 50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.62,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "efc79510-3179-5c29-a659-a5f7e918a2ce",
+      "name": "Crate 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 546.0,
+          "y": 50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.62,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "b7e9f975-ee30-5632-8cc6-e1d3dd69556d",
+      "name": "Crate 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 441.0,
+          "y": 91.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.62,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "9fb684d0-4932-577b-b9f9-e20c095dcfc7",
+      "name": "Crate 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 483.0,
+          "y": 91.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.62,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "1639a44c-59d0-5287-b54e-d618eae82ec9",
+      "name": "Crate 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 525.0,
+          "y": 91.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.62,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "3af2bdad-30d6-591a-a524-edd47abfe5e0",
+      "name": "Crate 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 462.0,
+          "y": 132.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.62,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "1ac473af-abea-56a4-a820-c3faf4e4080c",
+      "name": "Crate 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 504.0,
+          "y": 132.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.62,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "5fa64fa8-30ab-5ed7-b2ef-8c4c16fabaa0",
+      "name": "Crate 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 483.0,
+          "y": 173.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.85,
+              "g": 0.62,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 40.0,
+            "height": 40.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "7f97a1bc-12a7-53f3-b40f-763e0bde4aac",
+      "name": "Bouncy Block 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 80.0,
+          "y": 420.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.173648,
+          "w": 0.984808
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 24.0,
+            "height": 24.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.85,
+              "b": 0.6,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 24.0,
+            "height": 24.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.75,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "924b4522-f931-5022-90a3-86fd038701a3",
+      "name": "Bouncy Block 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 140.0,
+          "y": 460.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.34202,
+          "w": 0.939693
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 24.0,
+            "height": 24.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.85,
+              "b": 0.6,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 24.0,
+            "height": 24.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.75,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "30df5d4a-1b52-5d9b-8021-d1fa2125d972",
+      "name": "Bouncy Block 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 200.0,
+          "y": 440.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.5,
+          "w": 0.866025
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 24.0,
+            "height": 24.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.4,
+              "g": 0.85,
+              "b": 0.6,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 24.0,
+            "height": 24.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.75,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "881a2b03-9189-5f56-b1fb-b126410e57d4",
+      "name": "Heavy Plank",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 520.0,
+          "y": 400.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.069756,
+          "w": 0.997564
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 160.0,
+            "height": 16.0,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.75,
+              "g": 0.5,
+              "b": 0.9,
+              "a": 1
+            }
+          }
+        },
+        {
+          "type": "RigidBody2DComponent",
+          "enabled": true,
+          "data": {
+            "bodyType": "DYNAMIC",
+            "gravityScale": 1.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.05,
+            "fixedRotation": false,
+            "bullet": false,
+            "initialLinearVelocityX": 0.0,
+            "initialLinearVelocityY": 0.0,
+            "initialAngularVelocity": 0.0
+          }
+        },
+        {
+          "type": "BoxCollider2DComponent",
+          "enabled": true,
+          "data": {
+            "width": 160.0,
+            "height": 16.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "density": 1.0,
+            "friction": 0.4,
+            "restitution": 0.1,
+            "isSensor": false,
+            "categoryBits": 1,
+            "maskBits": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "8e280ed3-3733-5b7d-9732-0007ae5f49f0",
+      "name": "Title Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Box2D physics: rigid bodies + colliders, no scripts",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c77d8c9a-a9b9-52a1-9a69-d2b8360bc57a",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Stop and press Play again to restart. Turn on Window > Physics Debug to see colliders.",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

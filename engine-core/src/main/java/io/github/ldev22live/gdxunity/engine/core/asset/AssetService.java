@@ -1,10 +1,10 @@
 package io.github.ldev22live.gdxunity.engine.core.asset;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,15 +22,36 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AssetService implements Disposable {
 
     private final AssetCatalog catalog;
+    private final AssetSource source;
     private final Map<AssetReference, Texture> textureCache = new ConcurrentHashMap<>();
     private final Map<AssetReference, String> loadErrors = new ConcurrentHashMap<>();
     private boolean disposed = false;
 
     public AssetService(AssetCatalog catalog) {
         this.catalog = Objects.requireNonNull(catalog, "catalog cannot be null");
+        this.source = catalog;
+    }
+
+    /**
+     * Creates a service that loads assets from a source without a scannable catalog, such as the web runtime's
+     * bundled files ({@link AssetSource#internal()}). {@link #getCatalog()} is unavailable on such a service.
+     *
+     * @param source where asset files are read from
+     */
+    public AssetService(AssetSource source) {
+        this.source = Objects.requireNonNull(source, "source cannot be null");
+        this.catalog = null;
+    }
+
+    /** True when this service was created with an {@link AssetCatalog}, so {@link #getCatalog()} may be called. */
+    public boolean hasCatalog() {
+        return catalog != null;
     }
 
     public AssetCatalog getCatalog() {
+        if (catalog == null) {
+            throw new IllegalStateException("This AssetService reads from an AssetSource and has no catalog");
+        }
         return catalog;
     }
 
@@ -52,16 +73,16 @@ public class AssetService implements Disposable {
             return textureCache.get(reference);
         }
 
-        // 2. Resolve file from catalog
-        File file = catalog.resolveFile(reference);
-        if (file == null || !file.exists() || !file.isFile()) {
-            loadErrors.put(reference, "Asset file not found on disk: " + reference.getPath());
+        // 2. Resolve the file through the asset source
+        FileHandle file = source.resolve(reference);
+        if (!file.exists() || file.isDirectory()) {
+            loadErrors.put(reference, "Asset file not found: " + reference.getPath());
             return null;
         }
 
         // 3. Decode Texture
         try {
-            Texture texture = new Texture(file.getAbsolutePath());
+            Texture texture = new Texture(file);
             textureCache.put(reference, texture);
             loadErrors.remove(reference);
             return texture;

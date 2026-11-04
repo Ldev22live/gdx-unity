@@ -7,9 +7,13 @@ import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.EditorTestHelper;
 import io.github.ldev22live.gdxunity.editor.core.component.ComponentCatalog;
 import io.github.ldev22live.gdxunity.editor.core.picking.ViewportPicker;
+import io.github.ldev22live.gdxunity.engine.render.RenderQuality3D;
+import io.github.ldev22live.gdxunity.engine.render.SceneRenderer3D;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.PointLightComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.ToneMappingComponent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,6 +64,38 @@ class Create3DActionsTest {
         assertTrue(registry.execute(DefaultEditorActions.CREATE_POINT_LIGHT));
         PointLightComponent light = editorState.getSelectedEntity().getComponent(PointLightComponent.class);
         assertEquals(ComponentCatalog.createPointLight().getRange(), light.getRange(), 0.0001f);
+    }
+
+    @Test
+    void shouldCreateSkyLightAndToneMappingEntitiesAsOneUndoStepEach() {
+        assertTrue(registry.execute(DefaultEditorActions.CREATE_SKY_LIGHT));
+        Entity sky = editorState.getSelectedEntity();
+        assertEquals("Sky Light", sky.getName());
+        assertNotNull(sky.getComponent(SkyLightComponent.class));
+
+        assertTrue(registry.execute(DefaultEditorActions.CREATE_TONE_MAPPING));
+        assertNotNull(editorState.getSelectedEntity().getComponent(ToneMappingComponent.class));
+
+        editorState.undo();
+        assertNull(editorState.getActiveScene().findEntityByName("Tone Mapping"));
+        assertNotNull(editorState.getActiveScene().findEntityByName("Sky Light"));
+    }
+
+    @Test
+    void shouldToggleShadowsAndSetLightingQualityOnTheRenderer() {
+        SceneRenderer3D renderer = new SceneRenderer3D();
+        DefaultEditorActions.registerLightingActions(registry, editorState, renderer);
+
+        assertTrue(registry.execute(DefaultEditorActions.VIEW_TOGGLE_SHADOWS));
+        assertFalse(renderer.isShadowsEnabled());
+        assertTrue(editorState.getStatusMessage().contains("off"), editorState.getStatusMessage());
+        assertTrue(registry.execute(DefaultEditorActions.VIEW_TOGGLE_SHADOWS));
+        assertTrue(renderer.isShadowsEnabled());
+
+        for (RenderQuality3D quality : RenderQuality3D.values()) {
+            assertTrue(registry.execute(DefaultEditorActions.VIEW_LIGHTING_QUALITY_PREFIX + quality.name().toLowerCase()));
+            assertEquals(quality, renderer.getQuality());
+        }
     }
 
     @Test

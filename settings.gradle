@@ -1,3 +1,10 @@
+pluginManagement {
+  // gdx-teavm publishes its Gradle plugin marker to Maven Central, not the Plugin Portal (engine-web)
+  repositories {
+    gradlePluginPortal()
+    mavenCentral()
+  }
+}
 plugins {
   // Applies the foojay-resolver plugin to allow automatic download of JDKs.
   id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
@@ -5,4 +12,4 @@ plugins {
 // A list of which subprojects to load as part of the same larger project.
 // You can remove Strings from the list and reload the Gradle project
 // if you want to temporarily disable a subproject.
-include 'engine-core', 'engine-scene', 'engine-render', 'engine-visualscript', 'engine-desktop', 'editor-core', 'editor-visualscript', 'editor-desktop'
+include 'engine-core', 'engine-scene', 'engine-render', 'engine-visualscript', 'engine-animation', 'engine-desktop', 'engine-web', 'engine-sculpt', 'engine-audio', 'editor-core', 'editor-visualscript', 'editor-animation', 'editor-sculpt', 'editor-audio', 'editor-desktop'

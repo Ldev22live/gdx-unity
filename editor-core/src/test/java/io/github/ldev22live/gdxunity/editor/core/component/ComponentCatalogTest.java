@@ -1,10 +1,13 @@
 package io.github.ldev22live.gdxunity.editor.core.component;
 
+import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.EditorTestHelper;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.ToneMappingComponent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +50,18 @@ class ComponentCatalogTest {
     }
 
     @Test
+    void shouldOfferSkyLightAndToneMappingOncePerEntityUnderLighting() {
+        assertEquals(List.of("Directional Light", "Point Light", "Sky Light", "Tone Mapping"),
+            catalog.search("lighting").stream().map(ComponentCatalog.Entry::displayName).toList());
+
+        assertTrue(catalog.addTo(editorState, entity, entry("Sky Light")));
+        assertTrue(catalog.addTo(editorState, entity, entry("Tone Mapping")));
+        assertFalse(catalog.addTo(editorState, entity, entry("Sky Light")), "one sky light per entity");
+        assertNotNull(entity.getComponent(SkyLightComponent.class));
+        assertNotNull(entity.getComponent(ToneMappingComponent.class));
+    }
+
+    @Test
     void shouldAddComponentAsOneUndoableCommand() {
         assertTrue(catalog.addTo(editorState, entity, entry("Rigid Body 2D")));
         assertNotNull(entity.getComponent(RigidBody2DComponent.class));
@@ -80,6 +95,26 @@ class ComponentCatalogTest {
         assertEquals(before, entity.getAllComponents().size());
         assertTrue(editorState.isStatusError());
         assertTrue(editorState.getStatusMessage().contains("disk full"));
+    }
+
+    @Test
+    void shouldAddModelOnlyFromSelectedModelAsset() {
+        assertFalse(catalog.addTo(editorState, entity, entry("Model")));
+        assertTrue(editorState.getStatusMessage().contains(".glb"), editorState.getStatusMessage());
+
+        editorState.setSelectedAsset(new io.github.ldev22live.gdxunity.engine.core.asset.AssetReference("models/hero.glb"));
+        assertTrue(catalog.addTo(editorState, entity, entry("Model")));
+
+        assertEquals("models/hero.glb",
+            entity.getComponent(io.github.ldev22live.gdxunity.engine.render.components.ModelComponent.class).getModelPath());
+    }
+
+    @Test
+    void shouldOfferCameraAndTextUnderGame() {
+        assertEquals("Game", entry("Camera").category());
+        assertEquals("Game", entry("Text").category());
+        assertEquals(CameraComponent.class,
+            entry("Camera").type());
     }
 
     @Test

@@ -63,6 +63,40 @@ final class InspectorFieldRows {
         container.add(row).growX().padTop(2).padBottom(2).row();
     }
 
+    /** Free text field, committed on Enter or when focus leaves; {@code onCommit} may reject by throwing. */
+    static void textRow(Table container, Skin skin, String label, String value, Consumer<String> onCommit) {
+        Table row = new Table(skin);
+        row.left();
+        row.add(new Label(label, skin, "muted")).width(LABEL_WIDTH).left();
+        TextField field = new TextField(value, skin);
+        Runnable commit = () -> {
+            if (field.getText().equals(value)) {
+                return;
+            }
+            try {
+                onCommit.accept(field.getText());
+            } catch (IllegalArgumentException e) {
+                // Rejected by the component: restore the old text
+                field.setText(value);
+            }
+        };
+        field.setTextFieldListener((textField, c) -> {
+            if (c == '\r' || c == '\n') {
+                commit.run();
+            }
+        });
+        field.addListener(new FocusListener() {
+            @Override
+            public void keyboardFocusChanged(FocusEvent event, Actor actor, boolean focused) {
+                if (!focused) {
+                    commit.run();
+                }
+            }
+        });
+        row.add(field).growX().height(FIELD_HEIGHT);
+        container.add(row).growX().padTop(2).padBottom(2).row();
+    }
+
     /** Whole-number field, committed like the float fields; {@code onCommit} may reject by throwing. */
     static void intRow(Table container, Skin skin, String label, int value, Consumer<Integer> onCommit) {
         Table row = new Table(skin);

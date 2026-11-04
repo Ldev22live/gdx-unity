@@ -7,12 +7,17 @@ import io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.DirectionalLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.PointLightComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
+import io.github.ldev22live.gdxunity.engine.scene.lighting.ToneMappingComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.CircleCollider2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent;
@@ -138,10 +143,17 @@ public class ComponentCatalog {
             state -> new CapsuleCollider3DComponent()));
         catalog.register(new Entry("Mesh Primitive", "Rendering 3D", MeshPrimitiveComponent.class, false,
             state -> new MeshPrimitiveComponent(MeshPrimitiveComponent.Shape.BOX)));
+        catalog.register(new Entry("Model", "Rendering 3D", ModelComponent.class, false, ComponentCatalog::createModel));
         catalog.register(new Entry("Directional Light", "Lighting", DirectionalLightComponent.class, false,
             state -> new DirectionalLightComponent()));
         catalog.register(new Entry("Point Light", "Lighting", PointLightComponent.class, false,
             state -> createPointLight()));
+        catalog.register(new Entry("Sky Light", "Lighting", SkyLightComponent.class, false,
+            state -> new SkyLightComponent()));
+        catalog.register(new Entry("Tone Mapping", "Lighting", ToneMappingComponent.class, false,
+            state -> new ToneMappingComponent()));
+        catalog.register(new Entry("Camera", "Game", CameraComponent.class, false, state -> new CameraComponent()));
+        catalog.register(new Entry("Text", "Game", TextComponent.class, false, state -> new TextComponent()));
         return catalog;
     }
 
@@ -181,6 +193,15 @@ public class ComponentCatalog {
         return useSelection
             ? new SpriteRendererComponent(selectedAsset, DEFAULT_SIZE, DEFAULT_SIZE)
             : new SpriteRendererComponent(DEFAULT_SIZE, DEFAULT_SIZE);
+    }
+
+    /** Shows the model selected in the Content Browser; there is no sensible model without one. */
+    private static Component createModel(EditorState editorState) {
+        AssetReference selectedAsset = editorState.getSelectedAsset();
+        if (selectedAsset == null || AssetType.fromPath(selectedAsset.getPath()) != AssetType.MODEL) {
+            throw new IllegalStateException("select a .gltf or .glb file in the Content Browser first");
+        }
+        return new ModelComponent(selectedAsset.getPath());
     }
 
     /** Binds the first compiled script class, or a placeholder class name the user edits in Details. */

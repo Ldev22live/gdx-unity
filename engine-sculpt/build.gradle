@@ -1,0 +1,22 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-engine-sculpt'
+
+apply plugin: 'java-library'
+
+// Sculpting core (TD-038): editable triangle mesh, brushes, spatial queries, undo deltas and the .sculpt file.
+// Headless: no OpenGL and no gdx-gltf, so everything here is unit-tested.
+dependencies {
+  api project(':engine-core')
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+}
+
+test {
+  useJUnitPlatform()
+}
+
+jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

@@ -1,28 +1,28 @@
-# GdxUnity AI Game Engine — Master Engineering Instructions
+# Forgeroom AI Game Engine — Master Engineering Instructions
 
 ## Project Identity
 
-**Project:** GdxUnity AI Game Engine  
+**Project:** Forgeroom AI Game Engine  
 **Category:** Production-grade 3D game engine and integrated development environment  
 **Primary language:** Java  
 **Engine framework:** LibGDX  
 **IDE:** IntelliJ IDEA  
 **AI development agent:** Windsurf  
 **Target platforms:** Windows, macOS and Linux, including Ubuntu 24.04 LTS and later  
-**Repository:** The existing GdxUnity repository  
+**Repository:** The existing Forgeroom repository  
 **Development approach:** Engine-first, test-driven where practical, incremental, architecture-driven and AI-agent-friendly
 
 ---
 
 # 1. Vision and Engineering Standards
 
-We are building GdxUnity, a professional-grade, Java-first game engine and integrated game-development studio inspired by the capabilities and workflows of Unreal Engine 5.
+We are building Forgeroom, a professional-grade, Java-first game engine and integrated game-development studio inspired by the capabilities and workflows of Unreal Engine 5.
 
 > **Reference product changed 2026-10-29:** Unreal Engine replaces Unity 2026 as the reference (TD-020 in `docs/TECHNICAL_DECISIONS.md`). The reference covers editor workflows and toolset breadth, not rendering-technology parity such as Nanite or Lumen (see §3.2).
 
 The objective is to create a stable, maintainable and extensible engine that enables developers to create, edit, test, package and distribute complete games without requiring a collection of unrelated applications.
 
-GdxUnity must eventually provide an integrated workflow for:
+Forgeroom must eventually provide an integrated workflow for:
 
 - 2D and 3D game development.
 - Scene authoring and management.
@@ -62,15 +62,15 @@ Prefer simple, explicit and reliable engineering over unnecessary complexity.
 
 ## 2.2 Repository isolation
 
-IMPORTANT: Work exclusively within the existing GdxUnity working directory.
+IMPORTANT: Work exclusively within the existing Forgeroom working directory.
 
 - Do not inspect other repositories, unrelated directories, other projects or unrelated code on the computer.
 - Do not use unrelated local projects as reference implementations.
 - Do not search the wider filesystem for alternative implementations.
 - Do not copy source code from other local projects.
 - Do not modify files outside the repository.
-- Use the existing GdxUnity source, tests, documentation, dependencies and approved external documentation as the basis for decisions.
-- Do not confuse GdxUnity with the separate Weskaap, Pulse for Processing or UrConnex projects.
+- Use the existing Forgeroom source, tests, documentation, dependencies and approved external documentation as the basis for decisions.
+- Do not confuse Forgeroom with the separate Weskaap, Pulse for Processing or UrConnex projects.
 
 External documentation may be consulted when necessary to verify the behavior of LibGDX, Java, Gradle or a dependency. Do not inspect external repositories or copy their implementation code without explicit authorization.
 
@@ -92,7 +92,7 @@ Never overwrite, discard, reset, revert, clean or silently incorporate existing 
 
 ## 2.4 No unauthorized Git operations
 
-- Do not create a new repository if the existing GdxUnity repository is already initialized.
+- Do not create a new repository if the existing Forgeroom repository is already initialized.
 - Do not replace the existing remote or change repository identity.
 - Do not stage files automatically.
 - Do not commit, amend or push without explicit authorization.
@@ -124,7 +124,7 @@ These versions reflect the current project baseline and must be verified against
 Use LibGDX's supported rendering and mathematics facilities where appropriate.
 
 - `ModelBatch`, `ModelInstance`, `Model`, `Environment` and associated rendering facilities for supported 3D workflows.
-- `PerspectiveCamera` or the existing GdxUnity 3D camera abstraction.
+- `PerspectiveCamera` or the existing Forgeroom 3D camera abstraction.
 - LibGDX vectors, matrices, quaternions, rays and bounding volumes.
 - Existing rendering and material abstractions.
 - Existing viewport and camera-controller systems.
@@ -643,7 +643,7 @@ Avoid duplicating the same rules in multiple places when a clear reference to `A
 
 # 12. Code Quality and Naming
 
-Follow the existing GdxUnity conventions and maintain consistent, readable Java code.
+Follow the existing Forgeroom conventions and maintain consistent, readable Java code.
 
 Where applicable, use the following principles from the Hazel Engine developer guide as inspiration for naming and readability:
 
@@ -790,7 +790,7 @@ Wait for explicit authorization where required.
 
 # 16. Current Project Baseline and Continuation
 
-GdxUnity already exists. This is not a request to create a new engine repository from scratch.
+Forgeroom already exists. This is not a request to create a new engine repository from scratch.
 
 The project has an established implementation and milestone history. A previous Phase 12 report states that the 3D rendering foundation and camera systems were implemented and validated, including:
 
@@ -847,7 +847,7 @@ Production readiness requires appropriate implementation, testing, failure handl
 
 # 18. Final Operating Directive
 
-Build GdxUnity into a dependable, extensible, Java-first game engine and integrated development environment that can eventually support professional 2D and 3D game production and fully AI-assisted game creation.
+Build Forgeroom into a dependable, extensible, Java-first game engine and integrated development environment that can eventually support professional 2D and 3D game production and fully AI-assisted game creation.
 
 Inspect before changing. Preserve existing work. Reuse sound architecture. Implement only what is justified. Test thoroughly. Verify results. Document decisions. Report limitations honestly.
 
