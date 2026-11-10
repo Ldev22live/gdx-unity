@@ -1,0 +1,148 @@
+{
+  "format": 1,
+  "name": "LookAround",
+  "duration": 4.0,
+  "frameRate": 30,
+  "tracks": [
+    {
+      "target": "Hips",
+      "property": "transform.position.y",
+      "keys": [
+        {
+          "t": 0,
+          "v": 100.0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 4.0,
+          "v": 100.0,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Hips/Spine/Chest/Neck",
+      "property": "transform.rotation.yaw",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.0,
+          "v": -35,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3.0,
+          "v": 35,
+          "i": "BEZIER"
+        },
+        {
+          "t": 4.0,
+          "v": 0,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Hips/Spine/Chest/Neck/Head",
+      "property": "transform.rotation.yaw",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.0,
+          "v": -30,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3.0,
+          "v": 30,
+          "i": "BEZIER"
+        },
+        {
+          "t": 4.0,
+          "v": 0,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Hips/Spine/Chest/Neck/Head",
+      "property": "transform.rotation.pitch",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.0,
+          "v": -5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3.0,
+          "v": -5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 4.0,
+          "v": 0,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Hips/Spine",
+      "property": "transform.rotation.yaw",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.0,
+          "v": -8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3.0,
+          "v": 8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 4.0,
+          "v": 0,
+          "i": "BEZIER"
+        }
+      ]
+    }
+  ]
+}

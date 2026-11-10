@@ -79,6 +79,105 @@ class PhysicsSystem3DTest {
             return nextHit;
         }
 
+        /** Every call of the force and velocity API, as "name handle x y z", in call order. */
+        final List<String> calls = new ArrayList<>();
+        final Map<Integer, Vector3> linearVelocities = new LinkedHashMap<>();
+        final Map<Integer, Vector3> angularVelocities = new LinkedHashMap<>();
+        final List<Integer> overlaps = new ArrayList<>();
+        Vector3 lastOverlapCenter;
+        float lastOverlapRadius;
+
+        private void record(String name, int handle, Vector3 v) {
+            calls.add(name + " " + handle + " " + v.x + " " + v.y + " " + v.z);
+        }
+
+        @Override
+        public void addForce(int handle, Vector3 force) {
+            record("force", handle, force);
+        }
+
+        @Override
+        public void addTorque(int handle, Vector3 torque) {
+            record("torque", handle, torque);
+        }
+
+        @Override
+        public void addImpulse(int handle, Vector3 impulse) {
+            record("impulse", handle, impulse);
+        }
+
+        @Override
+        public void setLinearVelocity(int handle, Vector3 velocity) {
+            linearVelocities.put(handle, new Vector3(velocity));
+        }
+
+        @Override
+        public void getLinearVelocity(int handle, Vector3 outVelocity) {
+            outVelocity.set(linearVelocities.getOrDefault(handle, Vector3.Zero));
+        }
+
+        @Override
+        public void setAngularVelocity(int handle, Vector3 velocity) {
+            angularVelocities.put(handle, new Vector3(velocity));
+        }
+
+        @Override
+        public void getAngularVelocity(int handle, Vector3 outVelocity) {
+            outVelocity.set(angularVelocities.getOrDefault(handle, Vector3.Zero));
+        }
+
+        @Override
+        public void overlapSphere(Vector3 center, float radius, int layerMask, List<Integer> outBodies) {
+            lastOverlapCenter = new Vector3(center);
+            lastOverlapRadius = radius;
+            outBodies.addAll(overlaps);
+        }
+
+        // --- Characters (TD-049): a test sets grounded; moves integrate the velocity ---
+        final Map<Integer, CharacterDescriptor3D> characterDescriptors = new LinkedHashMap<>();
+        final Map<Integer, Vector3> characterPositions = new LinkedHashMap<>();
+        /** Velocity of every moveCharacter call, in call order. */
+        final List<Vector3> characterMoves = new ArrayList<>();
+        boolean grounded;
+        int nextCharacterHandle = -2;
+
+        @Override
+        public int addCharacter(CharacterDescriptor3D character) {
+            int handle = nextCharacterHandle--;
+            characterDescriptors.put(handle, character);
+            characterPositions.put(handle, new Vector3(character.position()));
+            return handle;
+        }
+
+        @Override
+        public void removeCharacter(int handle) {
+            if (characterDescriptors.remove(handle) == null) {
+                throw new IllegalArgumentException("Removed a character that does not exist: " + handle);
+            }
+            characterPositions.remove(handle);
+        }
+
+        @Override
+        public void moveCharacter(int handle, Vector3 velocity, float deltaSeconds) {
+            characterMoves.add(new Vector3(velocity));
+            characterPositions.get(handle).mulAdd(velocity, deltaSeconds);
+        }
+
+        @Override
+        public void setCharacterPosition(int handle, Vector3 position) {
+            characterPositions.put(handle, new Vector3(position));
+        }
+
+        @Override
+        public void getCharacterPosition(int handle, Vector3 outPosition) {
+            outPosition.set(characterPositions.get(handle));
+        }
+
+        @Override
+        public boolean isCharacterGrounded(int handle) {
+            return grounded;
+        }
+
         @Override
         public void dispose() {
             disposed = true;

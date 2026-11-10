@@ -6,6 +6,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
 import io.github.ldev22live.gdxunity.editor.core.log.EditorLog;
 import io.github.ldev22live.gdxunity.editor.core.project.CrashLog;
 import io.github.ldev22live.gdxunity.editor.core.project.EditorLaunchOptions;
+import io.github.ldev22live.gdxunity.editor.core.project.GameExportCommand;
+import io.github.ldev22live.gdxunity.editor.core.project.GameExporter;
 import io.github.ldev22live.gdxunity.editor.core.project.EditorProjectLocator;
 import io.github.ldev22live.gdxunity.editor.core.project.PlatformDirectories;
 import io.github.ldev22live.gdxunity.editor.desktop.file.TinyFileDialogService;
@@ -32,6 +34,9 @@ public class EditorLauncher {
      * (see {@code editor-desktop/build.gradle}). Absent in development runs.
      */
     static final String SAMPLE_PROJECT_PROPERTY = "gdxunity.sampleProject";
+    /** Forgeroom's icon in the sizes the window system picks from, bundled in this module's resources. */
+    private static final String[] WINDOW_ICONS = {
+        "forgeroom-icon-256.png", "forgeroom-icon-128.png", "forgeroom-icon-64.png", "forgeroom-icon-32.png"};
     /** Process exit code for startup failures, crashes and failed smoke tests. */
     static final int EXIT_FAILURE = 1;
 
@@ -57,6 +62,9 @@ public class EditorLauncher {
         EditorProjectLocator.Result located = EditorProjectLocator.locate(options.project(),
             new File(System.getProperty("user.dir")), directories.projectsDir(),
             sample == null || sample.isBlank() ? null : new File(sample));
+        if (options.isGameExport()) {
+            return exportGame(options, located.project());
+        }
         System.out.println("Forgeroom Editor: opening " + located.project() + " (" + located.source() + ")");
 
         EditorApplication editor = new EditorApplication(located.project(), directories, options);
@@ -79,6 +87,23 @@ public class EditorLauncher {
         }
         System.out.println("Forgeroom Editor: smoke test passed (" + options.smokeTestFrames() + " frames)");
         return 0;
+    }
+
+    /**
+     * {@code --export-game}: exports the project as a standalone game without opening a window (Phase 18-C, TD-046).
+     * Returns 0 on success, 1 on failure; failures go to stderr and never to a message box, because this runs unattended.
+     */
+    private static int exportGame(EditorLaunchOptions options, io.github.ldev22live.gdxunity.editor.core.project.EditorProject project) {
+        try {
+            String scene = options.scene() == null ? null : options.scene().getPath();
+            GameExporter.Result result = GameExportCommand.run(project, scene, GameExporter.locateTemplate(), options.exportGame());
+            System.out.println("Forgeroom Editor: exported the game to " + result.folder() + " (" + result.projectFiles()
+                + " project files); start " + result.executable().getName());
+            return 0;
+        } catch (IOException e) {
+            System.err.println("Forgeroom Editor: cannot export the game: " + e.getMessage());
+            return EXIT_FAILURE;
+        }
     }
 
     private static Lwjgl3Application createApplication(EditorApplication editor) {
@@ -124,6 +149,7 @@ public class EditorLauncher {
     public static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("Forgeroom Editor");
+        configuration.setWindowIcon(WINDOW_ICONS);
         configuration.useVsync(true);
         configuration.setForegroundFPS(60);
 

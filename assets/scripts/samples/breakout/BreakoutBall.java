@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.ArrayList;
@@ -88,6 +89,7 @@ public class BreakoutBall extends ScriptComponent {
             y = paddlePosition.y + paddleHalfHeight + radius + 1f;
             if (Gdx.input.isKeyJustPressed(Keys.SPACE)) {
                 launched = true;
+                AudioSourceComponent.play(getScene(), "launch");
                 messageText.setText("");
                 velocityX = speed * 0.4f;
                 velocityY = speed;
@@ -114,6 +116,7 @@ public class BreakoutBall extends ScriptComponent {
             velocityX = speed * MathUtils.sin(angle);
             velocityY = speed * MathUtils.cos(angle);
             y = paddlePosition.y + paddleHalfHeight + radius;
+            AudioSourceComponent.play(getScene(), "paddle");
         }
 
         hitBricks();
@@ -144,11 +147,13 @@ public class BreakoutBall extends ScriptComponent {
             }
             brick.setActive(false);
             score += BRICK_POINTS;
+            AudioSourceComponent.play(getScene(), "brick");
             speed = Math.min(MAX_SPEED, speed + SPEED_GAIN);
             normalizeVelocity();
             updateTexts();
             if (bricksLeft() == 0) {
                 gameOver = true;
+                AudioSourceComponent.play(getScene(), "win");
                 messageText.setText("You cleared the wall! Score " + score + ". Press R to play again");
             }
             return;
@@ -157,6 +162,7 @@ public class BreakoutBall extends ScriptComponent {
 
     private void loseLife() {
         lives--;
+        AudioSourceComponent.play(getScene(), "lose");
         launched = false;
         updateTexts();
         if (lives <= 0) {

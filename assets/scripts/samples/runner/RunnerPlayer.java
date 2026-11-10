@@ -3,6 +3,7 @@ package samples.runner;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.Vector3;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 /**
@@ -48,6 +49,7 @@ public class RunnerPlayer extends ScriptComponent {
         if (onGround && (Gdx.input.isKeyJustPressed(Keys.SPACE) || Gdx.input.isKeyJustPressed(Keys.W)
             || Gdx.input.isKeyJustPressed(Keys.UP))) {
             velocityY = JUMP_SPEED;
+            AudioSourceComponent.play(getScene(), "jump");
         }
 
         float targetX = LANES[lane];

@@ -88,10 +88,26 @@ public final class GraphValidator {
         if (from.isExec() != to.isExec()) {
             return "Execution pins connect only to execution pins";
         }
-        if (!from.isExec() && from.type() != to.type()) {
-            return "Cannot connect " + from.type() + " to " + to.type();
+        if (!from.isExec() && !accepts(to, from)) {
+            return "Cannot connect " + describe(from) + " to " + describe(to);
         }
         return null;
+    }
+
+    /**
+     * Whether a value from {@code from} can go into {@code to}: the target's class takes the source's class (boxed values and
+     * entities included), and a whole number may go where a float is wanted. A float never goes where an integer is wanted: say
+     * so with a node.
+     */
+    public static boolean accepts(PinDef to, PinDef from) {
+        if (to.type() == ValueType.FLOAT && from.type() == ValueType.INTEGER) {
+            return true;
+        }
+        return to.valueClass().isAssignableFrom(from.valueClass());
+    }
+
+    private static String describe(PinDef pin) {
+        return pin.type() == ValueType.OBJECT ? pin.objectClass().getSimpleName() : pin.type().toString();
     }
 
     private PinDef pinOf(Graph graph, String nodeId, String pinId) {

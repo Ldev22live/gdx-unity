@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.ArrayList;
@@ -123,6 +124,7 @@ public class RaceGame extends ScriptComponent {
             state = State.RACING;
             goMessageLeft = GO_MESSAGE_TIME;
             messageText.setText("GO!");
+            AudioSourceComponent.play(getScene(), "go");
         }
         if (goMessageLeft > 0f) {
             goMessageLeft -= deltaTime;
@@ -164,12 +166,14 @@ public class RaceGame extends ScriptComponent {
         if (player.updateProgress(track) && state == State.RACING) {
             float lapTime = raceTime - lapStartTime;
             lapStartTime = raceTime;
+            AudioSourceComponent.play(getScene(), "lap");
             if (bestLap == 0f || lapTime < bestLap) {
                 bestLap = lapTime;
             }
             if (player.lap == LAPS) {
                 player.finishPlace = ++finishedCars;
                 state = State.FINISHED;
+                AudioSourceComponent.play(getScene(), "win");
                 messageText.setText("You finished " + ordinal(player.finishPlace) + " in " + clock(raceTime)
                     + "!  Press R to race again");
             }
@@ -189,6 +193,7 @@ public class RaceGame extends ScriptComponent {
         player.x += dx * push;
         player.z += dz * push;
         player.speed *= BUMP_SPEED_KEPT;
+        AudioSourceComponent.play(getScene(), "bump");
     }
 
     private void updateHud() {

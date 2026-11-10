@@ -1,14 +1,17 @@
 package io.github.ldev22live.gdxunity.engine.desktop;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Command-line options of the game runtime (TD-035).
  *
  * <pre>
- *   --project &lt;folder&gt;     folder the scene's asset paths are relative to (default: the working directory)
- *   --scene &lt;file&gt;         scene to play, relative to the project unless absolute (required)
+ *   --project &lt;folder&gt;     folder the scene's asset paths are relative to (default: the {@value #PROJECT_PROPERTY}
+ *                          system property, else the working directory)
+ *   --scene &lt;file&gt;         scene to play, relative to the project unless absolute (default: the {@code startScene}
+ *                          of the project file, which a game exported from the editor has)
  *   --scripts &lt;dir|jar&gt;    compiled script classes (default: the {@value #SCRIPTS_PROPERTY} system property,
  *                          else &lt;project&gt;/build/scripts, where the editor compiles them)
  *   --smoke-test[=N]       render N frames ({@value #DEFAULT_SMOKE_TEST_FRAMES} by default), then exit 0, or 1 on errors
@@ -22,6 +25,8 @@ import java.util.Objects;
 public record GameLaunchOptions(File project, File scene, File scripts, int smokeTestFrames) {
     /** System property naming the compiled scripts when {@code --scripts} is not given (set by the Gradle run task). */
     public static final String SCRIPTS_PROPERTY = "gdxunity.scripts";
+    /** System property naming the project folder when {@code --project} is not given (set by an exported game's launcher). */
+    public static final String PROJECT_PROPERTY = "gdxunity.project";
     /** Where the editor writes compiled scripts inside a project (TD-033). */
     public static final String DEFAULT_SCRIPTS_PATH = "build/scripts";
     /** Frames a smoke test renders when {@code --smoke-test} has no count: about three seconds at 60 fps. */
@@ -53,6 +58,16 @@ public record GameLaunchOptions(File project, File scene, File scripts, int smok
      * @throws IllegalArgumentException for an unknown option, a missing value or a missing {@code --scene}
      */
     public static GameLaunchOptions parse(String[] args, File workingDirectory, String scriptsProperty) {
+        return parse(args, workingDirectory, scriptsProperty, null);
+    }
+
+    /**
+     * As {@link #parse(String[], File, String)}, with the project folder to use when {@code --project} is not given.
+     *
+     * @param projectProperty value of the {@value #PROJECT_PROPERTY} system property, or null
+     * @throws IllegalArgumentException also when no scene is given and the project file names no start scene
+     */
+    public static GameLaunchOptions parse(String[] args, File workingDirectory, String scriptsProperty, String projectProperty) {
         Objects.requireNonNull(args, "args cannot be null");
         Objects.requireNonNull(workingDirectory, "workingDirectory cannot be null");
         String project = null;
@@ -76,15 +91,32 @@ public record GameLaunchOptions(File project, File scene, File scripts, int smok
                 }
             }
         }
-        if (scene == null) {
-            throw new IllegalArgumentException("No scene given. Usage: --scene <file> [--project <folder>] "
-                + "[--scripts <folder or jar>] [--smoke-test[=frames]]");
+        if (project == null && projectProperty != null && !projectProperty.isBlank()) {
+            project = projectProperty;
         }
         File projectDir = resolve(workingDirectory, project == null ? "." : project);
+        if (scene == null) {
+            scene = startSceneOf(projectDir);
+        }
         String scriptsPath = scripts != null ? scripts
             : scriptsProperty != null && !scriptsProperty.isBlank() ? scriptsProperty : DEFAULT_SCRIPTS_PATH;
         return new GameLaunchOptions(projectDir, resolve(projectDir, scene), resolve(projectDir, scriptsPath),
             smokeTestFrames);
+    }
+
+    /** The start scene named by the project file; fails with the usage text when there is none. */
+    private static String startSceneOf(File projectDir) {
+        String usage = "Usage: --scene <file> [--project <folder>] [--scripts <folder or jar>] [--smoke-test[=frames]]";
+        try {
+            GameProjectFile file = GameProjectFile.read(projectDir);
+            if (file.hasStartScene()) {
+                return file.startScene();
+            }
+            throw new IllegalArgumentException("No scene given and " + GameProjectFile.FILE_NAME + " in " + projectDir
+                + " has no " + GameProjectFile.KEY_START_SCENE + ". " + usage);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("No scene given. " + usage + " (" + e.getMessage() + ")", e);
+        }
     }
 
     private static String valueOf(String[] args, int index, String option) {

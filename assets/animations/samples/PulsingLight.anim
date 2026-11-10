@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "name": "PulsingLight",
+  "duration": 1.6,
+  "frameRate": 30,
+  "tracks": [
+    {
+      "target": "",
+      "property": "light.point.intensity",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0.3,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.8,
+          "v": 2.0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.6,
+          "v": 0.3,
+          "i": "BEZIER"
+        }
+      ]
+    }
+  ]
+}

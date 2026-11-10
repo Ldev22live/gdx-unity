@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "3D Crate Puzzle",
+  "gameMode": "3d",
   "active": true,
   "entities": [
     {
@@ -483,6 +484,54 @@
             "anchor": "BOTTOM_LEFT",
             "offsetX": 16.0,
             "offsetY": 32.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "fb7b1716-7d32-53e7-b8e6-6703a2fbe936",
+      "name": "Sound Effects",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "push",
+            "sound": "Blip",
+            "volume": 0.4,
+            "pitch": 0.5,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "win",
+            "sound": "Powerup",
+            "volume": 0.7,
+            "pitch": 1.0,
+            "playOnStart": false
           }
         }
       ]

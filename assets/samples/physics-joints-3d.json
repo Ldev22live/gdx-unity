@@ -1,0 +1,1194 @@
+{
+  "schemaVersion": 1,
+  "name": "Physics Joints 3D",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "a76f86aa-5c8f-5ea5-b439-5fd4cde4c3f9",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "ec1bf4be-30e1-511d-9dea-2cb705ea80b9",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 520.0,
+          "z": 1700.0
+        },
+        "rotation": {
+          "x": -0.104528,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.994522
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0f7c02a6-5589-568e-9925-8dc08af8f998",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 3000.0,
+            "sizeY": 100.0,
+            "sizeZ": 1600.0,
+            "colorR": 0.42,
+            "colorG": 0.55,
+            "colorB": 0.42,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 3000.0,
+            "sizeY": 100.0,
+            "sizeZ": 1600.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4cca2dc6-6127-50e4-8ae8-4d37673646d0",
+      "name": "Door Post",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1100.0,
+          "y": 120.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24.0,
+            "sizeY": 240.0,
+            "sizeZ": 24.0,
+            "colorR": 0.55,
+            "colorG": 0.45,
+            "colorB": 0.35,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 24.0,
+            "sizeY": 240.0,
+            "sizeZ": 24.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5adc2913-7d93-54fb-81f5-79f9f32ea4ec",
+      "name": "Door",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1040.0,
+          "y": 120.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 220.0,
+            "sizeZ": 10.0,
+            "colorR": 0.8,
+            "colorG": 0.55,
+            "colorB": 0.25,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 220.0,
+            "sizeZ": 10.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 5.0,
+            "linearDamping": 0.3,
+            "angularDamping": 0.3,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "Joint3DComponent",
+          "enabled": true,
+          "data": {
+            "type": "HINGE",
+            "connectedName": "",
+            "anchorX": -40.0,
+            "anchorY": 0.0,
+            "anchorZ": 0.0,
+            "connectedAnchorX": 0.0,
+            "connectedAnchorY": 0.0,
+            "connectedAnchorZ": 0.0,
+            "axisX": 0.0,
+            "axisY": 1.0,
+            "axisZ": 0.0,
+            "collideConnected": false,
+            "limitsEnabled": true,
+            "lowerLimit": -100.0,
+            "upperLimit": 100.0,
+            "motorMode": "VELOCITY",
+            "motorTarget": 30.0,
+            "motorMaxForce": 2000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7fd5b6df-e914-5ce3-a620-e6e6fa48109a",
+      "name": "Pendulum Beam",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -550.0,
+          "y": 712.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160.0,
+            "sizeY": 24.0,
+            "sizeZ": 24.0,
+            "colorR": 0.55,
+            "colorG": 0.45,
+            "colorB": 0.35,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 160.0,
+            "sizeY": 24.0,
+            "sizeZ": 24.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "39790547-e670-5d34-aee4-95e9f5e869f9",
+      "name": "Pendulum Bob",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -302.51262658470836,
+          "y": 452.51262658470836,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.25,
+            "colorG": 0.55,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 40.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 4.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.0,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "Joint3DComponent",
+          "enabled": true,
+          "data": {
+            "type": "HINGE",
+            "connectedName": "",
+            "anchorX": -247.48737341529164,
+            "anchorY": 247.48737341529164,
+            "anchorZ": 0.0,
+            "connectedAnchorX": 0.0,
+            "connectedAnchorY": 0.0,
+            "connectedAnchorZ": 0.0,
+            "axisX": 0.0,
+            "axisY": 0.0,
+            "axisZ": 1.0,
+            "collideConnected": false,
+            "limitsEnabled": false,
+            "lowerLimit": 0.0,
+            "upperLimit": 0.0,
+            "motorMode": "OFF",
+            "motorTarget": 0.0,
+            "motorMaxForce": 1000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "977ff61e-1fab-54a4-9f08-90a81d15ff79",
+      "name": "Chain Post",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 50.0,
+          "y": 330.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24.0,
+            "sizeY": 660.0,
+            "sizeZ": 24.0,
+            "colorR": 0.55,
+            "colorG": 0.45,
+            "colorB": 0.35,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 24.0,
+            "sizeY": 660.0,
+            "sizeZ": 24.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f42af49e-f37a-58d8-8865-094e9b2cfeb5",
+      "name": "Chain Link 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 102.0,
+          "y": 640.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 72.0,
+            "sizeY": 18.0,
+            "sizeZ": 18.0,
+            "colorR": 0.85,
+            "colorG": 0.35,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 72.0,
+            "sizeY": 18.0,
+            "sizeZ": 18.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.1,
+            "angularDamping": 0.1,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "Joint3DComponent",
+          "enabled": true,
+          "data": {
+            "type": "BALL",
+            "connectedName": "",
+            "anchorX": -40.0,
+            "anchorY": 0.0,
+            "anchorZ": 0.0,
+            "connectedAnchorX": 0.0,
+            "connectedAnchorY": 0.0,
+            "connectedAnchorZ": 0.0,
+            "axisX": 0.0,
+            "axisY": 1.0,
+            "axisZ": 0.0,
+            "collideConnected": false,
+            "limitsEnabled": false,
+            "lowerLimit": 0.0,
+            "upperLimit": 0.0,
+            "motorMode": "OFF",
+            "motorTarget": 0.0,
+            "motorMaxForce": 1000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2f642e4e-8de4-5490-863e-bee9fd7bfb97",
+      "name": "Chain Link 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 182.0,
+          "y": 640.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 72.0,
+            "sizeY": 18.0,
+            "sizeZ": 18.0,
+            "colorR": 0.85,
+            "colorG": 0.35,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 72.0,
+            "sizeY": 18.0,
+            "sizeZ": 18.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.1,
+            "angularDamping": 0.1,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "Joint3DComponent",
+          "enabled": true,
+          "data": {
+            "type": "BALL",
+            "connectedName": "Chain Link 1",
+            "anchorX": -40.0,
+            "anchorY": 0.0,
+            "anchorZ": 0.0,
+            "connectedAnchorX": 0.0,
+            "connectedAnchorY": 0.0,
+            "connectedAnchorZ": 0.0,
+            "axisX": 0.0,
+            "axisY": 1.0,
+            "axisZ": 0.0,
+            "collideConnected": false,
+            "limitsEnabled": false,
+            "lowerLimit": 0.0,
+            "upperLimit": 0.0,
+            "motorMode": "OFF",
+            "motorTarget": 0.0,
+            "motorMaxForce": 1000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7f10f0ae-fcbc-5e47-acce-ad69fe000345",
+      "name": "Chain Link 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 262.0,
+          "y": 640.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 72.0,
+            "sizeY": 18.0,
+            "sizeZ": 18.0,
+            "colorR": 0.85,
+            "colorG": 0.35,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 72.0,
+            "sizeY": 18.0,
+            "sizeZ": 18.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.1,
+            "angularDamping": 0.1,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "Joint3DComponent",
+          "enabled": true,
+          "data": {
+            "type": "BALL",
+            "connectedName": "Chain Link 2",
+            "anchorX": -40.0,
+            "anchorY": 0.0,
+            "anchorZ": 0.0,
+            "connectedAnchorX": 0.0,
+            "connectedAnchorY": 0.0,
+            "connectedAnchorZ": 0.0,
+            "axisX": 0.0,
+            "axisY": 1.0,
+            "axisZ": 0.0,
+            "collideConnected": false,
+            "limitsEnabled": false,
+            "lowerLimit": 0.0,
+            "upperLimit": 0.0,
+            "motorMode": "OFF",
+            "motorTarget": 0.0,
+            "motorMaxForce": 1000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4230c43f-bc84-5194-98e4-7f0d6c8b7f78",
+      "name": "Chain Link 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 342.0,
+          "y": 640.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 72.0,
+            "sizeY": 18.0,
+            "sizeZ": 18.0,
+            "colorR": 0.85,
+            "colorG": 0.35,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 72.0,
+            "sizeY": 18.0,
+            "sizeZ": 18.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.1,
+            "angularDamping": 0.1,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "Joint3DComponent",
+          "enabled": true,
+          "data": {
+            "type": "BALL",
+            "connectedName": "Chain Link 3",
+            "anchorX": -40.0,
+            "anchorY": 0.0,
+            "anchorZ": 0.0,
+            "connectedAnchorX": 0.0,
+            "connectedAnchorY": 0.0,
+            "connectedAnchorZ": 0.0,
+            "axisX": 0.0,
+            "axisY": 1.0,
+            "axisZ": 0.0,
+            "collideConnected": false,
+            "limitsEnabled": false,
+            "lowerLimit": 0.0,
+            "upperLimit": 0.0,
+            "motorMode": "OFF",
+            "motorTarget": 0.0,
+            "motorMaxForce": 1000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a8c462af-e490-5d72-ad70-9adae04cc6a1",
+      "name": "Chain Link 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 422.0,
+          "y": 640.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 72.0,
+            "sizeY": 18.0,
+            "sizeZ": 18.0,
+            "colorR": 0.85,
+            "colorG": 0.35,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 72.0,
+            "sizeY": 18.0,
+            "sizeZ": 18.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.1,
+            "angularDamping": 0.1,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "Joint3DComponent",
+          "enabled": true,
+          "data": {
+            "type": "BALL",
+            "connectedName": "Chain Link 4",
+            "anchorX": -40.0,
+            "anchorY": 0.0,
+            "anchorZ": 0.0,
+            "connectedAnchorX": 0.0,
+            "connectedAnchorY": 0.0,
+            "connectedAnchorZ": 0.0,
+            "axisX": 0.0,
+            "axisY": 1.0,
+            "axisZ": 0.0,
+            "collideConnected": false,
+            "limitsEnabled": false,
+            "lowerLimit": 0.0,
+            "upperLimit": 0.0,
+            "motorMode": "OFF",
+            "motorTarget": 0.0,
+            "motorMaxForce": 1000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "17e8ea11-028f-530b-b5b5-23786610de60",
+      "name": "Slider Rail",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 850.0,
+          "y": 20.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 900.0,
+            "sizeY": 20.0,
+            "sizeZ": 60.0,
+            "colorR": 0.4,
+            "colorG": 0.4,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 900.0,
+            "sizeY": 20.0,
+            "sizeZ": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d8901916-5e99-5533-8246-c190b8db8c29",
+      "name": "Slider Platform",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 500.0,
+          "y": 90.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 30.0,
+            "sizeZ": 160.0,
+            "colorR": 0.3,
+            "colorG": 0.7,
+            "colorB": 0.7,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 200.0,
+            "sizeY": 30.0,
+            "sizeZ": 160.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 20.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 1.0,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "Joint3DComponent",
+          "enabled": true,
+          "data": {
+            "type": "SLIDER",
+            "connectedName": "",
+            "anchorX": 0.0,
+            "anchorY": 0.0,
+            "anchorZ": 0.0,
+            "connectedAnchorX": 0.0,
+            "connectedAnchorY": 0.0,
+            "connectedAnchorZ": 0.0,
+            "axisX": 1.0,
+            "axisY": 0.0,
+            "axisZ": 0.0,
+            "collideConnected": false,
+            "limitsEnabled": true,
+            "lowerLimit": 0.0,
+            "upperLimit": 700.0,
+            "motorMode": "VELOCITY",
+            "motorTarget": 120.0,
+            "motorMaxForce": 20000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1adba37b-9fe9-52cb-a4a5-a8d512600f80",
+      "name": "Ride Crate",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 500.0,
+          "y": 190.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 100.0,
+            "sizeY": 100.0,
+            "sizeZ": 100.0,
+            "colorR": 0.9,
+            "colorG": 0.8,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 100.0,
+            "sizeY": 100.0,
+            "sizeZ": 100.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 1.0,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "020f4449-26f5-5485-a5e5-15d515035a75",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Joints: a door on a hinge, a pendulum, a chain of ball joints and a slider platform with a crate",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.2,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

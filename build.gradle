@@ -57,6 +57,8 @@ configure(subprojects) {
     if (tasks.findByName('compileJava')) {
       compileJava {
         options.incremental = true
+        // Keep parameter names in the class files: the visual scripting palette shows them on the pins of method nodes (TD-060)
+        options.compilerArgs << '-parameters'
       }
     }
   }

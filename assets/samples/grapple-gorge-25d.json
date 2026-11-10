@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "2.5D Grapple Gorge",
+  "gameMode": "2.5d",
   "active": true,
   "entities": [
     {
@@ -1971,6 +1972,76 @@
             "anchor": "BOTTOM_LEFT",
             "offsetX": 16.0,
             "offsetY": 32.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e0098983-3994-5807-9d60-34948c9a5101",
+      "name": "Sound Effects",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "jump",
+            "sound": "Jump",
+            "volume": 0.5,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "grapple",
+            "sound": "Blip",
+            "volume": 0.5,
+            "pitch": 0.6,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "hurt",
+            "sound": "Hurt",
+            "volume": 0.6,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "win",
+            "sound": "Powerup",
+            "volume": 0.7,
+            "pitch": 1.0,
+            "playOnStart": false
           }
         }
       ]

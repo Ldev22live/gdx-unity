@@ -1,0 +1,415 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Arena Player",
+  "variables": [
+    {
+      "name": "heading",
+      "type": "FLOAT",
+      "value": 0.0
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.tick",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "input.axis",
+      "x": 270,
+      "y": 150,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "RIGHT"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "LEFT"
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "type": "math.multiply",
+      "x": 540,
+      "y": 150,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n4",
+      "type": "math.multiply",
+      "x": 810,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 150.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n5",
+      "type": "variable.get",
+      "x": 1080,
+      "y": 150,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "heading"
+        }
+      ]
+    },
+    {
+      "id": "n6",
+      "type": "math.add",
+      "x": 1350,
+      "y": 150,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n7",
+      "type": "variable.set",
+      "x": 1350,
+      "y": 0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "heading"
+        }
+      ]
+    },
+    {
+      "id": "n8",
+      "type": "action.rotateBy",
+      "x": 1620,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n9",
+      "type": "vector.make",
+      "x": 1620,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "y",
+          "type": "FLOAT",
+          "value": 0.0
+        },
+        {
+          "pin": "z",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n10",
+      "type": "input.axis",
+      "x": 270,
+      "y": 450,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "S"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "W"
+        }
+      ]
+    },
+    {
+      "id": "n11",
+      "type": "math.multiply",
+      "x": 540,
+      "y": 450,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n12",
+      "type": "math.multiply",
+      "x": 810,
+      "y": 450,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 320.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n13",
+      "type": "variable.get",
+      "x": 270,
+      "y": 600,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "heading"
+        }
+      ]
+    },
+    {
+      "id": "n14",
+      "type": "math.sin",
+      "x": 540,
+      "y": 600,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n15",
+      "type": "math.cos",
+      "x": 540,
+      "y": 750,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n16",
+      "type": "math.multiply",
+      "x": 810,
+      "y": 600,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n17",
+      "type": "math.multiply",
+      "x": 1080,
+      "y": 600,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": -1.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n18",
+      "type": "math.multiply",
+      "x": 810,
+      "y": 750,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n19",
+      "type": "math.multiply",
+      "x": 1080,
+      "y": 750,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": -1.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n20",
+      "type": "vector.make",
+      "x": 1350,
+      "y": 600,
+      "literals": [
+        {
+          "pin": "y",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n21",
+      "type": "action.moveBy",
+      "x": 1890,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    }
+  ],
+  "links": [
+    {
+      "from": "n2",
+      "fromPin": "value",
+      "to": "n3",
+      "toPin": "a"
+    },
+    {
+      "from": "n1",
+      "fromPin": "deltaTime",
+      "to": "n3",
+      "toPin": "b"
+    },
+    {
+      "from": "n3",
+      "fromPin": "result",
+      "to": "n4",
+      "toPin": "a"
+    },
+    {
+      "from": "n5",
+      "fromPin": "value",
+      "to": "n6",
+      "toPin": "a"
+    },
+    {
+      "from": "n4",
+      "fromPin": "result",
+      "to": "n6",
+      "toPin": "b"
+    },
+    {
+      "from": "n6",
+      "fromPin": "result",
+      "to": "n7",
+      "toPin": "value"
+    },
+    {
+      "from": "n4",
+      "fromPin": "result",
+      "to": "n9",
+      "toPin": "x"
+    },
+    {
+      "from": "n9",
+      "fromPin": "vector",
+      "to": "n8",
+      "toPin": "degrees"
+    },
+    {
+      "from": "n10",
+      "fromPin": "value",
+      "to": "n11",
+      "toPin": "a"
+    },
+    {
+      "from": "n1",
+      "fromPin": "deltaTime",
+      "to": "n11",
+      "toPin": "b"
+    },
+    {
+      "from": "n11",
+      "fromPin": "result",
+      "to": "n12",
+      "toPin": "a"
+    },
+    {
+      "from": "n13",
+      "fromPin": "value",
+      "to": "n14",
+      "toPin": "degrees"
+    },
+    {
+      "from": "n13",
+      "fromPin": "value",
+      "to": "n15",
+      "toPin": "degrees"
+    },
+    {
+      "from": "n14",
+      "fromPin": "result",
+      "to": "n16",
+      "toPin": "a"
+    },
+    {
+      "from": "n12",
+      "fromPin": "result",
+      "to": "n16",
+      "toPin": "b"
+    },
+    {
+      "from": "n16",
+      "fromPin": "result",
+      "to": "n17",
+      "toPin": "a"
+    },
+    {
+      "from": "n15",
+      "fromPin": "result",
+      "to": "n18",
+      "toPin": "a"
+    },
+    {
+      "from": "n12",
+      "fromPin": "result",
+      "to": "n18",
+      "toPin": "b"
+    },
+    {
+      "from": "n18",
+      "fromPin": "result",
+      "to": "n19",
+      "toPin": "a"
+    },
+    {
+      "from": "n17",
+      "fromPin": "result",
+      "to": "n20",
+      "toPin": "x"
+    },
+    {
+      "from": "n19",
+      "fromPin": "result",
+      "to": "n20",
+      "toPin": "z"
+    },
+    {
+      "from": "n20",
+      "fromPin": "vector",
+      "to": "n21",
+      "toPin": "offset"
+    },
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n7",
+      "toPin": "exec"
+    },
+    {
+      "from": "n7",
+      "fromPin": "then",
+      "to": "n8",
+      "toPin": "exec"
+    },
+    {
+      "from": "n8",
+      "fromPin": "then",
+      "to": "n21",
+      "toPin": "exec"
+    }
+  ]
+}

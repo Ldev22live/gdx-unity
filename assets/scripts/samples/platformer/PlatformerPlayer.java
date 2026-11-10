@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.ArrayList;
@@ -99,6 +100,7 @@ public class PlatformerPlayer extends ScriptComponent {
             || Gdx.input.isKeyJustPressed(Keys.UP);
         if (jump && grounded) {
             velocityY = JUMP_SPEED;
+            AudioSourceComponent.play(getScene(), "jump");
         }
         velocityY = Math.max(velocityY - GRAVITY * deltaTime, -MAX_FALL_SPEED);
 
@@ -109,9 +111,11 @@ public class PlatformerPlayer extends ScriptComponent {
         collectCoins();
         if (goal != null && goal.overlaps(x, y, halfWidth, halfHeight)) {
             finished = true;
+            AudioSourceComponent.play(getScene(), "win");
             messageText.setText("Level complete! " + coinsCollected + "/" + coins.size() + " coins. Press R to play again");
         }
         if (y < FALL_LIMIT) {
+            AudioSourceComponent.play(getScene(), "hurt");
             x = startX;
             y = startY;
             velocityY = 0f;
@@ -150,6 +154,7 @@ public class PlatformerPlayer extends ScriptComponent {
             if (coin.entity().isActiveSelf() && coin.overlaps(x, y, halfWidth, halfHeight)) {
                 coin.entity().setActive(false);
                 coinsCollected++;
+                AudioSourceComponent.play(getScene(), "coin");
                 updateScore();
             }
         }

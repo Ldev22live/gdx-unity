@@ -55,6 +55,31 @@ public class DuplicateEntityCommand implements EditorCommand {
                     duplicatedEntity.addComponent(new io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent(
                         sprite.getAssetReference(), sprite.getWidth(), sprite.getHeight()
                     ));
+                } else if (comp instanceof io.github.ldev22live.gdxunity.engine.render.components.TilemapComponent tilemap) {
+                    io.github.ldev22live.gdxunity.engine.render.components.TilemapComponent clone =
+                        new io.github.ldev22live.gdxunity.engine.render.components.TilemapComponent(tilemap.getTileSetReference());
+                    clone.setTileSize(tilemap.getTileWidth(), tilemap.getTileHeight());
+                    clone.setCollides(tilemap.isCollides());
+                    clone.setTint(new com.badlogic.gdx.graphics.Color(tilemap.getTint()));
+                    clone.setMap(tilemap.getMap().copy());
+                    clone.setEnabled(tilemap.isEnabled());
+                    duplicatedEntity.addComponent(clone);
+                } else if (comp instanceof io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent animator) {
+                    io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent clone =
+                        new io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent(animator.getAssetReference());
+                    clone.setTag(animator.getTag());
+                    clone.setSlice(animator.getSlice());
+                    clone.setSpeed(animator.getSpeed());
+                    clone.setLoop(animator.isLoop());
+                    clone.setPlayOnStart(animator.isPlayOnStart());
+                    clone.setFlipX(animator.isFlipX());
+                    clone.setFlipY(animator.isFlipY());
+                    clone.setWidth(animator.getWidth());
+                    clone.setHeight(animator.getHeight());
+                    clone.setCentered(animator.isCentered());
+                    clone.setTint(new com.badlogic.gdx.graphics.Color(animator.getTint()));
+                    clone.setEnabled(animator.isEnabled());
+                    duplicatedEntity.addComponent(clone);
                 } else if (comp instanceof io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent scriptBinding) {
                     io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent clone =
                         new io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent(

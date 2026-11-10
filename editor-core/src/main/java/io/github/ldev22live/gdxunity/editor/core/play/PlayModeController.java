@@ -57,6 +57,8 @@ public class PlayModeController {
     private Scene runtimeScene;
     // Runtime 2D physics system (only active during Play mode)
     private io.github.ldev22live.gdxunity.engine.scene.physics.PhysicsSystem2D physicsSystem;
+    // Runtime 3D physics (Jolt, TD-028); null for scenes without 3D colliders, which never load the native library
+    private io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D physicsSystem3D;
     // Selection state when entering play mode, used for reconciliation upon stop
     private UUID prePlaySelectedId;
 
@@ -111,6 +113,11 @@ public class PlayModeController {
 
     public io.github.ldev22live.gdxunity.engine.scene.physics.PhysicsSystem2D getPhysicsSystem() {
         return physicsSystem;
+    }
+
+    /** The scene's 3D physics while playing; null when the scene has no 3D colliders or is not playing. */
+    public io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D getPhysicsSystem3D() {
+        return physicsSystem3D;
     }
 
     /**
@@ -180,6 +187,23 @@ public class PlayModeController {
             return false;
         }
 
+        // 3D physics only for scenes that use it: the native library loads on first use
+        if (io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D.isUsedBy(clonedRuntime)) {
+            try {
+                this.physicsSystem3D = new io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D(clonedRuntime,
+                    new io.github.ldev22live.gdxunity.engine.physics.JoltPhysicsBackend3D());
+            } catch (Throwable t) {
+                editorState.setStatusMessage("Cannot play: Failed to initialize 3D physics: " + t.getMessage(), true);
+                physicsSystem.dispose();
+                physicsSystem = null;
+                if (editorState.getScriptManager() != null) {
+                    editorState.getScriptManager().cleanupSceneScripts(clonedRuntime);
+                }
+                clonedRuntime.dispose();
+                return false;
+            }
+        }
+
         for (Extension extension : extensions) {
             List<String> problems = extension.onPlay(clonedRuntime, this);
             if (!problems.isEmpty()) {
@@ -190,6 +214,10 @@ public class PlayModeController {
                 }
                 physicsSystem.dispose();
                 physicsSystem = null;
+                if (physicsSystem3D != null) {
+                    physicsSystem3D.dispose();
+                    physicsSystem3D = null;
+                }
                 if (editorState.getScriptManager() != null) {
                     editorState.getScriptManager().cleanupSceneScripts(clonedRuntime);
                 }
@@ -274,6 +302,16 @@ public class PlayModeController {
             }
         }
 
+        if (physicsSystem3D != null) {
+            try {
+                physicsSystem3D.dispose();
+            } catch (Throwable t) {
+                if (disposalError == null) disposalError = t;
+            } finally {
+                physicsSystem3D = null;
+            }
+        }
+
         // Dispose runtime scene
         if (runtimeScene != null) {
             try {
@@ -331,9 +369,12 @@ public class PlayModeController {
             deltaTime = 0.1f; // clamp to 100ms max to prevent physics or simulation explosion
         }
 
-        // Advance 2D physics simulation first
+        // Advance 2D physics simulation first, then 3D (the same order as GameSession)
         if (physicsSystem != null) {
             physicsSystem.update(deltaTime);
+        }
+        if (physicsSystem3D != null) {
+            physicsSystem3D.update(deltaTime);
         }
 
         runtimeScene.update(deltaTime);

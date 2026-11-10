@@ -104,9 +104,11 @@ export class CollectorGame extends ScriptComponent {
       if (distance < CollectorGame.PICKUP_DISTANCE) {
         gem.setActive(false);
         this.collected++;
+        this.scene.playCue("coin");
         this.gemsText["text"] = `Gems: ${this.collected} / ${this.gems.length}`;
         if (this.collected === this.gems.length) {
           this.finished = true;
+          this.scene.playCue("win");
           this.messageText["text"] = `All gems in ${this.elapsed.toFixed(1)} s! Press R to play again`;
         }
       }

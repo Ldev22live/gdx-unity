@@ -88,6 +88,7 @@ public class KotlinScriptCompiler {
         args.add("-jvm-target");
         args.add("21");
         args.add("-no-stdlib"); // stdlib is already provided on the classpath
+        args.add("-java-parameters"); // pins of method nodes show parameter names (TD-060)
 
         org.jetbrains.kotlin.cli.jvm.K2JVMCompiler compiler = new org.jetbrains.kotlin.cli.jvm.K2JVMCompiler();
         org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments compilerArgs =

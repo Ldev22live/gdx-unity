@@ -41,6 +41,7 @@ class ComponentCloningAndSerializationCoverageTest {
         ComponentSerializerRegistry registry = new ComponentSerializerRegistry();
         registry.register(new io.github.ldev22live.gdxunity.engine.render.components.serialization.ShapeRendererComponentSerializer());
         registry.register(new io.github.ldev22live.gdxunity.engine.render.components.serialization.SpriteRendererComponentSerializer());
+        registry.register(new io.github.ldev22live.gdxunity.engine.render.components.serialization.SpriteAnimatorComponentSerializer());
         registry.register(new io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponentSerializer());
         registry.register(new io.github.ldev22live.gdxunity.engine.scene.physics.serialization.RigidBody2DComponentSerializer());
         registry.register(new io.github.ldev22live.gdxunity.engine.scene.physics.serialization.BoxCollider2DComponentSerializer());
@@ -207,6 +208,33 @@ class ComponentCloningAndSerializationCoverageTest {
         assertEquals(new Color(1f, 0.5f, 0.2f, 1f), restoredSprite.getTint());
     }
 
+
+    @Test
+    void shouldCloneAndSerializeSpriteAnimatorComponentStateAccurately() {
+        Entity entity = scene.createEntity("Animated");
+        io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent animator =
+            new io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent(new AssetReference("sprites/hero.sprite"));
+        animator.setTag("walk");
+        animator.setSpeed(2f);
+        animator.setFlipX(true);
+        entity.addComponent(animator);
+
+        DuplicateEntityCommand duplicateCmd = new DuplicateEntityCommand(editorState, entity.getId());
+        assertTrue(editorState.executeCommand(duplicateCmd));
+        io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent cloned = duplicateCmd.getDuplicatedEntity()
+            .getComponent(io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent.class);
+        assertNotNull(cloned);
+        assertNotSame(animator, cloned);
+        assertEquals("walk", cloned.getTag());
+        assertEquals(2f, cloned.getSpeed(), 0.001f);
+
+        Scene restored = serializer.fromJson(serializer.toJson(scene));
+        io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent back = restored.findEntityById(entity.getId())
+            .getComponent(io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent.class);
+        assertEquals("sprites/hero.sprite", back.getAssetReference().getPath());
+        assertEquals("walk", back.getTag());
+        assertTrue(back.isFlipX());
+    }
     @Test
     void shouldCloneAndSerializeEntityScriptBindingComponentStateAccurately() {
         Entity entity = scene.createEntity("ScriptHolder");

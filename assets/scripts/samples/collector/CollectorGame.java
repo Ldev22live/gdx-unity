@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.ArrayList;
@@ -71,9 +72,11 @@ public class CollectorGame extends ScriptComponent {
             if (home.dst(playerPosition.x, home.y, playerPosition.z) < PICKUP_DISTANCE) {
                 gem.setActive(false);
                 collected++;
+                AudioSourceComponent.play(getScene(), "coin");
                 gemsText.setText("Gems: " + collected + " / " + gems.size());
                 if (collected == gems.size()) {
                     finished = true;
+                    AudioSourceComponent.play(getScene(), "win");
                     messageText.setText(String.format(Locale.ROOT, "All gems in %.1f s! Press R to play again", elapsed));
                 }
             }

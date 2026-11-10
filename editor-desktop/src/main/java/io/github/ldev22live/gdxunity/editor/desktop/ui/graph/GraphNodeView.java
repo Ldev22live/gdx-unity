@@ -245,6 +245,10 @@ class GraphNodeView extends Table {
                 TextField field = committingField(format((Float) value), text -> setLiteral(pin, Float.parseFloat(text)));
                 return sized(field, NUMBER_FIELD_WIDTH);
             }
+            case INTEGER -> {
+                TextField field = committingField(String.valueOf(value), text -> setLiteral(pin, Integer.parseInt(text)));
+                return sized(field, NUMBER_FIELD_WIDTH);
+            }
             case STRING -> {
                 return sized(committingField((String) value, text -> setLiteral(pin, text)), TEXT_FIELD_WIDTH);
             }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.ArrayList;
@@ -270,6 +271,7 @@ public class FpsGame extends ScriptComponent {
             return;
         }
         fireCooldown = FIRE_INTERVAL;
+        AudioSourceComponent.play(getScene(), "shoot");
         flashLeft = FLASH_TIME;
         recoil = RECOIL;
         // Find what the crosshair points at and send the ball from the muzzle towards that point, so it lands under
@@ -366,13 +368,16 @@ public class FpsGame extends ScriptComponent {
     private void hit(Enemy target) {
         target.health--;
         target.flash = HIT_FLASH_TIME;
+        AudioSourceComponent.play(getScene(), "hit");
         if (target.health > 0) {
             return;
         }
         target.entity.setActive(false);
+        AudioSourceComponent.play(getScene(), "explode");
         if (state == State.FIGHTING && aliveEnemies() == 0) {
             if (wave == WAVE_SIZES.length) {
                 state = State.WON;
+                AudioSourceComponent.play(getScene(), "win");
                 messageText.setText(String.format(Locale.ROOT,
                     "Arena cleared in %.1f s with %d health left!  Press R to play again", elapsed, health));
             } else {
@@ -409,8 +414,10 @@ public class FpsGame extends ScriptComponent {
             } else if (state == State.FIGHTING && enemy.attackCooldown <= 0f) {
                 enemy.attackCooldown = ATTACK_INTERVAL;
                 health = Math.max(0, health - ATTACK_DAMAGE);
+                AudioSourceComponent.play(getScene(), "hurt");
                 if (health == 0) {
                     state = State.LOST;
+                    AudioSourceComponent.play(getScene(), "lose");
                     messageText.setText("You were overwhelmed on wave " + wave + ".  Press R to try again");
                 }
             }

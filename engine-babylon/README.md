@@ -72,7 +72,8 @@ about 0.2 MB to the file per undo step held in memory.
 ### Music
 
 The **Music** tab (next to Viewport) is the desktop music studio's web version. It reads and writes the desktop's
-`.song` files (version 1), so a song made on either side opens on the other; the Songs menu lists the bundled ones.
+`.song` files (version 1), so a song made on either side opens on the other; the Songs menu lists the bundled ones (the desktop demo and five more: Lo-fi Evening, Neon Drive, Pixel Quest, Ambient
+Drift and Funk Machine, shared with the desktop editor from `assets/music`).
 
 - **Transport**: Play/Pause (Space), Stop, Loop, Pattern or Song mode, BPM, swing, a bar.beat counter, a master meter.
   Open, Save (Ctrl+S), New, Undo/Redo (the last 100 steps), **Export WAV** (16-bit stereo, rendered faster than real time
@@ -104,6 +105,15 @@ Not in the first version: selecting more than one entity, snapping, copy and pas
 bindings except as raw text, showing cameras and lights in the view (select them in the outline), a bone or animation
 editor, and moving a child keeps its local transform when you re-parent it (the desktop editor may differ).
 
+## 3D models
+
+A Model component (`ModelComponent`) loads a glTF 2.0 file (`.gltf` or `.glb`) from the desktop's `assets/models/`, which
+`npm run sync-samples` copies to `public/models/`, so a scene's `models/...` paths work on both sides. The model's meshes
+become the entity's meshes, so it is picked, outlined and moved with the entity; its import scale (100 units per metre by
+default) scales it. Models load after the scene is built; a model that fails to load is named in the status bar and the rest
+of the scene still shows. The sample `landscape-3d.json` (`?scene=landscape-3d.json`) is made of eight such models, see
+[`../assets/models/landscape/README.md`](../assets/models/landscape/README.md). Model animations are not played yet.
+
 ## What the player does
 
 - Reads scene files with `schemaVersion` 1 unchanged. `npm run sync-samples` copies `../assets/samples/*.json` into
@@ -114,6 +124,7 @@ editor, and moving a child keeps its local transform when you re-parent it (the 
 - Scenes without a camera get an orbit camera that frames everything.
 - 2D physics from Rigid Body 2D and Box Collider 2D, with [planck.js](https://piqnt.com/planck.js/) (a JavaScript port
   of Box2D), at 100 pixels per metre and a fixed 1/60 s step like the desktop engine.
+- 3D physics from Rigid Body 3D and Box, Sphere and Capsule Collider 3D, with [Jolt](https://github.com/jrouwe/JoltPhysics.js) (the engine the desktop uses), at 100 units per metre and a fixed 1/60 s step. Loaded only for scenes that have a 3D collider. Convex hull and mesh colliders, joints, character controllers and camera rigs run too (TD-064).
 - Runs scripts. See below.
 - Lists what it cannot do: the status line names component types it does not support and script classes that have no web
   version.
@@ -152,6 +163,14 @@ src/editor/                the editor: model (undo), outline, details, viewport 
 editor.html                the editor page (index.html is the player)
 test/                      Vitest; reads the real sample files
 ```
+
+## Deploying to a server
+
+`npm run package` builds the site and packs it into `package/forgeroom-web-<version>.tar.gz` (with a `.sha256` file): the
+built player and editor (`site/`), an nginx configuration, a Dockerfile and compose file, and `INSTALL.md` with the
+steps for an Ubuntu VPS. It is static files only: no Node, Java or database on the server. Use `npm run package -- --skip-build`
+to pack the `dist/` you just built. The install guide is [`deploy/INSTALL.md`](deploy/INSTALL.md). **Serve it over HTTPS**: the
+music studio's sound engine only runs on a secure page.
 
 ## Known limits
 

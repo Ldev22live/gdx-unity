@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Breakout Paddle",
+  "variables": [{"name":"halfWidth","type":"FLOAT","value":0.0}],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.tick",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "math.multiply",
+      "x": 270,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 520.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n3",
+      "type": "input.axis",
+      "x": 270,
+      "y": 300,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "A,LEFT"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "D,RIGHT"
+        }
+      ]
+    },
+    {
+      "id": "n4",
+      "type": "data.getPosition",
+      "x": 270,
+      "y": 450,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n5",
+      "type": "vector.break",
+      "x": 540,
+      "y": 450,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n6",
+      "type": "math.multiply",
+      "x": 540,
+      "y": 300,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n7",
+      "type": "math.add",
+      "x": 810,
+      "y": 300,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n8",
+      "type": "java:com.badlogic.gdx.math.MathUtils#clamp(float,float,float)",
+      "x": 1080,
+      "y": 300,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n9",
+      "type": "vector.make",
+      "x": 1350,
+      "y": 300,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n10",
+      "type": "action.setPosition",
+      "x": 1620,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {"id":"n11","type":"event.beginPlay","x":0,"y":-300,"literals":[],"properties":[]},
+    {"id":"n12","type":"component.get:ShapeRendererComponent","x":0,"y":-130,"literals":[],"properties":[]},
+    {"id":"n13","type":"java:io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent#getWidth()","x":270,"y":-130,"literals":[],"properties":[]},
+    {"id":"n14","type":"math.divide","x":540,"y":-130,"literals":[{"pin":"b","type":"FLOAT","value":2.0}],"properties":[]},
+    {"id":"n15","type":"variable.set","x":810,"y":-300,"literals":[],"properties":[{"name":"variable","type":"STRING","value":"halfWidth"}]},
+    {"id":"n16","type":"variable.get","x":270,"y":650,"literals":[],"properties":[{"name":"variable","type":"STRING","value":"halfWidth"}]},
+    {"id":"n17","type":"math.add","x":540,"y":650,"literals":[{"pin":"a","type":"FLOAT","value":10.0}],"properties":[]},
+    {"id":"n18","type":"math.subtract","x":810,"y":650,"literals":[{"pin":"a","type":"FLOAT","value":630.0}],"properties":[]}
+  ],
+  "links": [
+    {"from":"n11","fromPin":"then","to":"n15","toPin":"exec"},
+    {"from":"n12","fromPin":"component","to":"n13","toPin":"target"},
+    {"from":"n13","fromPin":"result","to":"n14","toPin":"a"},
+    {"from":"n14","fromPin":"result","to":"n15","toPin":"value"},
+    {"from":"n16","fromPin":"value","to":"n17","toPin":"b"},
+    {"from":"n16","fromPin":"value","to":"n18","toPin":"b"},
+    {"from":"n17","fromPin":"result","to":"n8","toPin":"p1"},
+    {"from":"n18","fromPin":"result","to":"n8","toPin":"p2"},
+    {
+      "from": "n1",
+      "fromPin": "deltaTime",
+      "to": "n2",
+      "toPin": "a"
+    },
+    {
+      "from": "n4",
+      "fromPin": "position",
+      "to": "n5",
+      "toPin": "vector"
+    },
+    {
+      "from": "n3",
+      "fromPin": "value",
+      "to": "n6",
+      "toPin": "a"
+    },
+    {
+      "from": "n2",
+      "fromPin": "result",
+      "to": "n6",
+      "toPin": "b"
+    },
+    {
+      "from": "n5",
+      "fromPin": "x",
+      "to": "n7",
+      "toPin": "a"
+    },
+    {
+      "from": "n6",
+      "fromPin": "result",
+      "to": "n7",
+      "toPin": "b"
+    },
+    {
+      "from": "n7",
+      "fromPin": "result",
+      "to": "n8",
+      "toPin": "p0"
+    },
+    {
+      "from": "n8",
+      "fromPin": "result",
+      "to": "n9",
+      "toPin": "x"
+    },
+    {
+      "from": "n5",
+      "fromPin": "y",
+      "to": "n9",
+      "toPin": "y"
+    },
+    {
+      "from": "n5",
+      "fromPin": "z",
+      "to": "n9",
+      "toPin": "z"
+    },
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n10",
+      "toPin": "exec"
+    },
+    {
+      "from": "n9",
+      "fromPin": "vector",
+      "to": "n10",
+      "toPin": "position"
+    }
+  ]
+}

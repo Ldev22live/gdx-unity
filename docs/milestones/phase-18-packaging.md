@@ -2,8 +2,8 @@
 
 **Roadmap:** [ALL_IN_ONE_STUDIO_ROADMAP.md](../ALL_IN_ONE_STUDIO_ROADMAP.md) §5, row 18 · **Decision:** TD-033
 **Started:** 2026-10-30 ("continue with the next phase") · **Baseline:** `1dc0a11` plus uncommitted Phases 13-B/17
-**Status:** 18-A and 18-B implemented; 18-C planned. Reports: [phase-18a-report.md](../reports/phase-18a-report.md),
-[phase-18b-report.md](../reports/phase-18b-report.md).
+**Status:** 18-A, 18-B and 18-C implemented (18-C started 2026-11-06); follow-ups 18-D (icon, installer, signing, Linux/macOS export; TD-047) implemented on Windows, partly unverified. Reports: [phase-18a-report.md](../reports/phase-18a-report.md),
+[phase-18b-report.md](../reports/phase-18b-report.md), [phase-18c-report.md](../reports/phase-18c-report.md), [phase-18d-report.md](../reports/phase-18d-report.md).
 
 ## Why split the phase
 
@@ -15,7 +15,8 @@ plans end-to-end testing on a Windows executable, so the **editor** is packaged 
 |---|---|---|
 | 18-A | Editor as a self-contained desktop app (bundled Java runtime), Windows first, same build on macOS/Linux | Implemented |
 | 18-B | Runtime parity: `engine-desktop` plays scene files like editor Play (3D, scripts, physics, graphs, Animators, camera, text) | Implemented (TD-035) |
-| 18-C | Game export: package a project's scenes and assets with the runtime as a standalone game | Planned |
+| 18-C | Game export: package a project's scenes and assets with the runtime as a standalone game | Implemented (TD-046) |
+| 18-D | Application icon, Windows installer, code signing, Linux and macOS game export | Implemented, Windows parts verified; see the report (TD-047) |
 
 ## Current state (from the source, before 18-A)
 
@@ -88,6 +89,41 @@ plans end-to-end testing on a Windows executable, so the **editor** is packaged 
 
 Packaging the runtime as an exe, choosing the start scene from the project file, a crash log and message box for the
 runtime, 3D physics simulation, sound, scene switching from scripts. Packaging and the start scene are 18-C.
+
+## 18-C — Game export
+
+**Started:** 2026-11-06 ("you can proceed with Phase 18-C") · **Decision:** TD-046
+
+| Step | Content | Tests |
+|---|---|---|
+| 1 — start scene | `startScene` and `name` in `gdxunity.project`; `GameProjectFile`; `GameLaunchOptions` plays the start scene when no `--scene` is given and takes the project from `-Dgdxunity.project` | Precedence of command line, property and project file; clear message when no scene can be found |
+| 2 — crash log | `GameFailureReporter`: log in the player's own folder, native message box (not in smoke tests) | Log folder per OS, file contents, never overwrites |
+| 3 — launcher | Second jpackage launcher `ForgeroomGame` in the editor's app image | Build run, image inspected |
+| 4 — exporter | `GameExporter`, `GameExportCommand` (compile scripts, then export) in editor-core | 17 headless tests with a fake app image |
+| 5 — editor | File > Export Game..., `--export-game <folder>` | Packaged run, see report |
+
+### Acceptance criteria (18-C)
+
+1. From the packaged editor, a project is exported to a new folder holding `<Name>.exe`, a Java runtime, the jars, the scenes,
+   assets and compiled scripts.
+2. The exported game starts from another working directory with no Java installed, plays the start scene named in its
+   project file, and `--smoke-test` exits 0.
+3. A startup failure leaves a crash log in the player's folder and exits 1.
+4. The export refuses (with the reason) a missing start scene, uncompiled or non-compiling scripts, a non-empty output
+   folder, and a development run without a packaged runtime. It never overwrites.
+5. Tests green, counts recorded, docs updated.
+
+### Manual E2E checklist (user, on the Windows executable)
+
+1. Open a project in `ForgeroomEditor.exe`, save a scene, choose File > Export Game..., name a new folder.
+2. Double-click `<Name>.exe` in that folder, on a machine without Java if you can: the scene plays and the keys work.
+3. Rename the scene file inside `app\game` and start again: a message box names the problem and the crash log.
+
+### Out of scope for 18-C
+
+(Done later in 18-D: icon, installer, signing, Linux and macOS layouts.) A start screen
+or scene switching from scripts, choosing which assets to include (everything outside the editor's own files is copied),
+3D physics (Phase 15).
 
 ## Cross-platform
 

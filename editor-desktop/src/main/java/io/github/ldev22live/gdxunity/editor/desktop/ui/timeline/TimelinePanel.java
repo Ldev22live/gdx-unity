@@ -3,6 +3,7 @@ package io.github.ldev22live.gdxunity.editor.desktop.ui.timeline;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -31,6 +32,8 @@ import java.util.Objects;
  * (Details → Open in Timeline) or by double-clicking a {@code .anim} file.
  */
 public class TimelinePanel extends Table implements Disposable {
+    /** Space between neighbouring toolbar buttons, so their labels do not run together. */
+    private static final float BUTTON_GAP = 4f;
     private static final float BAR_HEIGHT = 30f;
     private static final float BUTTON_HEIGHT = 24f;
     private static final float NUMBER_FIELD_WIDTH = 46f;
@@ -66,19 +69,19 @@ public class TimelinePanel extends Table implements Disposable {
         Table bar = new Table(skin);
         bar.setBackground("subheader-bg");
         bar.left();
-        bar.add(button("Save", this::save)).height(BUTTON_HEIGHT).padLeft(4);
-        bar.add(button("Undo", () -> withDocument(TimelineDocument::undo))).height(BUTTON_HEIGHT);
+        bar.add(button("Save", this::save)).height(BUTTON_HEIGHT).padLeft(4).padRight(BUTTON_GAP);
+        bar.add(button("Undo", () -> withDocument(TimelineDocument::undo))).height(BUTTON_HEIGHT).padRight(BUTTON_GAP);
         bar.add(button("Redo", () -> withDocument(TimelineDocument::redo))).height(BUTTON_HEIGHT).padRight(8);
-        bar.add(button("|<", () -> session.setTime(0f))).height(BUTTON_HEIGHT);
+        bar.add(button("|<", () -> session.setTime(0f))).height(BUTTON_HEIGHT).padRight(BUTTON_GAP);
         playButton = button("Play", () -> session.setPlaying(!session.isPlaying()));
-        bar.add(playButton).width(52).height(BUTTON_HEIGHT);
+        bar.add(playButton).width(52).height(BUTTON_HEIGHT).padRight(BUTTON_GAP);
         reverseButton = button("Reverse", () -> session.setReverse(!session.isReverse()));
-        bar.add(reverseButton).height(BUTTON_HEIGHT);
+        bar.add(reverseButton).height(BUTTON_HEIGHT).padRight(BUTTON_GAP);
         loopButton = button("Loop", () -> session.setLooping(!session.isLooping()));
         bar.add(loopButton).height(BUTTON_HEIGHT).padRight(8);
         autoKeyButton = button("Auto-Key", () -> session.setAutoKey(!session.isAutoKey()));
-        bar.add(autoKeyButton).height(BUTTON_HEIGHT);
-        bar.add(button("Key", session::keySelection)).height(BUTTON_HEIGHT);
+        bar.add(autoKeyButton).height(BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        bar.add(button("Key", session::keySelection)).height(BUTTON_HEIGHT).padRight(BUTTON_GAP);
         TextButton addTrack = new TextButton("Add Track", skin, "flat");
         addTrack.addListener(new ChangeListener() {
             @Override
@@ -118,7 +121,12 @@ public class TimelinePanel extends Table implements Disposable {
         titleLabel.setEllipsis(true);
         bar.add(titleLabel).left().expandX().fillX().minWidth(0);
 
-        add(bar).growX().height(BAR_HEIGHT).row();
+        // The toolbar is wider than a narrow window: it scrolls sideways instead of making the whole editor wider than the screen
+        ScrollPane barScroll = new ScrollPane(bar, skin);
+        barScroll.setScrollingDisabled(false, true);
+        barScroll.setFadeScrollBars(false);
+        barScroll.setOverscroll(false, false);
+        add(barScroll).growX().minWidth(0).height(BAR_HEIGHT).row();
         add(canvas).grow();
         session.addListener(sessionListener);
         refresh();

@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "2.5D Ruins Runner",
+  "gameMode": "2.5d",
   "active": true,
   "entities": [
     {
@@ -2132,6 +2133,112 @@
             "anchor": "BOTTOM_LEFT",
             "offsetX": 16.0,
             "offsetY": 32.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f7b2775d-7737-5b84-937e-fa10f3488a54",
+      "name": "Sound Effects",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "jump",
+            "sound": "Jump",
+            "volume": 0.5,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "coin",
+            "sound": "Coin",
+            "volume": 0.5,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "hurt",
+            "sound": "Hurt",
+            "volume": 0.6,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "win",
+            "sound": "Powerup",
+            "volume": 0.7,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "01340e59-dd1a-5da4-94f9-b28afbc3bd29",
+      "name": "Music",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MusicSource",
+          "enabled": true,
+          "data": {
+            "song": "music/ambient-drift.song",
+            "volume": 0.35,
+            "loop": true,
+            "playOnStart": true
           }
         }
       ]

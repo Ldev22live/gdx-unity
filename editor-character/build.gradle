@@ -1,0 +1,29 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-editor-character'
+
+apply plugin: 'java-library'
+
+// Headless character creator editing: sliders, undo, baking a character and its animation templates into a glTF (TD-053)
+dependencies {
+  api project(':editor-core')
+  api project(':editor-animation')
+  api project(':engine-character')
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+  testRuntimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  testRuntimeOnly "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+}
+
+test {
+  useJUnitPlatform()
+}
+
+// Bakes a character from the command line: gradlew :editor-character:bakeCharacter --args="<assetRoot> <name> gender=1 age=30"
+tasks.register('bakeCharacter', JavaExec) {
+  group = 'application'
+  description = 'Bakes a character (glTF with the humanoid animation templates) into an asset folder'
+  classpath = sourceSets.main.runtimeClasspath
+  mainClass = 'io.github.ldev22live.gdxunity.editor.character.CharacterBakeTool'
+}

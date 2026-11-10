@@ -1,0 +1,36 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-engine-physics'
+
+apply plugin: 'java-library'
+java.sourceCompatibility = 21
+java.targetCompatibility = 21
+if (JavaVersion.current().isJava9Compatible()) {
+        compileJava.options.release.set(21)
+}
+
+// 3D physics backend (TD-028): Jolt Physics through jolt-jni behind the engine's PhysicsBackend3D. Each platform artifact holds
+// the same Java classes; the ReleaseSp jar holds that platform's native library, which JoltNatives extracts and loads.
+// Only the host platform's natives are packaged (see editor-desktop/build.gradle).
+dependencies {
+  api project(':engine-scene')
+  implementation "com.github.stephengold:jolt-jni-Windows64:$joltJniVersion"
+  runtimeOnly "com.github.stephengold:jolt-jni-Windows64:$joltJniVersion:ReleaseSp"
+  runtimeOnly "com.github.stephengold:jolt-jni-Linux64:$joltJniVersion"
+  runtimeOnly "com.github.stephengold:jolt-jni-Linux64:$joltJniVersion:ReleaseSp"
+  runtimeOnly "com.github.stephengold:jolt-jni-MacOSX_ARM64:$joltJniVersion"
+  runtimeOnly "com.github.stephengold:jolt-jni-MacOSX_ARM64:$joltJniVersion:ReleaseSp"
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+  testRuntimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}
+
+test {
+  useJUnitPlatform()
+  jvmArgs += "--enable-native-access=ALL-UNNAMED"
+}
+
+jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

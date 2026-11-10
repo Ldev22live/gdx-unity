@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "3D Gem Collector",
+  "gameMode": "3d",
   "active": true,
   "entities": [
     {
@@ -981,6 +982,90 @@
             "anchor": "BOTTOM_LEFT",
             "offsetX": 16.0,
             "offsetY": 32.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0151da90-2075-5bae-b9b0-3d0b8d18d812",
+      "name": "Sound Effects",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "coin",
+            "sound": "Coin",
+            "volume": 0.5,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "win",
+            "sound": "Powerup",
+            "volume": 0.7,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "7e4bb0f2-7d02-5898-b5ba-80060d85b518",
+      "name": "Music",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MusicSource",
+          "enabled": true,
+          "data": {
+            "song": "music/lofi-evening.song",
+            "volume": 0.35,
+            "loop": true,
+            "playOnStart": true
           }
         }
       ]

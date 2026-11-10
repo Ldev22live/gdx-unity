@@ -107,6 +107,7 @@ export class ShooterGame extends ScriptComponent {
       const ship = this.ship.getWorldPosition();
       activate(this.bullets, ship.x, ship.y + this.shipHalfHeight);
       this.fireCooldown = ShooterGame.FIRE_INTERVAL;
+      this.scene.playCue("shoot");
     }
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
@@ -157,6 +158,7 @@ export class ShooterGame extends ScriptComponent {
           bullet.setActive(false);
           enemy.setActive(false);
           this.score += ShooterGame.ENEMY_POINTS;
+          this.scene.playCue("explode");
           this.updateTexts();
           break;
         }
@@ -167,9 +169,11 @@ export class ShooterGame extends ScriptComponent {
       ) {
         enemy.setActive(false);
         this.lives--;
+        this.scene.playCue("hurt");
         this.updateTexts();
         if (this.lives <= 0) {
           this.gameOver = true;
+          this.scene.playCue("lose");
           this.messageText.setText(`Game over. Score ${this.score}. Press R to play again`);
         }
       }

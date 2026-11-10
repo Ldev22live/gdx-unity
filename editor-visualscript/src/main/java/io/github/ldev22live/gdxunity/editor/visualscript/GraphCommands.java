@@ -6,6 +6,7 @@ import io.github.ldev22live.gdxunity.engine.visualscript.GraphLink;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphNode;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphValidator;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphVariable;
+import io.github.ldev22live.gdxunity.engine.visualscript.JavaMethodNodes;
 import io.github.ldev22live.gdxunity.engine.visualscript.NodeRegistry;
 import io.github.ldev22live.gdxunity.engine.visualscript.NodeType;
 import io.github.ldev22live.gdxunity.engine.visualscript.PinDef;
@@ -289,6 +290,73 @@ public final class GraphCommands {
         @Override
         public String getDescription() {
             return "Change " + name;
+        }
+    }
+
+    /**
+     * Switches a method node between Pure and Action (TD-060): the same method, either read whenever a pin needs its result or run once
+     * in the chain of execution. The wires to its data pins stay; switching to Pure drops the wires to its execution pins, and undo
+     * brings them back.
+     */
+    public static final class SwitchMethodKind implements EditorCommand {
+        private final Graph graph;
+        private final NodeRegistry registry;
+        private final String nodeId;
+        private GraphNode before;
+        private final List<GraphLink> droppedLinks = new ArrayList<>();
+
+        public SwitchMethodKind(Graph graph, NodeRegistry registry, String nodeId) {
+            this.graph = Objects.requireNonNull(graph, "graph cannot be null");
+            this.registry = Objects.requireNonNull(registry, "registry cannot be null");
+            this.nodeId = Objects.requireNonNull(nodeId, "nodeId cannot be null");
+        }
+
+        /** Whether the node can be switched: it is a method node with a twin. */
+        public static boolean canSwitch(Graph graph, NodeRegistry registry, String nodeId) {
+            GraphNode node = graph.getNode(nodeId);
+            return node != null && JavaMethodNodes.counterpartOf(node.getTypeId(), registry) != null;
+        }
+
+        @Override
+        public boolean execute() {
+            before = graph.getNode(nodeId);
+            if (before == null) {
+                return false;
+            }
+            String other = JavaMethodNodes.counterpartOf(before.getTypeId(), registry);
+            if (other == null) {
+                return false;
+            }
+            GraphNode after = new GraphNode(nodeId, other, before.getX(), before.getY());
+            before.getLiterals().forEach(after::setLiteral);
+            before.getProperties().forEach(after::setProperty);
+            droppedLinks.clear();
+            if (!JavaMethodNodes.isActionTwin(other)) {
+                for (GraphLink link : graph.linksTouching(nodeId)) {
+                    boolean execIn = link.toNode().equals(nodeId) && link.toPin().equals(PinDef.EXEC_IN);
+                    boolean execOut = link.fromNode().equals(nodeId) && link.fromPin().equals(PinDef.EXEC_OUT);
+                    if (execIn || execOut) {
+                        droppedLinks.add(link);
+                        graph.removeLink(link);
+                    }
+                }
+            }
+            graph.removeNode(nodeId);
+            graph.addNode(after);
+            return true;
+        }
+
+        @Override
+        public boolean undo() {
+            graph.removeNode(nodeId);
+            graph.addNode(before);
+            droppedLinks.forEach(graph::addLink);
+            return true;
+        }
+
+        @Override
+        public String getDescription() {
+            return "Switch Node Between Pure and Action";
         }
     }
 

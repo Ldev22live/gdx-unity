@@ -77,6 +77,7 @@ export class BreakoutBall extends ScriptComponent {
       this.y = paddle.y + this.paddleHalfHeight + this.radius + 1;
       if (this.input.isJustPressed("Space")) {
         this.launched = true;
+        this.scene.playCue("launch");
         this.messageText.setText("");
         this.velocityX = this.speed * 0.4;
         this.velocityY = this.speed;
@@ -110,6 +111,7 @@ export class BreakoutBall extends ScriptComponent {
       const angle = hit * BreakoutBall.MAX_BOUNCE_ANGLE * DEGREES_TO_RADIANS;
       this.velocityX = this.speed * Math.sin(angle);
       this.velocityY = this.speed * Math.cos(angle);
+      this.scene.playCue("paddle");
       this.y = paddle.y + this.paddleHalfHeight + this.radius;
     }
     this.hitBricks();
@@ -134,11 +136,13 @@ export class BreakoutBall extends ScriptComponent {
       }
       brick.setActive(false);
       this.score += BreakoutBall.BRICK_POINTS;
+      this.scene.playCue("brick");
       this.speed = Math.min(BreakoutBall.MAX_SPEED, this.speed + BreakoutBall.SPEED_GAIN);
       this.normalizeVelocity();
       this.updateTexts();
       if (this.bricksLeft() === 0) {
         this.gameOver = true;
+        this.scene.playCue("win");
         this.messageText.setText(`You cleared the wall! Score ${this.score}. Press R to play again`);
       }
       return;
@@ -147,6 +151,7 @@ export class BreakoutBall extends ScriptComponent {
 
   private loseLife(): void {
     this.lives--;
+    this.scene.playCue("lose");
     this.launched = false;
     this.updateTexts();
     if (this.lives <= 0) {

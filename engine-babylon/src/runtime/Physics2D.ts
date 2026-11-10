@@ -1,7 +1,8 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { Body, Box, Vec2, World, type BodyType } from "planck";
+import { Body, Box, Vec2, World, type BodyType, type Contact } from "planck";
 import type { GameEntity, GameScene } from "./GameEntity";
 import { bool, num, str } from "../scene/types";
+import { parseTilemap, solidBoxes } from "../sprites/sprite";
 
 /** Scene units (pixels) per physics metre; the desktop engine uses the same value. */
 export const PIXELS_PER_METER = 100;
@@ -13,6 +14,17 @@ const MAX_FRAME_DELTA = 0.1;
 const MAX_SUB_STEPS = 5;
 const GRAVITY = -9.81;
 
+/** What happened between two entities' 2D colliders: solid ones started or stopped touching, or a sensor overlap began or ended. */
+export type Contact2DKind = "COLLISION_ENTER" | "COLLISION_EXIT" | "SENSOR_ENTER" | "SENSOR_EXIT";
+
+export interface Contact2D {
+  entityA: GameEntity;
+  entityB: GameEntity;
+  kind: Contact2DKind;
+}
+
+export type Contact2DListener = (contact: Contact2D) => void;
+
 /**
  * 2D rigid bodies for entities with RigidBody2D and BoxCollider2D components, simulated with planck.js (a JavaScript
  * port of Box2D, the engine the desktop runtime uses). Bodies are created from the scene when play starts and move
@@ -22,13 +34,21 @@ export class Physics2D {
   private readonly world = new World({ gravity: new Vec2(0, GRAVITY) });
   private readonly bodies: { entity: GameEntity; body: Body }[] = [];
   private accumulator = 0;
+  private readonly entitiesByBody = new Map<Body, GameEntity>();
+  /** Contacts found inside a step, delivered after it (as on the desktop), so a callback may change the scene safely. */
+  private readonly queued: Contact2D[] = [];
+  private readonly listeners: Contact2DListener[] = [];
 
   constructor(scene: GameScene) {
     for (const entity of scene.entities) {
       if (!entity.node.isEnabled()) continue;
       const rigidBody = entity.getComponent("RigidBody2DComponent");
       const boxes = entity.getComponents("BoxCollider2DComponent");
-      if (!rigidBody && boxes.length === 0) continue;
+      // A tile map with collision is a set of fixed boxes (TD-066); the entity gets one static body for them, like the desktop
+      const tilemapData = entity.getComponent("TilemapComponent");
+      const tilemap = tilemapData ? parseTilemap(tilemapData.data) : null;
+      const tileBoxes = tilemap && tilemap.collides ? solidBoxes(tilemap) : [];
+      if (!rigidBody && boxes.length === 0 && tileBoxes.length === 0) continue;
 
       entity.node.computeWorldMatrix(true);
       const scale = new Vector3();
@@ -75,7 +95,45 @@ export class Physics2D {
           filterMaskBits: num(b, "maskBits", 0xffff),
         });
       }
+      if (tilemap) {
+        const mapHeight = tilemap.rows * tilemap.tileHeight;
+        for (const cells of tileBoxes) {
+          // Row 0 is the top row; the entity's position is the map's bottom left corner
+          const width = cells.cols * tilemap.tileWidth * scaleX;
+          const height = cells.rows * tilemap.tileHeight * scaleY;
+          const center = new Vec2(
+            ((cells.col + cells.cols / 2) * tilemap.tileWidth * scale.x) / PIXELS_PER_METER,
+            ((mapHeight - (cells.row + cells.rows / 2) * tilemap.tileHeight) * scale.y) / PIXELS_PER_METER,
+          );
+          body.createFixture({ shape: new Box(width / 2 / PIXELS_PER_METER, height / 2 / PIXELS_PER_METER, center, 0), friction: 0.2 });
+        }
+      }
       this.bodies.push({ entity, body });
+      this.entitiesByBody.set(body, entity);
+    }
+    this.world.on("begin-contact", (contact) => this.queue(contact, true));
+    this.world.on("end-contact", (contact) => this.queue(contact, false));
+  }
+
+  /** Calls {@code listener} for every contact, once per contact, after the step that found it. */
+  addContactListener(listener: Contact2DListener): void {
+    this.listeners.push(listener);
+  }
+
+  private queue(contact: Contact, began: boolean): void {
+    const fixtureA = contact.getFixtureA();
+    const fixtureB = contact.getFixtureB();
+    const entityA = this.entitiesByBody.get(fixtureA.getBody());
+    const entityB = this.entitiesByBody.get(fixtureB.getBody());
+    if (!entityA || !entityB || entityA === entityB) return;
+    const sensor = fixtureA.isSensor() || fixtureB.isSensor();
+    const kind: Contact2DKind = sensor ? (began ? "SENSOR_ENTER" : "SENSOR_EXIT") : began ? "COLLISION_ENTER" : "COLLISION_EXIT";
+    this.queued.push({ entityA, entityB, kind });
+  }
+
+  private flushContacts(): void {
+    for (const contact of this.queued.splice(0)) {
+      for (const listener of [...this.listeners]) listener(contact);
     }
   }
 
@@ -94,6 +152,7 @@ export class Physics2D {
     }
     if (this.accumulator > FIXED_TIMESTEP) this.accumulator = 0;
     this.syncEntities();
+    this.flushContacts();
   }
 
   private syncEntities(): void {

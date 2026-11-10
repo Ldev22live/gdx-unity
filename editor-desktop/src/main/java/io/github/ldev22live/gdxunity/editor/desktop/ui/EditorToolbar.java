@@ -40,6 +40,23 @@ public class EditorToolbar extends Table {
      */
     public EditorToolbar(EditorState editorState, PlayModeController playModeController, EditorLog editorLog,
                          Skin skin, Runnable onToggleAssistant) {
+        this(editorState, playModeController, editorLog, skin, onToggleAssistant, null);
+    }
+
+    /**
+     * @param leadingTools a strip shown first, before the compile and play controls (the transform and view tools,
+     *                     as in the web editor's toolbar); may be null
+     */
+    public EditorToolbar(EditorState editorState, PlayModeController playModeController, EditorLog editorLog,
+                         Skin skin, Runnable onToggleAssistant, Actor leadingTools) {
+        this(editorState, playModeController, editorLog, skin, onToggleAssistant, leadingTools, null);
+    }
+
+    /**
+     * @param modeSelector shown at the right, before the assistant button (the 2D / 2.5D / 3D game mode strip, TD-067); may be null
+     */
+    public EditorToolbar(EditorState editorState, PlayModeController playModeController, EditorLog editorLog,
+                         Skin skin, Runnable onToggleAssistant, Actor leadingTools, Actor modeSelector) {
         super(skin);
         this.editorLog = Objects.requireNonNull(editorLog, "editorLog cannot be null");
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
@@ -105,6 +122,9 @@ public class EditorToolbar extends Table {
         // --- Right: panel toggles ---
         Table right = new Table();
         right.right();
+        if (modeSelector != null) {
+            right.add(modeSelector).padRight(8);
+        }
         if (onToggleAssistant != null) {
             TextButton assistantBtn = new TextButton("AI Assistant", skin);
             assistantBtn.addListener(new ChangeListener() {
@@ -116,10 +136,16 @@ public class EditorToolbar extends Table {
             right.add(assistantBtn).height(BUTTON_HEIGHT).padRight(6);
         }
 
-        // Equal-width side columns keep the play controls centered in the window
-        add(left).expandX().fillX().uniformX();
-        add(center);
-        add(right).expandX().fillX().uniformX();
+        // Left to right like the web editor's toolbar: tools | compile | play controls ... assistant
+        if (leadingTools != null) {
+            add(leadingTools).padLeft(6).left();
+            add(new Label("|", skin, "muted")).padLeft(6).padRight(2);
+        }
+        add(left).left();
+        add(new Label("|", skin, "muted")).padLeft(2).padRight(2);
+        add(center).left();
+        add().expandX().fillX();
+        add(right).right();
 
         playModeController.addListener((oldState, newState) -> updatePlayModeUi(newState));
         updatePlayModeUi(playModeController.getState());

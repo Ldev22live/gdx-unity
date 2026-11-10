@@ -25,9 +25,17 @@ dependencies {
   implementation project(':engine-render')
   implementation project(':engine-visualscript')
   implementation project(':engine-animation')
+  implementation project(':engine-audio')
+  // Jolt 3D physics (TD-028)
+  implementation project(':engine-physics')
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+  // Native message box for an exported game's startup failures (TD-046); same version as the editor's file dialogs
+  implementation "org.lwjgl:lwjgl-tinyfd:$backendLwjglVersion"
+  ["natives-windows", "natives-linux", "natives-linux-arm64", "natives-macos", "natives-macos-arm64"].each { platform ->
+    runtimeOnly "org.lwjgl:lwjgl-tinyfd:$backendLwjglVersion:$platform"
+  }
 
   testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"

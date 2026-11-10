@@ -42,6 +42,14 @@ public interface NodeContext {
     /** Continues from {@code pinId} after {@code seconds} of play time. */
     void continueAfter(float seconds, String pinId);
 
+    /** Schedules Repeat's synchronous Body chains in index order, then Completed; delayed work is not awaited. */
+    void repeat(int count);
+
+    /** Whether the key with this libGDX key code is held down. */
+    default boolean isKeyDown(int keycode) {
+        return instance().isKeyDown(keycode);
+    }
+
     /** The entity running this graph. */
     Entity self();
 

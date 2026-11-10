@@ -1,0 +1,328 @@
+{
+  "schemaVersion": 1,
+  "name": "Character Creator 3D",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "22c999af-8142-5c11-a1a7-42f9ee56bd63",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.3,
+            "directionY": -1.0,
+            "directionZ": -0.5,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "494ec62d-3417-56fe-9a6d-8727798a95aa",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.72,
+            "skyB": 0.88,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 1.0
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "07368d51-0146-5c23-b621-3147376e44fd",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 130.0,
+          "z": 520.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 55.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "fc7dac3c-2bc7-5d5a-a305-1fa2b71b36e6",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -5.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 900.0,
+            "sizeY": 10.0,
+            "sizeZ": 700.0,
+            "colorR": 0.42,
+            "colorG": 0.55,
+            "colorB": 0.42,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "32839706-8e24-5926-8a01-6d0b8f943c47",
+      "name": "Tall Man",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -160.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "characters/Tall_Man.gltf",
+            "importScale": 100.0,
+            "animation": "Walk",
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ee9679b4-aa87-5c2b-abbf-0d1fb8a28816",
+      "name": "Short Woman",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "characters/Short_Woman.gltf",
+            "importScale": 100.0,
+            "animation": "Idle",
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d5015a1e-7c80-51ff-9789-f376e3319b3a",
+      "name": "Old Man",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 160.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "characters/Old_Man.gltf",
+            "importScale": 100.0,
+            "animation": "Walk",
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "869d93e5-6545-5a71-b5a9-c80ff2607f15",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Character creator: three characters built in the Animations tab > Character, each playing a humanoid animation template",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.2,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

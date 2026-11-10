@@ -15,12 +15,15 @@ import io.github.ldev22live.gdxunity.engine.core.resource.ResourceDisposalExcept
 import io.github.ldev22live.gdxunity.engine.render.camera.GameCameraRig;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.physics.JoltPhysicsBackend3D;
 import io.github.ldev22live.gdxunity.engine.scene.physics.PhysicsSystem2D;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSerializerRegistry;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializationException;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
 import io.github.ldev22live.gdxunity.engine.visualscript.Graph;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphCollisionForwarder;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphContactForwarder;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphHost;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphInstance;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphRuntimeException;
@@ -46,8 +49,9 @@ import java.util.Objects;
  *   <li>2D physics: {@link PhysicsSystem2D}, stepped before the scene update</li>
  *   <li>Visual scripts: each Graph Script's {@code .graph} file, with 2D collisions forwarded</li>
  *   <li>Animators: each Animator's {@code .anim} clip</li>
+ *   <li>Sound: each Audio Source's effect, played through {@link GameAudio} (TD-043)</li>
  * </ol>
- * There is no 3D physics simulation yet; 3D colliders and rigid bodies are loaded but do not move anything.
+ * 3D physics: {@link PhysicsSystem3D} on Jolt (TD-028), created only for scenes with 3D colliders, stepped after 2D physics.
  *
  * <p>Project files are read through an {@link AssetSource}, never {@link File} directly, so the same session runs in
  * the browser (TD-036).
@@ -95,8 +99,11 @@ public final class GameSession implements Disposable {
     private final NodeRegistry nodeRegistry = NodeRegistry.createDefault();
     private final AnimatedProperties animatedProperties = AnimatedProperties.createDefault();
     private final GraphCollisionForwarder collisionForwarder = new GraphCollisionForwarder();
+    private final GraphContactForwarder contactForwarder = new GraphContactForwarder();
     private final List<String> runtimeErrors = new ArrayList<>();
     private PhysicsSystem2D physics;
+    private PhysicsSystem3D physics3D;
+    private GameAudio audio;
     private boolean started;
     private boolean disposed;
 
@@ -177,6 +184,16 @@ public final class GameSession implements Disposable {
         return physics;
     }
 
+    /** The scene's sound while started; null before {@link #start()}, after {@link #dispose()} and when start failed. */
+    /** The scene's 3D physics while started; null for scenes without 3D colliders, and after {@link #dispose()}. */
+    public PhysicsSystem3D getPhysicsSystem3D() {
+        return physics3D;
+    }
+
+    public GameAudio getAudio() {
+        return audio;
+    }
+
     public boolean isStarted() {
         return started;
     }
@@ -205,16 +222,25 @@ public final class GameSession implements Disposable {
         problems.addAll(ScriptBinder.bind(scene, scripts));
         if (problems.isEmpty()) {
             physics = new PhysicsSystem2D(scene);
+            problems.addAll(startPhysics3D());
+        }
+        if (problems.isEmpty()) {
             problems.addAll(bindGraphs());
         }
         if (problems.isEmpty()) {
             problems.addAll(bindAnimators());
+        }
+        if (problems.isEmpty()) {
+            problems.addAll(bindAudio());
         }
         if (!problems.isEmpty()) {
             unbindAll();
             return problems;
         }
         physics.addCollisionListener(collisionForwarder);
+        if (physics3D != null) {
+            physics3D.addContactListener(contactForwarder);
+        }
         started = true;
         return problems;
     }
@@ -226,7 +252,23 @@ public final class GameSession implements Disposable {
         }
         float step = Float.isFinite(deltaTime) && deltaTime > 0f ? Math.min(deltaTime, MAX_FRAME_DELTA) : 0f;
         physics.update(step);
+        if (physics3D != null) {
+            physics3D.update(step);
+        }
         scene.update(step);
+    }
+
+    /** Creates the 3D physics for a scene that has 3D colliders; the native library loads here, never for 2D games. */
+    private List<String> startPhysics3D() {
+        if (!PhysicsSystem3D.isUsedBy(scene)) {
+            return List.of();
+        }
+        try {
+            physics3D = new PhysicsSystem3D(scene, new JoltPhysicsBackend3D());
+            return List.of();
+        } catch (RuntimeException | LinkageError e) {
+            return List.of("3D physics could not start: " + e.getMessage());
+        }
     }
 
     private List<String> bindGraphs() {
@@ -251,6 +293,16 @@ public final class GameSession implements Disposable {
             for (int i = 0; i < components.size(); i++) {
                 components.get(i).bind(instances.get(i));
             }
+        }
+        return problems;
+    }
+
+    private List<String> bindAudio() {
+        audio = new GameAudio(scene, Gdx.audio != null, GameAudio.assetsOf(project));
+        List<String> problems = audio.bind();
+        if (problems.isEmpty() && audio.getOutputError() != null) {
+            // Not fatal: the game is playable without sound, and a machine without a sound device must still run
+            log.info(audio.getOutputError());
         }
         return problems;
     }
@@ -322,6 +374,16 @@ public final class GameSession implements Disposable {
             }
         }
         ScriptBinder.unbind(scene);
+        if (audio != null) {
+            GameAudio owned = audio;
+            audio = null;
+            owned.dispose();
+        }
+        if (physics3D != null) {
+            PhysicsSystem3D owned3D = physics3D;
+            physics3D = null;
+            owned3D.dispose();
+        }
         if (physics != null) {
             physics.removeCollisionListener(collisionForwarder);
             PhysicsSystem2D owned = physics;

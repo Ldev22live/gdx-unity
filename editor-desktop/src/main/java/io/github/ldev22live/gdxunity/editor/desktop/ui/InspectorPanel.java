@@ -82,7 +82,7 @@ public class InspectorPanel extends Table {
         Table headerBar = new Table(skin);
         headerBar.setBackground("subheader-bg");
         headerBar.left();
-        Label titleLabel = new Label("Details", skin);
+        Label titleLabel = new Label("DETAILS", skin);
         if (skin.has("text-primary", Color.class)) {
             titleLabel.setColor(skin.getColor("text-primary"));
         } else {
@@ -141,12 +141,26 @@ public class InspectorPanel extends Table {
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Sky());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.ToneMapping());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.GameComponentEditorProviders.Camera());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.CameraRigComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.Joint3DComponentEditorProvider());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.GameComponentEditorProviders.Text());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.AudioSourceComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.MusicSourceComponentEditorProvider());
         reg.register(new Physics3DComponentEditorProviders.RigidBody());
         reg.register(new Physics3DComponentEditorProviders.Box());
         reg.register(new Physics3DComponentEditorProviders.Sphere());
         reg.register(new Physics3DComponentEditorProviders.Capsule());
+        reg.register(new Physics3DComponentEditorProviders.ConvexHull());
+        reg.register(new Physics3DComponentEditorProviders.Mesh());
+        reg.register(new Physics3DComponentEditorProviders.CharacterController());
         return reg;
+    }
+
+    /** Adds the hint shown when no entity is selected; it wraps at the panel edge instead of running past it. */
+    private void addNothingSelectedNote() {
+        Label note = new Label("Nothing selected. Click an entity in the outline or the view.", skin, "muted");
+        note.setWrap(true);
+        contentTable.add(note).pad(16).growX().left().row();
     }
 
     public void refresh() {
@@ -154,8 +168,7 @@ public class InspectorPanel extends Table {
 
         Set<UUID> selection = editorState.getSelectedEntityIds();
         if (selection.isEmpty()) {
-            Label noSelection = new Label("No GameObject selected", skin, "muted");
-            contentTable.add(noSelection).pad(16).left().row();
+            addNothingSelectedNote();
             return;
         }
 
@@ -166,8 +179,7 @@ public class InspectorPanel extends Table {
 
         Entity selected = editorState.getSelectedEntity();
         if (selected == null) {
-            Label noSelection = new Label("No GameObject selected", skin, "muted");
-            contentTable.add(noSelection).pad(16).left().row();
+            addNothingSelectedNote();
             return;
         }
 
@@ -292,7 +304,7 @@ public class InspectorPanel extends Table {
         results.top().left();
         Runnable fillResults = () -> {
             results.clear();
-            List<ComponentCatalog.Entry> matches = componentCatalog.search(search.getText());
+            List<ComponentCatalog.Entry> matches = componentCatalog.search(search.getText(), editorState.getGameMode());
             if (matches.isEmpty()) {
                 results.add(new Label("No matching components", skin, "muted")).left().pad(4).row();
             }

@@ -464,7 +464,7 @@ Based on the audit of the current codebase (Phase 8), here is the consolidated c
 - [ ] Build 16-step pattern sequencer UI grid (`StepSequencerPanel`).
 - [ ] Build chromatic Piano Roll UI (`PianoRollPanel`) with note drawing and velocity.
 - [ ] Build 8-channel mixer UI (`AudioMixerPanel`) with volume, pan, delay, and reverb.
-- [ ] Implement `AudioSourceComponent` in `engine-scene`.
+- [x] Implement `AudioSourceComponent` in `engine-scene` (sfxr sound effects only, TD-043; no `AudioListenerComponent`, songs or clips yet).
 - [ ] Implement one-click export to `.ogg` / `.wav` and runtime procedural playback.
 
 ### 3D Modeling & Animation Studio (Blender Domain)

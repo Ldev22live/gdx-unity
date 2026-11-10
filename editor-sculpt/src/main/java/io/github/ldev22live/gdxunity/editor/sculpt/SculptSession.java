@@ -39,6 +39,10 @@ public class SculptSession implements DynamicMeshSource {
     private final Map<String, SculptDocument> documents = new LinkedHashMap<>();
     private final Map<String, String> loadErrors = new LinkedHashMap<>();
 
+    /** Environment variable the streamed editor container sets: Mesa draws on the CPU there (TD-037). */
+    static final String SOFTWARE_GL_VARIABLE = "LIBGL_ALWAYS_SOFTWARE";
+
+    private boolean softwareRendering = "1".equals(System.getenv(SOFTWARE_GL_VARIABLE));
     private boolean sculptMode;
     private boolean wireframe;
     private BrushType brushType = BrushType.DRAW;
@@ -200,6 +204,35 @@ public class SculptSession implements DynamicMeshSource {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    /**
+     * Whether the view is drawn on the CPU, as in the streamed web editor (llvmpipe). Starts as true when the container's
+     * {@code LIBGL_ALWAYS_SOFTWARE} is set. Sculpts are smaller there (see {@link SculptAssets#SOFTWARE_TRIANGLE_LIMIT}).
+     */
+    public boolean isSoftwareRendering() {
+        return softwareRendering;
+    }
+
+    public void setSoftwareRendering(boolean softwareRendering) {
+        this.softwareRendering = softwareRendering;
+    }
+
+    /** The triangle count above which sculpting is slow on this machine, or {@link Integer#MAX_VALUE} when there is no such limit. */
+    public int getTriangleLimit() {
+        return softwareRendering ? SculptAssets.SOFTWARE_TRIANGLE_LIMIT : Integer.MAX_VALUE;
+    }
+
+    /** A warning for a sculpt too big for this machine, or null. */
+    public String triangleWarning(SculptDocument document) {
+        if (document == null) {
+            return null;
+        }
+        int triangles = document.getSurface().getMesh().getTriangleCount();
+        return triangles > getTriangleLimit()
+            ? String.format(java.util.Locale.ROOT, "%,d triangles is more than software OpenGL draws smoothly (limit %,d): expect a slow view",
+                triangles, getTriangleLimit())
+            : null;
     }
 
     /** Whether sculpt mode is on: left-drag in the 3D viewport sculpts the selected sculpt. */

@@ -1,6 +1,6 @@
 # Phase 20: Music Studio (TD-040)
 
-Status: 20-A (audio core) and 20-B (music editor) implemented and integrated; 20-C (game integration) not started.
+Status: 20-A (audio core) and 20-B (music editor) implemented and integrated; 20-C (game integration) done except writing `.ogg` (TD-043, TD-061, TD-063): listener, positional sound and `.wav` / `.ogg` clips on the desktop and the web.
 Report: [../reports/phase-20-report.md](../reports/phase-20-report.md). Decision: TD-040 in
 [../TECHNICAL_DECISIONS.md](../TECHNICAL_DECISIONS.md). Roadmap source: `ALL_IN_ONE_STUDIO_ROADMAP.md` §4.3 and Phase 11.
 
@@ -18,7 +18,7 @@ Full roadmap Phase 11, new modules `engine-audio` and `editor-audio`, SoundFont 
 |---|---|---|
 | 20-A | `engine-audio`: synth, drums, sampler, SoundFont reader, sfxr, effects, mixer, song model, player, exporter, `.song` file | Implemented, 178 tests |
 | 20-B | `editor-audio` and the Music tab: rack and step sequencer, piano roll, playlist, mixer, instrument settings, undo, save, WAV export, sound output | Implemented and integrated; 53 tests; see the report for what was and was not tried by hand |
-| 20-C | `AudioSourceComponent` and `AudioListenerComponent`, playing songs and sounds in the game runtime and the web player, sound-effect export to `.ogg` | **Not started** |
+| 20-C | `AudioSourceComponent` and `AudioListenerComponent`, playing songs and sounds in the game runtime and the web player, sound-effect export to `.ogg` | **Partly done (TD-043)**: `AudioSourceComponent` plays sfxr sound effects on the desktop (editor Play and game runtime) and in the web player, used by 13 samples. Not done: `AudioListenerComponent`, songs in scenes, `.wav` or `.ogg` clips, positional sound |
 
 ## How it is built
 
@@ -63,7 +63,7 @@ Run `./gradlew :editor-desktop:run`, open the Music tab, choose `music/demo.song
 
 - No audio recording, no VST or plug-ins, no automation lanes, no audio clips on the playlist, 4/4 only.
 - SoundFont playback has no filters, modulators or 24 bit samples; SF3 is not supported.
-- Only WAV is read and written; `.ogg` import and export are not done.
+- WAV is read and written; `.ogg` is read for Audio Source clips (TD-063 amendment) but never written: the project has no Vorbis encoder.
 - Everything renders on one audio thread and there is no load meter, so a very heavy song can stutter.
-- Songs do not play in the game runtime or the web player yet (20-C).
+- Songs play in scenes through the Music Source component on the desktop (several at once) and in the web player (one at a time) (TD-061); positional sound (Audio Listener, spatial Audio Sources) and `.wav` / `.ogg` clips are done on the desktop and in the web player (TD-063, 2026-11-09); writing `.ogg` is not possible (no encoder). Sound effects: TD-043.
 - Mouse editing in the piano roll, playlist, rack and mixer was not tried by hand (see the report).

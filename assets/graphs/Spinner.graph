@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Spinner",
+  "variables": [],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.tick",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "math.multiply",
+      "x": 260,
+      "y": 120,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 90.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n3",
+      "type": "vector.make",
+      "x": 520,
+      "y": 120,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n4",
+      "type": "action.rotateBy",
+      "x": 780,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    }
+  ],
+  "links": [
+    {
+      "from": "n1",
+      "fromPin": "deltaTime",
+      "to": "n2",
+      "toPin": "a"
+    },
+    {
+      "from": "n2",
+      "fromPin": "result",
+      "to": "n3",
+      "toPin": "x"
+    },
+    {
+      "from": "n3",
+      "fromPin": "vector",
+      "to": "n4",
+      "toPin": "degrees"
+    },
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n4",
+      "toPin": "exec"
+    }
+  ]
+}

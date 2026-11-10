@@ -90,6 +90,48 @@ class ModelAssetsTest {
     }
 
     @Test
+    void shouldLoadABakedCharacterWithItsSkeletonAndTheHumanoidTemplates() {
+        // assets/characters/Tall_Man.gltf is written by the character creator (TD-053)
+        ModelAssets bundled = new ModelAssets(new java.io.File("../assets"));
+        try {
+            ModelAssets.LoadedModel loaded = bundled.get("characters/Tall_Man.gltf");
+
+            assertNotNull(loaded, bundled.info("characters/Tall_Man.gltf").error());
+            assertEquals(53, loaded.info().boneCount());
+            assertEquals(List.of("Crouch", "Dance", "Fall", "Idle", "Jump", "LookAround", "Punch", "Run", "Walk", "Wave"), loaded.info().animationNames().stream().sorted().toList());
+            assertEquals(1.86f, loaded.info().bounds().getHeight(), 0.02f);
+            assertEquals(1f, loaded.info().animationDurations().get("Walk"), 1e-4f);
+        } finally {
+            bundled.dispose();
+        }
+    }
+
+    /** An animated node keeps its pose in its local transform, not in its rotation field. */
+    private static float pitchOf(Node node) {
+        return node.localTransform.getRotation(new Quaternion()).getPitch();
+    }
+
+    @Test
+    void shouldPoseABakedCharactersThighWithTheWalkTemplate() {
+        ModelAssets bundled = new ModelAssets(new java.io.File("../assets"));
+        try {
+            ModelInstance character = new ModelInstance(bundled.get("characters/Short_Woman.gltf").model());
+            ModelPoser poser = new ModelPoser(character);
+            Node thigh = character.getNode("thigh_r", true);
+
+            // Walk.anim swings the right thigh from -28 degrees pitch at 0 s to 0 at 0.25 s
+            assertTrue(poser.pose("Walk", 0f));
+            assertEquals(-28f, pitchOf(thigh), 0.5f);
+            assertTrue(poser.pose("Walk", 0.25f));
+            assertEquals(0f, pitchOf(thigh), 0.5f);
+            assertTrue(poser.pose("Walk", 0.5f));
+            assertEquals(28f, pitchOf(thigh), 0.5f);
+        } finally {
+            bundled.dispose();
+        }
+    }
+
+    @Test
     void shouldLoadEachFileOnce() {
         assertSame(assets.get("models/strip.gltf").model(), assets.get("models/strip.gltf").model());
     }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 import samples.common.SideBody;
 
@@ -102,6 +103,7 @@ public class RuinsGame extends ScriptComponent {
         if (body.grounded && (Gdx.input.isKeyJustPressed(Keys.SPACE) || Gdx.input.isKeyJustPressed(Keys.W)
             || Gdx.input.isKeyJustPressed(Keys.UP))) {
             body.velocityY = JUMP_SPEED;
+            AudioSourceComponent.play(getScene(), "jump");
         }
         body.step(deltaTime, GRAVITY, solids, null);
         body.moveEntity(player, 0f);
@@ -111,6 +113,7 @@ public class RuinsGame extends ScriptComponent {
             if (orb.isActiveSelf() && body.touches(position.x, position.y, 15f, 15f)) {
                 orb.setActive(false);
                 collected++;
+                AudioSourceComponent.play(getScene(), "coin");
                 updateTexts();
             }
         }
@@ -130,6 +133,7 @@ public class RuinsGame extends ScriptComponent {
         }
         if (body.touches(goal.x, goal.y, goal.halfWidth, goal.halfHeight)) {
             finished = true;
+            AudioSourceComponent.play(getScene(), "win");
             messageText.setText("You made it out! " + collected + "/" + orbs.size() + " orbs, " + deaths
                 + " deaths. Press R to play again");
         }
@@ -160,6 +164,7 @@ public class RuinsGame extends ScriptComponent {
 
     private void die() {
         deaths++;
+        AudioSourceComponent.play(getScene(), "hurt");
         body.x = respawnX;
         body.y = respawnY;
         body.velocityX = 0f;

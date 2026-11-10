@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 import samples.common.SideBody;
 
@@ -110,6 +111,7 @@ public class GrappleGame extends ScriptComponent {
             hooked = nearestAnchor();
             if (hooked != null) {
                 ropeLength = Vector3.len(body.x - hooked.x, body.y - hooked.y, 0f);
+                AudioSourceComponent.play(getScene(), "grapple");
             }
         }
         if (!grappleHeld) {
@@ -123,6 +125,7 @@ public class GrappleGame extends ScriptComponent {
             if (body.grounded && (Gdx.input.isKeyJustPressed(Keys.SPACE) || Gdx.input.isKeyJustPressed(Keys.W)
                 || Gdx.input.isKeyJustPressed(Keys.UP))) {
                 body.velocityY = JUMP_SPEED;
+                AudioSourceComponent.play(getScene(), "jump");
             }
             body.step(deltaTime, GRAVITY, solids, this::pushCrate);
         }
@@ -138,6 +141,7 @@ public class GrappleGame extends ScriptComponent {
         }
         if (body.y < FALL_LIMIT) {
             hooked = null;
+            AudioSourceComponent.play(getScene(), "hurt");
             body.x = respawnX;
             body.y = respawnY;
             body.velocityX = 0f;
@@ -145,6 +149,7 @@ public class GrappleGame extends ScriptComponent {
         }
         if (body.touches(goal.x, goal.y, goal.halfWidth, goal.halfHeight)) {
             finished = true;
+            AudioSourceComponent.play(getScene(), "win");
             messageText.setText("You crossed the gorge! Press R to play again");
         }
     }

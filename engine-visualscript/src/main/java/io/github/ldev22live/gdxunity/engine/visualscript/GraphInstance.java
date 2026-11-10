@@ -35,6 +35,8 @@ public final class GraphInstance {
     private final List<PendingDelay> delays = new ArrayList<>();
     private boolean stopped;
 
+    private record Continuation(String nodeId, String pinId, Integer index) { }
+
     private static final class PendingDelay {
         final String nodeId;
         final String pinId;
@@ -50,6 +52,11 @@ public final class GraphInstance {
     /**
      * @throws IllegalArgumentException when the graph has validation problems (the first one is in the message)
      */
+    /** Whether the key with this libGDX key code is held down, according to the host. */
+    public boolean isKeyDown(int keycode) {
+        return host.isKeyDown(keycode);
+    }
+
     public GraphInstance(Graph graph, NodeRegistry registry, Entity self, GraphHost host) {
         this.graph = Objects.requireNonNull(graph, "graph cannot be null");
         this.registry = Objects.requireNonNull(registry, "registry cannot be null");
@@ -174,14 +181,17 @@ public final class GraphInstance {
 
     /** Runs everything wired after output {@code pinId} of node {@code nodeId}. */
     private void runChain(String nodeId, String pinId) {
-        Deque<String[]> pending = new ArrayDeque<>();
-        pending.push(new String[] {nodeId, pinId});
+        Deque<Continuation> pending = new ArrayDeque<>();
+        pending.push(new Continuation(nodeId, pinId, null));
         int count = 0;
         String current = nodeId;
         try {
             while (!pending.isEmpty() && isRunning()) {
-                String[] next = pending.pop();
-                for (GraphLink link : graph.linksFrom(next[0], next[1])) {
+                Continuation next = pending.pop();
+                if (next.index() != null) {
+                    lastOutputs.computeIfAbsent(next.nodeId(), k -> new HashMap<>()).put("index", next.index());
+                }
+                for (GraphLink link : graph.linksFrom(next.nodeId(), next.pinId())) {
                     GraphNode target = graph.getNode(link.toNode());
                     current = target.getId();
                     if (++count > MAX_NODES_PER_EVENT) {
@@ -193,7 +203,7 @@ public final class GraphInstance {
                     registry.get(target.getTypeId()).run(context);
                     // Continue in the order the node asked for (a stack pops the last push first)
                     for (int i = context.continuations.size() - 1; i >= 0; i--) {
-                        pending.push(new String[] {target.getId(), context.continuations.get(i)});
+                        pending.push(context.continuations.get(i));
                     }
                 }
             }
@@ -216,18 +226,18 @@ public final class GraphInstance {
             Context context = new Context(source, depth);
             type.run(context);
             Object value = context.pureOutputs.get(pinId);
-            return value != null || pin.type() == ValueType.ENTITY ? value : pin.type().defaultValue();
+            return value != null || pin.type().allowsNull() ? value : pin.type().defaultValue();
         }
         Map<String, Object> outputs = lastOutputs.get(nodeId);
         Object value = outputs != null ? outputs.get(pinId) : null;
-        return value != null || pin.type() == ValueType.ENTITY ? value : pin.type().defaultValue();
+        return value != null || pin.type().allowsNull() ? value : pin.type().defaultValue();
     }
 
     private final class Context implements NodeContext {
         final GraphNode node;
         final NodeType type;
         final int depth;
-        final List<String> continuations = new ArrayList<>();
+        final List<Continuation> continuations = new ArrayList<>();
         final Map<String, Object> pureOutputs = new HashMap<>();
 
         Context(GraphNode node, int depth) {
@@ -245,7 +255,9 @@ public final class GraphInstance {
             List<GraphLink> wires = graph.linksInto(node.getId(), pinId);
             if (!wires.isEmpty()) {
                 GraphLink wire = wires.get(0);
-                return valueOf(wire.fromNode(), wire.fromPin(), depth + 1);
+                Object value = valueOf(wire.fromNode(), wire.fromPin(), depth + 1);
+                // A whole number may be wired into a float pin (GraphValidator.accepts): hand the node the float it asked for
+                return pin.type() == ValueType.FLOAT && value instanceof Integer whole ? (Object) whole.floatValue() : value;
             }
             Object literal = node.getLiteral(pinId);
             return literal != null ? pin.type().copy(literal) : pin.type().defaultValue();
@@ -276,7 +288,19 @@ public final class GraphInstance {
         @Override
         public void continueWith(String pinId) {
             requireExecOutput(pinId);
-            continuations.add(pinId);
+            continuations.add(new Continuation(node.getId(), pinId, null));
+        }
+
+        @Override
+        public void repeat(int count) {
+            if (!LoopNodes.REPEAT.equals(node.getTypeId()) || count < 0 || count > LoopNodes.MAX_ITERATIONS) {
+                throw error("Invalid Repeat count: " + count);
+            }
+            output("index", 0);
+            for (int index = 0; index < count; index++) {
+                continuations.add(new Continuation(node.getId(), "body", index));
+            }
+            continuations.add(new Continuation(node.getId(), "completed", null));
         }
 
         @Override

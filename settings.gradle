@@ -12,4 +12,4 @@ plugins {
 // A list of which subprojects to load as part of the same larger project.
 // You can remove Strings from the list and reload the Gradle project
 // if you want to temporarily disable a subproject.
-include 'engine-core', 'engine-scene', 'engine-render', 'engine-visualscript', 'engine-animation', 'engine-desktop', 'engine-web', 'engine-sculpt', 'engine-audio', 'editor-core', 'editor-visualscript', 'editor-animation', 'editor-sculpt', 'editor-audio', 'editor-desktop'
+include 'engine-core', 'engine-scene', 'engine-render', 'engine-visualscript', 'engine-animation', 'engine-desktop', 'engine-web', 'engine-sculpt', 'engine-audio', 'engine-physics', 'engine-character', 'engine-sprite', 'editor-core', 'editor-visualscript', 'editor-animation', 'editor-sculpt', 'editor-audio', 'editor-character', 'editor-sprite', 'editor-desktop'

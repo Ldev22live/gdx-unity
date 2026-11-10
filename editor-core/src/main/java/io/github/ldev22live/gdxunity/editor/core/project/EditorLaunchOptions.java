@@ -10,6 +10,9 @@ import java.util.Objects;
  *   <li>{@code --scene <file>} or {@code --scene=<file>}: open this scene file at startup; a relative path is
  *       relative to the project folder</li>
  *   <li>{@code --play}: enter Play mode once the editor is up</li>
+ *   <li>{@code --export-game <folder>} or {@code --export-game=<folder>}: do not open the editor; compile the scripts,
+ *       export the project as a standalone game into this new folder (Phase 18-C, TD-046) and exit with 0 on success
+ *       or 1 on failure. The start scene is {@code --scene}, else the project file's {@code startScene}.</li>
  *   <li>{@code --smoke-test} or {@code --smoke-test=<frames>}: render that many frames, then exit with 0 on success
  *       or 1 when anything failed; for automated checks of a packaged build</li>
  * </ul>
@@ -19,9 +22,10 @@ import java.util.Objects;
  * @param project         requested project folder, or null
  * @param scene           scene file to open at startup, or null for the built-in startup scene
  * @param play            whether to enter Play mode after startup
+ * @param exportGame      folder to export a standalone game to instead of opening the editor, or null
  * @param smokeTestFrames frames to render before exiting, or 0 for a normal session
  */
-public record EditorLaunchOptions(File project, File scene, boolean play, int smokeTestFrames) {
+public record EditorLaunchOptions(File project, File scene, boolean play, File exportGame, int smokeTestFrames) {
     /** Frames rendered by {@code --smoke-test} without a count: a few seconds at 60 frames per second. */
     public static final int DEFAULT_SMOKE_TEST_FRAMES = 180;
 
@@ -29,6 +33,7 @@ public record EditorLaunchOptions(File project, File scene, boolean play, int sm
     static final String SMOKE_TEST = "--smoke-test";
     static final String SCENE = "--scene";
     static final String PLAY = "--play";
+    static final String EXPORT_GAME = "--export-game";
     /** Prefix of the process serial number argument added by older macOS Finder launches. */
     static final String MAC_PROCESS_SERIAL_PREFIX = "-psn_";
 
@@ -36,6 +41,11 @@ public record EditorLaunchOptions(File project, File scene, boolean play, int sm
         if (smokeTestFrames < 0) {
             throw new IllegalArgumentException("smokeTestFrames must be >= 0: " + smokeTestFrames);
         }
+    }
+
+    /** True when the editor should only export a game and exit. */
+    public boolean isGameExport() {
+        return exportGame != null;
     }
 
     /** True when the editor should exit by itself after {@link #smokeTestFrames()} frames. */
@@ -51,6 +61,7 @@ public record EditorLaunchOptions(File project, File scene, boolean play, int sm
         Objects.requireNonNull(args, "args cannot be null");
         File project = null;
         File scene = null;
+        File exportGame = null;
         boolean play = false;
         int frames = 0;
         for (int i = 0; i < args.length; i++) {
@@ -65,6 +76,11 @@ public record EditorLaunchOptions(File project, File scene, boolean play, int sm
                 if (arg.equals(SCENE)) {
                     i++;
                 }
+            } else if (arg.equals(EXPORT_GAME) || arg.startsWith(EXPORT_GAME + "=")) {
+                exportGame = new File(pathValue(args, i, EXPORT_GAME));
+                if (arg.equals(EXPORT_GAME)) {
+                    i++;
+                }
             } else if (arg.equals(PLAY)) {
                 play = true;
             } else if (arg.equals(SMOKE_TEST)) {
@@ -73,10 +89,10 @@ public record EditorLaunchOptions(File project, File scene, boolean play, int sm
                 frames = parseFrames(arg.substring(SMOKE_TEST.length() + 1));
             } else if (!arg.startsWith(MAC_PROCESS_SERIAL_PREFIX)) {
                 throw new IllegalArgumentException("Unknown option: " + arg + " (supported: " + PROJECT + " <folder>, "
-                    + SCENE + " <file>, " + PLAY + ", " + SMOKE_TEST + "[=frames])");
+                    + SCENE + " <file>, " + PLAY + ", " + EXPORT_GAME + " <folder>, " + SMOKE_TEST + "[=frames])");
             }
         }
-        return new EditorLaunchOptions(project, scene, play, frames);
+        return new EditorLaunchOptions(project, scene, play, exportGame, frames);
     }
 
     /** The path after {@code option}, either as {@code option=value} or as the next argument. */

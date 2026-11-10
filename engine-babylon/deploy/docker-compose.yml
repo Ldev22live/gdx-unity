@@ -1,0 +1,12 @@
+# Run from the root of the extracted package:  docker compose -f deploy/docker-compose.yml up -d --build
+# Then put an HTTPS reverse proxy in front of 127.0.0.1:8080 (see INSTALL.md). Plain http is only reachable from the VPS itself.
+services:
+  forgeroom-web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: forgeroom-web:latest
+    container_name: forgeroom-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"

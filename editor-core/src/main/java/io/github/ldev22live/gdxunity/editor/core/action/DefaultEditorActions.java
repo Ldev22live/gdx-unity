@@ -15,6 +15,7 @@ import io.github.ldev22live.gdxunity.engine.render.SceneRenderer3D;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.DirectionalLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.ToneMappingComponent;
@@ -41,6 +42,12 @@ public final class DefaultEditorActions {
     public static final String MENU_HELP = "Help";
 
     public static final String FILE_NEW_SCENE = "file.new-scene";
+    /** New scene in 2D mode (TD-067). */
+    public static final String FILE_NEW_2D = "file.new-scene-2d";
+    /** New scene in 2.5D mode (TD-067). */
+    public static final String FILE_NEW_2_5D = "file.new-scene-2.5d";
+    /** New scene in 3D mode (TD-067). */
+    public static final String FILE_NEW_3D = "file.new-scene-3d";
     public static final String FILE_OPEN_SCENE = "file.open-scene";
     public static final String FILE_OPEN_SAMPLE = "file.open-sample";
     public static final String FILE_SAVE_SCENE = "file.save-scene";
@@ -174,6 +181,9 @@ public final class DefaultEditorActions {
             .shortcut(Input.Keys.N, EditorKeyboardDispatcher.MOD_CTRL)
             .enabledWhen(editing)
             .build());
+        registerNewSceneInMode(registry, files, editing, FILE_NEW_2D, GameMode.MODE_2D);
+        registerNewSceneInMode(registry, files, editing, FILE_NEW_2_5D, GameMode.MODE_2_5D);
+        registerNewSceneInMode(registry, files, editing, FILE_NEW_3D, GameMode.MODE_3D);
         registry.register(EditorAction.builder(FILE_OPEN_SCENE, "Open Scene...", files::open)
             .menu(MENU_FILE, GROUP_FIRST)
             .shortcut(Input.Keys.O, EditorKeyboardDispatcher.MOD_CTRL)
@@ -298,6 +308,14 @@ public final class DefaultEditorActions {
         if (prefabs != null && selected != null) {
             operation.accept(prefabs, selected);
         }
+    }
+
+    private static void registerNewSceneInMode(EditorActionRegistry registry, SceneFileController files, BooleanSupplier editing,
+                                               String id, GameMode mode) {
+        registry.register(EditorAction.builder(id, "New " + mode.getLabel() + " Scene", () -> files.newScene(mode))
+            .menu(MENU_FILE, GROUP_FIRST)
+            .enabledWhen(editing)
+            .build());
     }
 
     private static void registerTool(EditorActionRegistry registry, EditorState editorState,

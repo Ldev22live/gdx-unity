@@ -1,0 +1,1107 @@
+{
+  "schemaVersion": 1,
+  "name": "Character Playground 3D",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "fbf1f0a7-8f50-5a40-9802-a48e3f65a4f9",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "fcfe752b-24a4-5da2-bc10-a3809e157ad8",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -700.0,
+          "y": 490.0,
+          "z": 1160.0
+        },
+        "rotation": {
+          "x": -0.316228,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.948683
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        },
+        {
+          "type": "CameraRigComponent",
+          "enabled": true,
+          "data": {
+            "mode": "FOLLOW",
+            "targetName": "Hero",
+            "followOffsetX": 0.0,
+            "followOffsetY": 420.0,
+            "followOffsetZ": 560.0,
+            "followRate": 6.0,
+            "pivotHeight": 0.0,
+            "eyeHeight": 70.0,
+            "yaw": 0.0,
+            "pitch": -20.0,
+            "minPitch": -80.0,
+            "maxPitch": 60.0,
+            "distance": 400.0,
+            "minDistance": 100.0,
+            "maxDistance": 1200.0,
+            "occlusionEnabled": false,
+            "occlusionMargin": 20.0,
+            "occlusionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "beae9af5-4773-5f00-8d85-daf530b17d67",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 2400.0,
+            "sizeY": 100.0,
+            "sizeZ": 2400.0,
+            "colorR": 0.42,
+            "colorG": 0.55,
+            "colorB": 0.42,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 2400.0,
+            "sizeY": 100.0,
+            "sizeZ": 2400.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e9a4e9a8-f5d3-51e4-b2eb-f8969983a3ec",
+      "name": "Wall North",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 60.0,
+          "z": -1220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 2440.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 2440.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6baabf08-520a-5139-8ae4-f7cf437e2ad2",
+      "name": "Wall South",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 60.0,
+          "z": 1220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 2440.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 2440.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cd5fd660-e437-5020-8f57-93cf65799043",
+      "name": "Wall West",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1220.0,
+          "y": 60.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 2440.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 2440.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cc7c6a10-b497-5975-9051-65b3c1f7f78c",
+      "name": "Wall East",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1220.0,
+          "y": 60.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 2440.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 2440.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "715dcef2-6719-5b02-a0fa-4d0ed29d54d9",
+      "name": "Step 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -240.0,
+          "y": 10.0,
+          "z": 600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 120.0,
+            "sizeY": 20.0,
+            "sizeZ": 300.0,
+            "colorR": 0.62,
+            "colorG": 0.58,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 120.0,
+            "sizeY": 20.0,
+            "sizeZ": 300.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "94384c9a-4c77-540e-a582-281d22296c94",
+      "name": "Step 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -120.0,
+          "y": 20.0,
+          "z": 600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 120.0,
+            "sizeY": 40.0,
+            "sizeZ": 300.0,
+            "colorR": 0.62,
+            "colorG": 0.58,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 120.0,
+            "sizeY": 40.0,
+            "sizeZ": 300.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d5de79f7-02ef-5373-b422-31902390bc96",
+      "name": "Step 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 30.0,
+          "z": 600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 120.0,
+            "sizeY": 60.0,
+            "sizeZ": 300.0,
+            "colorR": 0.62,
+            "colorG": 0.58,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 120.0,
+            "sizeY": 60.0,
+            "sizeZ": 300.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "671ded07-e947-54bd-9af8-0a8820d2f997",
+      "name": "Step 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 120.0,
+          "y": 40.0,
+          "z": 600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 120.0,
+            "sizeY": 80.0,
+            "sizeZ": 300.0,
+            "colorR": 0.62,
+            "colorG": 0.58,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 120.0,
+            "sizeY": 80.0,
+            "sizeZ": 300.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "507cad18-f4b4-54fd-8589-c8fbb6a937a4",
+      "name": "Gentle Ramp",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 500.0,
+          "y": 0.0,
+          "z": 100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.21644,
+          "w": 0.976296
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 600.0,
+            "sizeY": 20.0,
+            "sizeZ": 300.0,
+            "colorR": 0.5,
+            "colorG": 0.6,
+            "colorB": 0.75,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 600.0,
+            "sizeY": 20.0,
+            "sizeZ": 300.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3348f32c-f468-50f0-a746-9319e3ab3965",
+      "name": "Steep Ramp",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 500.0,
+          "y": 0.0,
+          "z": -300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.5,
+          "w": 0.866025
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 600.0,
+            "sizeY": 20.0,
+            "sizeZ": 300.0,
+            "colorR": 0.75,
+            "colorG": 0.5,
+            "colorB": 0.5,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 600.0,
+            "sizeY": 20.0,
+            "sizeZ": 300.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "98f8edf1-eba3-5c53-8b8c-51044a46b827",
+      "name": "Jump Block",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -700.0,
+          "y": 30.0,
+          "z": -300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 60.0,
+            "sizeZ": 200.0,
+            "colorR": 0.85,
+            "colorG": 0.75,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 200.0,
+            "sizeY": 60.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "30068e0a-7218-579b-9f14-1ecf937eb475",
+      "name": "Tall Block",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -700.0,
+          "y": 75.0,
+          "z": -700.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 150.0,
+            "sizeZ": 200.0,
+            "colorR": 0.6,
+            "colorG": 0.4,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 200.0,
+            "sizeY": 150.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0e9059de-d5ef-5d45-ac08-385a4a2aa748",
+      "name": "Crate 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 30.0,
+          "z": 900.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 60.0,
+            "sizeZ": 60.0,
+            "colorR": 0.8,
+            "colorG": 0.6,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 4.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 60.0,
+            "sizeY": 60.0,
+            "sizeZ": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5657651d-070b-5166-9e0b-814b1fa8a601",
+      "name": "Crate 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 30.0,
+          "z": 1000.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 60.0,
+            "sizeZ": 60.0,
+            "colorR": 0.8,
+            "colorG": 0.6,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 4.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 60.0,
+            "sizeY": 60.0,
+            "sizeZ": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "19bfb8c7-1981-5dc4-ae13-22ad5e58426b",
+      "name": "Crate 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 400.0,
+          "y": 30.0,
+          "z": 950.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 60.0,
+            "sizeZ": 60.0,
+            "colorR": 0.8,
+            "colorG": 0.6,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 4.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 60.0,
+            "sizeY": 60.0,
+            "sizeZ": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0999ba0f-f637-5bd3-b60b-4463b7e8ac93",
+      "name": "Hero",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -700.0,
+          "y": 75.0,
+          "z": 900.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 140.0,
+            "sizeZ": 60.0,
+            "colorR": 0.9,
+            "colorG": 0.35,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "CharacterController3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 30.0,
+            "height": 80.0,
+            "slopeLimitDegrees": 45.0,
+            "stepHeight": 30.0,
+            "mass": 70.0,
+            "gravityScale": 1.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/walker/WalkerPlayer.java",
+            "scriptClassName": "samples.walker.WalkerPlayer",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "90fcc92f-3677-560d-bd5d-2c3ea40d308e",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "WASD or arrows walk, Space jumps. Climb the steps and the gentle ramp, jump onto the low block, push the crates.",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.2,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

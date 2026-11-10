@@ -28,6 +28,7 @@ public final class NodeType {
     private final Map<String, ValueType> properties;
     private final Consumer<NodeContext> behaviour;
     private final BiFunction<GraphNode, Graph, List<PinDef>> dynamicPins;
+    private final Object source;
 
     private NodeType(Builder builder) {
         this.id = builder.id;
@@ -38,6 +39,7 @@ public final class NodeType {
         this.properties = Map.copyOf(builder.properties);
         this.behaviour = builder.behaviour;
         this.dynamicPins = builder.dynamicPins;
+        this.source = builder.source;
     }
 
     public static Builder builder(String id, String title, String category, Kind kind) {
@@ -46,6 +48,14 @@ public final class NodeType {
 
     public String getId() {
         return id;
+    }
+
+    /**
+     * What the node was made from: the {@code java.lang.reflect.Executable} of a method node (TD-060), which code generation reads;
+     * a component {@code Class} for a typed component lookup (TD-068), or null for the built-in nodes.
+     */
+    public Object getSource() {
+        return source;
     }
 
     public String getTitle() {
@@ -95,6 +105,7 @@ public final class NodeType {
         private final Map<String, ValueType> properties = new LinkedHashMap<>();
         private Consumer<NodeContext> behaviour;
         private BiFunction<GraphNode, Graph, List<PinDef>> dynamicPins;
+        private Object source;
 
         private Builder(String id, String title, String category, Kind kind) {
             this.id = Objects.requireNonNull(id, "id cannot be null");
@@ -128,6 +139,12 @@ public final class NodeType {
 
         public Builder behaviour(Consumer<NodeContext> behaviour) {
             this.behaviour = behaviour;
+            return this;
+        }
+
+        /** Records what the node was made from, see {@link NodeType#getSource()}. */
+        public Builder source(Object source) {
+            this.source = source;
             return this;
         }
 

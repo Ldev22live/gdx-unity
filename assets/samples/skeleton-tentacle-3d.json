@@ -1,0 +1,639 @@
+{
+  "schemaVersion": 1,
+  "name": "Skeleton 3 - Tentacle",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "279bcb0c-3233-526a-895f-4749a0e0d008",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 800,
+          "z": 400
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1,
+            "directionZ": -0.6,
+            "colorR": 1,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1,
+            "intensity": 1,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "e3d69ffd-11fc-5227-875b-fae3ba177f58",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.72,
+            "skyB": 0.88,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.7
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8c0aa78a-0e19-5482-8d2a-2faee395c9d2",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -5,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1200,
+            "sizeY": 10,
+            "sizeZ": 1200,
+            "colorR": 0.36,
+            "colorG": 0.42,
+            "colorB": 0.38,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "d50b569d-b305-5c55-869b-fd59dfe30a2f",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 220,
+          "z": 560
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480,
+            "fieldOfView": 50,
+            "nearPlane": 1,
+            "farPlane": 50000
+          }
+        }
+      ]
+    },
+    {
+      "id": "97668fd0-6abe-5c09-823f-afd5038eed1c",
+      "name": "Tentacle",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "AnimatorComponent",
+          "enabled": true,
+          "data": {
+            "clip": "animations/skeleton/Tentacle.anim",
+            "playOnStart": true,
+            "wrap": "LOOP",
+            "speed": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "4d578446-e722-5242-8cb3-024f19092e5d",
+      "name": "Base",
+      "active": true,
+      "parentId": "97668fd0-6abe-5c09-823f-afd5038eed1c",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 110,
+            "sizeY": 24,
+            "sizeZ": 110,
+            "colorR": 0.3,
+            "colorG": 0.3,
+            "colorB": 0.35,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "877d2065-f028-5b4d-831c-d75e9624edf3",
+      "name": "Segment 1",
+      "active": true,
+      "parentId": "97668fd0-6abe-5c09-823f-afd5038eed1c",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 12,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "fd78160b-f341-5ea1-8713-72a96b2e0610",
+      "name": "Segment 1 Mesh",
+      "active": true,
+      "parentId": "877d2065-f028-5b4d-831c-d75e9624edf3",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 30,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 36,
+            "sizeY": 60,
+            "sizeZ": 36,
+            "colorR": 0.7,
+            "colorG": 0.33,
+            "colorB": 0.55,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "58a96340-0bd2-5cda-8fac-2321084e893e",
+      "name": "Segment 2",
+      "active": true,
+      "parentId": "877d2065-f028-5b4d-831c-d75e9624edf3",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 60,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "14d7245c-5eea-5795-8435-d6cafbec3180",
+      "name": "Segment 2 Mesh",
+      "active": true,
+      "parentId": "58a96340-0bd2-5cda-8fac-2321084e893e",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 30,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 32,
+            "sizeY": 60,
+            "sizeZ": 32,
+            "colorR": 0.65,
+            "colorG": 0.41000000000000003,
+            "colorB": 0.55,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "ea1a7959-511a-59ea-8272-944282039dab",
+      "name": "Segment 3",
+      "active": true,
+      "parentId": "58a96340-0bd2-5cda-8fac-2321084e893e",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 60,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "17fb014b-b905-5f98-80eb-3da6174c1605",
+      "name": "Segment 3 Mesh",
+      "active": true,
+      "parentId": "ea1a7959-511a-59ea-8272-944282039dab",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 30,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 28,
+            "sizeY": 60,
+            "sizeZ": 28,
+            "colorR": 0.6,
+            "colorG": 0.49,
+            "colorB": 0.55,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "3e3d3d12-66ee-551a-84e8-92ce29e22e8f",
+      "name": "Segment 4",
+      "active": true,
+      "parentId": "ea1a7959-511a-59ea-8272-944282039dab",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 60,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "943e087a-1feb-5123-847a-18950e046c29",
+      "name": "Segment 4 Mesh",
+      "active": true,
+      "parentId": "3e3d3d12-66ee-551a-84e8-92ce29e22e8f",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 30,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 24,
+            "sizeY": 60,
+            "sizeZ": 24,
+            "colorR": 0.55,
+            "colorG": 0.5700000000000001,
+            "colorB": 0.55,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "eb133d94-082d-5f3d-85b9-a4e2bfd05a34",
+      "name": "Segment 5",
+      "active": true,
+      "parentId": "3e3d3d12-66ee-551a-84e8-92ce29e22e8f",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 60,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "e82d2a23-2493-5e98-863d-ca91247240f8",
+      "name": "Segment 5 Mesh",
+      "active": true,
+      "parentId": "eb133d94-082d-5f3d-85b9-a4e2bfd05a34",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 30,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 20,
+            "sizeY": 60,
+            "sizeZ": 20,
+            "colorR": 0.5,
+            "colorG": 0.65,
+            "colorB": 0.55,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "248b0e8f-ed10-55f8-829b-10e74b9613b0",
+      "name": "Segment 6",
+      "active": true,
+      "parentId": "eb133d94-082d-5f3d-85b9-a4e2bfd05a34",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 60,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "98ab2373-a239-500c-820f-be6b9e66cded",
+      "name": "Segment 6 Mesh",
+      "active": true,
+      "parentId": "248b0e8f-ed10-55f8-829b-10e74b9613b0",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 30,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 16,
+            "sizeY": 60,
+            "sizeZ": 16,
+            "colorR": 0.44999999999999996,
+            "colorG": 0.73,
+            "colorB": 0.55,
+            "colorA": 1
+          }
+        }
+      ]
+    }
+  ]
+}

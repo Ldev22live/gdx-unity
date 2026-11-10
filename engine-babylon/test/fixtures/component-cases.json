@@ -1,0 +1,19 @@
+[
+  {"component":"ShapeRendererComponent","method":"getWidth()","args":[],"result":90},
+  {"component":"ShapeRendererComponent","method":"getHeight()","args":[],"result":14},
+  {"component":"TextComponent","method":"setText(java.lang.String)","args":["Graph score: 7"]},
+  {"component":"TextComponent","method":"getText()","args":[],"result":"Graph score: 7"},
+  {"component":"CameraComponent","method":"setFieldOfView(float)","args":[75]},
+  {"component":"CameraComponent","method":"getFieldOfView()","args":[],"result":75},
+  {"component":"CameraComponent","method":"setFieldOfView(float)","args":[180],"error":true},
+  {"component":"CameraComponent","method":"getFieldOfView()","args":[],"result":75},
+  {"component":"SpriteAnimatorComponent","method":"play(java.lang.String)","args":["walk"]},
+  {"component":"TilemapComponent","method":"isSolidAt(float,float)","args":[1,1],"result":true},
+  {"component":"TilemapComponent","method":"isSolidAt(float,float)","args":[33,1],"result":false},
+  {"component":"TilemapComponent","method":"isSolidAt(float,float)","args":[-1,1],"result":false},
+  {"component":"AudioSourceComponent","method":"setVolume(float)","args":[0.25]},
+  {"component":"AudioSourceComponent","method":"getVolume()","args":[],"result":0.25},
+  {"component":"AudioSourceComponent","method":"setVolume(float)","args":[-1],"error":true},
+  {"component":"AudioSourceComponent","method":"getVolume()","args":[],"result":0.25},
+  {"component":"AudioSourceComponent","method":"play()","args":[]}
+]

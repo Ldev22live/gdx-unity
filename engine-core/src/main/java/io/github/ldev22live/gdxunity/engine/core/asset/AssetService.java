@@ -93,6 +93,15 @@ public class AssetService implements Disposable {
     }
 
     /**
+     * The file of a project asset, for assets that are not textures (a sprite, which the component reads itself). The handle may name a file that
+     * does not exist; check {@link FileHandle#exists()}.
+     */
+    public FileHandle resolve(AssetReference reference) {
+        checkNotDisposed();
+        return source.resolve(Objects.requireNonNull(reference, "reference cannot be null"));
+    }
+
+    /**
      * Checks if a texture is already loaded into GPU memory.
      */
     public boolean isLoaded(AssetReference reference) {

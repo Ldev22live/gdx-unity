@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Disposable;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptCollisionForwarder2D;
 import io.github.ldev22live.gdxunity.engine.scene.Transform;
 
 import java.util.*;
@@ -65,6 +66,8 @@ public class PhysicsSystem2D implements Disposable {
         this.world = new World(grav, true);
 
         setupContactListener();
+        // Scripts get the 2D collision callbacks from every system, whoever made it (editor Play, the game runtime, a test)
+        listeners.add(new ScriptCollisionForwarder2D());
         createBodiesAndFixtures();
     }
 
@@ -104,6 +107,13 @@ public class PhysicsSystem2D implements Disposable {
             List<CircleCollider2DComponent> circleColliders = entity.getComponents(CircleCollider2DComponent.class);
 
             boolean hasColliders = !boxColliders.isEmpty() || !circleColliders.isEmpty();
+            List<StaticColliderSource2D> staticSources = new ArrayList<>();
+            for (io.github.ldev22live.gdxunity.engine.scene.Component component : entity.getAllComponents()) {
+                if (component.isEnabled() && component instanceof StaticColliderSource2D source && !source.getStaticBoxes().isEmpty()) {
+                    staticSources.add(source);
+                }
+            }
+            hasColliders |= !staticSources.isEmpty();
 
             // If entity has no RigidBody and no colliders, skip
             if (rb == null && !hasColliders) {
@@ -160,6 +170,28 @@ public class PhysicsSystem2D implements Disposable {
                     createCircleFixture(body, entity, circle);
                 }
             }
+
+            for (StaticColliderSource2D source : staticSources) {
+                createStaticBoxFixtures(body, entity, source);
+            }
+        }
+    }
+
+    /** Tile friction of the fixed boxes (the default of a collider). */
+    private static final float STATIC_BOX_FRICTION = 0.2f;
+
+    private void createStaticBoxFixtures(Body body, Entity entity, StaticColliderSource2D source) {
+        Vector3 origin = entity.getTransform().getWorldPosition();
+        for (StaticColliderSource2D.StaticBox2D box : source.getStaticBoxes()) {
+            PolygonShape shape = new PolygonShape();
+            Vector2 center = PhysicsUnits2D.toPhysicsPosition(box.centerX() - origin.x, box.centerY() - origin.y);
+            shape.setAsBox(PhysicsUnits2D.toPhysicsLength(box.width() / 2f), PhysicsUnits2D.toPhysicsLength(box.height() / 2f), center, 0f);
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.shape = shape;
+            fixtureDef.friction = STATIC_BOX_FRICTION;
+            Fixture fixture = body.createFixture(fixtureDef);
+            fixture.setUserData(source);
+            shape.dispose();
         }
     }
 

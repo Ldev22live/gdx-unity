@@ -24,7 +24,7 @@
 **Node set (34):** Event Begin Play, Event Tick, Event Collision, Event Trigger Enter, Custom Event · Branch,
 Sequence, Delay · Print, Set Position, Move By, Rotate By, Destroy Entity · Get / Set Variable · Self, Get Position,
 Get Name · Add, Subtract, Multiply, Divide, Greater Than, Less Than, Equal, And, Or, Not · Make / Break Vector, Add
-Vectors, Scale Vector · Append Text, Number to Text.
+Vectors, Scale Vector · Append Text, Number to Text. **Added in Phase 15-F (TD-048), desktop only:** Add Force, Add Impulse, Set Velocity, Get Velocity, Raycast 3D (category Physics 3D); Event Collision / Trigger Enter also fire for 3D contacts. **Added in Phase 15-G (TD-049), desktop only:** Move Character, Jump Character, Is Grounded.
 
 ## Known limitations
 

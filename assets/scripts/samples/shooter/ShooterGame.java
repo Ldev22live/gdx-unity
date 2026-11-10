@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.ArrayList;
@@ -122,6 +123,7 @@ public class ShooterGame extends ScriptComponent {
             Vector3 shipPosition = ship.getTransform().getWorldPosition();
             activate(bullets, shipPosition.x, shipPosition.y + shipHalfHeight);
             fireCooldown = FIRE_INTERVAL;
+            AudioSourceComponent.play(getScene(), "shoot");
         }
         spawnTimer -= deltaTime;
         if (spawnTimer <= 0f) {
@@ -180,6 +182,7 @@ public class ShooterGame extends ScriptComponent {
                     bullet.setActive(false);
                     enemy.setActive(false);
                     score += ENEMY_POINTS;
+                    AudioSourceComponent.play(getScene(), "explode");
                     updateTexts();
                     break;
                 }
@@ -188,9 +191,11 @@ public class ShooterGame extends ScriptComponent {
                 && overlaps(shipPosition, shipHalfWidth, shipHalfHeight, enemyPosition, ENEMY_WIDTH / 2f, ENEMY_HEIGHT / 2f)) {
                 enemy.setActive(false);
                 lives--;
+                AudioSourceComponent.play(getScene(), "hurt");
                 updateTexts();
                 if (lives <= 0) {
                     gameOver = true;
+                    AudioSourceComponent.play(getScene(), "lose");
                     messageText.setText("Game over. Score " + score + ". Press R to play again");
                 }
             }

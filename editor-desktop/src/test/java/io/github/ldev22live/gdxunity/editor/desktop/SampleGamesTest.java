@@ -3,8 +3,23 @@ package io.github.ldev22live.gdxunity.editor.desktop;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.log.EditorLog;
+import io.github.ldev22live.gdxunity.editor.visualscript.GraphAssets;
+import io.github.ldev22live.gdxunity.editor.visualscript.GraphExecutionTrace;
+import io.github.ldev22live.gdxunity.editor.visualscript.GraphPlayModeExtension;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphHost;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphInstance;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphRuntimeException;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphScriptComponent;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphSerializer;
+import io.github.ldev22live.gdxunity.engine.visualscript.NodeRegistry;
+import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
+import io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent;
+import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptLanguage;
 import io.github.ldev22live.gdxunity.editor.core.play.PlayModeController;
 import io.github.ldev22live.gdxunity.editor.core.scripting.ScriptManager;
 import io.github.ldev22live.gdxunity.engine.desktop.GameScripts;
@@ -14,6 +29,7 @@ import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D;
 import io.github.ldev22live.gdxunity.engine.scene.physics.PhysicsSystem2D;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSerializerRegistry;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
@@ -34,6 +50,15 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.badlogic.gdx.utils.JsonReader;
+import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
+import com.badlogic.gdx.utils.JsonValue;
+import io.github.ldev22live.gdxunity.engine.render.ColliderGeometry;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.MeshGeometry3D;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Base64;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -51,7 +76,7 @@ class SampleGamesTest {
     private static final float FRAME = 1f / 60f;
     private static final List<String> SAMPLES = List.of("platformer-2d", "breakout-2d", "shooter-2d",
         "physics-sandbox-2d", "collector-3d", "runner-3d", "hopper-3d", "ruins-runner-25d", "three-heroes-25d",
-        "grapple-gorge-25d", "racing-3d", "arena-fps-3d", "fighter-25d", "puzzle-3d");
+        "grapple-gorge-25d", "racing-3d", "arena-fps-3d", "fighter-25d", "puzzle-3d", "physics-sandbox-3d", "character-playground-3d", "physics-joints-3d");
 
     @TempDir
     static Path compiledScripts;
@@ -96,6 +121,20 @@ class SampleGamesTest {
         Scene scene = new SceneSerializer(registry).fromJson(json);
         List<String> errors = scripts.initializeSceneScripts(scene);
         assertTrue(errors.isEmpty(), () -> sample + ": " + errors);
+        for (Entity entity : scene.getAllEntities()) {
+            for (GraphScriptComponent graph : entity.getComponents(GraphScriptComponent.class)) {
+                graph.bind(new GraphInstance(GraphSerializer.fromJson(Files.readString(new File(PROJECT,
+                    graph.getGraphPath()).toPath())), NodeRegistry.createDefault(), entity, new GraphHost() {
+                    @Override
+                    public void log(GraphInstance instance, String message) { }
+
+                    @Override
+                    public void error(GraphInstance instance, GraphRuntimeException error) {
+                        throw error;
+                    }
+                }));
+            }
+        }
         return scene;
     }
 
@@ -255,6 +294,346 @@ class SampleGamesTest {
         }
         physics.dispose();
         scene.dispose();
+    }
+
+    @Test
+    void shouldDropBallsAndSettleACratePyramidInThe3DPhysicsSandbox() throws IOException {
+        File file = new File(PROJECT, "samples/physics-sandbox-3d.json");
+        GameSession session = new GameSession(PROJECT, GameSession.loadScene(file),
+            new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+        assertEquals(List.of(), session.start());
+        assertNotNull(session.getPhysicsSystem3D(), "the sample has 3D colliders");
+        Scene scene = session.getScene();
+        float highest = y(scene, "Ball 8");
+        for (int i = 0; i < 360; i++) {
+            session.update(FRAME);
+        }
+
+        assertTrue(y(scene, "Ball 1") > 30f && y(scene, "Ball 1") < 60f, "a ball rests on the floor, radius 40: " + y(scene, "Ball 1"));
+        assertTrue(y(scene, "Ball 8") < highest - 100f, "the bouncy ball fell from " + highest);
+        for (Entity entity : scene.getAllEntities()) {
+            if (entity.getName().startsWith("Crate")) {
+                assertTrue(y(scene, entity.getName()) > 30f, entity.getName() + " is on or above the floor");
+                assertTrue(Math.abs(x(scene, entity.getName())) < 800f, entity.getName() + " stayed inside the walls");
+            }
+        }
+        assertTrue(session.getRuntimeErrors().isEmpty(), () -> session.getRuntimeErrors().toString());
+        session.dispose();
+    }
+
+    /** Plays the 3D sandbox with its SandboxLauncher script (TD-048) and the camera aimed at {@code target} from {@code distance} units away (it must stay inside the walls). */
+    private GameSession aimedSandbox(String target, float distance) throws IOException {
+        File file = new File(PROJECT, "samples/physics-sandbox-3d.json");
+        GameSession session = new GameSession(PROJECT, GameSession.loadScene(file),
+            new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+        assertEquals(List.of(), session.start());
+        for (int i = 0; i < 360; i++) {
+            session.update(FRAME);
+        }
+        Scene scene = session.getScene();
+        Entity camera = scene.findEntityByName("Main Camera");
+        camera.getTransform().setLocalPosition(x(scene, target), y(scene, target), scene.findEntityByName(target).getTransform().getWorldPosition().z + distance);
+        camera.getTransform().setLocalRotation(new Quaternion());
+        return session;
+    }
+
+    private void press(GameSession session, int key) {
+        justPressed.add(key);
+        session.update(FRAME);
+        justPressed.clear();
+    }
+
+    /** Plays the character playground (TD-049) with the hero put at {@code (x, z)} before the game starts. */
+    private GameSession playground(float x, float z) throws IOException {
+        File file = new File(PROJECT, "samples/character-playground-3d.json");
+        Scene scene = GameSession.loadScene(file);
+        scene.findEntityByName("Hero").getTransform().setLocalPosition(x, 75f, z);
+        GameSession session = new GameSession(PROJECT, scene, new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()),
+            GameSession.CONSOLE);
+        assertEquals(List.of(), session.start());
+        for (int i = 0; i < 60; i++) {
+            session.update(FRAME); // lands
+        }
+        return session;
+    }
+
+    @Test
+    void shouldWalkAndJumpTheCharacterInThePlaygroundFromTheKeyboard() throws IOException {
+        GameSession session = playground(-700f, 900f);
+        Scene scene = session.getScene();
+        Entity hero = scene.findEntityByName("Hero");
+        assertTrue(session.getPhysicsSystem3D().isCharacterGrounded(hero), "standing after the landing");
+        float startX = x(scene, "Hero");
+
+        held.add(Keys.D);
+        for (int i = 0; i < 60; i++) {
+            session.update(FRAME);
+        }
+        held.clear();
+        assertEquals(300f, x(scene, "Hero") - startX, 15f, "a second of D walks 3 m");
+
+        float restY = y(scene, "Hero");
+        press(session, Keys.SPACE);
+        float apex = restY;
+        for (int i = 0; i < 90; i++) {
+            session.update(FRAME);
+            apex = Math.max(apex, y(scene, "Hero"));
+        }
+        assertEquals(450f * 450f / (2f * 981f), apex - restY, 8f, "the jump rises about a meter");
+        assertTrue(session.getPhysicsSystem3D().isCharacterGrounded(hero), "and comes down");
+        assertTrue(scene.findEntityByName("Help Text").getComponent(TextComponent.class).getText().endsWith("On the ground"));
+        assertTrue(session.getRuntimeErrors().isEmpty(), () -> session.getRuntimeErrors().toString());
+        session.dispose();
+    }
+
+    @Test
+    void shouldChaseTheHeroWithTheCameraRigOfThePlayground() throws IOException {
+        GameSession session = playground(-700f, 900f);
+        Scene scene = session.getScene();
+        held.add(Keys.D);
+        for (int i = 0; i < 120; i++) {
+            session.update(FRAME);
+        }
+        held.clear();
+        for (int i = 0; i < 60; i++) {
+            session.update(FRAME);
+        }
+
+        Vector3 camera = scene.findEntityByName("Main Camera").getTransform().getWorldPosition();
+        Vector3 hero = scene.findEntityByName("Hero").getTransform().getWorldPosition();
+        assertTrue(hero.x > -300f, "the hero walked: " + hero);
+        assertEquals(hero.x, camera.x, 2f, "the camera caught up after the hero stopped");
+        assertEquals(hero.y + 420f, camera.y, 2f);
+        assertEquals(hero.z + 560f, camera.z, 2f);
+        assertTrue(session.getRuntimeErrors().isEmpty(), () -> session.getRuntimeErrors().toString());
+        session.dispose();
+    }
+
+    @Test
+    void shouldSwingTheDoorPendulumChainAndSliderOfTheJointsSample() throws IOException {
+        GameSession session = new GameSession(PROJECT, GameSession.loadScene(new File(PROJECT, "samples/physics-joints-3d.json")),
+            new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+        assertEquals(List.of(), session.start());
+        Scene scene = session.getScene();
+        PhysicsSystem3D physics = session.getPhysicsSystem3D();
+        float pendulumStart = x(scene, "Pendulum Bob");
+        float crateStart = x(scene, "Ride Crate");
+        boolean pendulumCrossedTheMiddle = false;
+
+        for (int i = 0; i < 60 * 8; i++) {
+            session.update(FRAME);
+            pendulumCrossedTheMiddle |= x(scene, "Pendulum Bob") < -550f;
+        }
+
+        assertEquals(100f, physics.getJointPosition(entity(scene, "Door")), 3f, "the door's motor opened it to its 100 degree limit");
+        assertTrue(pendulumStart > -550f && pendulumCrossedTheMiddle, "the pendulum swung through the middle from " + pendulumStart);
+        assertEquals(700f, physics.getJointPosition(entity(scene, "Slider Platform")), 8f, "the platform slid to the end of its rail");
+        assertTrue(x(scene, "Ride Crate") - crateStart > 500f, "the crate rode along on the platform: " + x(scene, "Ride Crate"));
+        Entity first = entity(scene, "Chain Link 1");
+        Vector3 hinge = new Vector3(-40f, 0f, 0f).mul(first.getTransform().getWorldMatrix());
+        assertEquals(0f, hinge.dst(new Vector3(62f, 640f, 0f)), 4f, "the chain's first link is still on its post");
+        Entity last = entity(scene, "Chain Link 5");
+        assertTrue(last.getTransform().getWorldPosition().y < 600f, "the chain fell from its horizontal start: " + at(last));
+        assertTrue(session.getRuntimeErrors().isEmpty(), () -> session.getRuntimeErrors().toString());
+        session.dispose();
+    }
+
+    /**
+     * The terrain model's own triangles, read from the glTF file's embedded buffer (a headless test cannot load the model's GL
+     * mesh, which the renderer reads in the running game), at the scene's 100 units per metre.
+     */
+    private static MeshGeometry3D terrainTriangles() throws IOException {
+        JsonValue gltf = new JsonReader().parse(Files.readString(new File(PROJECT, "models/physics-mesh-terrain.gltf").toPath()));
+        String uri = gltf.get("buffers").get(0).getString("uri");
+        ByteBuffer blob = ByteBuffer.wrap(Base64.getDecoder().decode(uri.substring(uri.indexOf(',') + 1))).order(ByteOrder.LITTLE_ENDIAN);
+        JsonValue views = gltf.get("bufferViews");
+        int positionStart = views.get(0).getInt("byteOffset");
+        int positionCount = gltf.get("accessors").get(0).getInt("count") * 3;
+        float[] positions = new float[positionCount];
+        for (int i = 0; i < positionCount; i++) {
+            positions[i] = blob.getFloat(positionStart + i * 4) * 100f;
+        }
+        int indexStart = views.get(2).getInt("byteOffset");
+        int[] indices = new int[gltf.get("accessors").get(2).getInt("count")];
+        for (int i = 0; i < indices.length; i++) {
+            indices[i] = blob.getInt(indexStart + i * 4);
+        }
+        return new MeshGeometry3D(positions, indices);
+    }
+
+    @Test
+    void shouldRollBallsOffTheMeshTerrainIntoTheBowlAndLandBoxesAndHullRocksOnIt() throws IOException {
+        GameSession session = new GameSession(PROJECT, GameSession.loadScene(new File(PROJECT, "samples/physics-mesh-3d.json")),
+            new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+        assertEquals(List.of(), session.start());
+        Scene scene = session.getScene();
+        MeshGeometry3D terrain = terrainTriangles();
+        // The game's renderer reads the model; here the terrain triangles stand in, and the rocks use the real primitive reader
+        ColliderGeometry primitives = new ColliderGeometry(null);
+        scene.setColliderGeometry(entity -> entity.getName().equals("Terrain") ? terrain : primitives.geometryOf(entity));
+
+        for (int i = 0; i < 60 * 10; i++) {
+            session.update(FRAME);
+        }
+
+        // The bowl is centered at x 450 and its floor is 100 below the ground: a box or ball at rest there is near y -75 or -80
+        for (String name : List.of("Box 1", "Box 2", "Box 3")) {
+            Vector3 box = at(entity(scene, name));
+            assertTrue(Math.abs(box.x - 450f) < 200f && box.y < -40f && box.y > -110f, name + " rests in the bowl: " + box);
+        }
+        int ballsInTheBowl = 0;
+        for (int i = 1; i <= 4; i++) {
+            Vector3 ball = at(entity(scene, "Ball " + i));
+            assertTrue(ball.y > -110f, "Ball " + i + " did not fall through the terrain: " + ball);
+            assertTrue(ball.x > 0f, "Ball " + i + " rolled off the plateau edge: " + ball);
+            if (Math.abs(ball.x - 450f) < 220f && ball.y < 0f) {
+                ballsInTheBowl++;
+            }
+        }
+        assertTrue(ballsInTheBowl >= 1, "at least one ball reached the bowl");
+        for (int i = 1; i <= 2; i++) {
+            Vector3 rock = at(entity(scene, "Hull Rock " + i));
+            assertTrue(rock.y > -20f && rock.y < 130f, "Hull Rock " + i + " rests on the ramp, not through it: " + rock);
+        }
+        assertTrue(session.getRuntimeErrors().isEmpty(), () -> session.getRuntimeErrors().toString());
+        session.dispose();
+    }
+
+    @Test
+    void shouldShowCharactersWhoseModelsCarryTheAnimationTheyPlay() throws IOException {
+        Scene scene = load("character-creator-3d");
+        int characters = 0;
+        for (Entity entity : scene.getAllEntities()) {
+            ModelComponent model = entity.getComponent(ModelComponent.class);
+            if (model == null) {
+                continue;
+            }
+            characters++;
+            File file = new File(PROJECT, model.getModelPath());
+            assertTrue(file.isFile(), entity.getName() + ": " + file);
+            JsonValue gltf = new JsonReader().parse(Files.readString(file.toPath()));
+            List<String> clips = new ArrayList<>();
+            for (JsonValue animation = gltf.get("animations").child; animation != null; animation = animation.next) {
+                clips.add(animation.getString("name"));
+            }
+            assertTrue(clips.contains(model.getAnimation()), entity.getName() + " plays " + model.getAnimation() + " but its model has " + clips);
+            assertEquals(53, gltf.get("skins").get(0).get("joints").size, entity.getName());
+        }
+        assertEquals(3, characters);
+        scene.dispose();
+    }
+
+    private static Vector3 at(Entity entity) {
+        return entity.getTransform().getWorldPosition();
+    }
+
+    @Test
+    void shouldClimbTheStepsAndStopAtTheSteepRampAndTheTallBlock() throws IOException {
+        GameSession up = playground(-500f, 600f);
+        held.add(Keys.D);
+        float highest = 0f;
+        for (int i = 0; i < 150; i++) {
+            up.update(FRAME);
+            highest = Math.max(highest, y(up.getScene(), "Hero"));
+        }
+        held.clear();
+        assertTrue(highest > 75f + 60f, "walked up the four steps (top at 80): " + highest);
+        up.dispose();
+
+        GameSession steep = playground(-100f, -300f);
+        held.add(Keys.D);
+        for (int i = 0; i < 240; i++) {
+            steep.update(FRAME);
+        }
+        held.clear();
+        assertTrue(y(steep.getScene(), "Hero") < 75f + 40f, "the 60 degree ramp is not climbed: " + y(steep.getScene(), "Hero"));
+        assertTrue(x(steep.getScene(), "Hero") < 500f, "and holds the hero back at its foot (x 500): " + x(steep.getScene(), "Hero"));
+        steep.dispose();
+
+        GameSession tall = playground(-1000f, -700f);
+        held.add(Keys.D);
+        for (int i = 0; i < 120; i++) {
+            tall.update(FRAME);
+        }
+        held.clear();
+        assertTrue(x(tall.getScene(), "Hero") < -800f - 10f, "the tall block (150 high) stops the hero at its face: " + x(tall.getScene(), "Hero"));
+        assertEquals(70f, y(tall.getScene(), "Hero"), 5f, "still standing on the floor");
+        tall.dispose();
+    }
+
+    @Test
+    void shouldPushACrateAcrossThePlaygroundFloor() throws IOException {
+        GameSession session = playground(150f, 900f);
+        float crateStart = x(session.getScene(), "Crate 1");
+        held.add(Keys.D);
+        for (int i = 0; i < 180; i++) {
+            session.update(FRAME);
+        }
+        held.clear();
+
+        assertTrue(x(session.getScene(), "Crate 1") > crateStart + 100f,
+            "the crate moved along: " + crateStart + " to " + x(session.getScene(), "Crate 1"));
+        assertTrue(session.getRuntimeErrors().isEmpty(), () -> session.getRuntimeErrors().toString());
+        session.dispose();
+    }
+
+    @Test
+    void shouldKickAndStopAnAimedBallInTheSandboxFromTheScript() throws IOException {
+        GameSession session = aimedSandbox("Ball 1", 600f);
+        Scene scene = session.getScene();
+        session.update(FRAME);
+        assertTrue(scene.findEntityByName("Help Text").getComponent(TextComponent.class).getText().endsWith("Aiming at: Ball 1"),
+            scene.findEntityByName("Help Text").getComponent(TextComponent.class).getText());
+        assertEquals(0f, session.getPhysicsSystem3D().getLinearVelocity(scene.findEntityByName("Ball 1")).z, 20f, "resting before the kick");
+
+        press(session, Keys.SPACE);
+
+        assertEquals(-900f, session.getPhysicsSystem3D().getLinearVelocity(scene.findEntityByName("Ball 1")).z, 40f,
+            "away from the camera at the kick speed");
+        press(session, Keys.T);
+        assertTrue(session.getPhysicsSystem3D().getLinearVelocity(scene.findEntityByName("Ball 1")).len() < 50f, "T stops the aimed body");
+        assertTrue(session.getRuntimeErrors().isEmpty(), () -> session.getRuntimeErrors().toString());
+        session.dispose();
+    }
+
+    @Test
+    void shouldPopTheCratesAroundTheAimPoint() throws IOException {
+        GameSession session = aimedSandbox("Crate 1", 400f);
+        Scene scene = session.getScene();
+
+        press(session, Keys.E);
+
+        int popped = 0;
+        StringBuilder seen = new StringBuilder(scene.findEntityByName("Help Text").getComponent(TextComponent.class).getText());
+        for (Entity entity : scene.getAllEntities()) {
+            if (entity.getName().startsWith("Crate")) {
+                float vy = session.getPhysicsSystem3D().getLinearVelocity(entity).y;
+                seen.append(" | ").append(entity.getName()).append(' ').append(entity.getTransform().getWorldPosition()).append(" vy=").append(vy);
+                if (vy > 500f) {
+                    popped++;
+                }
+            }
+        }
+        assertTrue(popped >= 2, "the aimed crate and its neighbours jumped: " + popped + seen);
+        assertTrue(session.getRuntimeErrors().isEmpty(), () -> session.getRuntimeErrors().toString());
+        session.dispose();
+    }
+
+    @Test
+    void shouldPushAnAimedBallForAsLongAsFIsHeld() throws IOException {
+        GameSession session = aimedSandbox("Ball 1", 600f);
+        Scene scene = session.getScene();
+        float before = scene.findEntityByName("Ball 1").getTransform().getWorldPosition().z;
+
+        held.add(Keys.F);
+        for (int i = 0; i < 30; i++) {
+            session.update(FRAME);
+        }
+        held.clear();
+
+        assertTrue(scene.findEntityByName("Ball 1").getTransform().getWorldPosition().z < before - 100f,
+            "a half second of push moved the ball away from the camera");
+        session.dispose();
     }
 
     @Test
@@ -671,6 +1050,42 @@ class SampleGamesTest {
     }
 
     @Test
+    void shouldMatchTheReferencePaddleScriptAtDifferentWidthsAndFrameTimes() throws IOException {
+        File file = new File(PROJECT, "samples/breakout-2d.json");
+        for (float width : new float[] {90f, 140f}) {
+            Scene graphScene = GameSession.loadScene(file);
+            Scene javaScene = GameSession.loadScene(file);
+            Entity reference = entity(javaScene, "Paddle");
+            assertNotNull(reference.getComponent(GraphScriptComponent.class), "the sample must bind the editable graph");
+            reference.removeComponent(reference.getComponent(GraphScriptComponent.class));
+            reference.addComponent(new EntityScriptBindingComponent("scripts/samples/breakout/BreakoutPaddle.java",
+                "samples.breakout.BreakoutPaddle", ScriptLanguage.JAVA));
+            entity(graphScene, "Paddle").getComponent(ShapeRendererComponent.class).setWidth(width);
+            reference.getComponent(ShapeRendererComponent.class).setWidth(width);
+            GameSession graph = new GameSession(PROJECT, graphScene,
+                new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+            GameSession java = new GameSession(PROJECT, javaScene,
+                new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+            assertEquals(List.of(), graph.start());
+            assertEquals(List.of(), java.start());
+            for (int frame = 0; frame < 480; frame++) {
+                held.clear();
+                if (frame < 160) held.add(Keys.LEFT);
+                else if (frame < 320) held.add(Keys.D);
+                else { held.add(Keys.A); held.add(Keys.RIGHT); }
+                float delta = frame % 2 == 0 ? FRAME : FRAME / 2f;
+                graph.update(delta);
+                java.update(delta);
+                assertEquals(x(javaScene, "Paddle"), x(graphScene, "Paddle"), 0.001f, "frame " + frame + ", width " + width);
+                assertEquals(y(javaScene, "Paddle"), y(graphScene, "Paddle"), 0.001f);
+            }
+            assertTrue(graph.getRuntimeErrors().isEmpty(), () -> graph.getRuntimeErrors().toString());
+            graph.dispose();
+            java.dispose();
+        }
+    }
+
+    @Test
     void shouldPlayEverySampleTheSameInTheGameRuntimeAsInEditorPlayMode() throws IOException {
         for (String sample : SAMPLES) {
             File file = new File(PROJECT, "samples/" + sample + ".json");
@@ -681,6 +1096,8 @@ class SampleGamesTest {
             editorState.setScriptManager(scripts);
             editorState.setActiveScene(editorState.getSerializer().fromJson(Files.readString(file.toPath())));
             PlayModeController play = new PlayModeController(editorState);
+            play.addExtension(new GraphPlayModeExtension(editorState, new GraphAssets(PROJECT), NodeRegistry.createDefault(),
+                new EditorLog(), new GraphExecutionTrace()));
             assertTrue(play.play(), () -> sample + ": " + editorState.getStatusMessage());
             for (int frame = 0; frame < PARITY_FRAMES; frame++) {
                 parityInput(frame);
@@ -702,6 +1119,59 @@ class SampleGamesTest {
             session.dispose();
         }
         releaseKeys();
+    }
+
+    /**
+     * 3D physics (TD-028, Jolt) behaves the same in the game runtime as in editor Play: a floor, balls dropped from different
+     * heights and a crate on a moving kinematic platform, run for the same frames through both start-up paths.
+     */
+    @Test
+    void shouldSimulate3DPhysicsTheSameInTheGameRuntimeAsInEditorPlayMode(@org.junit.jupiter.api.io.TempDir Path temp) throws IOException {
+        EditorState editorState = new EditorState();
+        EditorApplication.registerComponentSerializers(editorState.getSerializer().getRegistry());
+        Scene authored = new Scene("Physics 3D parity");
+        authored.createEntity("Camera").addComponent(new io.github.ldev22live.gdxunity.engine.render.components.CameraComponent());
+        Entity floor = authored.createEntity("Floor");
+        floor.getTransform().setLocalPosition(0f, -50f, 0f);
+        floor.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent(
+            new com.badlogic.gdx.math.Vector3(2000f, 100f, 2000f)));
+        for (int i = 0; i < 3; i++) {
+            Entity ball = authored.createEntity("Ball " + i);
+            ball.getTransform().setLocalPosition(i * 120f - 120f, 300f + i * 150f, 0f);
+            ball.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent(
+                io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent.MotionType.DYNAMIC));
+            ball.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.SphereCollider3DComponent(50f));
+        }
+        Entity crate = authored.createEntity("Crate");
+        crate.getTransform().setLocalPosition(600f, 400f, 0f);
+        crate.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent(
+            io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent.MotionType.DYNAMIC));
+        crate.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent());
+        File file = temp.resolve("physics-3d-parity.json").toFile();
+        Files.writeString(file.toPath(), editorState.getSerializer().toJson(authored));
+
+        editorState.setScriptManager(scripts);
+        editorState.setActiveScene(editorState.getSerializer().fromJson(Files.readString(file.toPath())));
+        PlayModeController play = new PlayModeController(editorState);
+        assertTrue(play.play(), () -> editorState.getStatusMessage());
+        assertNotNull(play.getPhysicsSystem3D());
+        for (int frame = 0; frame < PARITY_FRAMES; frame++) {
+            play.update(FRAME);
+        }
+
+        GameSession session = new GameSession(temp.toFile(), GameSession.loadScene(file),
+            new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+        assertEquals(List.of(), session.start());
+        assertNotNull(session.getPhysicsSystem3D());
+        for (int frame = 0; frame < PARITY_FRAMES; frame++) {
+            session.update(FRAME);
+        }
+
+        assertSameState("3D physics", play.getRuntimeScene(), session.getScene());
+        Entity ball = session.getScene().findEntityByName("Ball 0");
+        assertTrue(ball.getTransform().getWorldPosition().y < 300f, "the ball fell");
+        play.stop();
+        session.dispose();
     }
 
     /** Every entity has the same position, active state and text; entities made while playing are matched by name. */

@@ -1,0 +1,620 @@
+{
+  "format": 1,
+  "name": "Tentacle",
+  "duration": 3,
+  "frameRate": 30,
+  "tracks": [
+    {
+      "target": "Segment 1",
+      "property": "transform.rotation.roll",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": 15.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 22,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": 15.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": -15.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": -22,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": -15.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": 0,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1",
+      "property": "transform.rotation.pitch",
+      "keys": [
+        {
+          "t": 0,
+          "v": 9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": 6.4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": -6.4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": -9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": -6.4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": 6.4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": 9,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1/Segment 2",
+      "property": "transform.rotation.roll",
+      "keys": [
+        {
+          "t": 0,
+          "v": -8.1,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": 8.7,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 20.5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": 20.2,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": 8.1,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": -8.7,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": -20.5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": -20.2,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": -8.1,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1/Segment 2",
+      "property": "transform.rotation.pitch",
+      "keys": [
+        {
+          "t": 0,
+          "v": 8.4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": 8.3,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 3.3,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": -3.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": -8.4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": -8.3,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": -3.3,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": 3.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": 8.4,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1/Segment 2/Segment 3",
+      "property": "transform.rotation.roll",
+      "keys": [
+        {
+          "t": 0,
+          "v": -15.1,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": 0.7,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 16,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": 22,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": 15.1,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": -0.7,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": -16,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": -22,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": -15.1,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1/Segment 2/Segment 3",
+      "property": "transform.rotation.pitch",
+      "keys": [
+        {
+          "t": 0,
+          "v": 6.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": 9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 6.2,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": -0.3,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": -6.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": -9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": -6.2,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": 0.3,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": 6.6,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1/Segment 2/Segment 3/Segment 4",
+      "property": "transform.rotation.roll",
+      "keys": [
+        {
+          "t": 0,
+          "v": -19.9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": -7.5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 9.4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": 20.7,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": 19.9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": 7.5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": -9.4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": -20.7,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": -19.9,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1/Segment 2/Segment 3/Segment 4",
+      "property": "transform.rotation.pitch",
+      "keys": [
+        {
+          "t": 0,
+          "v": 3.8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": 8.5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 8.1,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": 3,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": -3.8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": -8.5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": -8.1,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": -3,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": 3.8,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1/Segment 2/Segment 3/Segment 4/Segment 5",
+      "property": "transform.rotation.roll",
+      "keys": [
+        {
+          "t": 0,
+          "v": -22,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": -14.5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 1.4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": 16.5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": 22,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": 14.5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": -1.4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": -16.5,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": -22,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1/Segment 2/Segment 3/Segment 4/Segment 5",
+      "property": "transform.rotation.pitch",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": 6.8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": 6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": -0.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": -6.8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": -9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": -6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": 0.6,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1/Segment 2/Segment 3/Segment 4/Segment 5/Segment 6",
+      "property": "transform.rotation.roll",
+      "keys": [
+        {
+          "t": 0,
+          "v": -20.9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": -19.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": -6.8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": 10,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": 20.9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": 19.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": 6.8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": -10,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": -20.9,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Segment 1/Segment 2/Segment 3/Segment 4/Segment 5/Segment 6",
+      "property": "transform.rotation.pitch",
+      "keys": [
+        {
+          "t": 0,
+          "v": -2.8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.375,
+          "v": 4.1,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.75,
+          "v": 8.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.125,
+          "v": 8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": 2.8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.875,
+          "v": -4.1,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.25,
+          "v": -8.6,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.625,
+          "v": -8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3,
+          "v": -2.8,
+          "i": "BEZIER"
+        }
+      ]
+    }
+  ]
+}

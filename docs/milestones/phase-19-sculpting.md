@@ -5,7 +5,7 @@
 **Status (2026-11-02):** 19-A implemented (headless core). 19-B partly implemented: a sculpt can be created, drawn in
 the editor's 3D view, sculpted with the mouse and undone, through menus and keys; **there is no brush panel and no brush
 outline yet, sculpts are invisible in the game runtime and the web player, and mouse sculpting was not tried in the
-running editor**. 19-C (glTF export and runtime use) not started.
+running editor**. 19-C (glTF export and runtime use) done (2026-11-08, TD-062).
 Reports: [19-A](../reports/phase-19a-report.md), [19-B](../reports/phase-19b-report.md).
 
 ## Goal
@@ -60,16 +60,16 @@ the desktop; uploading changed vertices to the GPU will be (19-B).
 | 2 | Drawing: the renderer asks a `DynamicMeshSource` (the session) for the geometry of each `DynamicMeshComponent` every frame and uploads only the chunks whose revision changed; picking and framing use the mesh bounds | Done. Upload logic tested with a fake target; the OpenGL part checked by starting the real editor on a 120,000-triangle sculpt in Play mode (300 frames, no errors) and looking at a screenshot |
 | 3 | Sculpt mode in the 3D view: left-drag sculpts the selected sculpt, Shift smooths, Ctrl inverts, Alt+left (orbit), right (fly) and middle (pan) are unchanged, clicks that miss the sculpt select as usual, one undo step per stroke | Done and tested headless with a camera, an entity moved and scaled, and a refusing editor state. **Not tried with a real mouse in the running editor** |
 | 4 | Brush controls: Tools menu (enter/exit, six brushes, mirror X/Y/Z), `]` `[` brush size, `=` `-` strength, Ctrl+Alt+S save; a status line in the viewport shows the brush; modified sculpts are saved when the editor closes | Done as menu items and keys. **No brush panel with sliders, no falloff or spacing control in the UI, no hover outline** |
-| 5 | Start from an imported model: weld, optionally subdivide, sculpt | Not started |
-| 6 | The Content Browser lists `.sculpt` files, drag-and-drop into the viewport, a Details editor for the component | Not started |
+| 5 | Start from an imported model: weld, optionally subdivide, sculpt | Done, tested headless: Create > Sculpt From Selected makes a sculpt from the mesh of the selected entity (a glTF model at its import scale, or a primitive), welds split vertices, subdivides towards 200,000 triangles (at most 4 levels, never for a mesh that already has that many), writes `sculpts/<Name>.sculpt` and a new entity at the same position; the original stays. Rotation and entity scale are not copied. Needs a graphics run to see it |
+| 6 | The Content Browser lists `.sculpt` files, drag-and-drop into the viewport, a Details editor for the component | Done, tested headless: `AssetType.SCULPT`, `AssetPlacement` places a dropped sculpt as an entity, `DynamicMeshComponentEditorProvider` shows file, triangle count, unsaved state and colour with Sculpt and Save buttons. The editor starts (smoke test); dragging and the Details panel were **not tried by hand** |
 
-## 19-C — Using the result (planned)
+## 19-C — Using the result (done, TD-062)
 
-| Step | Content |
-|---|---|
-| 1 | Export to `.glb` through gdx-gltf's exporter, with a material, so it appears in the Content Browser. |
-| 2 | Placing the exported model with the existing Model component, prefabs, and the web player. |
-| 3 | Triangle limit and a warning when sculpting in the streamed web editor (software OpenGL). |
+| Step | Content | Status |
+|---|---|---|
+| 1 | Export to `.glb` with a material, so it appears in the Content Browser. | Done: `SculptGltfWriter` (hand-written, chunks of 60,000 vertices), File > Export Sculpt as Model, the Details button. Read back through gdx-gltf in a test: same triangles, same size |
+| 2 | Placing the exported model with the existing Model component, prefabs, and the web player. | Done: sample `sculpted-rock-3d.json` (files `sculpts/SculptedRock.sculpt`, `models/SculptedRock.glb`); the game runtime ran it 120 frames with 0 errors, and Babylon loaded the file in a test |
+| 3 | Triangle limit and a warning when sculpting in the streamed web editor (software OpenGL). | Done as advice: smaller new sculpts, a 100,000-triangle warning, chosen when `LIBGL_ALWAYS_SOFTWARE=1`. **Not tried in the container** (no Docker here) |
 
 ## Acceptance criteria (19-A)
 

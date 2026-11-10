@@ -1,6 +1,7 @@
 package io.github.ldev22live.gdxunity.engine.desktop;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import io.github.ldev22live.gdxunity.engine.animation.AnimatedProperties;
 import io.github.ldev22live.gdxunity.engine.animation.AnimationClip;
@@ -12,10 +13,15 @@ import io.github.ldev22live.gdxunity.engine.animation.Interpolation;
 import io.github.ldev22live.gdxunity.engine.animation.Keyframe;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetSource;
 import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.CharacterController3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.SphereCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptLanguage;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
@@ -130,6 +136,41 @@ class GameSessionTest {
     }
 
     @Test
+    void shouldBindAudioSourcesAndPlayTheirSoundsWhenAScriptTriggersTheCue() {
+        AudioSourceComponent source = new AudioSourceComponent("jump", "Jump");
+        player.addComponent(source);
+        GameSession session = session();
+
+        assertEquals(List.of(), session.start());
+        float[] left = new float[1024];
+        float[] right = new float[1024];
+        session.getAudio().getPlayer().render(left, right, left.length);
+        assertEquals(0, session.getAudio().getPlayer().getActiveVoices(), "nothing plays until a cue fires");
+        assertEquals(1, AudioSourceComponent.play(scene, "jump"));
+        session.getAudio().getPlayer().render(left, right, left.length);
+
+        assertEquals(1, session.getAudio().getBoundCount());
+        assertEquals(1, session.getAudio().getPlayer().getActiveVoices());
+        assertNull(session.getAudio().getOutputError(), "headless sessions open no sound device");
+        session.dispose();
+        assertFalse(source.isBound(), "dispose unbinds the sources");
+    }
+
+    @Test
+    void shouldRefuseToStartWhenAnAudioSourceNamesAnUnknownSound() {
+        player.addComponent(new AudioSourceComponent("jump", "Kazoo"));
+        GameSession session = session();
+
+        List<String> problems = session.start();
+
+        assertEquals(1, problems.size());
+        assertTrue(problems.get(0).contains("Kazoo"), problems.get(0));
+        assertFalse(session.isStarted());
+        assertFalse(player.getComponent(AudioSourceComponent.class).isBound());
+        session.dispose();
+    }
+
+    @Test
     void shouldReportScriptsThatCannotBeCreated() {
         bindScript("samples.DoesNotExist");
         GameSession session = session();
@@ -171,6 +212,70 @@ class GameSessionTest {
         assertTrue(player.getTransform().getLocalPosition().y < 500f, "the body fell under gravity");
         session.dispose();
         assertNull(session.getPhysicsSystem());
+    }
+
+    @Test
+    void shouldDeliver3DContactsToScriptsAndGraphsInTheRuntime() throws IOException {
+        Graph graph = new Graph("Toucher");
+        GraphNode onCollision = new GraphNode(graph.newNodeId(), BuiltInNodes.EVENT_COLLISION, 0f, 0f);
+        GraphNode name = new GraphNode(graph.newNodeId(), BuiltInNodes.DATA_GET_NAME, 0f, 0f);
+        GraphNode text = new GraphNode(graph.newNodeId(), BuiltInNodes.TEXT_APPEND, 0f, 0f);
+        text.setLiteral("a", "touched ");
+        GraphNode print = new GraphNode(graph.newNodeId(), BuiltInNodes.ACTION_PRINT, 0f, 0f);
+        for (GraphNode node : List.of(onCollision, name, text, print)) {
+            graph.addNode(node);
+        }
+        graph.addLink(new GraphLink(onCollision.getId(), PinDef.EXEC_OUT, print.getId(), PinDef.EXEC_IN));
+        graph.addLink(new GraphLink(onCollision.getId(), BuiltInNodes.PIN_OTHER, name.getId(), "target"));
+        graph.addLink(new GraphLink(name.getId(), "name", text.getId(), "b"));
+        graph.addLink(new GraphLink(text.getId(), "result", print.getId(), "message"));
+        write("graphs/Toucher.graph", GraphSerializer.toJson(graph));
+        player.getTransform().setLocalPosition(0f, 300f, 0f);
+        player.addComponent(new RigidBody3DComponent(RigidBody3DComponent.MotionType.DYNAMIC));
+        player.addComponent(new SphereCollider3DComponent(50f));
+        player.addComponent(new GraphScriptComponent("graphs/Toucher.graph"));
+        bindScript(ContactCountingScript.class.getName());
+        Entity floor = scene.createEntity("Floor");
+        floor.getTransform().setLocalPosition(0f, -50f, 0f);
+        floor.addComponent(new BoxCollider3DComponent(new Vector3(2000f, 100f, 2000f)));
+        GameSession session = session();
+        assertEquals(List.of(), session.start());
+        assertNotNull(session.getPhysicsSystem3D());
+
+        for (int i = 0; i < 180; i++) {
+            session.update(FRAME);
+        }
+
+        ContactCountingScript script = (ContactCountingScript) player.getComponent(EntityScriptBindingComponent.class).getScriptInstance();
+        assertEquals(List.of("collisionEnter:Floor"), script.contacts, "the script is called once, when the ball lands");
+        assertEquals(1, log.info.stream().filter(line -> line.contains("touched Floor")).count(), () -> "graph log: " + log.info);
+        assertEquals(List.of(), session.getRuntimeErrors());
+        session.dispose();
+        assertNull(scene.getPhysics3D(), "the scene no longer has 3D physics after dispose");
+    }
+
+    @Test
+    void shouldWalkACharacterFromAScriptOnTheRealPhysicsInTheRuntime() throws IOException {
+        player.getTransform().setLocalPosition(0f, 90f, 0f);
+        player.addComponent(new CharacterController3DComponent());
+        bindScript(WalkingScript.class.getName());
+        Entity floor = scene.createEntity("Floor");
+        floor.getTransform().setLocalPosition(0f, -50f, 0f);
+        floor.addComponent(new BoxCollider3DComponent(new Vector3(2000f, 100f, 2000f)));
+        GameSession session = session();
+        assertEquals(List.of(), session.start());
+
+        for (int i = 0; i < 120; i++) {
+            session.update(FRAME);
+        }
+
+        WalkingScript script = (WalkingScript) player.getComponent(EntityScriptBindingComponent.class).getScriptInstance();
+        assertEquals(1, script.jumps, "jumped once after landing");
+        assertEquals(List.of(), session.getRuntimeErrors());
+        // Two seconds at 2 m/s, minus the time before it landed and while the first frames settled
+        assertTrue(player.getTransform().getWorldPosition().x > 300f, "walked: " + player.getTransform().getWorldPosition());
+        assertTrue(session.getPhysicsSystem3D().isCharacterGrounded(player), "and is back on the ground");
+        session.dispose();
     }
 
     @Test

@@ -73,7 +73,10 @@ export class RuinsGame extends ScriptComponent {
 
     const direction = keyAxis((...k) => this.input.isDown(...k), ["KeyA", "ArrowLeft"], ["KeyD", "ArrowRight"]);
     this.body.velocityX = direction * RuinsGame.RUN_SPEED;
-    if (this.body.grounded && this.input.isJustPressed("Space", "KeyW", "ArrowUp")) this.body.velocityY = RuinsGame.JUMP_SPEED;
+    if (this.body.grounded && this.input.isJustPressed("Space", "KeyW", "ArrowUp")) {
+      this.body.velocityY = RuinsGame.JUMP_SPEED;
+      this.scene.playCue("jump");
+    }
     this.body.step(dt, RuinsGame.GRAVITY, this.solids, null);
     this.body.moveEntity(this.player, 0);
 
@@ -82,6 +85,7 @@ export class RuinsGame extends ScriptComponent {
       if (orb.isActiveSelf && this.body.touches(p.x, p.y, 15, 15)) {
         orb.setActive(false);
         this.collected++;
+        this.scene.playCue("coin");
         this.updateTexts();
       }
     }
@@ -97,6 +101,7 @@ export class RuinsGame extends ScriptComponent {
     if (this.body.y < RuinsGame.FALL_LIMIT) this.die();
     if (this.body.touches(this.goal.x, this.goal.y, this.goal.halfWidth, this.goal.halfHeight)) {
       this.finished = true;
+      this.scene.playCue("win");
       this.messageText.setText(`You made it out! ${this.collected}/${this.orbs.length} orbs, ${this.deaths} deaths. Press R to play again`);
     }
   }
@@ -114,6 +119,7 @@ export class RuinsGame extends ScriptComponent {
 
   private die(): void {
     this.deaths++;
+    this.scene.playCue("hurt");
     this.body.x = this.respawnX;
     this.body.y = this.respawnY;
     this.body.velocityX = 0;

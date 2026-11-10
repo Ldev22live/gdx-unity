@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Grapple Runner",
+  "variables": [
+    {
+      "name": "hooked",
+      "type": "BOOLEAN",
+      "value": false
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.tick",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "flow.sequence",
+      "x": 270,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n3",
+      "type": "input.axis",
+      "x": 540,
+      "y": 150,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "A,LEFT"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "D,RIGHT"
+        }
+      ]
+    },
+    {
+      "id": "n4",
+      "type": "math.multiply",
+      "x": 810,
+      "y": 150,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n5",
+      "type": "math.multiply",
+      "x": 1080,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 300.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n6",
+      "type": "vector.make",
+      "x": 1350,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "y",
+          "type": "FLOAT",
+          "value": 0.0
+        },
+        {
+          "pin": "z",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n7",
+      "type": "action.moveBy",
+      "x": 1620,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n8",
+      "type": "input.keyDown",
+      "x": 270,
+      "y": 300,
+      "literals": [],
+      "properties": [
+        {
+          "name": "key",
+          "type": "STRING",
+          "value": "J,SHIFT_LEFT,SHIFT_RIGHT"
+        }
+      ]
+    },
+    {
+      "id": "n9",
+      "type": "variable.get",
+      "x": 270,
+      "y": 450,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "hooked"
+        }
+      ]
+    },
+    {
+      "id": "n10",
+      "type": "logic.not",
+      "x": 540,
+      "y": 450,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n11",
+      "type": "logic.and",
+      "x": 810,
+      "y": 300,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n12",
+      "type": "flow.branch",
+      "x": 1080,
+      "y": 150,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n13",
+      "type": "action.print",
+      "x": 1350,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "message",
+          "type": "STRING",
+          "value": "Hooked on (the script swings from the nearest anchor here)"
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n14",
+      "type": "variable.set",
+      "x": 1620,
+      "y": 300,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "hooked"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n2",
+      "toPin": "exec"
+    },
+    {
+      "from": "n3",
+      "fromPin": "value",
+      "to": "n4",
+      "toPin": "a"
+    },
+    {
+      "from": "n1",
+      "fromPin": "deltaTime",
+      "to": "n4",
+      "toPin": "b"
+    },
+    {
+      "from": "n4",
+      "fromPin": "result",
+      "to": "n5",
+      "toPin": "a"
+    },
+    {
+      "from": "n5",
+      "fromPin": "result",
+      "to": "n6",
+      "toPin": "x"
+    },
+    {
+      "from": "n6",
+      "fromPin": "vector",
+      "to": "n7",
+      "toPin": "offset"
+    },
+    {
+      "from": "n2",
+      "fromPin": "then0",
+      "to": "n7",
+      "toPin": "exec"
+    },
+    {
+      "from": "n9",
+      "fromPin": "value",
+      "to": "n10",
+      "toPin": "value"
+    },
+    {
+      "from": "n8",
+      "fromPin": "pressed",
+      "to": "n11",
+      "toPin": "a"
+    },
+    {
+      "from": "n10",
+      "fromPin": "result",
+      "to": "n11",
+      "toPin": "b"
+    },
+    {
+      "from": "n2",
+      "fromPin": "then1",
+      "to": "n12",
+      "toPin": "exec"
+    },
+    {
+      "from": "n11",
+      "fromPin": "result",
+      "to": "n12",
+      "toPin": "condition"
+    },
+    {
+      "from": "n12",
+      "fromPin": "true",
+      "to": "n13",
+      "toPin": "exec"
+    },
+    {
+      "from": "n8",
+      "fromPin": "pressed",
+      "to": "n14",
+      "toPin": "value"
+    },
+    {
+      "from": "n2",
+      "fromPin": "then2",
+      "to": "n14",
+      "toPin": "exec"
+    }
+  ]
+}

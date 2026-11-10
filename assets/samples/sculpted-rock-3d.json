@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "name": "Sculpting - A Rock Made in Sculpt Mode",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "f7ab3bc0-9b15-5e5b-8f7c-c5a626825fd7",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "62fd27d8-9fd0-55ba-966f-c15a33c8de4f",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.72,
+            "skyB": 0.88,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "31924df0-3316-545d-bec6-b8a2abe3b57d",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 1600.0,
+            "sizeY": 1.0,
+            "sizeZ": 1600.0,
+            "colorR": 0.42,
+            "colorG": 0.55,
+            "colorB": 0.42,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9bee620f-5a1c-5e9a-be31-bee4f4a890d8",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 140,
+          "z": 360
+        },
+        "rotation": {
+          "x": -0.1736,
+          "y": 0,
+          "z": 0,
+          "w": 0.9848
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480,
+            "fieldOfView": 55,
+            "nearPlane": 1,
+            "farPlane": 50000
+          }
+        }
+      ]
+    },
+    {
+      "id": "841c7375-f414-543c-89c8-b1c841fde81a",
+      "name": "Sculpted Rock",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 40,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/SculptedRock.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}

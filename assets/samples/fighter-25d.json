@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "2.5D Fighter",
+  "gameMode": "2.5d",
   "active": true,
   "entities": [
     {
@@ -1685,6 +1686,76 @@
             "anchor": "BOTTOM_LEFT",
             "offsetX": 16.0,
             "offsetY": 32.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "de46dc0b-6da3-57a9-af0c-39f5fb72b767",
+      "name": "Sound Effects",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "swing",
+            "sound": "Blip",
+            "volume": 0.3,
+            "pitch": 1.4,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "hit",
+            "sound": "Hurt",
+            "volume": 0.6,
+            "pitch": 1.2,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "block",
+            "sound": "Blip",
+            "volume": 0.6,
+            "pitch": 0.5,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "ko",
+            "sound": "Explosion",
+            "volume": 0.6,
+            "pitch": 0.8,
+            "playOnStart": false
           }
         }
       ]

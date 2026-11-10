@@ -1,5 +1,6 @@
 package io.github.ldev22live.gdxunity.editor.desktop.ui.inspector;
 
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
@@ -9,7 +10,10 @@ import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.CapsuleCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.CharacterController3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.Collider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.ConvexHullCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.MeshCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.SphereCollider3DComponent;
 
@@ -22,6 +26,10 @@ import java.util.function.Consumer;
 public final class Physics3DComponentEditorProviders {
 
     private Physics3DComponentEditorProviders() {}
+
+    private static void note(Table container, Skin skin, String text) {
+        container.add(new Label(text, skin)).colspan(2).left().padBottom(4f).row();
+    }
 
     /** Motion type, mass, damping, gravity, material and collision layer of a {@link RigidBody3DComponent}. */
     public static class RigidBody implements ComponentEditorProvider<RigidBody3DComponent, Table> {
@@ -125,6 +133,88 @@ public final class Physics3DComponentEditorProviders {
             InspectorFieldRows.floatRow(container, skin, "Height", capsule.getHeight(),
                 value -> change(editorState, entity, capsule, capsule.getHeight(), value, capsule::setHeight, "Resize Capsule Collider"));
             colliderRows(container, skin, entity, capsule, editorState);
+        }
+    }
+
+    /** Offset and trigger of a {@link ConvexHullCollider3DComponent}; its points come from the entity's mesh (TD-052). */
+    public static class ConvexHull implements ComponentEditorProvider<ConvexHullCollider3DComponent, Table> {
+        @Override
+        public Class<ConvexHullCollider3DComponent> getComponentClass() {
+            return ConvexHullCollider3DComponent.class;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Convex Hull Collider 3D";
+        }
+
+        @Override
+        public void buildEditor(Table container, Entity entity, ConvexHullCollider3DComponent hull, EditorState editorState, Object skinObj) {
+            Skin skin = (Skin) skinObj;
+            container.left();
+            note(container, skin, "Built from this entity's mesh when Play starts.");
+            colliderRows(container, skin, entity, hull, editorState);
+        }
+    }
+
+    /** Offset and trigger of a {@link MeshCollider3DComponent}; its triangles come from the entity's mesh, static bodies only (TD-052). */
+    public static class Mesh implements ComponentEditorProvider<MeshCollider3DComponent, Table> {
+        @Override
+        public Class<MeshCollider3DComponent> getComponentClass() {
+            return MeshCollider3DComponent.class;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Mesh Collider 3D";
+        }
+
+        @Override
+        public void buildEditor(Table container, Entity entity, MeshCollider3DComponent mesh, EditorState editorState, Object skinObj) {
+            Skin skin = (Skin) skinObj;
+            container.left();
+            note(container, skin, "Built from this entity's mesh. Static bodies only.");
+            colliderRows(container, skin, entity, mesh, editorState);
+        }
+    }
+
+    /** Capsule size, slope, step, mass, gravity and collision layer of a {@link CharacterController3DComponent} (TD-049). */
+    public static class CharacterController implements ComponentEditorProvider<CharacterController3DComponent, Table> {
+        @Override
+        public Class<CharacterController3DComponent> getComponentClass() {
+            return CharacterController3DComponent.class;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Character Controller 3D";
+        }
+
+        @Override
+        public void buildEditor(Table container, Entity entity, CharacterController3DComponent character, EditorState editorState,
+                                Object skinObj) {
+            Skin skin = (Skin) skinObj;
+            container.left();
+            InspectorFieldRows.floatRow(container, skin, "Radius", character.getRadius(),
+                value -> change(editorState, entity, character, character.getRadius(), value, character::setRadius, "Resize Character"));
+            InspectorFieldRows.floatRow(container, skin, "Height", character.getHeight(),
+                value -> change(editorState, entity, character, character.getHeight(), value, character::setHeight, "Resize Character"));
+            InspectorFieldRows.floatRow(container, skin, "Slope limit", character.getSlopeLimitDegrees(),
+                value -> change(editorState, entity, character, character.getSlopeLimitDegrees(), value, character::setSlopeLimitDegrees,
+                    "Change Slope Limit"));
+            InspectorFieldRows.floatRow(container, skin, "Step height", character.getStepHeight(),
+                value -> change(editorState, entity, character, character.getStepHeight(), value, character::setStepHeight,
+                    "Change Step Height"));
+            InspectorFieldRows.floatRow(container, skin, "Mass (kg)", character.getMass(),
+                value -> change(editorState, entity, character, character.getMass(), value, character::setMass, "Change Mass"));
+            InspectorFieldRows.floatRow(container, skin, "Gravity", character.getGravityScale(),
+                value -> change(editorState, entity, character, character.getGravityScale(), value, character::setGravityScale,
+                    "Change Gravity Scale"));
+            InspectorFieldRows.intRow(container, skin, "Layer", character.getLayer(),
+                value -> change(editorState, entity, character, character.getLayer(), value, character::setLayer, "Change Collision Layer"));
+            InspectorFieldRows.intRow(container, skin, "Seen by", character.getCollisionMask(),
+                value -> change(editorState, entity, character, character.getCollisionMask(), value, character::setCollisionMask,
+                    "Change Collision Mask"));
         }
     }
 

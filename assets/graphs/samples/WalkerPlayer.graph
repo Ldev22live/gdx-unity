@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Walker Player",
+  "variables": [],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.tick",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "input.axis",
+      "x": 270,
+      "y": 150,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "A,LEFT"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "D,RIGHT"
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "type": "input.axis",
+      "x": 270,
+      "y": 300,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "W,UP"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "S,DOWN"
+        }
+      ]
+    },
+    {
+      "id": "n4",
+      "type": "math.multiply",
+      "x": 540,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 300.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n5",
+      "type": "math.multiply",
+      "x": 540,
+      "y": 300,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 300.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n6",
+      "type": "vector.make",
+      "x": 810,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "y",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n7",
+      "type": "action.moveCharacter",
+      "x": 1080,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n8",
+      "type": "data.isGrounded",
+      "x": 540,
+      "y": 450,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n9",
+      "type": "input.keyDown",
+      "x": 540,
+      "y": 600,
+      "literals": [],
+      "properties": [
+        {
+          "name": "key",
+          "type": "STRING",
+          "value": "SPACE"
+        }
+      ]
+    },
+    {
+      "id": "n10",
+      "type": "logic.and",
+      "x": 810,
+      "y": 450,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n11",
+      "type": "flow.branch",
+      "x": 1350,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n12",
+      "type": "action.jumpCharacter",
+      "x": 1620,
+      "y": 0,
+      "literals": [
+        {
+          "pin": "speed",
+          "type": "FLOAT",
+          "value": 450.0
+        }
+      ],
+      "properties": []
+    }
+  ],
+  "links": [
+    {
+      "from": "n2",
+      "fromPin": "value",
+      "to": "n4",
+      "toPin": "a"
+    },
+    {
+      "from": "n3",
+      "fromPin": "value",
+      "to": "n5",
+      "toPin": "a"
+    },
+    {
+      "from": "n4",
+      "fromPin": "result",
+      "to": "n6",
+      "toPin": "x"
+    },
+    {
+      "from": "n5",
+      "fromPin": "result",
+      "to": "n6",
+      "toPin": "z"
+    },
+    {
+      "from": "n6",
+      "fromPin": "vector",
+      "to": "n7",
+      "toPin": "velocity"
+    },
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n7",
+      "toPin": "exec"
+    },
+    {
+      "from": "n8",
+      "fromPin": "grounded",
+      "to": "n10",
+      "toPin": "a"
+    },
+    {
+      "from": "n9",
+      "fromPin": "pressed",
+      "to": "n10",
+      "toPin": "b"
+    },
+    {
+      "from": "n7",
+      "fromPin": "then",
+      "to": "n11",
+      "toPin": "exec"
+    },
+    {
+      "from": "n10",
+      "fromPin": "result",
+      "to": "n11",
+      "toPin": "condition"
+    },
+    {
+      "from": "n11",
+      "fromPin": "true",
+      "to": "n12",
+      "toPin": "exec"
+    }
+  ]
+}

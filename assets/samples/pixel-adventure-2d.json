@@ -1,0 +1,695 @@
+{
+"schemaVersion": 1,
+"name": "Pixel Adventure 2D",
+"active": true,
+"gameMode": "2d",
+"entities": [
+	{
+		"id": "069223dd-df30-4573-9b83-9624ac6c1bdc",
+		"name": "Sky",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 640,
+				"y": 192,
+				"z": -1
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "ShapeRendererComponent",
+				"enabled": true,
+				"data": {
+					"width": 1280,
+					"height": 384,
+					"shapeType": "FILLED",
+					"centered": true,
+					"color": {
+						"r": 0.1,
+						"g": 0.11,
+						"b": 0.15,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "d82e202e-037e-4b8d-92bd-3a94a9a8d8aa",
+		"name": "Main Camera",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 341.33334,
+				"y": 192,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "CameraComponent",
+				"enabled": true,
+				"data": {
+					"projection": "ORTHOGRAPHIC",
+					"orthographicHeight": 384,
+					"fieldOfView": 60,
+					"nearPlane": 1,
+					"farPlane": 50000
+				}
+			}
+		]
+	},
+	{
+		"id": "687b6896-4573-4bda-b281-ca7f4a19ab13",
+		"name": "Level",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "TilemapComponent",
+				"enabled": true,
+				"data": {
+					"tileSet": "sprites/tiles.sprite",
+					"tileWidth": 32,
+					"tileHeight": 32,
+					"collides": true,
+					"cols": 40,
+					"rows": 12,
+					"solid": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ],
+					"layers": [
+						{
+							"name": "Background",
+							"visible": true,
+							"cells": [ 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+						},
+						{
+							"name": "Ground",
+							"visible": true,
+							"cells": [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 11, 11, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 11, 11, 11, 9, 0, 0, 0, 0, 0, 0, 0, 3, 11, 11, 11, 9, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 7, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 13, 0, 0, 0, 7, 15, 15, 15, 15, 15, 15, 15, 15, 15, 13, 0, 0, 7, 15, 15, 15, 15, 15, 15, 15, 15, 14, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 10, 0, 0, 0, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 10, 0, 0, 4, 12, 12, 12, 12, 12, 12, 12, 12, 10 ]
+						}
+					],
+					"rules": [
+						{
+							"name": "ground",
+							"tiles": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ]
+						}
+					],
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "74a81266-afc9-4b31-ba3e-15dfad738ee7",
+		"name": "Player",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 80,
+				"y": 100,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/hero.sprite",
+					"tag": "idle",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 64,
+					"height": 64,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			},
+			{
+				"type": "EntityScriptBindingComponent",
+				"enabled": true,
+				"data": {
+					"scriptPath": "scripts/samples/pixel/PixelHero.java",
+					"scriptClassName": "samples.pixel.PixelHero",
+					"language": "JAVA"
+				}
+			}
+		]
+	},
+	{
+		"id": "d98ae895-2c5e-42b1-82ca-5260acba8c05",
+		"name": "Coin 1",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 240,
+				"y": 176,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "37354722-69e9-4d9c-a825-45403298a1e0",
+		"name": "Coin 2",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 272,
+				"y": 176,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "7e66038d-35a5-42e5-a345-fe065f9a7703",
+		"name": "Coin 3",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 688,
+				"y": 176,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "688de0c2-88bd-4721-9f62-8742d2b7d865",
+		"name": "Coin 4",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 720,
+				"y": 176,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "4625a832-3a8f-4ea8-beea-55d833c0738e",
+		"name": "Coin 5",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 1072,
+				"y": 176,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "e31f1871-cd22-453b-adb5-626ffc045d5f",
+		"name": "Coin 6",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 656,
+				"y": 80,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "62770bf5-6ca5-4e3f-9c89-ac57f07fdcb3",
+		"name": "Score Text",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "TextComponent",
+				"enabled": true,
+				"data": {
+					"text": "Coins: 0 / 6",
+					"colorR": 1,
+					"colorG": 1,
+					"colorB": 1,
+					"colorA": 1,
+					"scale": 1.5,
+					"anchor": "TOP_LEFT",
+					"offsetX": 16,
+					"offsetY": -16
+				}
+			}
+		]
+	},
+	{
+		"id": "4d588426-a164-41eb-b734-58094bf13c7f",
+		"name": "Help Text",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "TextComponent",
+				"enabled": true,
+				"data": {
+					"text": "A/D or arrows run, Space jumps, R restarts",
+					"colorR": 1,
+					"colorG": 1,
+					"colorB": 1,
+					"colorA": 1,
+					"scale": 1.5,
+					"anchor": "BOTTOM_LEFT",
+					"offsetX": 16,
+					"offsetY": 16
+				}
+			}
+		]
+	},
+	{
+		"id": "b684b0c4-cb4c-4c3c-9100-486f16978513",
+		"name": "Sound jump",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "AudioSource",
+				"enabled": true,
+				"data": {
+					"cue": "jump",
+					"sound": "Jump",
+					"volume": 1,
+					"pitch": 1,
+					"playOnStart": false
+				}
+			}
+		]
+	},
+	{
+		"id": "a0905737-adf9-475f-b4e9-d9aa5a7cc4cc",
+		"name": "Sound coin",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "AudioSource",
+				"enabled": true,
+				"data": {
+					"cue": "coin",
+					"sound": "Coin",
+					"volume": 1,
+					"pitch": 1,
+					"playOnStart": false
+				}
+			}
+		]
+	},
+	{
+		"id": "231151f5-78ff-4176-ba6c-40e084bdc7d7",
+		"name": "Sound hurt",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "AudioSource",
+				"enabled": true,
+				"data": {
+					"cue": "hurt",
+					"sound": "Hurt",
+					"volume": 1,
+					"pitch": 1,
+					"playOnStart": false
+				}
+			}
+		]
+	}
+]
+}

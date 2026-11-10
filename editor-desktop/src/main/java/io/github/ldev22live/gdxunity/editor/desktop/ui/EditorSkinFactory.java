@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -14,11 +15,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.SplitPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import io.github.ldev22live.gdxunity.editor.core.theme.EditorThemePalette;
@@ -31,6 +34,11 @@ import java.util.Objects;
  * Builds both Dark and Light skins parametrically using semantic {@link EditorThemePalette} tokens.
  */
 public final class EditorSkinFactory implements Disposable {
+    /** Height of a slider's track, in pixels. */
+    private static final int SLIDER_TRACK_HEIGHT = 4;
+    /** Size of a slider's knob, in pixels. */
+    private static final int SLIDER_KNOB_WIDTH = 8;
+    private static final int SLIDER_KNOB_HEIGHT = 16;
     private final java.util.List<Disposable> ownedResources = new ArrayList<>();
 
     private static final String REGULAR_FONT = "fonts/Inter-Regular.ttf";
@@ -45,6 +53,14 @@ public final class EditorSkinFactory implements Disposable {
     private static final int TOOL_ICON_SIZE = 16;
     /** Prefix of the tool icon {@link ImageButton.ImageButtonStyle} names; the suffix is the lowercase {@link EditorIcon} name. */
     public static final String TOOL_STYLE_PREFIX = "tool-";
+
+    /** Border, hover and selected fills of the top-bar buttons: the web editor's #3A3F4E, #343949 and #3B5B8F. */
+    private static final Color BAR_BUTTON_BORDER = new Color(0.227f, 0.247f, 0.306f, 1f);
+    private static final Color BAR_BUTTON_HOVER = new Color(0.204f, 0.224f, 0.286f, 1f);
+    private static final Color BAR_BUTTON_SELECTED = new Color(0.231f, 0.357f, 0.561f, 1f);
+    /** Space between a top-bar button's border and its text. */
+    private static final float BAR_BUTTON_PAD_X = 10f;
+    private static final float BAR_BUTTON_PAD_Y = 3f;
     /** Typographic characters used in editor text beyond FreeType's default Latin-1 set. */
     private static final String EXTRA_CHARACTERS = "—–…•·←→↑↓›";
 
@@ -218,6 +234,20 @@ public final class EditorSkinFactory implements Disposable {
         tabBtnStyle.checked = tabActiveBg;
         skin.add("tab", tabBtnStyle);
 
+        // Top-bar buttons, like the web editor's: a filled, bordered box; the selected one is the active blue
+        TextButton.TextButtonStyle barBtnStyle = new TextButton.TextButtonStyle();
+        barBtnStyle.font = font;
+        barBtnStyle.fontColor = palette.getTextPrimary();
+        barBtnStyle.overFontColor = palette.getTextPrimary();
+        barBtnStyle.downFontColor = palette.getTextOnAccent();
+        barBtnStyle.checkedFontColor = palette.getTextOnAccent();
+        barBtnStyle.disabledFontColor = palette.getDisabled();
+        barBtnStyle.up = createBorderedDrawable(palette.getSurfaceElevated(), BAR_BUTTON_BORDER);
+        barBtnStyle.over = createBorderedDrawable(BAR_BUTTON_HOVER, BAR_BUTTON_BORDER);
+        barBtnStyle.down = createBorderedDrawable(BAR_BUTTON_SELECTED, palette.getPrimary());
+        barBtnStyle.checked = createBorderedDrawable(BAR_BUTTON_SELECTED, palette.getPrimary());
+        skin.add("bar", barBtnStyle);
+
         // Play-control buttons: default button look with a drawn icon before the text
         Color iconColor = palette.getTextPrimary();
         skin.add("play", iconButtonStyle(btnStyle, createIconDrawable(EditorIcon.PLAY, iconColor)));
@@ -289,6 +319,17 @@ public final class EditorSkinFactory implements Disposable {
         skin.add("default-horizontal", splitStyleH);
         skin.add("default-vertical", splitStyleV);
         skin.add("default", splitStyleH);
+
+        // 11. SliderStyle (character creator, TD-056): a thin track, the part up to the knob in the accent color, a block knob
+        Drawable sliderTrack = createColorDrawable(palette.getBorder(), 1, SLIDER_TRACK_HEIGHT);
+        Drawable sliderFilled = createColorDrawable(palette.getPrimary(), 1, SLIDER_TRACK_HEIGHT);
+        Drawable sliderKnob = createColorDrawable(palette.getTextPrimary(), SLIDER_KNOB_WIDTH, SLIDER_KNOB_HEIGHT);
+        Drawable sliderKnobOver = createColorDrawable(palette.getPrimary(), SLIDER_KNOB_WIDTH, SLIDER_KNOB_HEIGHT);
+        Slider.SliderStyle sliderStyle = new Slider.SliderStyle(sliderTrack, sliderKnob);
+        sliderStyle.knobBefore = sliderFilled;
+        sliderStyle.knobOver = sliderKnobOver;
+        sliderStyle.knobDown = sliderKnobOver;
+        skin.add("default-horizontal", sliderStyle);
 
         return skin;
     }
@@ -502,6 +543,21 @@ public final class EditorSkinFactory implements Disposable {
         pixmap.dispose();
         ownedResources.add(texture);
         return new TextureRegionDrawable(new TextureRegion(texture));
+    }
+
+    /** A box of {@code fill} with a one pixel {@code border}, stretched to any size, with room around the text. */
+    private Drawable createBorderedDrawable(Color fill, Color border) {
+        Pixmap pixmap = new Pixmap(3, 3, Pixmap.Format.RGBA8888);
+        pixmap.setColor(border);
+        pixmap.fill();
+        pixmap.setColor(fill);
+        pixmap.drawPixel(1, 1);
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        ownedResources.add(texture);
+        NinePatch patch = new NinePatch(new TextureRegion(texture), 1, 1, 1, 1);
+        patch.setPadding(BAR_BUTTON_PAD_X, BAR_BUTTON_PAD_X, BAR_BUTTON_PAD_Y, BAR_BUTTON_PAD_Y);
+        return new NinePatchDrawable(patch);
     }
 
     private Drawable createSplitHandleDrawable(Color color, int width, int height) {

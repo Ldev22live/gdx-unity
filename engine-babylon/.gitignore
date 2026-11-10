@@ -4,3 +4,12 @@ dist/
 public/samples/
 # Copied from ../assets/music by the same script
 public/music/
+# Copied from ../assets/models by the same script
+public/models/
+# `npm run package` output
+package/
+# Copied from ../assets/animations and ../assets/graphs by the same script
+public/animations/
+public/graphs/
+# Copied from ../assets/characters by the same script
+public/characters/

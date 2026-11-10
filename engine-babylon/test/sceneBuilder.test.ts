@@ -6,6 +6,14 @@ import { createHeadlessEngine, loadSample, SAMPLES_DIR } from "./support";
 
 const sampleFiles = readdirSync(SAMPLES_DIR).filter((name) => name.endsWith(".json"));
 
+/**
+ * Samples that use components this player does not simulate yet. None are left: rigid bodies and box, sphere and capsule colliders
+ * run since TD-059 step 1, hull and mesh colliders and joints since TD-064 step 2, and character controllers and camera rigs since
+ * step 3. The list stays, empty, so a component added to the desktop without a web version fails this test.
+ */
+const KNOWN_UNSUPPORTED: Readonly<Record<string, string[]>> = {
+};
+
 describe("parseSceneFile", () => {
   it("shouldRejectAFileWithAnUnknownSchemaVersion", () => {
     expect(() => parseSceneFile(JSON.stringify({ schemaVersion: 2, entities: [] }))).toThrow(/schemaVersion 2/);
@@ -33,7 +41,7 @@ describe("buildScene", () => {
     for (const file of sampleFiles) {
       const engine = createHeadlessEngine();
       const built = buildScene(engine, loadSample(file));
-      expect([...built.unsupported.keys()], file).toEqual([]);
+      expect([...built.unsupported.keys()].sort(), file).toEqual(KNOWN_UNSUPPORTED[file] ?? []);
       built.scene.dispose();
       engine.dispose();
     }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
+import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
@@ -59,6 +60,9 @@ public class SceneSerializer {
         json.writeValue("schemaVersion", CURRENT_SCHEMA_VERSION);
         json.writeValue("name", scene.getName());
         json.writeValue("active", scene.isActive());
+        if (scene.getGameMode() != null) {
+            json.writeValue("gameMode", scene.getGameMode().getFileValue());
+        }
 
         // Entities array
         json.writeArrayStart("entities");
@@ -207,6 +211,14 @@ public class SceneSerializer {
 
         Scene scene = new Scene(sceneName);
         scene.setActive(active);
+        String modeValue = root.getString("gameMode", null);
+        if (modeValue != null) {
+            GameMode mode = GameMode.fromFileValue(modeValue);
+            if (mode == null) {
+                throw new SceneSerializationException("Unknown gameMode in scene JSON: " + modeValue);
+            }
+            scene.setGameMode(mode);
+        }
 
         JsonValue entitiesArray = root.get("entities");
         if (entitiesArray == null || !entitiesArray.isArray()) {

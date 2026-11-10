@@ -2,6 +2,7 @@ package io.github.ldev22live.gdxunity.editor.core;
 
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
 
@@ -25,6 +26,8 @@ public class EditorState {
         default void onMultiSelectionChanged(java.util.Set<UUID> previousSelection, java.util.Set<UUID> newSelection, UUID primarySelectedId) {}
         default void onToolModeChanged(ToolMode oldMode, ToolMode newMode) {}
         default void onViewportModeChanged(ViewportMode oldMode, ViewportMode newMode) {}
+        /** The scene's game mode (2D, 2.5D, 3D) changed, or another scene with another mode became active. {@code oldMode} is null for the first scene. */
+        default void onGameModeChanged(GameMode oldMode, GameMode newMode) {}
         default void onStatusMessage(String message, boolean isError) {}
         default void onHierarchyModified() {}
         default void onEntityTransformModified(Entity entity) {}
@@ -150,6 +153,7 @@ public class EditorState {
             return;
         }
         Scene oldScene = this.activeScene;
+        GameMode oldGameMode = oldScene == null ? null : GameModeProfile.resolve(oldScene);
         this.activeScene = (newScene != null) ? newScene : new Scene("Untitled Scene");
 
         // Clear command history to prevent stale entity mutations across scene transitions
@@ -171,6 +175,42 @@ public class EditorState {
             }
         }
         setStatusMessage("Switched to scene: " + this.activeScene.getName(), false);
+        GameMode newGameMode = GameModeProfile.resolve(this.activeScene);
+        if (!isPlayModeActive()) {
+            // Play chooses its own view from the game camera (GameViewPlayModeExtension)
+            setViewportMode(GameModeProfile.of(newGameMode).getViewport());
+        }
+        if (newGameMode != oldGameMode) {
+            for (Listener l : listeners) {
+                l.onGameModeChanged(oldGameMode, newGameMode);
+            }
+        }
+    }
+
+    /** The game mode of the active scene: the one saved with it, else inferred from its content. */
+    public GameMode getGameMode() {
+        return GameModeProfile.resolve(activeScene);
+    }
+
+    /**
+     * Sets the active scene's game mode and switches the scene view to the one the mode uses. Not allowed during Play. Not an undo step: the mode
+     * is a setting of the scene, like its name, and changing it removes nothing from the scene.
+     */
+    public void setGameMode(GameMode mode) {
+        Objects.requireNonNull(mode, "mode cannot be null");
+        if (isPlayModeActive()) {
+            setStatusMessage("Cannot change the game mode during Play/Pause mode", true);
+            return;
+        }
+        GameMode old = getGameMode();
+        activeScene.setGameMode(mode);
+        setViewportMode(GameModeProfile.of(mode).getViewport());
+        if (old != mode) {
+            setStatusMessage("Game mode: " + mode.getLabel(), false);
+            for (Listener l : listeners) {
+                l.onGameModeChanged(old, mode);
+            }
+        }
     }
 
     public UUID getSelectedEntityId() {
@@ -451,11 +491,17 @@ public class EditorState {
     // --- Scene Persistence ---
 
     public void newScene(String sceneName) {
+        newScene(sceneName, null);
+    }
+
+    /** A new empty scene of the given game mode (null: none chosen yet, inferred from content, so 2D while empty). */
+    public void newScene(String sceneName, GameMode mode) {
         if (isPlayModeActive()) {
             setStatusMessage("Cannot create new scene during Play/Pause mode", true);
             return;
         }
         Scene fresh = new Scene(sceneName != null ? sceneName : "New Scene");
+        fresh.setGameMode(mode);
         setActiveScene(fresh);
         setStatusMessage("Created new scene: " + fresh.getName(), false);
     }

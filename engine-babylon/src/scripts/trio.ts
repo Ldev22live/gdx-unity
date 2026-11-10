@@ -112,12 +112,17 @@ export class TrioGame extends ScriptComponent {
     if (this.input.isJustPressed("Space", "KeyW", "ArrowUp")) {
       if (this.body.grounded) {
         this.body.velocityY = current.jumpSpeed;
+        this.scene.playCue("jump");
       } else if (this.airJumpsLeft > 0) {
         this.airJumpsLeft--;
         this.body.velocityY = current.jumpSpeed;
+        this.scene.playCue("jump");
       }
     }
-    if (this.input.isJustPressed("KeyE")) this.useAbility();
+    if (this.input.isJustPressed("KeyE")) {
+      this.useAbility();
+      this.scene.playCue("ability");
+    }
     this.stepPushables(this.crates, this.crateEntities, dt);
     this.stepPushables(this.heavyBlocks, this.heavyEntities, dt);
     this.body.step(dt, TrioGame.GRAVITY, this.solids, (solid, amount) => this.push(solid, amount));
@@ -130,6 +135,7 @@ export class TrioGame extends ScriptComponent {
     }
     if (this.body.touches(this.goal.x, this.goal.y, this.goal.halfWidth, this.goal.halfHeight)) {
       this.finished = true;
+      this.scene.playCue("win");
       this.messageText.setText("The party reached the top! Press R to play again");
     }
   }

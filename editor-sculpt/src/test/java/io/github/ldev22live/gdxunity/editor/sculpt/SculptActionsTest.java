@@ -13,6 +13,7 @@ import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.render.components.DynamicMeshComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.MeshGeometry3D;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
 import io.github.ldev22live.gdxunity.engine.sculpt.BrushType;
 import org.junit.jupiter.api.BeforeAll;
@@ -117,6 +118,61 @@ class SculptActionsTest {
         assertTrue(registry.execute(SculptActions.CREATE_SCULPT));
         assertEquals("sculpts/Sculpt 1.sculpt",
             editorState.getSelectedEntity().getComponent(DynamicMeshComponent.class).getMeshPath());
+    }
+
+    /** The 12 triangles of a cube with split vertices (24 corners), as an imported model has them. */
+    private static MeshGeometry3D splitCube() {
+        float[][] corners = {{-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1}, {-1, -1, 1}, {1, -1, 1}, {1, 1, 1}, {-1, 1, 1}};
+        int[][] faces = {{0, 3, 2, 1}, {4, 5, 6, 7}, {0, 1, 5, 4}, {3, 7, 6, 2}, {0, 4, 7, 3}, {1, 2, 6, 5}};
+        float[] positions = new float[24 * 3];
+        int[] indices = new int[36];
+        for (int face = 0; face < 6; face++) {
+            for (int corner = 0; corner < 4; corner++) {
+                float[] p = corners[faces[face][corner]];
+                System.arraycopy(p, 0, positions, (face * 4 + corner) * 3, 3);
+            }
+            int base = face * 4;
+            int[] quad = {base, base + 1, base + 2, base, base + 2, base + 3};
+            System.arraycopy(quad, 0, indices, face * 6, 6);
+        }
+        return new MeshGeometry3D(positions, indices);
+    }
+
+    @Test
+    void shouldStartASculptFromTheSelectedEntitysMeshAndKeepTheOriginal() {
+        SculptActions.registerFromSelected(registry, editorState, session, entity -> splitCube());
+        Entity source = editorState.getActiveScene().createEntity("Crate");
+        source.getTransform().setLocalPosition(4f, 5f, 6f);
+        editorState.setSelectedEntity(source);
+
+        assertTrue(registry.execute(SculptActions.CREATE_SCULPT_FROM_SELECTED));
+
+        Entity sculpt = editorState.getSelectedEntity();
+        assertEquals("Crate Sculpt", sculpt.getName());
+        assertEquals(new Vector3(4f, 5f, 6f), sculpt.getTransform().getWorldPosition());
+        String path = sculpt.getComponent(DynamicMeshComponent.class).getMeshPath();
+        assertEquals("sculpts/Crate.sculpt", path);
+        SculptDocument document = session.getDocumentOf(sculpt);
+        assertNotNull(document, "the new sculpt is open");
+        assertEquals(12 * 256, document.getSurface().getMesh().getTriangleCount(), "welded, then subdivided four levels");
+        assertTrue(session.isSculptMode());
+        assertNotNull(editorState.getActiveScene().findEntityByName("Crate"), "the source stays");
+    }
+
+    @Test
+    void shouldNeedASelectionAndReportAMeshThatCannotBeRead() {
+        SculptActions.registerFromSelected(registry, editorState, session, entity -> {
+            throw new IllegalStateException(entity.getName() + " shows no mesh");
+        });
+        assertFalse(action(SculptActions.CREATE_SCULPT_FROM_SELECTED).isEnabled(), "nothing is selected");
+
+        Entity source = editorState.getActiveScene().createEntity("Empty");
+        editorState.setSelectedEntity(source);
+        registry.execute(SculptActions.CREATE_SCULPT_FROM_SELECTED);
+
+        assertEquals(source, editorState.getSelectedEntity());
+        assertTrue(editorState.getStatusMessage().contains("Cannot sculpt Empty: Empty shows no mesh"), editorState.getStatusMessage());
+        assertFalse(Files.exists(root.resolve("sculpts")), "no file is made for a mesh that cannot be read");
     }
 
     @Test

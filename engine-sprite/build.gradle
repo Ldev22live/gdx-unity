@@ -1,0 +1,18 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-engine-sprite'
+
+apply plugin: 'java-library'
+
+// Pixel-art sprite core (TD-066): layered, multi-frame images, tags, palette, slices, the .sprite file, flattening
+// and sprite-sheet export/import. Headless; no GL. Uses javax.imageio for PNG data and libGDX's JSON writer/reader.
+dependencies {
+  api project(':engine-core')
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+}
+
+test {
+  useJUnitPlatform()
+}

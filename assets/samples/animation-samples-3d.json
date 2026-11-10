@@ -1,0 +1,442 @@
+{
+  "schemaVersion": 1,
+  "name": "Animation Samples 3D",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "a794b787-723e-51eb-99d4-078c2fd47515",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.3,
+            "directionY": -1.0,
+            "directionZ": -0.5,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "2bb2f3a5-78a9-5ac1-96bd-046f18533c39",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 150.0,
+          "z": 650.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 55.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        },
+        {
+          "type": "AnimatorComponent",
+          "enabled": true,
+          "data": {
+            "clip": "animations/samples/CameraSway.anim",
+            "playOnStart": true,
+            "wrap": "LOOP",
+            "speed": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "065f0490-31e1-5c1d-a71e-362192091b56",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -5.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1100.0,
+            "sizeY": 10.0,
+            "sizeZ": 600.0,
+            "colorR": 0.42,
+            "colorG": 0.55,
+            "colorB": 0.42,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2dfca262-5550-5975-b1d3-24e8371171c7",
+      "name": "Spin Cube",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -400.0,
+          "y": 40.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.9,
+            "colorG": 0.6,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "AnimatorComponent",
+          "enabled": true,
+          "data": {
+            "clip": "animations/samples/SpinCube.anim",
+            "playOnStart": true,
+            "wrap": "LOOP",
+            "speed": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "97472a3b-11c4-544b-867d-3444dc8c5b80",
+      "name": "Swinging Panel",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -200.0,
+          "y": 100.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 200.0,
+            "sizeZ": 8.0,
+            "colorR": 0.55,
+            "colorG": 0.4,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "AnimatorComponent",
+          "enabled": true,
+          "data": {
+            "clip": "animations/samples/DoorSwing.anim",
+            "playOnStart": true,
+            "wrap": "LOOP",
+            "speed": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "3d4c4cc5-9cca-5ec7-acbb-3f726d07813b",
+      "name": "Rocking Bar",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 130.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 16.0,
+            "sizeY": 240.0,
+            "sizeZ": 16.0,
+            "colorR": 0.3,
+            "colorG": 0.55,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "AnimatorComponent",
+          "enabled": true,
+          "data": {
+            "clip": "animations/samples/Pendulum.anim",
+            "playOnStart": true,
+            "wrap": "LOOP",
+            "speed": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3336caf-cd1e-5e32-86ef-f3e197ccc13e",
+      "name": "Color Pulse",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 200.0,
+          "y": 45.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 90.0,
+            "sizeY": 90.0,
+            "sizeZ": 90.0,
+            "colorR": 0.9,
+            "colorG": 0.2,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "AnimatorComponent",
+          "enabled": true,
+          "data": {
+            "clip": "animations/samples/ColorPulse.anim",
+            "playOnStart": true,
+            "wrap": "LOOP",
+            "speed": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "94511ab0-9fe7-5181-9a9b-2cd7d20023ba",
+      "name": "Pulsing Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 400.0,
+          "y": 60.0,
+          "z": 60.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 30.0,
+            "sizeY": 30.0,
+            "sizeZ": 30.0,
+            "colorR": 1.0,
+            "colorG": 0.95,
+            "colorB": 0.6,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "PointLightComponent",
+          "enabled": true,
+          "data": {
+            "positionX": 0.0,
+            "positionY": 0.0,
+            "positionZ": 0.0,
+            "colorR": 1.0,
+            "colorG": 0.9,
+            "colorB": 0.6,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "range": 600.0
+          }
+        },
+        {
+          "type": "AnimatorComponent",
+          "enabled": true,
+          "data": {
+            "clip": "animations/samples/PulsingLight.anim",
+            "playOnStart": true,
+            "wrap": "LOOP",
+            "speed": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "d0120d1e-459c-5e98-8b46-5b4b5e9ab617",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Animation samples: SpinCube, DoorSwing, Pendulum, ColorPulse, PulsingLight and CameraSway play here; open the Animations tab to preview, edit and reuse them",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.2,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

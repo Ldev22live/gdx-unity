@@ -9,6 +9,7 @@ import {
   ImageProcessingConfiguration,
   Mesh,
   MeshBuilder,
+  PointLight,
   Quaternion,
   Scene,
   ShadowGenerator,
@@ -22,26 +23,52 @@ import {
 import { GameEntity, GameScene, type ColorLike, type EntityFactory } from "./GameEntity";
 import { bool, num, str, type ColorData, type ComponentData, type SceneFile } from "../scene/types";
 import { decodeMesh, type SculptMesh } from "../sculpt/SculptMesh";
+import { parseTilemap, type TileMapData } from "../sprites/sprite";
+import { SpriteBinding } from "./SpriteBinding";
 
 /** Component types this player draws or simulates. Anything else in a scene file is reported, not silently dropped. */
 export const SUPPORTED_COMPONENTS: ReadonlySet<string> = new Set([
   "MeshPrimitiveComponent",
   "SculptMeshComponent",
+  "ModelComponent",
   "ShapeRendererComponent",
   "TextComponent",
   "CameraComponent",
   "DirectionalLightComponent",
+  "PointLightComponent",
+  // 3D physics (TD-059, step 1): bodies and box, sphere and capsule colliders; hull and mesh colliders, joints (TD-064 step 2), characters and camera rigs (step 3) follow
+  "RigidBody3DComponent",
+  "BoxCollider3DComponent",
+  "SphereCollider3DComponent",
+  "CapsuleCollider3DComponent",
+  "ConvexHullCollider3DComponent",
+  "MeshCollider3DComponent",
+  "Joint3DComponent",
+  "CharacterController3DComponent",
+  // Played by the ScenePlayer: it moves and turns the entity after physics (TD-050, TD-064)
+  "CameraRigComponent",
   "SkyLightComponent",
   "ToneMappingComponent",
   "RigidBody2DComponent",
   "BoxCollider2DComponent",
   "EntityScriptBindingComponent",
+  "AudioSource",
+  "AudioListener",
+  "MusicSource",
+  // Played by the ScenePlayer: a clip on the entity's bones, and a visual script (TD-044)
+  "AnimatorComponent",
+  "GraphScriptComponent",
+  // Pixel-art sprites and tile maps (TD-066): drawn from `.sprite` files that load after the scene is built; tile maps also collide (Physics2D)
+  "SpriteAnimatorComponent",
+  "TilemapComponent",
 ]);
 
 /** Distance an orthographic game camera is pulled back along its view axis, so the z = 0 plane is in front of it. */
 export const ORTHO_BACK_OFF = 1000;
 /** Spacing in depth between flat shapes drawn at the same z, so later entities draw over earlier ones. */
 const SHAPE_LAYER_STEP = 0.01;
+/** Gap in draw order between entities' sprites and tile layers, which are transparent and so sorted by alphaIndex; it leaves room for a tile map's layers. */
+export const ALPHA_INDEX_STEP = 100;
 const SHADOW_MAP_SIZE = 2048;
 /** Shadow depth bias and normal bias; scenes are hundreds of units wide, so the defaults for small scenes show acne. */
 const SHADOW_BIAS = 0.001;
@@ -57,15 +84,20 @@ export interface TextItem {
 
 /** The scene's own camera, driven by the transform of the entity that carries the Camera component. */
 export class GameCamera {
+  private readonly component: ComponentData | undefined;
   constructor(
     readonly entity: GameEntity,
     readonly camera: UniversalCamera,
     readonly orthographic: boolean,
     private readonly orthoHeight: number,
-  ) {}
+  ) {
+    this.component = entity.components.find((component) => component.type === "CameraComponent");
+  }
 
   /** Moves the Babylon camera to where the camera entity is now, and fits an orthographic view to the aspect ratio. */
   sync(aspect: number): void {
+    const config = this.component;
+    if (config) this.camera.fov = num(config.data, "fieldOfView", 60) * Math.PI / 180;
     const node = this.entity.node;
     node.computeWorldMatrix(true);
     const scale = new Vector3();
@@ -93,6 +125,35 @@ export interface SculptBinding {
   mesh: Mesh;
 }
 
+/** A glTF model a Model component names; {@link loadPendingModels} loads it under {@code holder}. */
+export interface PendingModel {
+  entity: GameEntity;
+  /** Scales the model from metres to scene units. */
+  holder: TransformNode;
+  path: string;
+}
+
+/** A Sprite Animator waiting for its `.sprite`; {@link loadPendingSprites} gives the plane its texture. */
+export interface PendingSprite {
+  entity: GameEntity;
+  binding: SpriteBinding;
+  path: string;
+  tint: ColorData;
+}
+
+/** A Tilemap waiting for its tile set (a `.sprite` whose frames are the tiles); {@link loadPendingSprites} builds a mesh for each visible layer. */
+export interface PendingTilemap {
+  entity: GameEntity;
+  map: TileMapData;
+  path: string;
+  tint: ColorData;
+  /** Depth of the tile map's first layer under its entity, and the gap between layers. */
+  depth: number;
+  layerStep: number;
+  /** The entity's order in the scene; its layers draw in this order, then in layer order (see {@link ALPHA_INDEX_STEP}). */
+  order: number;
+}
+
 export interface BuiltScene {
   scene: Scene;
   game: GameScene;
@@ -103,6 +164,17 @@ export interface BuiltScene {
   texts: TextItem[];
   /** The sculpts in the scene by entity id: the editable mesh data and the Babylon mesh that shows it. */
   sculpts: Map<string, SculptBinding>;
+  /** Models waiting to be loaded (the scene is built at once; models arrive asynchronously). */
+  pendingModels: PendingModel[];
+  /** Models that failed to load, filled in by {@link loadPendingModels}. */
+  modelFailures: { entityName: string; path: string; message: string }[];
+  /** Sprite Animators and Tilemaps waiting for their sprite files (loaded asynchronously, like models). */
+  pendingSprites: PendingSprite[];
+  pendingTilemaps: PendingTilemap[];
+  /** Sprite files that failed to load, filled in by {@link loadPendingSprites}. */
+  spriteFailures: { entityName: string; path: string; message: string }[];
+  /** The scene's Sprite Animators; the player advances them while the game runs. */
+  sprites: SpriteBinding[];
   /** Component types in the file that the player does not support, with how many components have each. */
   unsupported: Map<string, number>;
 }
@@ -138,6 +210,10 @@ export function buildScene(engine: AbstractEngine, file: SceneFile): BuiltScene 
   const builtMeshes: Mesh[] = [];
   const texts: TextItem[] = [];
   const sculpts = new Map<string, SculptBinding>();
+  const pendingModels: PendingModel[] = [];
+  const pendingSprites: PendingSprite[] = [];
+  const pendingTilemaps: PendingTilemap[] = [];
+  const sprites: SpriteBinding[] = [];
   const unsupported = new Map<string, number>();
   const shadowLights: DirectionalLight[] = [];
   let gameCamera: GameCamera | null = null;
@@ -161,9 +237,31 @@ export function buildScene(engine: AbstractEngine, file: SceneFile): BuiltScene 
           builtMeshes.push(binding.mesh);
           break;
         }
+        case "ModelComponent": {
+          const holder = new TransformNode(`${entity.name} model`, scene);
+          holder.parent = entity.node;
+          const scale = num(component.data, "importScale", 100);
+          holder.scaling.set(scale, scale, scale);
+          pendingModels.push({ entity, holder, path: str(component.data, "model") });
+          break;
+        }
         case "ShapeRendererComponent":
           createShape(scene, entity, component, index);
           break;
+        case "SpriteAnimatorComponent": {
+          const pending = createSpriteAnimator(scene, entity, component, index);
+          if (pending) {
+            pendingSprites.push(pending);
+            sprites.push(pending.binding);
+            entity.sprite = pending.binding;
+          }
+          break;
+        }
+        case "TilemapComponent": {
+          const pending = createTilemap(entity, component, index);
+          if (pending) pendingTilemaps.push(pending);
+          break;
+        }
         case "TextComponent":
           texts.push({ entity, data: component.data });
           break;
@@ -176,6 +274,10 @@ export function buildScene(engine: AbstractEngine, file: SceneFile): BuiltScene 
           if (bool(component.data, "castShadows", false)) shadowLights.push(light);
           break;
         }
+        case "PointLightComponent":
+          createPointLight(scene, entity, component);
+          hasLight = true;
+          break;
         case "SkyLightComponent":
           skyColor = createSkyLight(scene, entity, component);
           hasLight = true;
@@ -214,7 +316,21 @@ export function buildScene(engine: AbstractEngine, file: SceneFile): BuiltScene 
   const viewerCamera = createViewerCamera(scene, builtMeshes);
   const own: GameCamera | null = gameCamera;
   scene.activeCamera = own ? own.camera : viewerCamera;
-  return { scene, game, gameCamera: own, viewerCamera, texts, sculpts, unsupported };
+  return {
+    scene,
+    game,
+    gameCamera: own,
+    viewerCamera,
+    texts,
+    sculpts,
+    pendingModels,
+    modelFailures: [],
+    pendingSprites,
+    pendingTilemaps,
+    spriteFailures: [],
+    sprites,
+    unsupported,
+  };
 }
 
 let runtimeEntityCounter = 0;
@@ -338,6 +454,49 @@ function createShape(scene: Scene, entity: GameEntity, component: ComponentData,
   mesh.position.set(centered ? 0 : width / 2, centered ? 0 : height / 2, order * SHAPE_LAYER_STEP);
 }
 
+/** Reads the tint of a sprite or tile map component (white when it has none). */
+function tintOf(d: Record<string, unknown>): ColorData {
+  const t = d["tint"] as Partial<ColorData> | undefined;
+  return { r: t?.r ?? 1, g: t?.g ?? 1, b: t?.b ?? 1, a: t?.a ?? 1 };
+}
+
+/**
+ * A plane for a Sprite Animator: a unit square that is hidden until its sprite loads, then sized to the sprite (or the component's width and height).
+ * Returns null, and reports nothing, for a component without a sprite path: there is nothing to draw.
+ */
+function createSpriteAnimator(scene: Scene, entity: GameEntity, component: ComponentData, order: number): PendingSprite | null {
+  const d = component.data;
+  const path = typeof d["assetPath"] === "string" ? d["assetPath"] : "";
+  if (path === "") return null;
+  const mesh = MeshBuilder.CreatePlane(`${entity.name} sprite`, { width: 1, height: 1, updatable: true }, scene);
+  mesh.parent = entity.node;
+  mesh.metadata = { entityId: entity.id };
+  mesh.setEnabled(false);
+  mesh.position.z = order * SHAPE_LAYER_STEP;
+  // Transparent meshes are sorted by distance, which ties for flat layers; the entity's order decides instead
+  mesh.alphaIndex = order * ALPHA_INDEX_STEP;
+  entity.meshes.push(mesh);
+  const binding = new SpriteBinding(mesh, {
+    tag: typeof d["tag"] === "string" && d["tag"] !== "" ? d["tag"] : null,
+    speed: num(d, "speed", 1),
+    loop: bool(d, "loop", true),
+    playOnStart: bool(d, "playOnStart", true),
+    flipX: bool(d, "flipX", false),
+    flipY: bool(d, "flipY", false),
+    width: num(d, "width", 0),
+    height: num(d, "height", 0),
+    centered: bool(d, "centered", true),
+  });
+  return { entity, binding, path, tint: tintOf(d) };
+}
+
+/** A tile map: its cells are read now, its meshes are made when the tile set loads. A map without a tile set draws nothing (it can still collide). */
+function createTilemap(entity: GameEntity, component: ComponentData, order: number): PendingTilemap | null {
+  const map = parseTilemap(component.data);
+  if (map.tileSet === null) return null;
+  return { entity, map, path: map.tileSet, tint: tintOf(component.data), depth: order * SHAPE_LAYER_STEP, layerStep: SHAPE_LAYER_STEP / (map.layers.length + 1), order };
+}
+
 function createGameCamera(scene: Scene, entity: GameEntity, component: ComponentData): GameCamera {
   const d = component.data;
   const camera = new UniversalCamera(entity.name, Vector3.Zero(), scene);
@@ -364,6 +523,18 @@ function createDirectionalLight(scene: Scene, entity: GameEntity, component: Com
   light.specular = light.diffuse.scale(0.4);
   light.intensity = num(d, "intensity", 1);
   light.position = entity.getWorldPosition();
+  return light;
+}
+
+/** A point light that follows its entity, with the desktop component's color, intensity and range (scene units). */
+function createPointLight(scene: Scene, entity: GameEntity, component: ComponentData): PointLight {
+  const d = component.data;
+  const light = new PointLight(entity.name, Vector3.Zero(), scene);
+  light.parent = entity.node;
+  light.diffuse = new Color3(num(d, "colorR"), num(d, "colorG"), num(d, "colorB"));
+  light.specular = light.diffuse.scale(0.4);
+  light.intensity = num(d, "intensity", 1);
+  light.range = num(d, "range", 600);
   return light;
 }
 

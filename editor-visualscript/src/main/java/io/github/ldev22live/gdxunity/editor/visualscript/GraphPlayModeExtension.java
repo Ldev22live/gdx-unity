@@ -7,9 +7,11 @@ import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.physics.PhysicsSystem2D;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializationException;
 import io.github.ldev22live.gdxunity.engine.visualscript.Graph;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphCollisionForwarder;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphContactForwarder;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphHost;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphInstance;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphRuntimeException;
@@ -39,6 +41,8 @@ public class GraphPlayModeExtension implements PlayModeController.Extension {
     private final Map<GraphInstance, String> pathByInstance = new IdentityHashMap<>();
     private PhysicsSystem2D physics;
     private final PhysicsSystem2D.CollisionListener collisionForwarder = new GraphCollisionForwarder();
+    private PhysicsSystem3D physics3D;
+    private final PhysicsSystem3D.ContactListener contactForwarder = new GraphContactForwarder();
 
     public GraphPlayModeExtension(EditorState editorState, GraphAssets assets, NodeRegistry registry, EditorLog log,
                                   GraphExecutionTrace trace) {
@@ -102,6 +106,10 @@ public class GraphPlayModeExtension implements PlayModeController.Extension {
         if (physics != null) {
             physics.addCollisionListener(collisionForwarder);
         }
+        physics3D = controller.getPhysicsSystem3D();
+        if (physics3D != null) {
+            physics3D.addContactListener(contactForwarder);
+        }
         return List.of();
     }
 
@@ -115,6 +123,10 @@ public class GraphPlayModeExtension implements PlayModeController.Extension {
         if (physics != null) {
             physics.removeCollisionListener(collisionForwarder);
             physics = null;
+        }
+        if (physics3D != null) {
+            physics3D.removeContactListener(contactForwarder);
+            physics3D = null;
         }
         pathByInstance.clear();
     }

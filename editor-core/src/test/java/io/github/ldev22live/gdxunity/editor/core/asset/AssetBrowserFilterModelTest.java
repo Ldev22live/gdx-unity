@@ -65,4 +65,78 @@ class AssetBrowserFilterModelTest {
         assertTrue(filtered.isEmpty());
         assertEquals(0, filterModel.getFilteredCount());
     }
+
+    private void addNested() throws IOException {
+        Files.createDirectories(tempDir.resolve("models/props"));
+        Files.createDirectories(tempDir.resolve("ui"));
+        Files.writeString(tempDir.resolve("models/hero.glb"), "model");
+        Files.writeString(tempDir.resolve("models/props/crate.glb"), "model");
+        Files.writeString(tempDir.resolve("models/props/barrel.glb"), "model");
+        Files.writeString(tempDir.resolve("ui/button.png"), "sound");
+        catalog.scan();
+    }
+
+    @Test
+    void shouldListTheRootFilesAndFoldersWithTheirAssetCounts() throws IOException {
+        addNested();
+
+        assertEquals(List.of("background.jpg", "enemy.png", "player.png"),
+            filterModel.getFilteredAssets().stream().map(AssetMetadata::getPath).toList());
+        assertEquals(List.of("models:3", "ui:1"),
+            filterModel.getSubfolders().stream().map(f -> f.name() + ":" + f.assetCount()).toList());
+    }
+
+    @Test
+    void shouldOpenAFolderShowOnlyItsDirectFilesAndGoBackUp() throws IOException {
+        addNested();
+
+        filterModel.openFolder("models");
+        assertEquals(List.of("models/hero.glb"), filterModel.getFilteredAssets().stream().map(AssetMetadata::getPath).toList());
+        assertEquals(List.of("models/props"), filterModel.getSubfolders().stream().map(AssetBrowserFilterModel.Folder::path).toList());
+        filterModel.openFolder("props");
+        assertEquals(List.of("models", "props"), filterModel.getBreadcrumb());
+        assertEquals(2, filterModel.getFilteredAssets().size());
+
+        filterModel.up();
+        assertEquals("models", filterModel.getCurrentFolder());
+        filterModel.up();
+        filterModel.up();
+        assertEquals("", filterModel.getCurrentFolder());
+    }
+
+    @Test
+    void shouldSearchEveryFolderWhateverFolderIsOpenAndHideTheFolderList() throws IOException {
+        addNested();
+        filterModel.openFolder("ui");
+
+        filterModel.setSearchFilter("crate");
+
+        assertEquals(List.of("models/props/crate.glb"), filterModel.getFilteredAssets().stream().map(AssetMetadata::getPath).toList());
+        assertTrue(filterModel.getSubfolders().isEmpty());
+    }
+
+    @Test
+    void shouldFallBackToTheNearestExistingFolderWhenTheOpenOneDisappears() throws IOException {
+        addNested();
+        filterModel.openFolder("models");
+        filterModel.openFolder("props");
+        Files.delete(tempDir.resolve("models/props/crate.glb"));
+        Files.delete(tempDir.resolve("models/props/barrel.glb"));
+        Files.delete(tempDir.resolve("models/props"));
+        catalog.scan();
+
+        filterModel.revalidate();
+
+        assertEquals("models", filterModel.getCurrentFolder());
+    }
+
+    @Test
+    void shouldApplyTheTypeFilterToFolderCountsAndIgnoreUnknownFolders() throws IOException {
+        addNested();
+        filterModel.setTypeFilter(AssetType.MODEL);
+
+        assertEquals(List.of("models:3"), filterModel.getSubfolders().stream().map(f -> f.name() + ":" + f.assetCount()).toList());
+        filterModel.setCurrentFolder("nowhere/at/all");
+        assertEquals("", filterModel.getCurrentFolder());
+    }
 }

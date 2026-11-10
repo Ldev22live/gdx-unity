@@ -1,0 +1,2057 @@
+{
+  "schemaVersion": 1,
+  "name": "Alpine Valley",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "d0dc9669-313b-50aa-9c06-75b83e17ba21",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4000.0,
+          "z": 2000.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.35,
+            "directionY": -0.75,
+            "directionZ": -0.5,
+            "colorR": 0.96,
+            "colorG": 0.97,
+            "colorB": 1.0,
+            "colorA": 1.0,
+            "intensity": 1.1,
+            "castShadows": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "a91fcf39-c4e5-5996-9f27-0e141d0417ef",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.68,
+            "skyG": 0.79,
+            "skyB": 0.92,
+            "groundR": 0.62,
+            "groundG": 0.66,
+            "groundB": 0.72,
+            "intensity": 0.8
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "5d848ae8-e39d-5d19-9634-9413f09ca8f9",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 2300.0,
+          "z": 4400.0
+        },
+        "rotation": {
+          "x": -0.20791169081775934,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9781476007338057
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 62.0,
+            "nearPlane": 1.0,
+            "farPlane": 60000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ac40bbbd-2042-5153-9471-92361ab8e4ae",
+      "name": "Terrain",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/alpine-terrain.gltf",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "fde9c411-beeb-508d-a630-ff8eff92549c",
+      "name": "Ice",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 800.0,
+          "y": -114.99999999999999,
+          "z": -400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/ice.gltf",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "481842f5-5569-5a51-80e8-c5ff8548486e",
+      "name": "Snow Pine 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1876.2829129340914,
+          "y": 447.3023661245062,
+          "z": 1062.6947756183774
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9978453006563314,
+          "z": 0.0,
+          "w": 0.06561063906163198
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 114.92499672225964,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "93d22675-de77-5995-ba37-b16181f55182",
+      "name": "Snow Pine 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1590.3196517941442,
+          "y": 338.74296531197547,
+          "z": 1638.7468059213795
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9992344241288376,
+          "z": 0.0,
+          "w": -0.039122444145404826
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 124.43198660743853,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0b270947-93d8-542e-8001-5e487c298fba",
+      "name": "Snow Pine 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 28.47125943206521,
+          "y": 89.54304122240308,
+          "z": -1478.0843644212212
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9190555945631057,
+          "z": 0.0,
+          "w": 0.3941279159134205
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 80.17493468356635,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c530efb6-b28a-5852-9d37-6b7859a7c9ba",
+      "name": "Snow Pine 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1645.0057223990043,
+          "y": 452.1132805196405,
+          "z": -1499.38478797397
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.13260886882501427,
+          "z": 0.0,
+          "w": 0.9911684457795003
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 92.79822232697545,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8e2ed840-1093-50d0-af5c-30150662e5b4",
+      "name": "Snow Pine 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2100.2213170968503,
+          "y": 632.8882757752883,
+          "z": 648.9844983391869
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8590249710885358,
+          "z": 0.0,
+          "w": 0.511933686180486
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 81.87385326342373,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e466d4cb-7d08-57a0-952a-dae6e1754b8b",
+      "name": "Snow Pine 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -13.707018748475264,
+          "y": 162.7489118750084,
+          "z": -2151.4650610583226
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9158056150826516,
+          "z": 0.0,
+          "w": 0.40162180640882317
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 132.3580264418206,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3b77c4de-c8af-587c-889c-f5fe901c6c43",
+      "name": "Snow Pine 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1933.046882229135,
+          "y": 310.4767941445913,
+          "z": 1778.0528820708228
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.2244426242490939,
+          "z": 0.0,
+          "w": -0.9744873054176643
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 86.86824056859098,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3cd7b05a-5710-529c-90d4-bc1986657746",
+      "name": "Snow Pine 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -262.48547358697533,
+          "y": 819.5596665663563,
+          "z": 291.21609985355406
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9988455837433359,
+          "z": 0.0,
+          "w": 0.04803644279538762
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 98.8606783157131,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "712a9342-5eeb-56d9-ac50-b6d26eb416a0",
+      "name": "Snow Pine 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2048.9592715562026,
+          "y": 481.5026751087293,
+          "z": -1484.7497253277104
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6093317352070492,
+          "z": 0.0,
+          "w": 0.7929154030976864
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 122.91426424574672,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e9e76bf8-ff12-5077-b9ef-bc3e69e820ba",
+      "name": "Snow Pine 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1426.837728292613,
+          "y": 558.6395132751434,
+          "z": 1471.6388182744317
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7506149195001007,
+          "z": 0.0,
+          "w": -0.6607399205616815
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 111.94211400587153,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "207d7339-5e57-5fd3-9bd7-dabddf366a4b",
+      "name": "Snow Pine 11",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2114.123923058147,
+          "y": 560.4689573449826,
+          "z": -132.57781915308158
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5905253316063552,
+          "z": 0.0,
+          "w": 0.8070191030769991
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 125.48599467680243,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0fa461f7-1e20-5ca9-a086-98ad865b567d",
+      "name": "Snow Pine 12",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 282.4130308368584,
+          "y": 374.28591251867726,
+          "z": 1389.785710902273
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.942044276349152,
+          "z": 0.0,
+          "w": -0.3354885711880549
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 92.21181613529856,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cc1e5a2e-6cab-5773-ba25-2c5777759a40",
+      "name": "Snow Pine 13",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 316.3272074458945,
+          "y": 657.7727841426116,
+          "z": 686.6872417269192
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5092897655746204,
+          "z": 0.0,
+          "w": 0.860595104959904
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 89.93725476288941,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "04cb58de-4e81-5390-aa37-09eb7838b3f1",
+      "name": "Snow Pine 14",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -858.9648465337468,
+          "y": 638.7703564322188,
+          "z": 544.5248097653717
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.31878034302545466,
+          "z": 0.0,
+          "w": 0.9478286200049951
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 96.86376745639069,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "828e46a2-15f5-5c62-a3fc-5701ccd63fd1",
+      "name": "Snow Pine 15",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1026.7700389437764,
+          "y": 633.9562925796911,
+          "z": 985.0499787189932
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.13069194066790826,
+          "z": 0.0,
+          "w": -0.9914230260814281
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 129.42836989603128,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b5616169-b889-56da-899d-704a0782ca30",
+      "name": "Snow Pine 16",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2145.75006023804,
+          "y": 621.3304911776703,
+          "z": -50.893583637849815
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7008769249978868,
+          "z": 0.0,
+          "w": 0.7132822274566405
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 100.65580808879055,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "70436ca8-a0d8-57b4-8b69-af58ae97bf3d",
+      "name": "Snow Pine 17",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2106.4097864693645,
+          "y": 573.9994637694361,
+          "z": -1891.1616269784145
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.574280779292415,
+          "z": 0.0,
+          "w": -0.8186584065013298
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 83.81343330560502,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d9117b73-9e5d-5c67-a21c-d3d0a1b0ef90",
+      "name": "Snow Pine 18",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1355.3309761942405,
+          "y": 644.6906477586891,
+          "z": -1176.7019138137684
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5107431250813087,
+          "z": 0.0,
+          "w": 0.8597333657490435
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 103.07532354200409,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "33351ef8-c7e1-50a7-8938-db8f7eb7efe8",
+      "name": "Snow Pine 19",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1894.2772660259807,
+          "y": 528.5820542075459,
+          "z": 1653.2225076966945
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9497316927694591,
+          "z": 0.0,
+          "w": -0.3130650279882083
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 128.47990408749666,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b928ded1-7fba-5fde-b5f0-02d87d7f7c73",
+      "name": "Snow Pine 20",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1956.3154896375174,
+          "y": 475.2629915287665,
+          "z": -1075.3272594716211
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7624055278073795,
+          "z": 0.0,
+          "w": 0.6470995372960415
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 109.38841389389849,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a93c19db-08db-53b7-adab-417d3260b88f",
+      "name": "Snow Pine 21",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 805.6098207733505,
+          "y": 375.45904490949977,
+          "z": 1969.419614611445
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.722911893247263,
+          "z": 0.0,
+          "w": 0.6909402250568842
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 112.1387103435433,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9de0de5b-88aa-5f5f-9ea0-944e0b15b3d2",
+      "name": "Snow Pine 22",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2268.9008785562146,
+          "y": 768.3756114739473,
+          "z": -2273.942558129057
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9860947769202597,
+          "z": 0.0,
+          "w": 0.16618390695426352
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 81.39243517291199,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "693d8a33-6345-56e5-81a1-62e693c58708",
+      "name": "Snow Pine 23",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 869.8103068433923,
+          "y": 287.76064833326967,
+          "z": -2091.4429656971583
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8514509838108162,
+          "z": 0.0,
+          "w": 0.5244341924089172
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 109.62622401725488,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6e13fea6-90ae-5658-aa23-6b346cfa0ef7",
+      "name": "Snow Pine 24",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1869.9495001374053,
+          "y": 720.0724353948351,
+          "z": -1769.918686136852
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.790202770174873,
+          "z": 0.0,
+          "w": -0.6128454797156921
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 100.77958949721717,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d9e25053-0036-5bf1-8f4f-38dda79a11eb",
+      "name": "Snow Pine 25",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1180.9058459648966,
+          "y": 453.2366520185704,
+          "z": 2093.666316383689
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.611104543150021,
+          "z": 0.0,
+          "w": -0.7915498956739266
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 122.58368572679879,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e0c0f865-19e7-53b2-9879-da9018b7b203",
+      "name": "Snow Pine 26",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1383.7266817807379,
+          "y": 428.0082835920327,
+          "z": 1101.7053141373835
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.13128764776943588,
+          "z": 0.0,
+          "w": 0.9913443163417888
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 97.24895038470252,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6d0d1e25-0b6e-56ae-84f4-4399ce8a40e5",
+      "name": "Snow Pine 27",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -622.3223144220456,
+          "y": 385.1855103546978,
+          "z": -1067.2951335728064
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7997356156750705,
+          "z": 0.0,
+          "w": 0.6003523507248189
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 129.54148992506123,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2e8ef748-32ec-515b-a71b-752b11f6cb82",
+      "name": "Snow Pine 28",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1063.1196556012035,
+          "y": 419.64960025595923,
+          "z": 1116.9017992799745
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9818866017976948,
+          "z": 0.0,
+          "w": -0.18946952580870394
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 108.9182662343956,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "aeb3896a-1985-5ce3-a4db-4752099d59f4",
+      "name": "Snow Pine 29",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -551.5224248619123,
+          "y": 295.3453363070461,
+          "z": -1537.2788001618367
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9785264690250467,
+          "z": 0.0,
+          "w": 0.20612120079548885
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 82.68509761529054,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b779940f-2e85-594e-a062-8a9865e3ca72",
+      "name": "Snow Pine 30",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1776.8587340836511,
+          "y": 597.0856056029545,
+          "z": 1253.0542730648094
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6763446413527139,
+          "z": 0.0,
+          "w": 0.7365853148912682
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-pine.gltf",
+            "importScale": 105.079568020023,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "46557635-a9e9-522d-8dae-ea1828252065",
+      "name": "Rock 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -618.8022228442587,
+          "y": 835.2144023064883,
+          "z": -71.36291094100073
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.11558720833085288,
+          "z": 0.0,
+          "w": -0.9932973357813258
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 116.8641165071736,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a51f0fe7-3495-5d24-8fb2-453943cf0351",
+      "name": "Rock 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -43.82147331275448,
+          "y": 379.8518017903725,
+          "z": 1172.7372964083486
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6385962287189859,
+          "z": 0.0,
+          "w": -0.7695419784949283
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 140.14374769800585,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4a922669-d190-5cb3-ac04-eebdd3c19833",
+      "name": "Rock 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 684.7612680198793,
+          "y": 502.837376644896,
+          "z": 1396.0388820275668
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.42888681147497787,
+          "z": 0.0,
+          "w": -0.9033582362179617
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 120.12258191252765,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d03c8720-eeb0-5bea-98c6-9582d73fda59",
+      "name": "Rock 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1011.8721940294243,
+          "y": 592.9447671031485,
+          "z": -1016.6437765316616
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.44112801407583446,
+          "z": 0.0,
+          "w": 0.8974441905753864
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 95.21006900427898,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "767b84ad-bc41-532e-a2a0-248120bf74c9",
+      "name": "Rock 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 287.5159691774858,
+          "y": 207.29956485913075,
+          "z": -2270.6095097897196
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.17649421574575533,
+          "z": 0.0,
+          "w": -0.9843016772353336
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 87.23421399144105,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "869d4969-48bc-52fb-8726-8d6207907bb7",
+      "name": "Rock 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1101.3321246182713,
+          "y": 374.0903690765597,
+          "z": -1588.5796080170678
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9027061260189153,
+          "z": 0.0,
+          "w": -0.4302576554204726
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 90.17643685249807,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f76dbc2e-59ef-502b-8aac-6277028cc449",
+      "name": "Rock 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1327.109963426272,
+          "y": 404.08759671737295,
+          "z": 1865.005815199396
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.842364177199276,
+          "z": 0.0,
+          "w": -0.538908705599925
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 73.80666077863334,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "01bbb583-5d2b-5d6a-8649-26b1ea46b62c",
+      "name": "Rock 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1620.6423767858869,
+          "y": 549.2023935913492,
+          "z": 529.0330463356469
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9286099239940862,
+          "z": 0.0,
+          "w": 0.3710574201652591
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 84.96699440819759,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8603f5b6-0e99-5ac7-9748-98bb21f34f82",
+      "name": "Rock 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -340.84263080447954,
+          "y": 659.5447554807735,
+          "z": 632.2987898817267
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5207474389264313,
+          "z": 0.0,
+          "w": 0.8537107852496434
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 85.25646910267457,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "696b60a3-da31-5907-bc9e-56231ae7ff25",
+      "name": "Rock 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2189.598022003961,
+          "y": 710.0955228854468,
+          "z": -1031.6018400517503
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.3255398736826896,
+          "z": 0.0,
+          "w": -0.9455283129778074
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 100.86939903610634,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cc69f023-b916-59f2-9d87-486047f19223",
+      "name": "Rock 11",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -701.7613850720519,
+          "y": 379.30590502629735,
+          "z": -1971.257681531979
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5295879500800723,
+          "z": 0.0,
+          "w": -0.8482550342497159
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 131.25427180587548,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0f376785-ed6c-5246-9bba-6f1782d055d2",
+      "name": "Rock 12",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1687.101192380914,
+          "y": 520.1749061699891,
+          "z": -523.9582168630382
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6497343953039766,
+          "z": 0.0,
+          "w": 0.7601613089068503
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 109.67087337366559,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0859ed9d-8911-5fce-8f70-e8d6ef38322c",
+      "name": "Rock 13",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1632.8184146317853,
+          "y": 558.8836893178858,
+          "z": 1854.871877706858
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.3577144703801787,
+          "z": 0.0,
+          "w": -0.9338310113080569
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 143.26454164159634,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "538d9665-9386-50d9-9cca-bf8423bb01d1",
+      "name": "Rock 14",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2265.6167018916326,
+          "y": 225.28544887207312,
+          "z": 2158.2543097188263
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.686204267598054,
+          "z": 0.0,
+          "w": -0.7274088967906691
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/snow-rock.gltf",
+            "importScale": 127.22345351442988,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "487df8b8-013e-5bb9-a225-74a01cfb2dae",
+      "name": "Mountain 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -3600,
+          "y": 0,
+          "z": -3800
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/mountain.gltf",
+            "importScale": 90.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "fe2a22f4-3281-5400-b326-eff6ea25ca99",
+      "name": "Mountain 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1400,
+          "y": 0,
+          "z": -4300
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7512804051402927,
+          "z": 0.0,
+          "w": 0.6599831458849822
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/mountain.gltf",
+            "importScale": 65.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5e948032-75ce-5294-ba4b-d04e044ef0d0",
+      "name": "Mountain 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 600,
+          "y": 0,
+          "z": -4000
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9916648104524686,
+          "z": 0.0,
+          "w": -0.12884449429552464
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/mountain.gltf",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e7e6a91a-af33-5c45-b8fa-26f39b113b8a",
+      "name": "Mountain 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2600,
+          "y": 0,
+          "z": -4300
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.557683717391417,
+          "z": 0.0,
+          "w": -0.8300535352352221
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/mountain.gltf",
+            "importScale": 70.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3d9e719b-54aa-5321-bea0-2103cc504c52",
+      "name": "Mountain 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 4000,
+          "y": 0,
+          "z": -3600
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": -0.2555411020268312,
+          "z": 0.0,
+          "w": -0.9667981925794611
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/mountain.gltf",
+            "importScale": 85.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1830f007-0990-5b90-98ef-5ca8388d8119",
+      "name": "Cabin",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -990.0000000000002,
+          "y": 380.44496993397314,
+          "z": 1250.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/cabin.gltf",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}

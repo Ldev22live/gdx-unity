@@ -59,4 +59,21 @@ class EditorLaunchOptionsTest {
     void shouldIgnoreTheMacOsFinderProcessSerialNumber() {
         assertNull(EditorLaunchOptions.parse(new String[] {"-psn_0_12345"}).project());
     }
+
+    @Test
+    void shouldAcceptAGameExportFolderAsSeparateOrJoinedArgument() {
+        EditorLaunchOptions separate = EditorLaunchOptions.parse(new String[] {"--export-game", "out dir", "--scene", "a.json"});
+        EditorLaunchOptions joined = EditorLaunchOptions.parse(new String[] {"--export-game=out"});
+
+        assertEquals(new File("out dir"), separate.exportGame());
+        assertEquals(new File("a.json"), separate.scene());
+        assertTrue(separate.isGameExport());
+        assertEquals(new File("out"), joined.exportGame());
+        assertFalse(EditorLaunchOptions.parse(new String[0]).isGameExport());
+    }
+
+    @Test
+    void shouldRejectAGameExportWithoutAFolder() {
+        assertThrows(IllegalArgumentException.class, () -> EditorLaunchOptions.parse(new String[] {"--export-game"}));
+    }
 }

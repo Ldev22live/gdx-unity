@@ -88,7 +88,10 @@ export class HopperPlayer extends ScriptComponent {
       inputX /= length;
       inputZ /= length;
     }
-    if (this.grounded && this.input.isJustPressed("Space")) this.velocity.y = HopperPlayer.JUMP_SPEED;
+    if (this.grounded && this.input.isJustPressed("Space")) {
+      this.velocity.y = HopperPlayer.JUMP_SPEED;
+      this.scene.playCue("jump");
+    }
     this.velocity.y = Math.max(this.velocity.y - HopperPlayer.GRAVITY * dt, -HopperPlayer.MAX_FALL_SPEED);
     // One axis at a time, so the player slides along walls and lands cleanly
     this.moveAxis("x", inputX * HopperPlayer.MOVE_SPEED * dt);
@@ -98,10 +101,12 @@ export class HopperPlayer extends ScriptComponent {
     this.entity.setLocalPosition(this.position.x, this.position.y, this.position.z);
     if (landedOn !== null && landedOn === this.goal) {
       this.finished = true;
+      this.scene.playCue("win");
       this.messageText.setText(`Goal! ${this.elapsed.toFixed(1)} s with ${this.falls} falls. Press R to play again`);
     }
     if (this.position.y < HopperPlayer.FALL_LIMIT) {
       this.falls++;
+      this.scene.playCue("hurt");
       this.fallsText.setText(`Falls: ${this.falls}`);
       this.position.copyFrom(this.start);
       this.velocity.setAll(0);

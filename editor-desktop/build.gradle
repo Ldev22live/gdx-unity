@@ -1,3 +1,6 @@
+import javax.inject.Inject
+import org.gradle.process.ExecOperations
+
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 eclipse.project.name = appName + '-editor-desktop'
 
@@ -21,10 +24,13 @@ dependencies {
   implementation project(':editor-core')
   implementation project(':editor-visualscript')
   implementation project(':editor-animation')
+  // Character creator (TD-053): sliders and animation templates in the Animations tab
+  implementation project(':editor-character')
   // Sculpting (TD-038): sculpt mode, brushes, undoable strokes
   implementation project(':editor-sculpt')
   // Music editor (TD-040): song documents, undoable edits, export
   implementation project(':editor-audio')
+  implementation project(':editor-sprite')
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
@@ -59,17 +65,62 @@ run {
   if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
 }
 
+// Signs executables and installers with signtool (Phase 18 follow-up, TD-047). The task class is here because a script
+// task cannot run processes any other way in Gradle 9.
+abstract class SignFilesTask extends DefaultTask {
+    @Inject
+    abstract ExecOperations getExecOperations()
+
+    @InputFiles
+    abstract ConfigurableFileCollection getFiles()
+
+    @Input
+    abstract Property<String> getSignTool()
+
+    @Input
+    abstract Property<String> getCertificate()
+
+    @Input
+    @Optional
+    abstract Property<String> getTimestampUrl()
+
+    @TaskAction
+    void sign() {
+        String password = System.getenv('FORGEROOM_SIGN_PASSWORD')
+        if (password == null || password.isEmpty()) {
+            throw new GradleException('Set the environment variable FORGEROOM_SIGN_PASSWORD to the certificate password '
+                + '(it is not a Gradle property, so it stays out of build logs and the command line of Gradle itself)')
+        }
+        if (!new File(certificate.get()).isFile()) {
+            throw new GradleException("Code-signing certificate not found: ${certificate.get()}")
+        }
+        files.files.each { File file ->
+            List<String> command = [signTool.get(), 'sign', '/fd', 'SHA256', '/f', certificate.get(), '/p', password]
+            if (timestampUrl.present) {
+                command += ['/tr', timestampUrl.get(), '/td', 'SHA256']
+            }
+            command << file.absolutePath
+            logger.lifecycle("Signing ${file.name}")
+            // jpackage leaves its launchers read-only, and signtool must write the signature into the file
+            file.setWritable(true)
+            execOperations.exec { spec -> spec.commandLine(command) }
+        }
+    }
+}
+
 // Packaged editor (TD-033): an app image for the host OS with a bundled Java runtime, made by the JDK's jpackage.
 // jpackage cannot cross-build: run these tasks on each target OS. Override the JDK with -PjpackageJdk=<jdk folder>.
 def hostOsName = System.properties['os.name'].toLowerCase(Locale.ROOT)
 def packageOs = hostOsName.contains('win') ? 'windows' : hostOsName.contains('mac') ? 'macos' : 'linux'
 def packageArch = System.properties['os.arch'] in ['amd64', 'x86_64'] ? 'x64' : System.properties['os.arch']
 def packageDir = layout.buildDirectory.dir('package')
+// Application icon (tools/make_icons.py): .ico on Windows, .icns on macOS, .png on Linux
+def packageIcon = file("packaging/icons/forgeroom.${[windows: 'ico', macos: 'icns', linux: 'png'][packageOs]}")
 // Natives jars for other operating systems and 32-bit/ARM variants the bundled runtime cannot load
 def foreignNatives = [
-  windows: ['*natives-linux*', '*natives-macos*', '*natives-windows-x86*', '*natives-windows-arm64*'],
-  macos  : ['*natives-linux*', '*natives-windows*'],
-  linux  : ['*natives-windows*', '*natives-macos*', '*natives-linux-arm32*'],
+  windows: ['*natives-linux*', '*natives-macos*', '*natives-windows-x86*', '*natives-windows-arm64*', '*jolt-jni-Linux*', '*jolt-jni-MacOSX*'],
+  macos  : ['*natives-linux*', '*natives-windows*', '*jolt-jni-Linux*', '*jolt-jni-Windows*'],
+  linux  : ['*natives-windows*', '*natives-macos*', '*natives-linux-arm32*', '*jolt-jni-Windows*', '*jolt-jni-MacOSX*'],
 ][packageOs]
 // Editor preferences and build output that must not ship in the sample project
 def sampleProjectExcludes = ['build/**', 'assets.txt', 'workspace_layout.json', 'editor_theme.json', 'scene_backup.json']
@@ -85,10 +136,37 @@ tasks.register('prepareEditorPackageInput', Sync) {
   }
 }
 
+// Second launcher in the same app image (Phase 18-C, TD-046): starts the game runtime on the same jars and Java runtime.
+// A game export copies the image without the editor's jars and renames this launcher. $APPDIR/game is where the export
+// puts the project; the file is only a template, so the editor image itself has no such folder.
+def gameLauncherName = 'ForgeroomGame'
+def gameLauncherConfig = packageDir.map { it.file('game-launcher.properties') }
+tasks.register('writeGameLauncherConfig') {
+  group = 'distribution'
+  description = 'Writes the jpackage properties of the game launcher.'
+  def configFile = gameLauncherConfig
+  def runtimeJar = project(':engine-desktop').tasks.named('jar').flatMap { it.archiveFileName }
+  def options = ['--enable-native-access=ALL-UNNAMED', '-Dgdxunity.project=$APPDIR/game']
+  if (packageOs == 'macos') options += '-XstartOnFirstThread'
+  inputs.property('options', options)
+  inputs.property('runtimeJar', runtimeJar)
+  inputs.file(packageIcon)
+  outputs.file(configFile)
+  doLast {
+    def file = configFile.get().asFile
+    file.parentFile.mkdirs()
+    file.text = ["main-jar=${runtimeJar.get()}",
+                 'main-class=io.github.ldev22live.gdxunity.engine.desktop.DesktopLauncher',
+                 "java-options=${options.join(' ')}",
+                 // Properties files read a backslash as an escape, so the path uses forward slashes
+                 "icon=${packageIcon.absolutePath.replace('\\', '/')}"].join(System.lineSeparator()) + System.lineSeparator()
+  }
+}
+
 tasks.register('packageEditor', Exec) {
   group = 'distribution'
   description = 'Builds build/package/image/ForgeroomEditor: the editor with a bundled Java runtime, for the host OS.'
-  dependsOn 'prepareEditorPackageInput'
+  dependsOn 'prepareEditorPackageInput', 'writeGameLauncherConfig'
   def inputDir = packageDir.get().dir('input').asFile
   def imageDir = packageDir.get().dir('image').asFile
   def jdkHome = new File(project.findProperty('jpackageJdk') ?: System.getProperty('java.home'))
@@ -100,15 +178,18 @@ tasks.register('packageEditor', Exec) {
   ]
   if (packageOs == 'macos') javaOptions += '-XstartOnFirstThread'
   inputs.dir(inputDir)
+  inputs.file(packageIcon)
   outputs.dir(imageDir)
   executable = jpackage
   args = ['--type', 'app-image',
           '--name', 'ForgeroomEditor',
           '--app-version', project.version.toString(),
           '--vendor', 'Forgeroom',
+          '--icon', packageIcon.path,
           '--input', inputDir.path,
           '--main-jar', tasks.named('jar').get().archiveFileName.get(),
           '--main-class', application.mainClass.get(),
+          '--add-launcher', "${gameLauncherName}=${gameLauncherConfig.get().asFile.path}",
           '--dest', imageDir.path] + javaOptions.collectMany { ['--java-options', it] }
   doFirst {
     if (!jpackage.isFile()) {
@@ -126,4 +207,107 @@ tasks.register('zipEditorPackage', Zip) {
   from(packageDir.map { it.dir('image') })
   archiveFileName = "ForgeroomEditor-${project.version}-${packageOs}-${packageArch}.zip"
   destinationDirectory = packageDir
+}
+
+// ---- Code signing (Windows) -------------------------------------------------------------------------------------------
+// Needs a code-signing certificate you own: -PsignCertificate=<file.pfx> and the password in the environment variable
+// FORGEROOM_SIGN_PASSWORD. Optional: -PsignTimestampUrl=<RFC 3161 server>, -PsignTool=<signtool.exe>. Without
+// -PsignCertificate nothing is signed. Signing needs signtool.exe from the Windows SDK.
+def signCertificate = project.findProperty('signCertificate')
+
+def findSignTool() {
+  def given = project.findProperty('signTool')
+  if (given) return given.toString()
+  def kits = new File(System.getenv('ProgramFiles(x86)') ?: 'C:/Program Files (x86)', 'Windows Kits/10/bin')
+  def found = kits.isDirectory() ? kits.listFiles().findAll { it.isDirectory() }.sort { it.name }.reverse()
+      .collect { new File(it, 'x64/signtool.exe') }.find { it.isFile() } : null
+  if (found) return found.path
+  def onPath = (System.getenv('PATH') ?: '').split(File.pathSeparator).collect { new File(it, 'signtool.exe') }.find { it.isFile() }
+  return onPath ? onPath.path : 'signtool.exe'
+}
+
+tasks.register('signEditorPackage', SignFilesTask) {
+  group = 'distribution'
+  description = 'Signs ForgeroomEditor.exe and ForgeroomGame.exe in the app image (Windows; needs -PsignCertificate).'
+  onlyIf { packageOs == 'windows' }
+  dependsOn 'packageEditor'
+  files.from(fileTree(packageDir.map { it.dir('image') }) { include '*/ForgeroomEditor.exe', '*/ForgeroomGame.exe' })
+  signTool = providers.provider { findSignTool() }
+  certificate = providers.provider { signCertificate ? signCertificate.toString() : '' }
+  if (project.findProperty('signTimestampUrl')) timestampUrl = project.findProperty('signTimestampUrl').toString()
+  doFirst {
+    if (!signCertificate) {
+      throw new GradleException('Pass -PsignCertificate=<certificate.pfx> (and set FORGEROOM_SIGN_PASSWORD) to sign.')
+    }
+  }
+}
+
+// The zip holds the image, so with a certificate it is signed first
+if (signCertificate) {
+  tasks.named('zipEditorPackage') { dependsOn 'signEditorPackage' }
+}
+
+// ---- Installer --------------------------------------------------------------------------------------------------------
+// jpackage makes the installer from the app image: .msi on Windows (needs WiX Toolset 3.x, which JDK 21's jpackage uses),
+// .dmg on macOS, .deb on Linux (needs fakeroot and dpkg). Run on the OS you are building for.
+def installerType = [windows: 'msi', macos: 'dmg', linux: 'deb'][packageOs]
+def installerDir = packageDir.map { it.dir('installer') }
+// Identifies this product to Windows Installer, so a newer installer upgrades an older install instead of installing beside it
+def windowsUpgradeUuid = 'b2c1d3a4-6f5e-4a7b-9c8d-1e2f3a4b5c6d'
+
+tasks.register('installerEditor', Exec) {
+  group = 'distribution'
+  description = 'Builds an installer (.msi, .dmg or .deb for the host OS) from the packaged editor in build/package/installer.'
+  dependsOn(signCertificate ? 'signEditorPackage' : 'packageEditor')
+  def imageDir = packageDir.get().dir('image').dir('ForgeroomEditor').asFile
+  def dest = installerDir.get().asFile
+  def jdkHome = new File(project.findProperty('jpackageJdk') ?: System.getProperty('java.home'))
+  def jpackage = new File(jdkHome, 'bin/jpackage' + (packageOs == 'windows' ? '.exe' : ''))
+  def wixHome = project.findProperty('wixHome')
+  def args = ['--type', installerType,
+              '--app-image', imageDir.path,
+              '--name', 'ForgeroomEditor',
+              '--app-version', project.version.toString(),
+              '--vendor', 'Forgeroom',
+              '--description', 'Forgeroom: a game editor and runtime',
+              '--dest', dest.path]
+  if (packageOs == 'windows') {
+    args += ['--win-menu', '--win-shortcut', '--win-dir-chooser', '--win-per-user-install',
+             '--win-upgrade-uuid', windowsUpgradeUuid]
+  }
+  executable = jpackage
+  setArgs(args)
+  if (wixHome) {
+    environment('PATH', "${wixHome}${File.pathSeparator}${System.getenv('PATH')}")
+  }
+  doFirst {
+    if (!jpackage.isFile()) {
+      throw new GradleException("jpackage not found at ${jpackage}; build with a full JDK or pass -PjpackageJdk=<jdk folder>")
+    }
+    if (packageOs == 'windows') {
+      def path = ((wixHome ? wixHome.toString() + File.pathSeparator : '') + (System.getenv('PATH') ?: '')).split(File.pathSeparator)
+      boolean hasWix = path.any { new File(it, 'candle.exe').isFile() && new File(it, 'light.exe').isFile() }
+      if (!hasWix) {
+        throw new GradleException('WiX Toolset 3.x (candle.exe and light.exe) was not found on PATH, and jpackage needs it to build '
+            + 'an .msi. Install WiX 3.14 from https://wixtoolset.org and add its bin folder to PATH, or pass '
+            + '-PwixHome=<WiX bin folder>. The app image and its zip do not need it (:editor-desktop:zipEditorPackage).')
+      }
+    }
+    dest.mkdirs()
+  }
+}
+
+tasks.register('signEditorInstaller', SignFilesTask) {
+  group = 'distribution'
+  description = 'Signs the Windows installer (needs -PsignCertificate).'
+  onlyIf { packageOs == 'windows' }
+  dependsOn 'installerEditor'
+  files.from(fileTree(installerDir) { include '*.msi' })
+  signTool = providers.provider { findSignTool() }
+  certificate = providers.provider { signCertificate ? signCertificate.toString() : '' }
+  if (project.findProperty('signTimestampUrl')) timestampUrl = project.findProperty('signTimestampUrl').toString()
+}
+
+if (signCertificate) {
+  tasks.named('installerEditor') { finalizedBy 'signEditorInstaller' }
 }

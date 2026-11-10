@@ -1,0 +1,122 @@
+{
+  "format": 1,
+  "name": "Wave",
+  "duration": 2.0,
+  "frameRate": 30,
+  "tracks": [
+    {
+      "target": "Hips",
+      "property": "transform.position.y",
+      "keys": [
+        {
+          "t": 0,
+          "v": 100.0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 100.0,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Hips/Spine/Chest/Arm R",
+      "property": "transform.rotation.roll",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.35,
+          "v": -140,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.65,
+          "v": -140,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 0,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Hips/Spine/Chest/Arm R/Forearm R",
+      "property": "transform.rotation.roll",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.35,
+          "v": -10,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.6,
+          "v": -35,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.85,
+          "v": 15,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.1,
+          "v": -35,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.35,
+          "v": 15,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.65,
+          "v": -10,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 0,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "Hips/Spine/Chest/Neck/Head",
+      "property": "transform.rotation.yaw",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0,
+          "i": "BEZIER"
+        },
+        {
+          "t": 0.6,
+          "v": -8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.4,
+          "v": -8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 0,
+          "i": "BEZIER"
+        }
+      ]
+    }
+  ]
+}

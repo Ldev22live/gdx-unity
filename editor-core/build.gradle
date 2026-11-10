@@ -7,6 +7,8 @@ dependencies {
   api project(':engine-core')
   api project(':engine-scene')
   api project(':engine-render')
+  // Jolt 3D physics for Play (TD-028); the native library loads only when a scene has 3D colliders
+  implementation project(':engine-physics')
   implementation "org.jetbrains.kotlin:kotlin-compiler-embeddable:2.0.21"
 
   testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"

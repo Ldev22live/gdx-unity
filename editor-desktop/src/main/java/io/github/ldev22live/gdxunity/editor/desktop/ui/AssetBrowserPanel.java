@@ -1,9 +1,12 @@
 package io.github.ldev22live.gdxunity.editor.desktop.ui;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -12,11 +15,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Scaling;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.asset.AssetBrowserFilterModel;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetCatalog;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetMetadata;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
+import io.github.ldev22live.gdxunity.engine.core.asset.AssetService;
+import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,12 +35,25 @@ import java.util.function.Consumer;
  * and provides live search filtering.
  */
 public class AssetBrowserPanel extends Table {
+    /** Width of the type badge column: wide enough for the longest type name, "[ANIMATION]", so it does not run into the path. */
+    private static final float TYPE_BADGE_WIDTH = 100f;
+    /** Side of the square thumbnail shown in front of a texture's name. */
+    private static final float THUMBNAIL_SIZE = 22f;
+    /** Textures larger than this are not loaded just to draw a thumbnail. */
+    private static final long THUMBNAIL_MAX_BYTES = 4L * 1024 * 1024;
+    /** Thumbnails loaded per rebuild of the list, so opening a folder of hundreds of textures does not stall the editor. */
+    private static final int THUMBNAILS_PER_FOLDER = 64;
+    /** Models drawn per frame: each needs its file loaded, so one at a time keeps the editor responsive. */
+    private static final int MODEL_THUMBNAILS_PER_FRAME = 1;
     private final EditorState editorState;
     private final AssetCatalog catalog;
     private final AssetBrowserFilterModel filterModel;
     private final Skin skin;
 
     private final Table listTable;
+    private final Table breadcrumbBar;
+    private ModelThumbnails modelThumbnails;
+    private SpriteThumbnails spriteThumbnails;
     private final ScrollPane scrollPane;
     private final Label statusCountLabel;
     private final TextField searchField;
@@ -82,14 +101,9 @@ public class AssetBrowserPanel extends Table {
         this.statusCountLabel = new Label("", skin, "muted");
         header.add(statusCountLabel).padLeft(6).left();
 
-        // Breadcrumb
-        Label pathLabel = new Label("Assets /", skin, "muted");
-        if (skin.has("accent", Color.class)) {
-            pathLabel.setColor(skin.getColor("accent"));
-        } else {
-            pathLabel.setColor(new Color(0.35f, 0.65f, 1.0f, 1.0f));
-        }
-        header.add(pathLabel).padLeft(10).left();
+        // Breadcrumb: Assets / models / props, each part opens that folder
+        this.breadcrumbBar = new Table(skin);
+        header.add(breadcrumbBar).padLeft(10).left();
 
         // Search Field
         this.searchField = new TextField("", skin);
@@ -139,12 +153,55 @@ public class AssetBrowserPanel extends Table {
 
     public void refreshCatalog() {
         catalog.scan();
+        filterModel.revalidate();
         rebuildRows();
+    }
+
+    /** The files on disk changed (see {@code AssetChangeWatcher}): the list, and the folder being browsed, are brought up to date. */
+    public void onAssetsChanged() {
+        filterModel.revalidate();
+        rebuildRows();
+    }
+
+    /** Browses the folder at {@code path} (project relative, "" for the root). */
+    public void showFolder(String path) {
+        openFolder(path);
+    }
+
+    private void openFolder(String path) {
+        filterModel.setCurrentFolder(path);
+        rebuildRows();
+    }
+
+    private void rebuildBreadcrumb() {
+        breadcrumbBar.clear();
+        Color accent = skin.has("accent", Color.class) ? skin.getColor("accent") : new Color(0.35f, 0.65f, 1.0f, 1.0f);
+        StringBuilder path = new StringBuilder();
+        addCrumb("Assets", "", accent);
+        for (String name : filterModel.getBreadcrumb()) {
+            path.append(path.length() == 0 ? "" : "/").append(name);
+            breadcrumbBar.add(new Label("/", skin, "muted"));
+            addCrumb(name, path.toString(), accent);
+        }
+    }
+
+    private void addCrumb(String text, String folder, Color color) {
+        TextButton crumb = new TextButton(text, skin, "flat");
+        crumb.getLabel().setColor(color);
+        crumb.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                openFolder(folder);
+            }
+        });
+        breadcrumbBar.add(crumb).height(22);
     }
 
     private void rebuildRows() {
         listTable.clear();
+        rebuildBreadcrumb();
         List<AssetMetadata> assets = filterModel.getFilteredAssets();
+        List<AssetBrowserFilterModel.Folder> folders = filterModel.getSubfolders();
         int total = filterModel.getTotalCount();
         if (assets.size() == total) {
             statusCountLabel.setText("(" + total + " items)");
@@ -152,7 +209,8 @@ public class AssetBrowserPanel extends Table {
             statusCountLabel.setText("(" + assets.size() + "/" + total + " items)");
         }
 
-        if (assets.isEmpty()) {
+        addFolderRows(folders);
+        if (assets.isEmpty() && folders.isEmpty()) {
             String msg = (total == 0)
                 ? "No supported assets found in: " + catalog.getRootDir().getPath()
                 : "No assets match filter '" + filterModel.getSearchFilter() + "'";
@@ -162,6 +220,7 @@ public class AssetBrowserPanel extends Table {
         }
 
         AssetReference currentSelection = editorState.getSelectedAsset();
+        int thumbnails = 0;
 
         for (AssetMetadata meta : assets) {
             final AssetReference ref = meta.reference();
@@ -172,7 +231,16 @@ public class AssetBrowserPanel extends Table {
 
             // Type badge
             Label badge = new Label("[" + meta.type().name() + "]", skin, "muted");
-            row.add(badge).width(75).left().padLeft(4);
+            row.add(badge).width(TYPE_BADGE_WIDTH).left().padLeft(4);
+            TextureRegion thumbnail = thumbnails < THUMBNAILS_PER_FOLDER ? thumbnailOf(meta) : null;
+            if (thumbnail != null) {
+                thumbnails++;
+                Image picture = new Image(thumbnail);
+                picture.setScaling(Scaling.fit);
+                row.add(picture).size(THUMBNAIL_SIZE).padRight(4);
+            } else {
+                row.add().size(THUMBNAIL_SIZE).padRight(4);
+            }
 
             // Asset name & path
             String displayName = ref.getPath();
@@ -219,5 +287,72 @@ public class AssetBrowserPanel extends Table {
             row.add(itemBtn).growX().height(22).left();
             listTable.add(row).growX().padBottom(1).row();
         }
+    }
+
+    /** The ".." row and one row per subfolder; a click opens it. */
+    private void addFolderRows(List<AssetBrowserFilterModel.Folder> folders) {
+        if (!filterModel.getCurrentFolder().isEmpty() && filterModel.getSearchFilter().isEmpty()) {
+            TextButton up = new TextButton(".. (up)", skin, "flat");
+            up.getLabel().setAlignment(com.badlogic.gdx.utils.Align.left);
+            up.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    filterModel.up();
+                    rebuildRows();
+                }
+            });
+            listTable.add(up).growX().height(22).padLeft(4).padBottom(1).row();
+        }
+        for (AssetBrowserFilterModel.Folder folder : folders) {
+            TextButton open = new TextButton("[FOLDER]  " + folder.name() + "  (" + folder.assetCount() + ")", skin, "flat");
+            open.getLabel().setAlignment(com.badlogic.gdx.utils.Align.left);
+            open.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    openFolder(folder.path());
+                }
+            });
+            listTable.add(open).growX().height(22).padLeft(4).padBottom(1).row();
+        }
+    }
+
+    /**
+     * The picture to show for an asset, or null: a texture's own image, or a model's thumbnail once it has been drawn (it is asked for
+     * here and drawn in {@link #act}). Null as well when it is too large, has no asset service, or does not decode.
+     */
+    private TextureRegion thumbnailOf(AssetMetadata meta) {
+        if (meta.type() == AssetType.MODEL) {
+            return modelThumbnails != null ? modelThumbnails.get(meta) : null;
+        }
+        if (meta.type() == AssetType.SPRITE) {
+            return spriteThumbnails != null ? spriteThumbnails.get(meta) : null;
+        }
+        AssetService service = editorState.getAssetService();
+        if (service == null || meta.type() != AssetType.TEXTURE || meta.fileSizeBytes() > THUMBNAIL_MAX_BYTES) {
+            return null;
+        }
+        Texture texture = service.loadTexture(meta.reference());
+        return texture != null ? new TextureRegion(texture) : null;
+    }
+
+    /** Draws the model thumbnails that were asked for, one per frame, and lists the assets again when one is ready. */
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+        if (modelThumbnails != null && modelThumbnails.renderPending(MODEL_THUMBNAILS_PER_FRAME)) {
+            rebuildRows();
+        }
+    }
+
+    /** Turns on thumbnails of sprites (null turns them off); the panel does not own the cache. */
+    public void setSpriteThumbnails(SpriteThumbnails spriteThumbnails) {
+        this.spriteThumbnails = spriteThumbnails;
+        rebuildRows();
+    }
+
+    /** Turns on thumbnails of models (null turns them off); the panel does not own the cache. */
+    public void setModelThumbnails(ModelThumbnails modelThumbnails) {
+        this.modelThumbnails = modelThumbnails;
+        rebuildRows();
     }
 }

@@ -63,6 +63,8 @@ export class EditorApp {
   private cameraState: CameraState | null = null;
   private fileHandle: FileSystemFileHandle | null = null;
   private playing = false;
+  /** True after opening a scene: its models are not in yet, so the view is framed again once they are. */
+  private frameWhenModelsLoad = false;
 
   constructor(player: ScenePlayer, initial: SceneFile) {
     this.player = player;
@@ -78,6 +80,7 @@ export class EditorApp {
 
     player.useGameCamera = false;
     player.onSceneBuilt = (built) => this.onSceneBuilt(built);
+    player.onModelsLoaded = (_built, failures) => this.onModelsLoaded(failures);
     this.model.addListener((kind) => this.onModelChanged(kind));
 
     this.buildToolbar();
@@ -129,7 +132,21 @@ export class EditorApp {
     this.player.useGameCamera = this.playing;
     this.player.load(structuredClone(this.model.file));
     if (frame) this.frameAll();
+    this.frameWhenModelsLoad = frame;
     this.setStatus(`${this.model.file.name}: ${this.model.file.entities.length} entities`);
+  }
+
+  /** Models arrive after the scene is built: outline the selected one now, and frame the scene if a frame was waiting. */
+  private onModelsLoaded(failures: { entityName: string; path: string; message: string }[]): void {
+    if (this.playing) return;
+    this.attachSelection();
+    if (this.frameWhenModelsLoad) {
+      this.frameWhenModelsLoad = false;
+      this.frameAll();
+    }
+    if (failures.length > 0) {
+      this.setStatus(`Could not load ${failures.length} model(s): ${failures[0]!.path}: ${failures[0]!.message}`, true);
+    }
   }
 
   private rememberCamera(): void {
@@ -168,11 +185,13 @@ export class EditorApp {
     let flat = true;
     for (const entity of built.game.entities) {
       for (const mesh of entity.meshes) {
+        // A model's root node has no geometry; its box would be a point at the origin
+        if (mesh.getTotalVertices() === 0) continue;
         mesh.computeWorldMatrix(true);
         const box = mesh.getBoundingInfo().boundingBox;
         min.minimizeInPlace(box.minimumWorld);
         max.maximizeInPlace(box.maximumWorld);
-        if (mesh.metadata && entity.getComponent("MeshPrimitiveComponent")) flat = false;
+        if (mesh.metadata && (entity.getComponent("MeshPrimitiveComponent") || entity.getComponent("ModelComponent") || entity.getComponent("SculptMeshComponent"))) flat = false;
       }
     }
     if (!Number.isFinite(min.x)) {

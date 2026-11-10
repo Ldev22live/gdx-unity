@@ -1,4 +1,5 @@
 import { createEngine, ScenePlayer, type SceneReport } from "./runtime/ScenePlayer";
+import { createWebSceneMusic } from "./audio/webMusic";
 import { createDefaultRegistry } from "./scripts/registry";
 import { parseSceneFile } from "./scene/types";
 
@@ -20,7 +21,10 @@ const playButton = element<HTMLButtonElement>("play");
 const stopButton = element<HTMLButtonElement>("stop");
 const status = element<HTMLElement>("status");
 
-const player = new ScenePlayer(createEngine(canvas), canvas, hud, createDefaultRegistry());
+const player = new ScenePlayer(createEngine(canvas), canvas, hud, createDefaultRegistry(), undefined, createWebSceneMusic());
+player.onModelsLoaded = (_built, failures) => {
+  if (failures.length > 0) status.textContent = `Could not load ${failures.length} model(s): ${failures[0]!.path}: ${failures[0]!.message}`;
+};
 
 function describe(report: SceneReport): string {
   const parts = [`${report.name}: ${report.entityCount} entities`];
@@ -55,10 +59,17 @@ player.onScriptFailure = (failure) => {
   showError(new Error(`Script ${failure.className} on '${failure.entityName}' stopped: ${String(failure.error)}`));
 };
 
-playButton.addEventListener("click", () => {
-  player.play();
-  setPlaying(player.isPlaying);
-});
+player.onAudioProblem = (message) => showError(new Error(message));
+// What visual scripts print, and clips or graphs the scene names that could not be loaded
+player.onGraphMessage = (message, isError) => {
+  if (isError) showError(new Error(message));
+  else status.textContent = message;
+};
+player.onAssetProblem = (message) => showError(new Error(message));
+
+// Play can start a moment after the click (the first Play of a scene with 3D colliders waits for the physics engine)
+player.onPlayingChanged = setPlaying;
+playButton.addEventListener("click", () => player.play());
 stopButton.addEventListener("click", () => {
   player.stop();
   setPlaying(false);

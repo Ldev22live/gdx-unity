@@ -3,6 +3,9 @@ package io.github.ldev22live.gdxunity.engine.desktop;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.PixmapIO;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Disposable;
 import io.github.ldev22live.gdxunity.engine.core.EngineRenderer;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetService;
@@ -21,6 +24,7 @@ import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 
 import java.io.File;
+import java.util.zip.Deflater;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -44,6 +48,7 @@ public final class GameRenderer implements EngineRenderer {
     private int width;
     private int height;
     private int framesToRender;
+    private File screenshotFile;
     private int framesRendered;
     /** Models whose load failure was already reported, so each is reported once. */
     private final Set<ModelComponent> reportedModels = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -85,6 +90,28 @@ public final class GameRenderer implements EngineRenderer {
             throw new IllegalArgumentException("frames must not be negative: " + frames);
         }
         this.framesToRender = frames;
+    }
+
+    /**
+     * Saves the last rendered frame of this window as a PNG just before the application exits after
+     * {@link #setExitAfterFrames}. Only this game's own frame buffer is read, never the screen, so nothing from another application can
+     * end up in the file (TD-054).
+     */
+    public void setScreenshotFile(File file) {
+        this.screenshotFile = file;
+    }
+
+    private void saveScreenshot() {
+        Pixmap pixmap = Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
+        try {
+            File folder = screenshotFile.getAbsoluteFile().getParentFile();
+            if (folder != null) {
+                folder.mkdirs();
+            }
+            PixmapIO.writePNG(new FileHandle(screenshotFile), pixmap, Deflater.DEFAULT_COMPRESSION, true);
+        } finally {
+            pixmap.dispose();
+        }
     }
 
     public int getFramesRendered() {
@@ -134,6 +161,9 @@ public final class GameRenderer implements EngineRenderer {
         reportModelsThatFailedToLoad();
         framesRendered++;
         if (framesToRender > 0 && framesRendered == framesToRender && Gdx.app != null) {
+            if (screenshotFile != null) {
+                saveScreenshot();
+            }
             Gdx.app.exit();
         }
     }

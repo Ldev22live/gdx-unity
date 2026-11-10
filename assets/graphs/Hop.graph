@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Hop",
+  "variables": [
+    {
+      "name": "up",
+      "type": "BOOLEAN",
+      "value": false
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.tick",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "flow.delay",
+      "x": 240,
+      "y": 0,
+      "literals": [
+        {
+          "pin": "seconds",
+          "type": "FLOAT",
+          "value": 0.8
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n3",
+      "type": "variable.set",
+      "x": 520,
+      "y": 0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "up"
+        }
+      ]
+    },
+    {
+      "id": "n4",
+      "type": "logic.not",
+      "x": 300,
+      "y": 160,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n5",
+      "type": "variable.get",
+      "x": 80,
+      "y": 160,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "up"
+        }
+      ]
+    },
+    {
+      "id": "n6",
+      "type": "flow.branch",
+      "x": 800,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n7",
+      "type": "variable.get",
+      "x": 560,
+      "y": 200,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "up"
+        }
+      ]
+    },
+    {
+      "id": "n8",
+      "type": "vector.make",
+      "x": 800,
+      "y": 160,
+      "literals": [
+        {
+          "pin": "y",
+          "type": "FLOAT",
+          "value": 120.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n9",
+      "type": "vector.make",
+      "x": 800,
+      "y": 280,
+      "literals": [
+        {
+          "pin": "y",
+          "type": "FLOAT",
+          "value": -120.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n10",
+      "type": "action.moveBy",
+      "x": 1080,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n11",
+      "type": "action.moveBy",
+      "x": 1080,
+      "y": 140,
+      "literals": [],
+      "properties": []
+    }
+  ],
+  "links": [
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n2",
+      "toPin": "exec"
+    },
+    {
+      "from": "n2",
+      "fromPin": "completed",
+      "to": "n3",
+      "toPin": "exec"
+    },
+    {
+      "from": "n3",
+      "fromPin": "then",
+      "to": "n6",
+      "toPin": "exec"
+    },
+    {
+      "from": "n5",
+      "fromPin": "value",
+      "to": "n4",
+      "toPin": "value"
+    },
+    {
+      "from": "n4",
+      "fromPin": "result",
+      "to": "n3",
+      "toPin": "value"
+    },
+    {
+      "from": "n7",
+      "fromPin": "value",
+      "to": "n6",
+      "toPin": "condition"
+    },
+    {
+      "from": "n8",
+      "fromPin": "vector",
+      "to": "n10",
+      "toPin": "offset"
+    },
+    {
+      "from": "n9",
+      "fromPin": "vector",
+      "to": "n11",
+      "toPin": "offset"
+    },
+    {
+      "from": "n6",
+      "fromPin": "true",
+      "to": "n10",
+      "toPin": "exec"
+    },
+    {
+      "from": "n6",
+      "fromPin": "false",
+      "to": "n11",
+      "toPin": "exec"
+    }
+  ]
+}

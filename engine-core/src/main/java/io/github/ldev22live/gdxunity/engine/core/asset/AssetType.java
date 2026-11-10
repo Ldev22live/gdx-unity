@@ -13,6 +13,11 @@ public enum AssetType {
     GRAPH("graph"),
     /** Keyframe animation clips edited in the Timeline (TD-031). */
     ANIMATION("anim"),
+    /** Sculpted meshes edited in sculpt mode (TD-038). */
+    SCULPT("sculpt"),
+    /** Recorded sound clips an Audio Source can play (Phase 20-C). */
+    SOUND("wav", "ogg"),
+    SPRITE("sprite"),
     UNKNOWN;
 
     private final String[] extensions;

@@ -4,11 +4,14 @@ import { CollectorGame, CollectorPlayer, FollowCamera3D } from "./collector";
 import { GrappleGame } from "./grapple";
 import { HopperPlayer } from "./hopper";
 import { FollowCamera2D, PlatformerPlayer } from "./platformer";
+import { PixelHero } from "./pixel";
 import { RuinsGame } from "./ruins";
+import { SandboxLauncher } from "./sandbox";
 import { RunnerGame, RunnerPlayer } from "./runner";
 import { ShooterGame, ShooterShip } from "./shooter";
 import { SideCamera25D } from "./side";
 import { TrioGame } from "./trio";
+import { WalkerPlayer } from "./walker";
 
 /**
  * The scripts that have a web version. A scene file names its scripts by their Java class (for example
@@ -33,5 +36,8 @@ export function createDefaultRegistry(): ScriptRegistry {
   registry.register("samples.ruins.RuinsGame", () => new RuinsGame());
   registry.register("samples.grapple.GrappleGame", () => new GrappleGame());
   registry.register("samples.trio.TrioGame", () => new TrioGame());
+  registry.register("samples.sandbox.SandboxLauncher", () => new SandboxLauncher());
+  registry.register("samples.walker.WalkerPlayer", () => new WalkerPlayer());
+  registry.register("samples.pixel.PixelHero", () => new PixelHero());
   return registry;
 }

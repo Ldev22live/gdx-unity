@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.ArrayList;
@@ -105,6 +106,7 @@ public class RunnerGame extends ScriptComponent {
                 block.setActive(false);
             } else if (touches(playerPosition, position)) {
                 gameOver = true;
+                AudioSourceComponent.play(getScene(), "crash");
                 messageText.setText(String.format(Locale.ROOT, "Crashed after %d m. Press R to run again",
                     (int) (distance / UNITS_PER_METRE)));
             }

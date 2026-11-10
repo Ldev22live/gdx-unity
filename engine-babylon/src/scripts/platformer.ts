@@ -98,7 +98,10 @@ export class PlatformerPlayer extends ScriptComponent {
     if (this.finished) return;
     const direction = keyAxis((...k) => this.input.isDown(...k), ["KeyA", "ArrowLeft"], ["KeyD", "ArrowRight"]);
     const jump = this.input.isJustPressed("Space", "KeyW", "ArrowUp");
-    if (jump && this.grounded) this.velocityY = PlatformerPlayer.JUMP_SPEED;
+    if (jump && this.grounded) {
+      this.velocityY = PlatformerPlayer.JUMP_SPEED;
+      this.scene.playCue("jump");
+    }
     this.velocityY = Math.max(this.velocityY - PlatformerPlayer.GRAVITY * dt, -PlatformerPlayer.MAX_FALL_SPEED);
     this.moveHorizontally(direction * PlatformerPlayer.RUN_SPEED * dt);
     this.moveVertically(this.velocityY * dt);
@@ -106,9 +109,11 @@ export class PlatformerPlayer extends ScriptComponent {
     this.collectCoins();
     if (this.goal && this.goal.overlaps(this.x, this.y, this.halfWidth, this.halfHeight)) {
       this.finished = true;
+      this.scene.playCue("win");
       this.messageText.setText(`Level complete! ${this.coinsCollected}/${this.coins.length} coins. Press R to play again`);
     }
     if (this.y < PlatformerPlayer.FALL_LIMIT) {
+      this.scene.playCue("hurt");
       this.x = this.startX;
       this.y = this.startY;
       this.velocityY = 0;
@@ -147,6 +152,7 @@ export class PlatformerPlayer extends ScriptComponent {
       if (coin.entity.isActiveSelf && coin.overlaps(this.x, this.y, this.halfWidth, this.halfHeight)) {
         coin.entity.setActive(false);
         this.coinsCollected++;
+        this.scene.playCue("coin");
         this.updateScore();
       }
     }

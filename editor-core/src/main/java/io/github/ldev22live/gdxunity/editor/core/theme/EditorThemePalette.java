@@ -68,39 +68,35 @@ public final class EditorThemePalette {
     }
 
     public static EditorThemePalette createDarkPalette() {
+        // The same colours as the Forgeroom web editor's stylesheet, so both editors look alike
         return new Builder()
-            // MD3 Dark Neutrals & Surfaces
-            .background(new Color(0.11f, 0.11f, 0.12f, 1f))       // #1C1B1F
-            .surface(new Color(0.15f, 0.15f, 0.17f, 1f))          // #26262B
-            .surfaceVariant(new Color(0.18f, 0.18f, 0.20f, 1f))   // #2E2E33
-            .surfaceElevated(new Color(0.22f, 0.22f, 0.25f, 1f))  // #383840
-            .header(new Color(0.13f, 0.13f, 0.14f, 1f))           // #212124
-            .subheader(new Color(0.14f, 0.14f, 0.16f, 1f))        // #242429
-
+            .background(new Color(0.078f, 0.086f, 0.110f, 1f))     // #14161C page
+            .surface(new Color(0.102f, 0.114f, 0.145f, 1f))        // #1A1D25 side panels
+            .surfaceVariant(new Color(0.114f, 0.125f, 0.161f, 1f)) // #1D2029 bars
+            .surfaceElevated(new Color(0.165f, 0.180f, 0.227f, 1f))// #2A2E3A buttons
+            .header(new Color(0.114f, 0.125f, 0.161f, 1f))         // #1D2029 top bar
+            .subheader(new Color(0.102f, 0.114f, 0.145f, 1f))      // #1A1D25 panel headings
             // Typography
-            .textPrimary(new Color(0.92f, 0.92f, 0.95f, 1f))      // #EBEBF2
-            .textSecondary(new Color(0.72f, 0.72f, 0.76f, 1f))    // #B8B8C2
-            .textMuted(new Color(0.50f, 0.50f, 0.54f, 1f))        // #80808A
+            .textPrimary(new Color(0.902f, 0.910f, 0.933f, 1f))    // #E6E8EE
+            .textSecondary(new Color(0.690f, 0.702f, 0.737f, 1f))  // #B0B3BC
+            .textMuted(new Color(0.545f, 0.557f, 0.588f, 1f))      // #8B8E96
             .textOnAccent(Color.WHITE)
-
-            // Outlines / Dividers
-            .border(new Color(0.26f, 0.26f, 0.30f, 1f))
-            .borderMuted(new Color(0.18f, 0.18f, 0.20f, 1f))
-            .splitHandle(new Color(0.09f, 0.09f, 0.10f, 1f))
-
-            // Primary Accent & Interactive States (MD3 Blue / Indigo)
-            .primary(new Color(0.30f, 0.55f, 0.96f, 1f))          // #4D8CF5
-            .primaryActive(new Color(0.42f, 0.65f, 1.0f, 1f))
-            .selection(new Color(0.20f, 0.42f, 0.75f, 0.85f))
+            // Outlines / dividers
+            .border(new Color(0.165f, 0.180f, 0.227f, 1f))         // #2A2E3A
+            .borderMuted(new Color(0.137f, 0.150f, 0.200f, 1f))
+            .splitHandle(new Color(0.055f, 0.063f, 0.082f, 1f))    // #0E1015
+            // Accent: the web editor's blue, with its darker "active" blue for selections
+            .primary(new Color(0.353f, 0.627f, 1.0f, 1f))          // #5AA0FF
+            .primaryActive(new Color(0.478f, 0.706f, 1.0f, 1f))
+            .selection(new Color(0.176f, 0.290f, 0.471f, 1f))      // #2D4A78 selected row
             .cursor(new Color(0.95f, 0.95f, 1.0f, 1f))
-            .focus(new Color(0.40f, 0.65f, 1.0f, 0.9f))
-
-            // Semantics & Status
-            .success(new Color(0.30f, 0.78f, 0.45f, 1f))
-            .warning(new Color(0.96f, 0.72f, 0.20f, 1f))
-            .error(new Color(0.95f, 0.36f, 0.36f, 1f))
-            .disabled(new Color(0.38f, 0.38f, 0.42f, 1f))
-            .playTint(new Color(0.12f, 0.22f, 0.14f, 1f))
+            .focus(new Color(0.353f, 0.627f, 1.0f, 0.9f))
+            // Status
+            .success(new Color(0.247f, 0.604f, 0.337f, 1f))        // #3F9A56 Play green
+            .warning(new Color(1.0f, 0.702f, 0.278f, 1f))          // #FFB347 unsaved marker
+            .error(new Color(1.0f, 0.522f, 0.522f, 1f))            // #FF8585
+            .disabled(new Color(0.38f, 0.39f, 0.43f, 1f))
+            .playTint(new Color(0.184f, 0.435f, 0.247f, 1f))       // #2F6F3F Play button
             .build();
     }
 

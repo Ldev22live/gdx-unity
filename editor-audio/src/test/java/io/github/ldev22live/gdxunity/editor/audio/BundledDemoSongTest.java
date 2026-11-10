@@ -33,8 +33,9 @@ class BundledDemoSongTest {
         var song = session.getDocument().getSong();
         SampleData audio = io.github.ldev22live.gdxunity.engine.audio.song.SongExporter.render(song,
             new FolderMusicAssets(ASSETS), io.github.ldev22live.gdxunity.engine.audio.song.Schedule.Mode.SONG, 0);
-        // 5 bars at 110 bpm is about 10.9 seconds
-        assertEquals(10.9f, audio.getDurationSeconds(), 1.5f);
+        // 5 bars at 110 bpm is about 10.9 seconds, then the tail of the lead's reverb and delay (the exporter keeps it)
+        assertTrue(audio.getDurationSeconds() >= 10.8f && audio.getDurationSeconds() <= 10.9f + 3f,
+            "duration " + audio.getDurationSeconds());
         assertTrue(audio.getPeak() > 0.2f && audio.getPeak() <= 1f, "peak " + audio.getPeak());
         session.close();
     }

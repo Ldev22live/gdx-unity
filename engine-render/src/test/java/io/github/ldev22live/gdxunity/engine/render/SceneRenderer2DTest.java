@@ -137,4 +137,79 @@ class SceneRenderer2DTest {
             renderer.dispose();
         }
     }
+
+    /** Renders one scene with a red box and returns the names of the depth related GL calls, in order. */
+    private static java.util.List<String> depthCalls(io.github.ldev22live.gdxunity.engine.render.camera.Camera camera, boolean depthComposite, boolean withShape) {
+        SceneRenderer2D real = new SceneRenderer2D(camera) {
+            @Override
+            protected ShapeRenderer createShapeRenderer() {
+                return null;
+            }
+
+            @Override
+            protected SpriteBatch createSpriteBatch() {
+                return null;
+            }
+        };
+        real.initialize();
+        real.setDepthComposite(depthComposite);
+        Scene scene = new Scene("DepthScene");
+        if (withShape) {
+            scene.createEntity("Box").addComponent(new ShapeRendererComponent(100f, 100f, Color.RED));
+        }
+        real.setActiveScene(scene);
+        java.util.List<String> calls = new java.util.ArrayList<>();
+        GL20 previousGl = Gdx.gl;
+        Gdx.gl = (GL20) Proxy.newProxyInstance(GL20.class.getClassLoader(), new Class<?>[]{GL20.class}, (proxy, method, args) -> {
+            switch (method.getName()) {
+                case "glEnable" -> calls.add(args[0].equals(GL20.GL_DEPTH_TEST) ? "enable depth test" : "enable other");
+                case "glDisable" -> calls.add(args[0].equals(GL20.GL_DEPTH_TEST) ? "disable depth test" : "disable other");
+                case "glDepthMask" -> calls.add("depth mask " + args[0]);
+                default -> { }
+            }
+            return null;
+        });
+        try {
+            real.render(0.016f);
+        } finally {
+            Gdx.gl = previousGl;
+            real.dispose();
+        }
+        return calls;
+    }
+
+    private static io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D perspective() {
+        return new io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D() {
+            @Override
+            public Viewport getViewport() {
+                return null;
+            }
+        };
+    }
+
+    private static OrthographicCamera2D orthographic() {
+        return new OrthographicCamera2D(640, 480) {
+            @Override
+            public Viewport getViewport() {
+                return null;
+            }
+        };
+    }
+
+    @Test
+    void shouldTestSpritesAgainstTheDepthOfThePerspectivePassWithoutWritingDepthAndRestoreTheState() {
+        assertEquals(java.util.List.of("enable depth test", "depth mask false", "depth mask true", "disable depth test"),
+            depthCalls(perspective(), true, true));
+    }
+
+    @Test
+    void shouldNotTouchDepthStateWithAnOrthographicCameraWhateverTheZOfTheEntities() {
+        assertEquals(java.util.List.of(), depthCalls(orthographic(), true, true));
+    }
+
+    @Test
+    void shouldNotTouchDepthStateWhenDepthCompositingIsSwitchedOffOrThereIsNothingToDraw() {
+        assertEquals(java.util.List.of(), depthCalls(perspective(), false, true));
+        assertEquals(java.util.List.of(), depthCalls(perspective(), true, false));
+    }
 }

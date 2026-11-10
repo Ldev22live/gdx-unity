@@ -1,0 +1,1144 @@
+{
+  "schemaVersion": 1,
+  "name": "Skeleton 2 - Walk Cycle",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "01fb4a6d-fcae-5a4b-82f9-95200af42646",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 800,
+          "z": 400
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1,
+            "directionZ": -0.6,
+            "colorR": 1,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1,
+            "intensity": 1,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "472b6c8c-eb0b-5249-834e-ead6e0593781",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.72,
+            "skyB": 0.88,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.7
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "436111a5-4bb4-5bba-8a89-ad3541788847",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -5,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1600,
+            "sizeY": 10,
+            "sizeZ": 1600,
+            "colorR": 0.36,
+            "colorG": 0.42,
+            "colorB": 0.38,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "eef28302-62cd-5953-8f54-752d927c2f08",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 520,
+          "y": 130,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0.7071067811865475,
+          "z": 0,
+          "w": 0.7071067811865476
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480,
+            "fieldOfView": 50,
+            "nearPlane": 1,
+            "farPlane": 50000
+          }
+        }
+      ]
+    },
+    {
+      "id": "827c3850-9e2c-5465-8dfb-aa248efc415a",
+      "name": "Hero",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "AnimatorComponent",
+          "enabled": true,
+          "data": {
+            "clip": "animations/skeleton/WalkCycle.anim",
+            "playOnStart": true,
+            "wrap": "LOOP",
+            "speed": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "bd8149ce-f1b2-59fc-86db-1ffdf9dec5d9",
+      "name": "Hips",
+      "active": true,
+      "parentId": "827c3850-9e2c-5465-8dfb-aa248efc415a",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 100,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "d6af43b5-942f-53d0-8eee-6d81e934f02d",
+      "name": "Hips Mesh",
+      "active": true,
+      "parentId": "bd8149ce-f1b2-59fc-86db-1ffdf9dec5d9",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 44,
+            "sizeY": 26,
+            "sizeZ": 26,
+            "colorR": 0.2,
+            "colorG": 0.22,
+            "colorB": 0.3,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "98783dc2-ce4e-5dbb-8d8b-0822c8d59b72",
+      "name": "Spine",
+      "active": true,
+      "parentId": "bd8149ce-f1b2-59fc-86db-1ffdf9dec5d9",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 10,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "174a7430-97fc-50ea-8dd8-92afbd5bf822",
+      "name": "Spine Mesh",
+      "active": true,
+      "parentId": "98783dc2-ce4e-5dbb-8d8b-0822c8d59b72",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 20,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40,
+            "sizeY": 40,
+            "sizeZ": 24,
+            "colorR": 0.25,
+            "colorG": 0.45,
+            "colorB": 0.85,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "887b8f70-3977-5aa2-8792-fad5e1cfc9f1",
+      "name": "Chest",
+      "active": true,
+      "parentId": "98783dc2-ce4e-5dbb-8d8b-0822c8d59b72",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 40,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "969a7653-c932-50a3-8c2d-049a1cffd4f0",
+      "name": "Chest Mesh",
+      "active": true,
+      "parentId": "887b8f70-3977-5aa2-8792-fad5e1cfc9f1",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 18,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 48,
+            "sizeY": 36,
+            "sizeZ": 26,
+            "colorR": 0.25,
+            "colorG": 0.45,
+            "colorB": 0.85,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "cf95bb6f-350c-562a-8035-f211377ccb20",
+      "name": "Neck",
+      "active": true,
+      "parentId": "887b8f70-3977-5aa2-8792-fad5e1cfc9f1",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 36,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "df7fb2d8-d7fe-5e96-81d8-4a8af6794afe",
+      "name": "Head",
+      "active": true,
+      "parentId": "cf95bb6f-350c-562a-8035-f211377ccb20",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 8,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "275a0a85-94f8-5e7b-8838-678c9c6f5aaa",
+      "name": "Head Mesh",
+      "active": true,
+      "parentId": "df7fb2d8-d7fe-5e96-81d8-4a8af6794afe",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 18,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 36,
+            "sizeY": 36,
+            "sizeZ": 36,
+            "colorR": 0.93,
+            "colorG": 0.76,
+            "colorB": 0.62,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "98ea71f5-6645-5ddb-8bc0-35cbd46eba2c",
+      "name": "Arm R",
+      "active": true,
+      "parentId": "887b8f70-3977-5aa2-8792-fad5e1cfc9f1",
+      "transform": {
+        "position": {
+          "x": -30,
+          "y": 30,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "fa59b807-1db4-5ecd-8b59-9bbc8fd7014d",
+      "name": "Arm R Mesh",
+      "active": true,
+      "parentId": "98ea71f5-6645-5ddb-8bc0-35cbd46eba2c",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -20,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 14,
+            "sizeY": 44,
+            "sizeZ": 14,
+            "colorR": 0.25,
+            "colorG": 0.45,
+            "colorB": 0.85,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "06bd14bb-6d4c-5e55-80cc-68aaffbee0fe",
+      "name": "Forearm R",
+      "active": true,
+      "parentId": "98ea71f5-6645-5ddb-8bc0-35cbd46eba2c",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -42,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "bd0dd21b-bbb2-59c0-8b39-64c05fa5886a",
+      "name": "Forearm R Mesh",
+      "active": true,
+      "parentId": "06bd14bb-6d4c-5e55-80cc-68aaffbee0fe",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -20,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12,
+            "sizeY": 42,
+            "sizeZ": 12,
+            "colorR": 0.93,
+            "colorG": 0.76,
+            "colorB": 0.62,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "e2e94818-cf91-5059-87e9-92f1839e0d93",
+      "name": "Thigh R",
+      "active": true,
+      "parentId": "bd8149ce-f1b2-59fc-86db-1ffdf9dec5d9",
+      "transform": {
+        "position": {
+          "x": -12,
+          "y": -8,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "518a4084-59e3-56c2-8d17-2b33b7161a0f",
+      "name": "Thigh R Mesh",
+      "active": true,
+      "parentId": "e2e94818-cf91-5059-87e9-92f1839e0d93",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -24,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 18,
+            "sizeY": 48,
+            "sizeZ": 18,
+            "colorR": 0.2,
+            "colorG": 0.22,
+            "colorB": 0.3,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "17590d84-b1ea-5138-831a-93aee6390141",
+      "name": "Shin R",
+      "active": true,
+      "parentId": "e2e94818-cf91-5059-87e9-92f1839e0d93",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -48,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "f0624650-992c-506e-880c-c7ee61a4ad82",
+      "name": "Shin R Mesh",
+      "active": true,
+      "parentId": "17590d84-b1ea-5138-831a-93aee6390141",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -23,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 16,
+            "sizeY": 46,
+            "sizeZ": 16,
+            "colorR": 0.2,
+            "colorG": 0.22,
+            "colorB": 0.3,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "4fd05067-909c-5d16-8ea0-3ea17b6a33c6",
+      "name": "Foot R",
+      "active": true,
+      "parentId": "17590d84-b1ea-5138-831a-93aee6390141",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -46,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "81ef58db-a6dd-5d2d-824b-d9f6a740417f",
+      "name": "Foot R Mesh",
+      "active": true,
+      "parentId": "4fd05067-909c-5d16-8ea0-3ea17b6a33c6",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -4,
+          "z": 8
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 18,
+            "sizeY": 8,
+            "sizeZ": 30,
+            "colorR": 0.15,
+            "colorG": 0.15,
+            "colorB": 0.15,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "309f689c-10aa-5050-8609-cfe471b5728d",
+      "name": "Arm L",
+      "active": true,
+      "parentId": "887b8f70-3977-5aa2-8792-fad5e1cfc9f1",
+      "transform": {
+        "position": {
+          "x": 30,
+          "y": 30,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "fb47b108-25d9-549b-853c-217298320fce",
+      "name": "Arm L Mesh",
+      "active": true,
+      "parentId": "309f689c-10aa-5050-8609-cfe471b5728d",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -20,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 14,
+            "sizeY": 44,
+            "sizeZ": 14,
+            "colorR": 0.25,
+            "colorG": 0.45,
+            "colorB": 0.85,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "2ecdff2c-b6fa-5e9d-8a0b-2c8dc9942f2d",
+      "name": "Forearm L",
+      "active": true,
+      "parentId": "309f689c-10aa-5050-8609-cfe471b5728d",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -42,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "8451fe09-5794-5b35-8f0c-2871e8b12792",
+      "name": "Forearm L Mesh",
+      "active": true,
+      "parentId": "2ecdff2c-b6fa-5e9d-8a0b-2c8dc9942f2d",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -20,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 12,
+            "sizeY": 42,
+            "sizeZ": 12,
+            "colorR": 0.93,
+            "colorG": 0.76,
+            "colorB": 0.62,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "2481343f-a482-5890-8945-f2e9cc129e4f",
+      "name": "Thigh L",
+      "active": true,
+      "parentId": "bd8149ce-f1b2-59fc-86db-1ffdf9dec5d9",
+      "transform": {
+        "position": {
+          "x": 12,
+          "y": -8,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "79dd3e06-d92f-5bed-839d-0dadd6ec15b0",
+      "name": "Thigh L Mesh",
+      "active": true,
+      "parentId": "2481343f-a482-5890-8945-f2e9cc129e4f",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -24,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 18,
+            "sizeY": 48,
+            "sizeZ": 18,
+            "colorR": 0.2,
+            "colorG": 0.22,
+            "colorB": 0.3,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "eac6dc9c-8b8c-5552-8b6d-1ad7fe3ceaef",
+      "name": "Shin L",
+      "active": true,
+      "parentId": "2481343f-a482-5890-8945-f2e9cc129e4f",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -48,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "b45cf3b8-8f27-54ad-8fa2-112cb6d1e2fe",
+      "name": "Shin L Mesh",
+      "active": true,
+      "parentId": "eac6dc9c-8b8c-5552-8b6d-1ad7fe3ceaef",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -23,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 16,
+            "sizeY": 46,
+            "sizeZ": 16,
+            "colorR": 0.2,
+            "colorG": 0.22,
+            "colorB": 0.3,
+            "colorA": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "7bac2749-d131-5e42-82d1-304bfb5c34dc",
+      "name": "Foot L",
+      "active": true,
+      "parentId": "eac6dc9c-8b8c-5552-8b6d-1ad7fe3ceaef",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -46,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "f73544fd-7769-5e96-8c3e-14c4ee148f4b",
+      "name": "Foot L Mesh",
+      "active": true,
+      "parentId": "7bac2749-d131-5e42-82d1-304bfb5c34dc",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": -4,
+          "z": 8
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 18,
+            "sizeY": 8,
+            "sizeZ": 30,
+            "colorR": 0.15,
+            "colorG": 0.15,
+            "colorB": 0.15,
+            "colorA": 1
+          }
+        }
+      ]
+    }
+  ]
+}

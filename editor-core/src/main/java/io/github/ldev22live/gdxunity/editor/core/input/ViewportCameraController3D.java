@@ -46,6 +46,31 @@ public class ViewportCameraController3D {
     }
 
     private NavigationMode currentMode = NavigationMode.NONE;
+
+    /** Distance from the target used when the side view is switched on and the camera is closer than this to it. */
+    public static final float DEFAULT_SIDE_VIEW_DISTANCE = 20f;
+
+    private boolean sideViewLocked;
+
+    public boolean isSideViewLocked() {
+        return sideViewLocked;
+    }
+
+    /**
+     * Locks the camera to a side-on view for 2.5D scenes (TD-067): it looks along -Z at the target with Y up, and dragging pans instead of orbiting
+     * or flying. Switching it on moves the camera to that view; switching it off leaves the camera where it is and gives back orbit and fly.
+     */
+    public void setSideViewLocked(boolean locked) {
+        sideViewLocked = locked;
+        if (locked) {
+            stopNavigation();
+            float distance = Math.max(DEFAULT_SIDE_VIEW_DISTANCE, camera.getPosition().dst(target));
+            camera.setUp(Vector3.Y);
+            camera.setPosition(target.x, target.y, target.z + distance);
+            camera.lookAt(target);
+            camera.update();
+        }
+    }
     private float lastScreenX;
     private float lastScreenY;
 
@@ -83,7 +108,9 @@ public class ViewportCameraController3D {
     }
 
     public void startNavigation(NavigationMode mode, float screenX, float screenY) {
-        this.currentMode = (mode != null) ? mode : NavigationMode.NONE;
+        NavigationMode requested = (mode != null) ? mode : NavigationMode.NONE;
+        // A locked side view cannot orbit or fly; the same drag pans
+        this.currentMode = sideViewLocked && (requested == NavigationMode.ORBIT || requested == NavigationMode.FLY) ? NavigationMode.PAN : requested;
         this.lastScreenX = screenX;
         this.lastScreenY = screenY;
     }
@@ -129,6 +156,9 @@ public class ViewportCameraController3D {
      * Vertical orbit is clamped so the camera never passes over the world up/down poles.
      */
     public void orbit(float deltaX, float deltaY) {
+        if (sideViewLocked) {
+            return;
+        }
         // Horizontal rotation around world Y
         camera.rotateAround(target, Vector3.Y, -deltaX * orbitSensitivity);
 
@@ -169,6 +199,9 @@ public class ViewportCameraController3D {
      * Fly mode camera orientation (mouselook).
      */
     public void flyLook(float deltaX, float deltaY) {
+        if (sideViewLocked) {
+            return;
+        }
         // Yaw around world Y
         camera.rotate(Vector3.Y, -deltaX * flyTurnSensitivity);
 

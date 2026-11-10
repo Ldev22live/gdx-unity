@@ -1,6 +1,8 @@
 package io.github.ldev22live.gdxunity.engine.scene;
 
 import com.badlogic.gdx.utils.Disposable;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.ColliderGeometrySource;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +27,10 @@ public class Scene implements Disposable {
     private final List<Entity> pendingRemovals = new ArrayList<>();
     private boolean updating = false;
     private boolean active = true;
+    private GameMode gameMode;
     private boolean disposed = false;
+    private PhysicsSystem3D physics3D;
+    private ColliderGeometrySource colliderGeometry;
 
     public Scene() {
         this("Untitled Scene");
@@ -39,8 +44,54 @@ public class Scene implements Disposable {
         return name;
     }
 
+    /**
+     * The scene's running 3D physics, or null when none runs: before play, after it, and in scenes without 3D colliders
+     * (those never load the native library). Scripts reach it through {@code ScriptComponent.getPhysics3D()} (TD-048).
+     */
+    public PhysicsSystem3D getPhysics3D() {
+        return physics3D;
+    }
+
+    /**
+     * Where mesh colliders and convex hull colliders read their triangles (TD-052), or null when nothing can read a mesh
+     * (a headless scene). The renderer sets it when it shows the scene.
+     */
+    public ColliderGeometrySource getColliderGeometry() {
+        return colliderGeometry;
+    }
+
+    public void setColliderGeometry(ColliderGeometrySource source) {
+        this.colliderGeometry = source;
+    }
+
+    /** Called by {@link PhysicsSystem3D}'s constructor; a scene runs one 3D physics system at a time. */
+    public void attachPhysics3D(PhysicsSystem3D system) {
+        Objects.requireNonNull(system, "system cannot be null");
+        if (physics3D != null && physics3D != system) {
+            throw new IllegalStateException("Scene " + name + " already has a 3D physics system; dispose it first");
+        }
+        physics3D = system;
+    }
+
+    /** Called by {@link PhysicsSystem3D#dispose()}; ignored when {@code system} is not the attached one. */
+    public void detachPhysics3D(PhysicsSystem3D system) {
+        if (physics3D == system) {
+            physics3D = null;
+        }
+    }
+
     public void setName(String name) {
         this.name = (name == null || name.isBlank()) ? "Untitled Scene" : name;
+    }
+
+    /** The scene's game mode, or null for a scene that never had one chosen (the editor infers it from the content). */
+    public GameMode getGameMode() {
+        return gameMode;
+    }
+
+    /** Sets the game mode; null means "not chosen". */
+    public void setGameMode(GameMode gameMode) {
+        this.gameMode = gameMode;
     }
 
     public boolean isActive() {

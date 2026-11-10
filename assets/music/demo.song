@@ -1,19 +1,636 @@
-{"version":1,"name":"Demo Beat","bpm":110.0,"swing":0.2,"nextChannelId":9,"nextPatternId":3,
-"channels":[
-{"id":4,"name":"Lead","mixerIndex":1,"muted":false,"stepPitch":60,"instrument":{"type":"SOUNDFONT","path":"","rootNote":60,"oneShot":false,"bank":0,"program":0,"patch":{"osc1":"SAW","osc2":"SAW","osc2Detune":7.0,"osc2Octave":0,"osc2Mix":0.5,"pulseWidth":0.5,"attack":0.01,"decay":0.2,"sustain":0.7,"release":0.25,"filterType":"LOW_PASS","cutoff":8000.0,"resonance":0.7,"filterEnvOctaves":0.0,"lfoTarget":"NONE","lfoRate":5.0,"lfoDepth":0.0,"volume":0.6},"sfxr":{"shape":"SQUARE","volume":0.5,"arpeggioSpeed":0.6,"values":[0.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.02,0.3,0.4,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.35]}}},
-{"id":5,"name":"Bass","mixerIndex":4,"muted":false,"stepPitch":60,"instrument":{"type":"SYNTH","path":"","rootNote":60,"oneShot":false,"bank":0,"program":0,"patch":{"osc1":"SINE","osc2":"SQUARE","osc2Detune":0.0,"osc2Octave":-1,"osc2Mix":0.35,"pulseWidth":0.5,"attack":0.004,"decay":0.2,"sustain":0.9,"release":0.12,"filterType":"LOW_PASS","cutoff":900.0,"resonance":0.7,"filterEnvOctaves":0.0,"lfoTarget":"NONE","lfoRate":5.0,"lfoDepth":0.0,"volume":0.8},"sfxr":{"shape":"SQUARE","volume":0.5,"arpeggioSpeed":0.6,"values":[0.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.02,0.3,0.4,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.35]}}},
-{"id":6,"name":"Synth 6","mixerIndex":5,"muted":false,"stepPitch":60,"instrument":{"type":"SYNTH","path":"","rootNote":60,"oneShot":false,"bank":0,"program":0,"patch":{"osc1":"SAW","osc2":"SAW","osc2Detune":7.0,"osc2Octave":0,"osc2Mix":0.5,"pulseWidth":0.5,"attack":0.005,"decay":0.2,"sustain":0.7,"release":0.2,"filterType":"LOW_PASS","cutoff":6000.0,"resonance":0.7,"filterEnvOctaves":0.0,"lfoTarget":"PITCH","lfoRate":5.5,"lfoDepth":0.12,"volume":0.6},"sfxr":{"shape":"SQUARE","volume":0.5,"arpeggioSpeed":0.6,"values":[0.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.02,0.3,0.4,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.35]}}},
-{"id":7,"name":"Effect 7","mixerIndex":6,"muted":false,"stepPitch":60,"instrument":{"type":"SFXR","path":"","rootNote":60,"oneShot":true,"bank":0,"program":0,"patch":{"osc1":"SAW","osc2":"SAW","osc2Detune":7.0,"osc2Octave":0,"osc2Mix":0.5,"pulseWidth":0.5,"attack":0.01,"decay":0.2,"sustain":0.7,"release":0.25,"filterType":"LOW_PASS","cutoff":8000.0,"resonance":0.7,"filterEnvOctaves":0.0,"lfoTarget":"NONE","lfoRate":5.0,"lfoDepth":0.0,"volume":0.6},"sfxr":{"shape":"SQUARE","volume":0.5,"arpeggioSpeed":0.6,"values":[0.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.02,0.3,0.4,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.35]}}}],
-"patterns":[
-{"id":1,"name":"Groove","lengthTicks":768,"notes":{"5":[[0,144,33,0.9],[144,48,45,0.7],[192,144,33,0.9],[336,48,45,0.7],[384,144,36,0.9],[528,48,48,0.7],[576,144,31,0.9],[720,48,43,0.7]],"4":[[0,96,69,0.8],[96,48,72,0.8],[144,48,71,0.8],[192,96,67,0.8],[288,48,69,0.8],[336,48,64,0.8],[384,96,69,0.8],[480,48,72,0.8],[528,48,76,0.8],[576,144,74,0.8],[720,48,72,0.8]]}},
-{"id":2,"name":"Break","lengthTicks":384,"notes":{"5":[[0,192,33,0.9]],"4":[[0,384,76,0.6]]}}],
-"clips":[[1,0,0,768],[2,0,768,384],[1,0,1152,768]],
-"mixer":{"strips":[
-{"name":"Kick","volume":0.9,"pan":0.0,"muted":false,"solo":false,"effects":[]},
-{"name":"Snare","volume":0.8,"pan":0.0,"muted":false,"solo":false,"effects":[]},
-{"name":"Hat","volume":0.5,"pan":0.0,"muted":false,"solo":false,"effects":[]},
-{"name":"Lead","volume":0.8,"pan":0.15,"muted":false,"solo":false,"effects":[{"type":"reverb","params":{"room":0.5,"damping":0.5,"mix":0.35}},{"type":"delay","params":{"time":0.27,"feedback":0.4,"mix":0.25}}]},
-{"name":"Bass","volume":0.85,"pan":0.0,"muted":false,"solo":false,"effects":[]},
-{"name":"Insert 6","volume":0.8,"pan":0.0,"muted":false,"solo":false,"effects":[]},
-{"name":"Insert 7","volume":0.8,"pan":0.0,"muted":false,"solo":false,"effects":[]},
-{"name":"Insert 8","volume":0.8,"pan":0.0,"muted":false,"solo":false,"effects":[]}],"master":{"name":"Master","volume":0.85,"pan":0.0,"muted":false,"solo":false,"effects":[]}}}
+{
+  "version": 1,
+  "name": "Demo Beat",
+  "bpm": 110.0,
+  "swing": 0.2,
+  "nextChannelId": 6,
+  "nextPatternId": 3,
+  "channels": [
+    {
+      "id": 1,
+      "name": "Kick",
+      "mixerIndex": 0,
+      "muted": false,
+      "stepPitch": 36,
+      "instrument": {
+        "type": "DRUMS",
+        "path": "",
+        "rootNote": 60,
+        "oneShot": false,
+        "bank": 0,
+        "program": 0
+      }
+    },
+    {
+      "id": 2,
+      "name": "Snare",
+      "mixerIndex": 1,
+      "muted": false,
+      "stepPitch": 38,
+      "instrument": {
+        "type": "DRUMS",
+        "path": "",
+        "rootNote": 60,
+        "oneShot": false,
+        "bank": 0,
+        "program": 0
+      }
+    },
+    {
+      "id": 3,
+      "name": "Hat",
+      "mixerIndex": 2,
+      "muted": false,
+      "stepPitch": 42,
+      "instrument": {
+        "type": "DRUMS",
+        "path": "",
+        "rootNote": 60,
+        "oneShot": false,
+        "bank": 0,
+        "program": 0
+      }
+    },
+    {
+      "id": 4,
+      "name": "Lead",
+      "mixerIndex": 3,
+      "muted": false,
+      "stepPitch": 60,
+      "instrument": {
+        "type": "SYNTH",
+        "path": "",
+        "rootNote": 60,
+        "oneShot": false,
+        "bank": 0,
+        "program": 0,
+        "patch": {
+          "osc1": "SAW",
+          "osc2": "SAW",
+          "osc2Detune": 7.0,
+          "osc2Octave": 0,
+          "osc2Mix": 0.5,
+          "pulseWidth": 0.5,
+          "attack": 0.01,
+          "decay": 0.2,
+          "sustain": 0.7,
+          "release": 0.25,
+          "filterType": "LOW_PASS",
+          "cutoff": 8000.0,
+          "resonance": 0.7,
+          "filterEnvOctaves": 0.0,
+          "lfoTarget": "NONE",
+          "lfoRate": 5.0,
+          "lfoDepth": 0.0,
+          "volume": 0.6
+        },
+        "sfxr": {
+          "shape": "SQUARE",
+          "volume": 0.5,
+          "arpeggioSpeed": 0.6,
+          "values": [
+            0.4,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.02,
+            0.3,
+            0.4,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.35
+          ]
+        }
+      }
+    },
+    {
+      "id": 5,
+      "name": "Bass",
+      "mixerIndex": 4,
+      "muted": false,
+      "stepPitch": 60,
+      "instrument": {
+        "type": "SYNTH",
+        "path": "",
+        "rootNote": 60,
+        "oneShot": false,
+        "bank": 0,
+        "program": 0,
+        "patch": {
+          "osc1": "SINE",
+          "osc2": "SQUARE",
+          "osc2Detune": 0.0,
+          "osc2Octave": -1,
+          "osc2Mix": 0.35,
+          "pulseWidth": 0.5,
+          "attack": 0.004,
+          "decay": 0.2,
+          "sustain": 0.9,
+          "release": 0.12,
+          "filterType": "LOW_PASS",
+          "cutoff": 900.0,
+          "resonance": 0.7,
+          "filterEnvOctaves": 0.0,
+          "lfoTarget": "NONE",
+          "lfoRate": 5.0,
+          "lfoDepth": 0.0,
+          "volume": 0.8
+        },
+        "sfxr": {
+          "shape": "SQUARE",
+          "volume": 0.5,
+          "arpeggioSpeed": 0.6,
+          "values": [
+            0.4,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.02,
+            0.3,
+            0.4,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.35
+          ]
+        }
+      }
+    }
+  ],
+  "patterns": [
+    {
+      "id": 1,
+      "name": "Groove",
+      "lengthTicks": 768,
+      "notes": {
+        "1": [
+          [
+            0,
+            24,
+            36,
+            0.95
+          ],
+          [
+            96,
+            24,
+            36,
+            0.95
+          ],
+          [
+            192,
+            24,
+            36,
+            0.95
+          ],
+          [
+            288,
+            24,
+            36,
+            0.95
+          ],
+          [
+            384,
+            24,
+            36,
+            0.95
+          ],
+          [
+            480,
+            24,
+            36,
+            0.95
+          ],
+          [
+            576,
+            24,
+            36,
+            0.95
+          ],
+          [
+            672,
+            24,
+            36,
+            0.95
+          ]
+        ],
+        "2": [
+          [
+            96,
+            24,
+            38,
+            0.8
+          ],
+          [
+            288,
+            24,
+            38,
+            0.8
+          ],
+          [
+            480,
+            24,
+            38,
+            0.8
+          ],
+          [
+            672,
+            24,
+            38,
+            0.8
+          ]
+        ],
+        "3": [
+          [
+            48,
+            24,
+            42,
+            0.55
+          ],
+          [
+            144,
+            24,
+            42,
+            0.55
+          ],
+          [
+            240,
+            24,
+            42,
+            0.55
+          ],
+          [
+            336,
+            24,
+            42,
+            0.55
+          ],
+          [
+            432,
+            24,
+            42,
+            0.55
+          ],
+          [
+            528,
+            24,
+            42,
+            0.55
+          ],
+          [
+            624,
+            24,
+            42,
+            0.55
+          ],
+          [
+            720,
+            24,
+            42,
+            0.55
+          ]
+        ],
+        "4": [
+          [
+            0,
+            96,
+            69,
+            0.8
+          ],
+          [
+            96,
+            48,
+            72,
+            0.8
+          ],
+          [
+            144,
+            48,
+            71,
+            0.8
+          ],
+          [
+            192,
+            96,
+            67,
+            0.8
+          ],
+          [
+            288,
+            48,
+            69,
+            0.8
+          ],
+          [
+            336,
+            48,
+            64,
+            0.8
+          ],
+          [
+            384,
+            96,
+            69,
+            0.8
+          ],
+          [
+            480,
+            48,
+            72,
+            0.8
+          ],
+          [
+            528,
+            48,
+            76,
+            0.8
+          ],
+          [
+            576,
+            144,
+            74,
+            0.8
+          ],
+          [
+            720,
+            48,
+            72,
+            0.8
+          ]
+        ],
+        "5": [
+          [
+            0,
+            144,
+            33,
+            0.9
+          ],
+          [
+            144,
+            48,
+            45,
+            0.7
+          ],
+          [
+            192,
+            144,
+            33,
+            0.9
+          ],
+          [
+            336,
+            48,
+            45,
+            0.7
+          ],
+          [
+            384,
+            144,
+            36,
+            0.9
+          ],
+          [
+            528,
+            48,
+            48,
+            0.7
+          ],
+          [
+            576,
+            144,
+            31,
+            0.9
+          ],
+          [
+            720,
+            48,
+            43,
+            0.7
+          ]
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "name": "Break",
+      "lengthTicks": 384,
+      "notes": {
+        "1": [
+          [
+            0,
+            24,
+            36,
+            0.95
+          ],
+          [
+            96,
+            24,
+            36,
+            0.95
+          ],
+          [
+            192,
+            24,
+            36,
+            0.95
+          ],
+          [
+            288,
+            24,
+            36,
+            0.95
+          ]
+        ],
+        "2": [
+          [
+            96,
+            24,
+            38,
+            0.8
+          ],
+          [
+            288,
+            24,
+            38,
+            0.8
+          ]
+        ],
+        "3": [
+          [
+            48,
+            24,
+            42,
+            0.55
+          ],
+          [
+            144,
+            24,
+            42,
+            0.55
+          ],
+          [
+            240,
+            24,
+            42,
+            0.55
+          ],
+          [
+            336,
+            24,
+            42,
+            0.55
+          ]
+        ],
+        "4": [
+          [
+            0,
+            384,
+            76,
+            0.6
+          ]
+        ],
+        "5": [
+          [
+            0,
+            192,
+            33,
+            0.9
+          ]
+        ]
+      }
+    }
+  ],
+  "clips": [
+    [
+      1,
+      0,
+      0,
+      768
+    ],
+    [
+      2,
+      0,
+      768,
+      384
+    ],
+    [
+      1,
+      0,
+      1152,
+      768
+    ]
+  ],
+  "mixer": {
+    "strips": [
+      {
+        "name": "Kick",
+        "volume": 0.9,
+        "pan": 0.0,
+        "muted": false,
+        "solo": false,
+        "effects": []
+      },
+      {
+        "name": "Snare",
+        "volume": 0.8,
+        "pan": 0.0,
+        "muted": false,
+        "solo": false,
+        "effects": []
+      },
+      {
+        "name": "Hat",
+        "volume": 0.5,
+        "pan": 0.0,
+        "muted": false,
+        "solo": false,
+        "effects": []
+      },
+      {
+        "name": "Lead",
+        "volume": 0.8,
+        "pan": 0.15,
+        "muted": false,
+        "solo": false,
+        "effects": [
+          {
+            "type": "reverb",
+            "params": {
+              "room": 0.5,
+              "damping": 0.5,
+              "mix": 0.35
+            }
+          },
+          {
+            "type": "delay",
+            "params": {
+              "time": 0.27,
+              "feedback": 0.4,
+              "mix": 0.25
+            }
+          }
+        ]
+      },
+      {
+        "name": "Bass",
+        "volume": 0.85,
+        "pan": 0.0,
+        "muted": false,
+        "solo": false,
+        "effects": []
+      },
+      {
+        "name": "Insert 6",
+        "volume": 0.8,
+        "pan": 0.0,
+        "muted": false,
+        "solo": false,
+        "effects": []
+      },
+      {
+        "name": "Insert 7",
+        "volume": 0.8,
+        "pan": 0.0,
+        "muted": false,
+        "solo": false,
+        "effects": []
+      },
+      {
+        "name": "Insert 8",
+        "volume": 0.8,
+        "pan": 0.0,
+        "muted": false,
+        "solo": false,
+        "effects": []
+      }
+    ],
+    "master": {
+      "name": "Master",
+      "volume": 0.85,
+      "pan": 0.0,
+      "muted": false,
+      "solo": false,
+      "effects": []
+    }
+  }
+}

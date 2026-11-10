@@ -81,7 +81,10 @@ export class GrappleGame extends ScriptComponent {
     const grappleHeld = this.input.isDown("KeyJ", "ShiftLeft", "ShiftRight");
     if (grappleHeld && this.hooked === null && !this.body.grounded) {
       this.hooked = this.nearestAnchor();
-      if (this.hooked !== null) this.ropeLength = Math.hypot(this.body.x - this.hooked.x, this.body.y - this.hooked.y);
+      if (this.hooked !== null) {
+        this.ropeLength = Math.hypot(this.body.x - this.hooked.x, this.body.y - this.hooked.y);
+        this.scene.playCue("grapple");
+      }
     }
     if (!grappleHeld) this.hooked = null;
 
@@ -89,7 +92,10 @@ export class GrappleGame extends ScriptComponent {
       this.swingStep(this.hooked, direction, dt);
     } else {
       this.body.velocityX = direction * GrappleGame.RUN_SPEED;
-      if (this.body.grounded && this.input.isJustPressed("Space", "KeyW", "ArrowUp")) this.body.velocityY = GrappleGame.JUMP_SPEED;
+      if (this.body.grounded && this.input.isJustPressed("Space", "KeyW", "ArrowUp")) {
+        this.body.velocityY = GrappleGame.JUMP_SPEED;
+        this.scene.playCue("jump");
+      }
       this.body.step(dt, GrappleGame.GRAVITY, this.solids, (solid, amount) => this.pushCrate(solid, amount));
     }
     this.stepCrate(dt);
@@ -104,6 +110,7 @@ export class GrappleGame extends ScriptComponent {
     }
     if (this.body.y < GrappleGame.FALL_LIMIT) {
       this.hooked = null;
+      this.scene.playCue("hurt");
       this.body.x = this.respawnX;
       this.body.y = this.respawnY;
       this.body.velocityX = 0;
@@ -111,6 +118,7 @@ export class GrappleGame extends ScriptComponent {
     }
     if (this.body.touches(this.goal.x, this.goal.y, this.goal.halfWidth, this.goal.halfHeight)) {
       this.finished = true;
+      this.scene.playCue("win");
       this.messageText.setText("You crossed the gorge! Press R to play again");
     }
   }

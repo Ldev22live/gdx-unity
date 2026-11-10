@@ -179,6 +179,11 @@ public class GraphCanvas extends WidgetGroup implements Disposable {
             : !document.getGraph().linksFrom(nodeId, pin.id()).isEmpty();
     }
 
+    /** Ids of the selected nodes, in the order they were selected. */
+    List<String> getSelectedNodeIds() {
+        return new ArrayList<>(selection);
+    }
+
     void deleteSelection() {
         if (document != null && !selection.isEmpty()) {
             document.execute(new GraphCommands.RemoveNodes(document.getGraph(), new ArrayList<>(selection)));
@@ -279,6 +284,8 @@ public class GraphCanvas extends WidgetGroup implements Disposable {
             case STRING -> new Color(0.95f, 0.45f, 0.85f, 1f);
             case VECTOR3 -> new Color(0.98f, 0.82f, 0.25f, 1f);
             case ENTITY -> new Color(0.35f, 0.65f, 1f, 1f);
+            case INTEGER -> new Color(0.3f, 0.85f, 0.75f, 1f);
+            case OBJECT -> new Color(0.65f, 0.65f, 0.75f, 1f);
         };
     }
 

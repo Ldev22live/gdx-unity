@@ -79,10 +79,15 @@ public class SceneFileController {
 
     /** Replaces the scene with an empty one, after offering to save unsaved changes. */
     public boolean newScene() {
+        return newScene(null);
+    }
+
+    /** Like {@link #newScene()}, for a scene of the given game mode (null: none chosen). */
+    public boolean newScene(io.github.ldev22live.gdxunity.engine.scene.GameMode mode) {
         if (rejectDuringPlayMode() || !confirmDiscardChanges()) {
             return false;
         }
-        editorState.newScene("Untitled Scene");
+        editorState.newScene("Untitled Scene", mode);
         currentFile = null;
         markClean();
         return true;

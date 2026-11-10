@@ -1,0 +1,976 @@
+{
+"schemaVersion": 1,
+"name": "Sprite 2.5D",
+"active": true,
+"gameMode": "2.5d",
+"entities": [
+	{
+		"id": "3e73fd07-f24e-46c7-8388-b899df6a93c6",
+		"name": "Sky",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 640,
+				"y": 192,
+				"z": -600
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "ShapeRendererComponent",
+				"enabled": true,
+				"data": {
+					"width": 3840,
+					"height": 1152,
+					"shapeType": "FILLED",
+					"centered": true,
+					"color": {
+						"r": 0.1,
+						"g": 0.11,
+						"b": 0.15,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "9655be07-3b2b-40d1-a6c0-b4b4cd8351e3",
+		"name": "Main Camera",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 341.33334,
+				"y": 192,
+				"z": 560
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "CameraComponent",
+				"enabled": true,
+				"data": {
+					"projection": "PERSPECTIVE",
+					"orthographicHeight": 480,
+					"fieldOfView": 50,
+					"nearPlane": 1,
+					"farPlane": 50000
+				}
+			}
+		]
+	},
+	{
+		"id": "ae2f047e-3fc3-49ac-9b88-0b6e424d66e2",
+		"name": "Level",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "TilemapComponent",
+				"enabled": true,
+				"data": {
+					"tileSet": "sprites/tiles.sprite",
+					"tileWidth": 32,
+					"tileHeight": 32,
+					"collides": true,
+					"cols": 40,
+					"rows": 12,
+					"solid": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ],
+					"layers": [
+						{
+							"name": "Background",
+							"visible": true,
+							"cells": [ 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+						},
+						{
+							"name": "Ground",
+							"visible": true,
+							"cells": [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 11, 11, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 11, 11, 11, 9, 0, 0, 0, 0, 0, 0, 0, 3, 11, 11, 11, 9, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 7, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 13, 0, 0, 0, 7, 15, 15, 15, 15, 15, 15, 15, 15, 15, 13, 0, 0, 7, 15, 15, 15, 15, 15, 15, 15, 15, 14, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 10, 0, 0, 0, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 10, 0, 0, 4, 12, 12, 12, 12, 12, 12, 12, 12, 10 ]
+						}
+					],
+					"rules": [
+						{
+							"name": "ground",
+							"tiles": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ]
+						}
+					],
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "8a433aeb-cc29-4895-a7a1-3f0bdf2c65e9",
+		"name": "Player",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 80,
+				"y": 100,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/hero.sprite",
+					"tag": "idle",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 64,
+					"height": 64,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			},
+			{
+				"type": "EntityScriptBindingComponent",
+				"enabled": true,
+				"data": {
+					"scriptPath": "scripts/samples/pixel/PixelHero.java",
+					"scriptClassName": "samples.pixel.PixelHero",
+					"language": "JAVA"
+				}
+			}
+		]
+	},
+	{
+		"id": "0c7c03c4-caab-41da-b331-950fb19b21cb",
+		"name": "Coin 1",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 240,
+				"y": 176,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "3125b68c-2976-4a51-9fb0-b12a1dec49a8",
+		"name": "Coin 2",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 272,
+				"y": 176,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "4607a259-2d4c-4181-86d4-cfb5e31fae72",
+		"name": "Coin 3",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 688,
+				"y": 176,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "2d2abf73-7ebc-4134-a1f9-f82868ab94fb",
+		"name": "Coin 4",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 720,
+				"y": 176,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "a3982b2f-41d3-436b-bc75-998c7bb09ec8",
+		"name": "Coin 5",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 1072,
+				"y": 176,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "76b22909-d908-4668-b106-bd15456a85f5",
+		"name": "Coin 6",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 656,
+				"y": 80,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/coin.sprite",
+					"tag": "spin",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 32,
+					"height": 32,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "e6af54f0-efc8-45ed-aa8c-8770dfe09307",
+		"name": "Score Text",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "TextComponent",
+				"enabled": true,
+				"data": {
+					"text": "Coins: 0 / 6",
+					"colorR": 1,
+					"colorG": 1,
+					"colorB": 1,
+					"colorA": 1,
+					"scale": 1.5,
+					"anchor": "TOP_LEFT",
+					"offsetX": 16,
+					"offsetY": -16
+				}
+			}
+		]
+	},
+	{
+		"id": "52cbf40a-6319-4c02-bc67-8a7bee2cc475",
+		"name": "Help Text",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "TextComponent",
+				"enabled": true,
+				"data": {
+					"text": "A/D or arrows run, Space jumps, R restarts",
+					"colorR": 1,
+					"colorG": 1,
+					"colorB": 1,
+					"colorA": 1,
+					"scale": 1.5,
+					"anchor": "BOTTOM_LEFT",
+					"offsetX": 16,
+					"offsetY": 16
+				}
+			}
+		]
+	},
+	{
+		"id": "e6991d02-5544-498f-8cd2-e835f235eb81",
+		"name": "Sound jump",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "AudioSource",
+				"enabled": true,
+				"data": {
+					"cue": "jump",
+					"sound": "Jump",
+					"volume": 1,
+					"pitch": 1,
+					"playOnStart": false
+				}
+			}
+		]
+	},
+	{
+		"id": "5ef5ea99-d2f7-40b0-91f7-fe5544f9e268",
+		"name": "Sound coin",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "AudioSource",
+				"enabled": true,
+				"data": {
+					"cue": "coin",
+					"sound": "Coin",
+					"volume": 1,
+					"pitch": 1,
+					"playOnStart": false
+				}
+			}
+		]
+	},
+	{
+		"id": "057e85f9-141e-44f0-b8f0-aaef54e44a77",
+		"name": "Sound hurt",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "AudioSource",
+				"enabled": true,
+				"data": {
+					"cue": "hurt",
+					"sound": "Hurt",
+					"volume": 1,
+					"pitch": 1,
+					"playOnStart": false
+				}
+			}
+		]
+	},
+	{
+		"id": "a47a04c7-57e3-4956-92c4-91db35d4d365",
+		"name": "Sun",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "DirectionalLightComponent",
+				"enabled": true,
+				"data": {
+					"directionX": 0,
+					"directionY": -0.8944272,
+					"directionZ": -0.4472136,
+					"colorR": 1,
+					"colorG": 1,
+					"colorB": 1,
+					"colorA": 1,
+					"intensity": 1,
+					"castShadows": true
+				}
+			}
+		]
+	},
+	{
+		"id": "9e14ac0a-abb1-4bdc-8537-b27221be1e53",
+		"name": "Hill 1",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 200,
+				"y": 120,
+				"z": -300
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "MeshPrimitiveComponent",
+				"enabled": true,
+				"data": {
+					"shape": "BOX",
+					"sizeX": 360,
+					"sizeY": 240,
+					"sizeZ": 120,
+					"colorR": 0.2,
+					"colorG": 0.28,
+					"colorB": 0.45,
+					"colorA": 1
+				}
+			}
+		]
+	},
+	{
+		"id": "4e7b987b-55ae-4b2f-b6c6-24e703cfe58f",
+		"name": "Hill 2",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 620,
+				"y": 160,
+				"z": -420
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "MeshPrimitiveComponent",
+				"enabled": true,
+				"data": {
+					"shape": "BOX",
+					"sizeX": 420,
+					"sizeY": 320,
+					"sizeZ": 120,
+					"colorR": 0.2,
+					"colorG": 0.28,
+					"colorB": 0.45,
+					"colorA": 1
+				}
+			}
+		]
+	},
+	{
+		"id": "b53a6eb0-53d2-4aa8-8559-2eafa8cd5fbb",
+		"name": "Hill 3",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 1050,
+				"y": 110,
+				"z": -330
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "MeshPrimitiveComponent",
+				"enabled": true,
+				"data": {
+					"shape": "BOX",
+					"sizeX": 380,
+					"sizeY": 220,
+					"sizeZ": 120,
+					"colorR": 0.2,
+					"colorG": 0.28,
+					"colorB": 0.45,
+					"colorA": 1
+				}
+			}
+		]
+	},
+	{
+		"id": "bdc6bf9a-22c7-4426-a16c-ea85b2ff5b4b",
+		"name": "Pillar 1",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 640,
+				"y": 200,
+				"z": 140
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "MeshPrimitiveComponent",
+				"enabled": true,
+				"data": {
+					"shape": "BOX",
+					"sizeX": 40,
+					"sizeY": 400,
+					"sizeZ": 40,
+					"colorR": 0.45,
+					"colorG": 0.3,
+					"colorB": 0.25,
+					"colorA": 1
+				}
+			}
+		]
+	},
+	{
+		"id": "1b02d225-309f-4c74-a405-228cf32be572",
+		"name": "Pillar 2",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 1000,
+				"y": 200,
+				"z": 140
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "MeshPrimitiveComponent",
+				"enabled": true,
+				"data": {
+					"shape": "BOX",
+					"sizeX": 40,
+					"sizeY": 400,
+					"sizeZ": 40,
+					"colorR": 0.45,
+					"colorG": 0.3,
+					"colorB": 0.25,
+					"colorA": 1
+				}
+			}
+		]
+	},
+	{
+		"id": "1e69d0fe-0a42-4a79-bcdd-fb2d3d926ea2",
+		"name": "Pillar 3",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 1240,
+				"y": 200,
+				"z": 140
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "MeshPrimitiveComponent",
+				"enabled": true,
+				"data": {
+					"shape": "BOX",
+					"sizeX": 40,
+					"sizeY": 400,
+					"sizeZ": 40,
+					"colorR": 0.45,
+					"colorG": 0.3,
+					"colorB": 0.25,
+					"colorA": 1
+				}
+			}
+		]
+	}
+]
+}

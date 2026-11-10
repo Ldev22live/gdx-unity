@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "2D Breakout",
+  "gameMode": "2d",
   "active": true,
   "entities": [
     {
@@ -1929,12 +1930,10 @@
           }
         },
         {
-          "type": "EntityScriptBindingComponent",
-          "enabled": true,
-          "data": {
-            "scriptPath": "scripts/samples/breakout/BreakoutPaddle.java",
-            "scriptClassName": "samples.breakout.BreakoutPaddle",
-            "language": "JAVA"
+            "type": "GraphScriptComponent",
+            "enabled": true,
+            "data": {
+              "graph": "graphs/samples/BreakoutPaddle.graph"
           }
         }
       ]
@@ -2150,6 +2149,87 @@
             "anchor": "BOTTOM_LEFT",
             "offsetX": 16.0,
             "offsetY": 32.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b07914f9-11c2-5aae-81e0-6cdfc89c5054",
+      "name": "Sound Effects",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "launch",
+            "sound": "Blip",
+            "volume": 0.5,
+            "pitch": 0.7,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "paddle",
+            "sound": "Blip",
+            "volume": 0.5,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "brick",
+            "sound": "Blip",
+            "volume": 0.5,
+            "pitch": 1.6,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "win",
+            "sound": "Powerup",
+            "volume": 0.7,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "lose",
+            "sound": "Hurt",
+            "volume": 0.7,
+            "pitch": 0.6,
+            "playOnStart": false
           }
         }
       ]

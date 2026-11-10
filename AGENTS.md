@@ -34,7 +34,8 @@ verify against the source (§9). `docs/porject-suggestions.md` is an intentional
 | Desktop backend | LWJGL3 via `gdx-backend-lwjgl3`, which resolves LWJGL **3.3.3** (`backendLwjglVersion`). `lwjgl3Version` (3.4.1) is only used by the unbuilt `lwjgl3/` template. |
 | Build | Gradle wrapper, `gradle/wrapper/gradle-wrapper.properties` (9.6.1) |
 | Tests | JUnit 5.10 (Jupiter), headless with `GdxNativesLoader` |
-| 2D physics | Box2D (`gdx-box2d`). **Box2D is 2D only — there is no 3D physics yet.** |
+| 2D physics | Box2D (`gdx-box2d`). Box2D is 2D only. |
+| 3D physics | Jolt Physics through jolt-jni (`joltJniVersion` in `gradle.properties`), module `engine-physics` (TD-028). |
 | Scripting | Java and Kotlin scripts compiled in-editor (`editor-core/.../scripting`). See §7. |
 | Root package | `io.github.ldev22live.gdxunity` |
 | Reference product | Unreal Engine 5 **workflows and toolset**, not its rendering technology (TD-020). Original implementations only; no Unreal/Unity code, assets, icons or trademarked feature names. |
@@ -69,11 +70,16 @@ Only the modules in `settings.gradle` are part of the build:
 | `engine-visualscript` | Visual scripting runtime: graph model, nodes, validator, `.graph` files, interpreter (TD-029) | `engine-scene` |
 | `engine-animation` | Keyframe curves, tracks, `.anim` clips, `AnimatorComponent`, skeleton FK / two-bone IK (TD-031) | `engine-render` |
 | `engine-audio` | Music and sound core (TD-040): synth, drums, sampler, SoundFont reader, sfxr, effects, mixer, song model, player, exporter; headless, no sound device | `engine-core` |
+| `engine-physics` | 3D physics backend (TD-028): `JoltPhysicsBackend3D` implements the engine-neutral `PhysicsBackend3D`; extracts and loads Jolt's native library; the only module that sees Jolt types | `engine-scene`, jolt-jni (internal) |
 | `engine-desktop` | Game runtime (TD-035): plays a scene file like editor Play (`GameSession`, `GameRenderer`, precompiled `GameScripts`), shared component serializer list (`GameComponentSerializers`); no editor code | engine modules |
 | `editor-core` | Headless editor logic: state, commands/undo, gizmo math, picking, play mode, scripting compiler, AI agent tools | engine modules |
 | `editor-visualscript` | Headless graph editing: documents, undoable commands, graph assets, play mode extension (TD-029) | `editor-core`, `engine-visualscript` |
 | `editor-animation` | Headless Timeline: clip documents, undoable key edits, preview, auto-key, play mode extension (TD-031) | `editor-core`, `engine-animation` |
 | `editor-audio` | Headless music editing: song documents, undoable edits, piano roll operations, sessions, WAV export (TD-040) | `editor-core`, `engine-audio` |
+| `engine-character` | Character creator core (TD-053): MakeHuman-derived CC0 body data, morph targets, skin, glTF writer, humanoid animation templates baked onto the rig; headless, no GL | `engine-animation` |
+| `editor-character` | Headless character creator editing (TD-053): settings with undo, template selection, bake to glTF, place in the scene | `editor-core`, `editor-animation`, `engine-character` |
+| `engine-sprite` | Pixel-art sprite core (TD-066): layered multi-frame images, tags, slices, palette, `.sprite` file, sprite sheets, tag playback; headless, no GL | `engine-core` |
+| `editor-sprite` | Headless sprite editing (TD-066): drawing tools, undoable commands, layers, frames, tags, palette, session | `editor-core`, `engine-sprite` |
 | `editor-desktop` | scene2d.ui editor shell, panels, renderers for gizmos/grid/physics debug/bones, graph canvas, Timeline | `editor-core`, `editor-visualscript`, `editor-animation`, engine modules (including `engine-desktop`, for the shared serializer list) |
 
 Rules:
@@ -82,8 +88,7 @@ Rules:
 - `core/` and `lwjgl3/` are leftovers from the gdx-liftoff template and are **not** in `settings.gradle`.
   Do not add code there. Their removal is a planned roadmap task (`ALL_IN_ONE_STUDIO_ROADMAP.md` §6) but
   still requires explicit user approval because it deletes tracked files.
-- Planned modules (`engine-vector`, `engine-audio`, `editor-studios`; `engine-physics` proposed in
-  `ARCHITECTURE_ASSESSMENT_AND_ROADMAP.md`) must follow the topology in `ALL_IN_ONE_STUDIO_ROADMAP.md` §3.
+- Planned modules (`engine-vector`, `editor-studios`) must follow the topology in `ALL_IN_ONE_STUDIO_ROADMAP.md` §3.
   Creating a module is an architectural change: get approval first.
 
 ## 5. Build and test commands
@@ -99,6 +104,9 @@ Run from the repository root (`gradlew.bat` on Windows cmd/PowerShell, `./gradle
 ./gradlew :engine-desktop:run --args="--scene samples/hopper-3d.json --smoke-test=240"   # another scene; exit 0/1
 ./gradlew :editor-desktop:zipEditorPackage   # packaged editor for the host OS (TD-033), in editor-desktop/build/package
 ./gradlew :editor-desktop:run --args="--smoke-test"   # render a few seconds, exit 0/1 (needs a display)
+# Testing aids (TD-054), environment variables: GDXUNITY_SCREENSHOT=<file.png> saves the app's own last frame at the end of a
+# --smoke-test run (game runtime and editor); editor only: GDXUNITY_EDITOR_TAB=Animations, GDXUNITY_EDITOR_SELECT=<entity>,
+# GDXUNITY_EDITOR_CREATOR=1 (or <saved character>[:<preview animation>], TD-056), GDXUNITY_EDITOR_ASSISTANT=0
 ```
 
 `gradle.properties` sets `org.gradle.logging.level=quiet`, so a passing run prints almost nothing. Do not
@@ -142,9 +150,10 @@ test counts per module.
   `EntityScriptBindingComponent`, compiled in `editor-core`, run as trusted in-process code. The design doc
   mentions evaluating Lua; adding another script runtime would supersede TD-019 and needs a new decision
   record plus user approval.
-- **Physics:** 2D physics is `PhysicsSystem2D` (Box2D, see `PHASE_10A_*`). 3D physics engine selection is an
-  open "Future Decision" in `TECHNICAL_DECISIONS.md`; Bullet/Jolt are only candidates. Write the evaluation
-  (design doc §3.3) and get approval before adding any dependency.
+- **Physics:** 2D physics is `PhysicsSystem2D` (Box2D, see `PHASE_10A_*`). 3D physics is `PhysicsSystem3D` on
+  `PhysicsBackend3D`, implemented by Jolt in `engine-physics` (TD-028, approved 2026-11-06). Engine and editor code outside
+  `engine-physics` must not use Jolt types. Scripts and graphs reach 3D physics only through `Scene.getPhysics3D()` / `ScriptComponent.getPhysics3D()` and the scene-unit API of `PhysicsSystem3D` (TD-048); contact callbacks are `ScriptComponent.onCollisionEnter3D` and its siblings. Walking characters are `CharacterController3DComponent` entities (TD-049), driven only through `moveCharacter3D`, `jumpCharacter3D` and `isGrounded3D` (or `PhysicsSystem3D.moveCharacter`); they never also carry a Rigid Body 3D or a 3D collider. Create a backend only for scenes where `PhysicsSystem3D.isUsedBy` is true, so
+  2D games never load the native library.
 - **AI automation:** editor operations exposed to agents are `AgentTool` implementations in
   `editor-core/.../agent/tools` returning `AgentToolResult.success/failure` with machine-readable `outputs`.
 

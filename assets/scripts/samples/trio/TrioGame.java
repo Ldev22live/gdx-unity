@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 import samples.common.SideBody;
 
@@ -137,13 +138,16 @@ public class TrioGame extends ScriptComponent {
         if (Gdx.input.isKeyJustPressed(Keys.SPACE) || Gdx.input.isKeyJustPressed(Keys.W) || Gdx.input.isKeyJustPressed(Keys.UP)) {
             if (body.grounded) {
                 body.velocityY = current.jumpSpeed();
+                AudioSourceComponent.play(getScene(), "jump");
             } else if (airJumpsLeft > 0) {
                 airJumpsLeft--;
                 body.velocityY = current.jumpSpeed();
+                AudioSourceComponent.play(getScene(), "jump");
             }
         }
         if (Gdx.input.isKeyJustPressed(Keys.E)) {
             useAbility();
+            AudioSourceComponent.play(getScene(), "ability");
         }
 
         stepPushables(crates, crateEntities, deltaTime);
@@ -159,6 +163,7 @@ public class TrioGame extends ScriptComponent {
         }
         if (body.touches(goal.x, goal.y, goal.halfWidth, goal.halfHeight)) {
             finished = true;
+            AudioSourceComponent.play(getScene(), "win");
             messageText.setText("The party reached the top! Press R to play again");
         }
     }

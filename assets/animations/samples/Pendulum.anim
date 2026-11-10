@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "name": "Pendulum",
+  "duration": 2.0,
+  "frameRate": 30,
+  "tracks": [
+    {
+      "target": "",
+      "property": "transform.rotation.roll",
+      "keys": [
+        {
+          "t": 0,
+          "v": 30,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.0,
+          "v": -30,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 30,
+          "i": "BEZIER"
+        }
+      ]
+    }
+  ]
+}

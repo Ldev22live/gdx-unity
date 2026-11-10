@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.Random;
@@ -188,6 +189,9 @@ public class FighterGame extends ScriptComponent {
         boolean block = Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN);
         Fighter.Move attack = Gdx.input.isKeyJustPressed(Keys.J) ? Fighter.PUNCH
             : Gdx.input.isKeyJustPressed(Keys.K) ? Fighter.KICK : null;
+        if (attack != null) {
+            AudioSourceComponent.play(getScene(), "swing");
+        }
         player.control(walk, jump, block, attack, deltaTime);
     }
 
@@ -217,6 +221,7 @@ public class FighterGame extends ScriptComponent {
         if (attack != null) {
             // An attack is started once, not every frame of the plan
             plan = Plan.WAIT;
+            AudioSourceComponent.play(getScene(), "swing");
         }
         cpu.control(walk, false, block, attack, deltaTime);
     }
@@ -247,7 +252,8 @@ public class FighterGame extends ScriptComponent {
         float distance = (defender.x - attacker.x) * attacker.facing;
         if (distance > 0f && distance <= Fighter.WIDTH + attacker.reach()
             && Math.abs(defender.y - attacker.y) <= HIT_HEIGHT_RANGE) {
-            defender.takeHit(attacker);
+            boolean blocked = defender.takeHit(attacker);
+            AudioSourceComponent.play(getScene(), blocked ? "block" : "hit");
         }
     }
 
@@ -291,6 +297,7 @@ public class FighterGame extends ScriptComponent {
             result = "Round " + round + " is a draw";
         }
         messageText.setText(reason + "  " + result);
+        AudioSourceComponent.play(getScene(), "ko");
         state = State.ROUND_OVER;
         stateTimer = ROUND_OVER_TIME;
     }

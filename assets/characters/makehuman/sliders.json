@@ -1,0 +1,1251 @@
+{
+ "version": 1,
+ "sliders": [
+  {
+   "id": "armslegs/l-foot-scale",
+   "group": "armslegs",
+   "label": "l-foot-scale",
+   "min": "armslegs/l-foot-scale-decr",
+   "max": "armslegs/l-foot-scale-incr"
+  },
+  {
+   "id": "armslegs/l-foot-trans",
+   "group": "armslegs",
+   "label": "l-foot-trans",
+   "min": "armslegs/l-foot-trans-in",
+   "max": "armslegs/l-foot-trans-out"
+  },
+  {
+   "id": "armslegs/l-hand-fingers-diameter",
+   "group": "armslegs",
+   "label": "l-hand-fingers-diameter",
+   "min": "armslegs/l-hand-fingers-diameter-decr",
+   "max": "armslegs/l-hand-fingers-diameter-incr"
+  },
+  {
+   "id": "armslegs/l-hand-fingers-distance",
+   "group": "armslegs",
+   "label": "l-hand-fingers-distance",
+   "min": "armslegs/l-hand-fingers-distance-decr",
+   "max": "armslegs/l-hand-fingers-distance-incr"
+  },
+  {
+   "id": "armslegs/l-hand-fingers-length",
+   "group": "armslegs",
+   "label": "l-hand-fingers-length",
+   "min": "armslegs/l-hand-fingers-length-decr",
+   "max": "armslegs/l-hand-fingers-length-incr"
+  },
+  {
+   "id": "armslegs/l-hand-scale",
+   "group": "armslegs",
+   "label": "l-hand-scale",
+   "min": "armslegs/l-hand-scale-decr",
+   "max": "armslegs/l-hand-scale-incr"
+  },
+  {
+   "id": "armslegs/l-hand-trans",
+   "group": "armslegs",
+   "label": "l-hand-trans",
+   "min": "armslegs/l-hand-trans-in",
+   "max": "armslegs/l-hand-trans-out"
+  },
+  {
+   "id": "armslegs/l-leg-valgus",
+   "group": "armslegs",
+   "label": "l-leg-valgus",
+   "min": "armslegs/l-leg-valgus-decr",
+   "max": "armslegs/l-leg-valgus-incr"
+  },
+  {
+   "id": "armslegs/l-lowerarm-fat",
+   "group": "armslegs",
+   "label": "l-lowerarm-fat",
+   "min": "armslegs/l-lowerarm-fat-decr",
+   "max": "armslegs/l-lowerarm-fat-incr"
+  },
+  {
+   "id": "armslegs/l-lowerarm-muscle",
+   "group": "armslegs",
+   "label": "l-lowerarm-muscle",
+   "min": "armslegs/l-lowerarm-muscle-decr",
+   "max": "armslegs/l-lowerarm-muscle-incr"
+  },
+  {
+   "id": "armslegs/l-lowerarm-scale-depth",
+   "group": "armslegs",
+   "label": "l-lowerarm-scale-depth",
+   "min": "armslegs/l-lowerarm-scale-depth-decr",
+   "max": "armslegs/l-lowerarm-scale-depth-incr"
+  },
+  {
+   "id": "armslegs/l-lowerarm-scale-horiz",
+   "group": "armslegs",
+   "label": "l-lowerarm-scale-horiz",
+   "min": "armslegs/l-lowerarm-scale-horiz-decr",
+   "max": "armslegs/l-lowerarm-scale-horiz-incr"
+  },
+  {
+   "id": "armslegs/l-lowerarm-scale-vert",
+   "group": "armslegs",
+   "label": "l-lowerarm-scale-vert",
+   "min": "armslegs/l-lowerarm-scale-vert-decr",
+   "max": "armslegs/l-lowerarm-scale-vert-incr"
+  },
+  {
+   "id": "armslegs/l-lowerleg-fat",
+   "group": "armslegs",
+   "label": "l-lowerleg-fat",
+   "min": "armslegs/l-lowerleg-fat-decr",
+   "max": "armslegs/l-lowerleg-fat-incr"
+  },
+  {
+   "id": "armslegs/l-lowerleg-muscle",
+   "group": "armslegs",
+   "label": "l-lowerleg-muscle",
+   "min": "armslegs/l-lowerleg-muscle-decr",
+   "max": "armslegs/l-lowerleg-muscle-incr"
+  },
+  {
+   "id": "armslegs/l-lowerleg-scale-depth",
+   "group": "armslegs",
+   "label": "l-lowerleg-scale-depth",
+   "min": "armslegs/l-lowerleg-scale-depth-decr",
+   "max": "armslegs/l-lowerleg-scale-depth-incr"
+  },
+  {
+   "id": "armslegs/l-lowerleg-scale-horiz",
+   "group": "armslegs",
+   "label": "l-lowerleg-scale-horiz",
+   "min": "armslegs/l-lowerleg-scale-horiz-decr",
+   "max": "armslegs/l-lowerleg-scale-horiz-incr"
+  },
+  {
+   "id": "armslegs/l-upperarm-fat",
+   "group": "armslegs",
+   "label": "l-upperarm-fat",
+   "min": "armslegs/l-upperarm-fat-decr",
+   "max": "armslegs/l-upperarm-fat-incr"
+  },
+  {
+   "id": "armslegs/l-upperarm-muscle",
+   "group": "armslegs",
+   "label": "l-upperarm-muscle",
+   "min": "armslegs/l-upperarm-muscle-decr",
+   "max": "armslegs/l-upperarm-muscle-incr"
+  },
+  {
+   "id": "armslegs/l-upperarm-scale-depth",
+   "group": "armslegs",
+   "label": "l-upperarm-scale-depth",
+   "min": "armslegs/l-upperarm-scale-depth-decr",
+   "max": "armslegs/l-upperarm-scale-depth-incr"
+  },
+  {
+   "id": "armslegs/l-upperarm-scale-horiz",
+   "group": "armslegs",
+   "label": "l-upperarm-scale-horiz",
+   "min": "armslegs/l-upperarm-scale-horiz-decr",
+   "max": "armslegs/l-upperarm-scale-horiz-incr"
+  },
+  {
+   "id": "armslegs/l-upperarm-scale-vert",
+   "group": "armslegs",
+   "label": "l-upperarm-scale-vert",
+   "min": "armslegs/l-upperarm-scale-vert-decr",
+   "max": "armslegs/l-upperarm-scale-vert-incr"
+  },
+  {
+   "id": "armslegs/l-upperarm-shoulder-muscle",
+   "group": "armslegs",
+   "label": "l-upperarm-shoulder-muscle",
+   "min": "armslegs/l-upperarm-shoulder-muscle-decr",
+   "max": "armslegs/l-upperarm-shoulder-muscle-incr"
+  },
+  {
+   "id": "armslegs/l-upperleg-fat",
+   "group": "armslegs",
+   "label": "l-upperleg-fat",
+   "min": "armslegs/l-upperleg-fat-decr",
+   "max": "armslegs/l-upperleg-fat-incr"
+  },
+  {
+   "id": "armslegs/l-upperleg-muscle",
+   "group": "armslegs",
+   "label": "l-upperleg-muscle",
+   "min": "armslegs/l-upperleg-muscle-decr",
+   "max": "armslegs/l-upperleg-muscle-incr"
+  },
+  {
+   "id": "armslegs/l-upperleg-scale-depth",
+   "group": "armslegs",
+   "label": "l-upperleg-scale-depth",
+   "min": "armslegs/l-upperleg-scale-depth-decr",
+   "max": "armslegs/l-upperleg-scale-depth-incr"
+  },
+  {
+   "id": "armslegs/l-upperleg-scale-horiz",
+   "group": "armslegs",
+   "label": "l-upperleg-scale-horiz",
+   "min": "armslegs/l-upperleg-scale-horiz-decr",
+   "max": "armslegs/l-upperleg-scale-horiz-incr"
+  },
+  {
+   "id": "armslegs/l-upperleg-scale-vert",
+   "group": "armslegs",
+   "label": "l-upperleg-scale-vert",
+   "min": "armslegs/l-upperleg-scale-vert-decr",
+   "max": "armslegs/l-upperleg-scale-vert-incr"
+  },
+  {
+   "id": "armslegs/lowerlegs-height",
+   "group": "armslegs",
+   "label": "lowerlegs-height",
+   "min": "armslegs/lowerlegs-height-decr",
+   "max": "armslegs/lowerlegs-height-incr"
+  },
+  {
+   "id": "armslegs/r-foot-scale",
+   "group": "armslegs",
+   "label": "r-foot-scale",
+   "min": "armslegs/r-foot-scale-decr",
+   "max": "armslegs/r-foot-scale-incr"
+  },
+  {
+   "id": "armslegs/r-foot-trans",
+   "group": "armslegs",
+   "label": "r-foot-trans",
+   "min": "armslegs/r-foot-trans-in",
+   "max": "armslegs/r-foot-trans-out"
+  },
+  {
+   "id": "armslegs/r-hand-fingers-diameter",
+   "group": "armslegs",
+   "label": "r-hand-fingers-diameter",
+   "min": "armslegs/r-hand-fingers-diameter-decr",
+   "max": "armslegs/r-hand-fingers-diameter-incr"
+  },
+  {
+   "id": "armslegs/r-hand-fingers-distance",
+   "group": "armslegs",
+   "label": "r-hand-fingers-distance",
+   "min": "armslegs/r-hand-fingers-distance-decr",
+   "max": "armslegs/r-hand-fingers-distance-incr"
+  },
+  {
+   "id": "armslegs/r-hand-fingers-length",
+   "group": "armslegs",
+   "label": "r-hand-fingers-length",
+   "min": "armslegs/r-hand-fingers-length-decr",
+   "max": "armslegs/r-hand-fingers-length-incr"
+  },
+  {
+   "id": "armslegs/r-hand-scale",
+   "group": "armslegs",
+   "label": "r-hand-scale",
+   "min": "armslegs/r-hand-scale-decr",
+   "max": "armslegs/r-hand-scale-incr"
+  },
+  {
+   "id": "armslegs/r-hand-trans",
+   "group": "armslegs",
+   "label": "r-hand-trans",
+   "min": "armslegs/r-hand-trans-in",
+   "max": "armslegs/r-hand-trans-out"
+  },
+  {
+   "id": "armslegs/r-leg-valgus",
+   "group": "armslegs",
+   "label": "r-leg-valgus",
+   "min": "armslegs/r-leg-valgus-decr",
+   "max": "armslegs/r-leg-valgus-incr"
+  },
+  {
+   "id": "armslegs/r-lowerarm-fat",
+   "group": "armslegs",
+   "label": "r-lowerarm-fat",
+   "min": "armslegs/r-lowerarm-fat-decr",
+   "max": "armslegs/r-lowerarm-fat-incr"
+  },
+  {
+   "id": "armslegs/r-lowerarm-muscle",
+   "group": "armslegs",
+   "label": "r-lowerarm-muscle",
+   "min": "armslegs/r-lowerarm-muscle-decr",
+   "max": "armslegs/r-lowerarm-muscle-incr"
+  },
+  {
+   "id": "armslegs/r-lowerarm-scale-depth",
+   "group": "armslegs",
+   "label": "r-lowerarm-scale-depth",
+   "min": "armslegs/r-lowerarm-scale-depth-decr",
+   "max": "armslegs/r-lowerarm-scale-depth-incr"
+  },
+  {
+   "id": "armslegs/r-lowerarm-scale-horiz",
+   "group": "armslegs",
+   "label": "r-lowerarm-scale-horiz",
+   "min": "armslegs/r-lowerarm-scale-horiz-decr",
+   "max": "armslegs/r-lowerarm-scale-horiz-incr"
+  },
+  {
+   "id": "armslegs/r-lowerarm-scale-vert",
+   "group": "armslegs",
+   "label": "r-lowerarm-scale-vert",
+   "min": "armslegs/r-lowerarm-scale-vert-decr",
+   "max": "armslegs/r-lowerarm-scale-vert-incr"
+  },
+  {
+   "id": "armslegs/r-lowerleg-fat",
+   "group": "armslegs",
+   "label": "r-lowerleg-fat",
+   "min": "armslegs/r-lowerleg-fat-decr",
+   "max": "armslegs/r-lowerleg-fat-incr"
+  },
+  {
+   "id": "armslegs/r-lowerleg-muscle",
+   "group": "armslegs",
+   "label": "r-lowerleg-muscle",
+   "min": "armslegs/r-lowerleg-muscle-decr",
+   "max": "armslegs/r-lowerleg-muscle-incr"
+  },
+  {
+   "id": "armslegs/r-lowerleg-scale-depth",
+   "group": "armslegs",
+   "label": "r-lowerleg-scale-depth",
+   "min": "armslegs/r-lowerleg-scale-depth-decr",
+   "max": "armslegs/r-lowerleg-scale-depth-incr"
+  },
+  {
+   "id": "armslegs/r-lowerleg-scale-horiz",
+   "group": "armslegs",
+   "label": "r-lowerleg-scale-horiz",
+   "min": "armslegs/r-lowerleg-scale-horiz-decr",
+   "max": "armslegs/r-lowerleg-scale-horiz-incr"
+  },
+  {
+   "id": "armslegs/r-upperarm-fat",
+   "group": "armslegs",
+   "label": "r-upperarm-fat",
+   "min": "armslegs/r-upperarm-fat-decr",
+   "max": "armslegs/r-upperarm-fat-incr"
+  },
+  {
+   "id": "armslegs/r-upperarm-muscle",
+   "group": "armslegs",
+   "label": "r-upperarm-muscle",
+   "min": "armslegs/r-upperarm-muscle-decr",
+   "max": "armslegs/r-upperarm-muscle-incr"
+  },
+  {
+   "id": "armslegs/r-upperarm-scale-depth",
+   "group": "armslegs",
+   "label": "r-upperarm-scale-depth",
+   "min": "armslegs/r-upperarm-scale-depth-decr",
+   "max": "armslegs/r-upperarm-scale-depth-incr"
+  },
+  {
+   "id": "armslegs/r-upperarm-scale-horiz",
+   "group": "armslegs",
+   "label": "r-upperarm-scale-horiz",
+   "min": "armslegs/r-upperarm-scale-horiz-decr",
+   "max": "armslegs/r-upperarm-scale-horiz-incr"
+  },
+  {
+   "id": "armslegs/r-upperarm-scale-vert",
+   "group": "armslegs",
+   "label": "r-upperarm-scale-vert",
+   "min": "armslegs/r-upperarm-scale-vert-decr",
+   "max": "armslegs/r-upperarm-scale-vert-incr"
+  },
+  {
+   "id": "armslegs/r-upperarm-shoulder-muscle",
+   "group": "armslegs",
+   "label": "r-upperarm-shoulder-muscle",
+   "min": "armslegs/r-upperarm-shoulder-muscle-decr",
+   "max": "armslegs/r-upperarm-shoulder-muscle-incr"
+  },
+  {
+   "id": "armslegs/r-upperleg-fat",
+   "group": "armslegs",
+   "label": "r-upperleg-fat",
+   "min": "armslegs/r-upperleg-fat-decr",
+   "max": "armslegs/r-upperleg-fat-incr"
+  },
+  {
+   "id": "armslegs/r-upperleg-muscle",
+   "group": "armslegs",
+   "label": "r-upperleg-muscle",
+   "min": "armslegs/r-upperleg-muscle-decr",
+   "max": "armslegs/r-upperleg-muscle-incr"
+  },
+  {
+   "id": "armslegs/r-upperleg-scale-depth",
+   "group": "armslegs",
+   "label": "r-upperleg-scale-depth",
+   "min": "armslegs/r-upperleg-scale-depth-decr",
+   "max": "armslegs/r-upperleg-scale-depth-incr"
+  },
+  {
+   "id": "armslegs/r-upperleg-scale-horiz",
+   "group": "armslegs",
+   "label": "r-upperleg-scale-horiz",
+   "min": "armslegs/r-upperleg-scale-horiz-decr",
+   "max": "armslegs/r-upperleg-scale-horiz-incr"
+  },
+  {
+   "id": "armslegs/r-upperleg-scale-vert",
+   "group": "armslegs",
+   "label": "r-upperleg-scale-vert",
+   "min": "armslegs/r-upperleg-scale-vert-decr",
+   "max": "armslegs/r-upperleg-scale-vert-incr"
+  },
+  {
+   "id": "armslegs/upperlegs-height",
+   "group": "armslegs",
+   "label": "upperlegs-height",
+   "min": "armslegs/upperlegs-height-decr",
+   "max": "armslegs/upperlegs-height-incr"
+  },
+  {
+   "id": "breast/breast-dist",
+   "group": "breast",
+   "label": "breast-dist",
+   "min": "breast/breast-dist-decr",
+   "max": "breast/breast-dist-incr"
+  },
+  {
+   "id": "breast/breast-point",
+   "group": "breast",
+   "label": "breast-point",
+   "min": "breast/breast-point-decr",
+   "max": "breast/breast-point-incr"
+  },
+  {
+   "id": "breast/breast-trans",
+   "group": "breast",
+   "label": "breast-trans",
+   "min": "breast/breast-trans-down",
+   "max": "breast/breast-trans-up"
+  },
+  {
+   "id": "breast/breast-volume-vert",
+   "group": "breast",
+   "label": "breast-volume-vert",
+   "min": "breast/breast-volume-vert-down",
+   "max": "breast/breast-volume-vert-up"
+  },
+  {
+   "id": "breast/nipple-point",
+   "group": "breast",
+   "label": "nipple-point",
+   "min": "breast/nipple-point-decr",
+   "max": "breast/nipple-point-incr"
+  },
+  {
+   "id": "breast/nipple-size",
+   "group": "breast",
+   "label": "nipple-size",
+   "min": "breast/nipple-size-decr",
+   "max": "breast/nipple-size-incr"
+  },
+  {
+   "id": "buttocks/buttocks-volume",
+   "group": "buttocks",
+   "label": "buttocks-volume",
+   "min": "buttocks/buttocks-volume-decr",
+   "max": "buttocks/buttocks-volume-incr"
+  },
+  {
+   "id": "cheek/l-cheek-bones",
+   "group": "cheek",
+   "label": "l-cheek-bones",
+   "min": "cheek/l-cheek-bones-decr",
+   "max": "cheek/l-cheek-bones-incr"
+  },
+  {
+   "id": "cheek/l-cheek-inner",
+   "group": "cheek",
+   "label": "l-cheek-inner",
+   "min": "cheek/l-cheek-inner-decr",
+   "max": "cheek/l-cheek-inner-incr"
+  },
+  {
+   "id": "cheek/l-cheek-trans",
+   "group": "cheek",
+   "label": "l-cheek-trans",
+   "min": "cheek/l-cheek-trans-down",
+   "max": "cheek/l-cheek-trans-up"
+  },
+  {
+   "id": "cheek/l-cheek-volume",
+   "group": "cheek",
+   "label": "l-cheek-volume",
+   "min": "cheek/l-cheek-volume-decr",
+   "max": "cheek/l-cheek-volume-incr"
+  },
+  {
+   "id": "cheek/r-cheek-bones",
+   "group": "cheek",
+   "label": "r-cheek-bones",
+   "min": "cheek/r-cheek-bones-decr",
+   "max": "cheek/r-cheek-bones-incr"
+  },
+  {
+   "id": "cheek/r-cheek-inner",
+   "group": "cheek",
+   "label": "r-cheek-inner",
+   "min": "cheek/r-cheek-inner-decr",
+   "max": "cheek/r-cheek-inner-incr"
+  },
+  {
+   "id": "cheek/r-cheek-trans",
+   "group": "cheek",
+   "label": "r-cheek-trans",
+   "min": "cheek/r-cheek-trans-down",
+   "max": "cheek/r-cheek-trans-up"
+  },
+  {
+   "id": "cheek/r-cheek-volume",
+   "group": "cheek",
+   "label": "r-cheek-volume",
+   "min": "cheek/r-cheek-volume-decr",
+   "max": "cheek/r-cheek-volume-incr"
+  },
+  {
+   "id": "chin/chin-bones",
+   "group": "chin",
+   "label": "chin-bones",
+   "min": "chin/chin-bones-decr",
+   "max": "chin/chin-bones-incr"
+  },
+  {
+   "id": "chin/chin-cleft",
+   "group": "chin",
+   "label": "chin-cleft",
+   "min": "chin/chin-cleft-decr",
+   "max": "chin/chin-cleft-incr"
+  },
+  {
+   "id": "chin/chin-height",
+   "group": "chin",
+   "label": "chin-height",
+   "min": "chin/chin-height-decr",
+   "max": "chin/chin-height-incr"
+  },
+  {
+   "id": "chin/chin-jaw-drop",
+   "group": "chin",
+   "label": "chin-jaw-drop",
+   "min": "chin/chin-jaw-drop-decr",
+   "max": "chin/chin-jaw-drop-incr"
+  },
+  {
+   "id": "chin/chin-prognathism",
+   "group": "chin",
+   "label": "chin-prognathism",
+   "min": "chin/chin-prognathism-decr",
+   "max": "chin/chin-prognathism-incr"
+  },
+  {
+   "id": "chin/chin-prominent",
+   "group": "chin",
+   "label": "chin-prominent",
+   "min": "chin/chin-prominent-decr",
+   "max": "chin/chin-prominent-incr"
+  },
+  {
+   "id": "chin/chin-width",
+   "group": "chin",
+   "label": "chin-width",
+   "min": "chin/chin-width-decr",
+   "max": "chin/chin-width-incr"
+  },
+  {
+   "id": "ears/l-ear-flap",
+   "group": "ears",
+   "label": "l-ear-flap",
+   "min": "ears/l-ear-flap-decr",
+   "max": "ears/l-ear-flap-incr"
+  },
+  {
+   "id": "ears/l-ear-lobe",
+   "group": "ears",
+   "label": "l-ear-lobe",
+   "min": "ears/l-ear-lobe-decr",
+   "max": "ears/l-ear-lobe-incr"
+  },
+  {
+   "id": "ears/l-ear-rot",
+   "group": "ears",
+   "label": "l-ear-rot",
+   "min": "ears/l-ear-rot-backward",
+   "max": "ears/l-ear-rot-forward"
+  },
+  {
+   "id": "ears/l-ear-scale",
+   "group": "ears",
+   "label": "l-ear-scale",
+   "min": "ears/l-ear-scale-decr",
+   "max": "ears/l-ear-scale-incr"
+  },
+  {
+   "id": "ears/l-ear-scale-depth",
+   "group": "ears",
+   "label": "l-ear-scale-depth",
+   "min": "ears/l-ear-scale-depth-decr",
+   "max": "ears/l-ear-scale-depth-incr"
+  },
+  {
+   "id": "ears/l-ear-scale-vert",
+   "group": "ears",
+   "label": "l-ear-scale-vert",
+   "min": "ears/l-ear-scale-vert-decr",
+   "max": "ears/l-ear-scale-vert-incr"
+  },
+  {
+   "id": "ears/l-ear-shape",
+   "group": "ears",
+   "label": "l-ear-shape",
+   "min": "ears/l-ear-shape-pointed",
+   "max": "ears/l-ear-shape-triangle"
+  },
+  {
+   "id": "ears/l-ear-trans",
+   "group": "ears",
+   "label": "l-ear-trans",
+   "min": "ears/l-ear-trans-backward",
+   "max": "ears/l-ear-trans-forward"
+  },
+  {
+   "id": "ears/l-ear-wing",
+   "group": "ears",
+   "label": "l-ear-wing",
+   "min": "ears/l-ear-wing-decr",
+   "max": "ears/l-ear-wing-incr"
+  },
+  {
+   "id": "ears/r-ear-flap",
+   "group": "ears",
+   "label": "r-ear-flap",
+   "min": "ears/r-ear-flap-decr",
+   "max": "ears/r-ear-flap-incr"
+  },
+  {
+   "id": "ears/r-ear-lobe",
+   "group": "ears",
+   "label": "r-ear-lobe",
+   "min": "ears/r-ear-lobe-decr",
+   "max": "ears/r-ear-lobe-incr"
+  },
+  {
+   "id": "ears/r-ear-rot",
+   "group": "ears",
+   "label": "r-ear-rot",
+   "min": "ears/r-ear-rot-backward",
+   "max": "ears/r-ear-rot-forward"
+  },
+  {
+   "id": "ears/r-ear-scale",
+   "group": "ears",
+   "label": "r-ear-scale",
+   "min": "ears/r-ear-scale-decr",
+   "max": "ears/r-ear-scale-incr"
+  },
+  {
+   "id": "ears/r-ear-scale-depth",
+   "group": "ears",
+   "label": "r-ear-scale-depth",
+   "min": "ears/r-ear-scale-depth-decr",
+   "max": "ears/r-ear-scale-depth-incr"
+  },
+  {
+   "id": "ears/r-ear-scale-vert",
+   "group": "ears",
+   "label": "r-ear-scale-vert",
+   "min": "ears/r-ear-scale-vert-decr",
+   "max": "ears/r-ear-scale-vert-incr"
+  },
+  {
+   "id": "ears/r-ear-shape",
+   "group": "ears",
+   "label": "r-ear-shape",
+   "min": "ears/r-ear-shape-pointed",
+   "max": "ears/r-ear-shape-triangle"
+  },
+  {
+   "id": "ears/r-ear-trans",
+   "group": "ears",
+   "label": "r-ear-trans",
+   "min": "ears/r-ear-trans-backward",
+   "max": "ears/r-ear-trans-forward"
+  },
+  {
+   "id": "ears/r-ear-wing",
+   "group": "ears",
+   "label": "r-ear-wing",
+   "min": "ears/r-ear-wing-decr",
+   "max": "ears/r-ear-wing-incr"
+  },
+  {
+   "id": "forehead/forehead-nubian",
+   "group": "forehead",
+   "label": "forehead-nubian",
+   "min": "forehead/forehead-nubian-decr",
+   "max": "forehead/forehead-nubian-incr"
+  },
+  {
+   "id": "forehead/forehead-scale-vert",
+   "group": "forehead",
+   "label": "forehead-scale-vert",
+   "min": "forehead/forehead-scale-vert-decr",
+   "max": "forehead/forehead-scale-vert-incr"
+  },
+  {
+   "id": "forehead/forehead-temple",
+   "group": "forehead",
+   "label": "forehead-temple",
+   "min": "forehead/forehead-temple-decr",
+   "max": "forehead/forehead-temple-incr"
+  },
+  {
+   "id": "forehead/forehead-trans",
+   "group": "forehead",
+   "label": "forehead-trans",
+   "min": "forehead/forehead-trans-backward",
+   "max": "forehead/forehead-trans-forward"
+  },
+  {
+   "id": "head/head-age",
+   "group": "head",
+   "label": "head-age",
+   "min": "head/head-age-decr",
+   "max": "head/head-age-incr"
+  },
+  {
+   "id": "head/head-angle",
+   "group": "head",
+   "label": "head-angle",
+   "min": "head/head-angle-in",
+   "max": "head/head-angle-out"
+  },
+  {
+   "id": "head/head-back-scale-depth",
+   "group": "head",
+   "label": "head-back-scale-depth",
+   "min": "head/head-back-scale-depth-decr",
+   "max": "head/head-back-scale-depth-incr"
+  },
+  {
+   "id": "head/head-diamond",
+   "group": "head",
+   "label": "head-diamond",
+   "max": "head/head-diamond"
+  },
+  {
+   "id": "head/head-fat",
+   "group": "head",
+   "label": "head-fat",
+   "min": "head/head-fat-decr",
+   "max": "head/head-fat-incr"
+  },
+  {
+   "id": "head/head-invertedtriangular",
+   "group": "head",
+   "label": "head-invertedtriangular",
+   "max": "head/head-invertedtriangular"
+  },
+  {
+   "id": "head/head-oval",
+   "group": "head",
+   "label": "head-oval",
+   "max": "head/head-oval"
+  },
+  {
+   "id": "head/head-rectangular",
+   "group": "head",
+   "label": "head-rectangular",
+   "max": "head/head-rectangular"
+  },
+  {
+   "id": "head/head-round",
+   "group": "head",
+   "label": "head-round",
+   "max": "head/head-round"
+  },
+  {
+   "id": "head/head-scale-depth",
+   "group": "head",
+   "label": "head-scale-depth",
+   "min": "head/head-scale-depth-decr",
+   "max": "head/head-scale-depth-incr"
+  },
+  {
+   "id": "head/head-scale-horiz",
+   "group": "head",
+   "label": "head-scale-horiz",
+   "min": "head/head-scale-horiz-decr",
+   "max": "head/head-scale-horiz-incr"
+  },
+  {
+   "id": "head/head-scale-vert",
+   "group": "head",
+   "label": "head-scale-vert",
+   "min": "head/head-scale-vert-decr",
+   "max": "head/head-scale-vert-incr"
+  },
+  {
+   "id": "head/head-square",
+   "group": "head",
+   "label": "head-square",
+   "max": "head/head-square"
+  },
+  {
+   "id": "head/head-trans",
+   "group": "head",
+   "label": "head-trans",
+   "min": "head/head-trans-in",
+   "max": "head/head-trans-out"
+  },
+  {
+   "id": "head/head-triangular",
+   "group": "head",
+   "label": "head-triangular",
+   "max": "head/head-triangular"
+  },
+  {
+   "id": "hip/hip-scale-depth",
+   "group": "hip",
+   "label": "hip-scale-depth",
+   "min": "hip/hip-scale-depth-decr",
+   "max": "hip/hip-scale-depth-incr"
+  },
+  {
+   "id": "hip/hip-scale-horiz",
+   "group": "hip",
+   "label": "hip-scale-horiz",
+   "min": "hip/hip-scale-horiz-decr",
+   "max": "hip/hip-scale-horiz-incr"
+  },
+  {
+   "id": "hip/hip-scale-vert",
+   "group": "hip",
+   "label": "hip-scale-vert",
+   "min": "hip/hip-scale-vert-decr",
+   "max": "hip/hip-scale-vert-incr"
+  },
+  {
+   "id": "hip/hip-trans",
+   "group": "hip",
+   "label": "hip-trans",
+   "min": "hip/hip-trans-in",
+   "max": "hip/hip-trans-out"
+  },
+  {
+   "id": "hip/hip-waist",
+   "group": "hip",
+   "label": "hip-waist",
+   "min": "hip/hip-waist-down",
+   "max": "hip/hip-waist-up"
+  },
+  {
+   "id": "mouth/mouth-angles",
+   "group": "mouth",
+   "label": "mouth-angles",
+   "min": "mouth/mouth-angles-down",
+   "max": "mouth/mouth-angles-up"
+  },
+  {
+   "id": "mouth/mouth-cupidsbow",
+   "group": "mouth",
+   "label": "mouth-cupidsbow",
+   "min": "mouth/mouth-cupidsbow-decr",
+   "max": "mouth/mouth-cupidsbow-incr"
+  },
+  {
+   "id": "mouth/mouth-cupidsbow-width",
+   "group": "mouth",
+   "label": "mouth-cupidsbow-width",
+   "min": "mouth/mouth-cupidsbow-width-decr",
+   "max": "mouth/mouth-cupidsbow-width-incr"
+  },
+  {
+   "id": "mouth/mouth-dimples",
+   "group": "mouth",
+   "label": "mouth-dimples",
+   "min": "mouth/mouth-dimples-in",
+   "max": "mouth/mouth-dimples-out"
+  },
+  {
+   "id": "mouth/mouth-laugh-lines",
+   "group": "mouth",
+   "label": "mouth-laugh-lines",
+   "min": "mouth/mouth-laugh-lines-in",
+   "max": "mouth/mouth-laugh-lines-out"
+  },
+  {
+   "id": "mouth/mouth-lowerlip-ext",
+   "group": "mouth",
+   "label": "mouth-lowerlip-ext",
+   "min": "mouth/mouth-lowerlip-ext-down",
+   "max": "mouth/mouth-lowerlip-ext-up"
+  },
+  {
+   "id": "mouth/mouth-lowerlip-height",
+   "group": "mouth",
+   "label": "mouth-lowerlip-height",
+   "min": "mouth/mouth-lowerlip-height-decr",
+   "max": "mouth/mouth-lowerlip-height-incr"
+  },
+  {
+   "id": "mouth/mouth-lowerlip-middle",
+   "group": "mouth",
+   "label": "mouth-lowerlip-middle",
+   "min": "mouth/mouth-lowerlip-middle-down",
+   "max": "mouth/mouth-lowerlip-middle-up"
+  },
+  {
+   "id": "mouth/mouth-lowerlip-volume",
+   "group": "mouth",
+   "label": "mouth-lowerlip-volume",
+   "min": "mouth/mouth-lowerlip-volume-decr",
+   "max": "mouth/mouth-lowerlip-volume-incr"
+  },
+  {
+   "id": "mouth/mouth-lowerlip-width",
+   "group": "mouth",
+   "label": "mouth-lowerlip-width",
+   "min": "mouth/mouth-lowerlip-width-decr",
+   "max": "mouth/mouth-lowerlip-width-incr"
+  },
+  {
+   "id": "mouth/mouth-philtrum-volume",
+   "group": "mouth",
+   "label": "mouth-philtrum-volume",
+   "min": "mouth/mouth-philtrum-volume-decr",
+   "max": "mouth/mouth-philtrum-volume-incr"
+  },
+  {
+   "id": "mouth/mouth-scale-depth",
+   "group": "mouth",
+   "label": "mouth-scale-depth",
+   "min": "mouth/mouth-scale-depth-decr",
+   "max": "mouth/mouth-scale-depth-incr"
+  },
+  {
+   "id": "mouth/mouth-scale-horiz",
+   "group": "mouth",
+   "label": "mouth-scale-horiz",
+   "min": "mouth/mouth-scale-horiz-decr",
+   "max": "mouth/mouth-scale-horiz-incr"
+  },
+  {
+   "id": "mouth/mouth-scale-vert",
+   "group": "mouth",
+   "label": "mouth-scale-vert",
+   "min": "mouth/mouth-scale-vert-decr",
+   "max": "mouth/mouth-scale-vert-incr"
+  },
+  {
+   "id": "mouth/mouth-trans",
+   "group": "mouth",
+   "label": "mouth-trans",
+   "min": "mouth/mouth-trans-in",
+   "max": "mouth/mouth-trans-out"
+  },
+  {
+   "id": "mouth/mouth-upperlip-ext",
+   "group": "mouth",
+   "label": "mouth-upperlip-ext",
+   "min": "mouth/mouth-upperlip-ext-down",
+   "max": "mouth/mouth-upperlip-ext-up"
+  },
+  {
+   "id": "mouth/mouth-upperlip-height",
+   "group": "mouth",
+   "label": "mouth-upperlip-height",
+   "min": "mouth/mouth-upperlip-height-decr",
+   "max": "mouth/mouth-upperlip-height-incr"
+  },
+  {
+   "id": "mouth/mouth-upperlip-middle",
+   "group": "mouth",
+   "label": "mouth-upperlip-middle",
+   "min": "mouth/mouth-upperlip-middle-down",
+   "max": "mouth/mouth-upperlip-middle-up"
+  },
+  {
+   "id": "mouth/mouth-upperlip-volume",
+   "group": "mouth",
+   "label": "mouth-upperlip-volume",
+   "min": "mouth/mouth-upperlip-volume-decr",
+   "max": "mouth/mouth-upperlip-volume-incr"
+  },
+  {
+   "id": "mouth/mouth-upperlip-width",
+   "group": "mouth",
+   "label": "mouth-upperlip-width",
+   "min": "mouth/mouth-upperlip-width-decr",
+   "max": "mouth/mouth-upperlip-width-incr"
+  },
+  {
+   "id": "neck/neck-back-scale-depth",
+   "group": "neck",
+   "label": "neck-back-scale-depth",
+   "min": "neck/neck-back-scale-depth-decr",
+   "max": "neck/neck-back-scale-depth-incr"
+  },
+  {
+   "id": "neck/neck-double",
+   "group": "neck",
+   "label": "neck-double",
+   "min": "neck/neck-double-decr",
+   "max": "neck/neck-double-incr"
+  },
+  {
+   "id": "neck/neck-scale-depth",
+   "group": "neck",
+   "label": "neck-scale-depth",
+   "min": "neck/neck-scale-depth-decr",
+   "max": "neck/neck-scale-depth-incr"
+  },
+  {
+   "id": "neck/neck-scale-horiz",
+   "group": "neck",
+   "label": "neck-scale-horiz",
+   "min": "neck/neck-scale-horiz-decr",
+   "max": "neck/neck-scale-horiz-incr"
+  },
+  {
+   "id": "neck/neck-scale-vert",
+   "group": "neck",
+   "label": "neck-scale-vert",
+   "min": "neck/neck-scale-vert-decr",
+   "max": "neck/neck-scale-vert-incr"
+  },
+  {
+   "id": "neck/neck-trans",
+   "group": "neck",
+   "label": "neck-trans",
+   "min": "neck/neck-trans-in",
+   "max": "neck/neck-trans-out"
+  },
+  {
+   "id": "nose/nose-base",
+   "group": "nose",
+   "label": "nose-base",
+   "min": "nose/nose-base-down",
+   "max": "nose/nose-base-up"
+  },
+  {
+   "id": "nose/nose-compression",
+   "group": "nose",
+   "label": "nose-compression",
+   "min": "nose/nose-compression-compress",
+   "max": "nose/nose-compression-uncompress"
+  },
+  {
+   "id": "nose/nose-curve",
+   "group": "nose",
+   "label": "nose-curve",
+   "min": "nose/nose-curve-concave",
+   "max": "nose/nose-curve-convex"
+  },
+  {
+   "id": "nose/nose-flaring",
+   "group": "nose",
+   "label": "nose-flaring",
+   "min": "nose/nose-flaring-decr",
+   "max": "nose/nose-flaring-incr"
+  },
+  {
+   "id": "nose/nose-greek",
+   "group": "nose",
+   "label": "nose-greek",
+   "min": "nose/nose-greek-decr",
+   "max": "nose/nose-greek-incr"
+  },
+  {
+   "id": "nose/nose-hump",
+   "group": "nose",
+   "label": "nose-hump",
+   "min": "nose/nose-hump-decr",
+   "max": "nose/nose-hump-incr"
+  },
+  {
+   "id": "nose/nose-nostrils-angle",
+   "group": "nose",
+   "label": "nose-nostrils-angle",
+   "min": "nose/nose-nostrils-angle-down",
+   "max": "nose/nose-nostrils-angle-up"
+  },
+  {
+   "id": "nose/nose-nostrils-width",
+   "group": "nose",
+   "label": "nose-nostrils-width",
+   "min": "nose/nose-nostrils-width-decr",
+   "max": "nose/nose-nostrils-width-incr"
+  },
+  {
+   "id": "nose/nose-point",
+   "group": "nose",
+   "label": "nose-point",
+   "min": "nose/nose-point-down",
+   "max": "nose/nose-point-up"
+  },
+  {
+   "id": "nose/nose-point-width",
+   "group": "nose",
+   "label": "nose-point-width",
+   "min": "nose/nose-point-width-decr",
+   "max": "nose/nose-point-width-incr"
+  },
+  {
+   "id": "nose/nose-scale-depth",
+   "group": "nose",
+   "label": "nose-scale-depth",
+   "min": "nose/nose-scale-depth-decr",
+   "max": "nose/nose-scale-depth-incr"
+  },
+  {
+   "id": "nose/nose-scale-horiz",
+   "group": "nose",
+   "label": "nose-scale-horiz",
+   "min": "nose/nose-scale-horiz-decr",
+   "max": "nose/nose-scale-horiz-incr"
+  },
+  {
+   "id": "nose/nose-scale-vert",
+   "group": "nose",
+   "label": "nose-scale-vert",
+   "min": "nose/nose-scale-vert-decr",
+   "max": "nose/nose-scale-vert-incr"
+  },
+  {
+   "id": "nose/nose-septumangle",
+   "group": "nose",
+   "label": "nose-septumangle",
+   "min": "nose/nose-septumangle-decr",
+   "max": "nose/nose-septumangle-incr"
+  },
+  {
+   "id": "nose/nose-trans",
+   "group": "nose",
+   "label": "nose-trans",
+   "min": "nose/nose-trans-down",
+   "max": "nose/nose-trans-up"
+  },
+  {
+   "id": "nose/nose-volume",
+   "group": "nose",
+   "label": "nose-volume",
+   "min": "nose/nose-volume-decr",
+   "max": "nose/nose-volume-incr"
+  },
+  {
+   "id": "nose/nose-width1",
+   "group": "nose",
+   "label": "nose-width1",
+   "min": "nose/nose-width1-decr",
+   "max": "nose/nose-width1-incr"
+  },
+  {
+   "id": "nose/nose-width2",
+   "group": "nose",
+   "label": "nose-width2",
+   "min": "nose/nose-width2-decr",
+   "max": "nose/nose-width2-incr"
+  },
+  {
+   "id": "nose/nose-width3",
+   "group": "nose",
+   "label": "nose-width3",
+   "min": "nose/nose-width3-decr",
+   "max": "nose/nose-width3-incr"
+  },
+  {
+   "id": "pelvis/bulge",
+   "group": "pelvis",
+   "label": "bulge",
+   "min": "pelvis/bulge-decr",
+   "max": "pelvis/bulge-incr"
+  },
+  {
+   "id": "pelvis/pelvis-tone",
+   "group": "pelvis",
+   "label": "pelvis-tone",
+   "min": "pelvis/pelvis-tone-decr",
+   "max": "pelvis/pelvis-tone-incr"
+  },
+  {
+   "id": "stomach/stomach-navel",
+   "group": "stomach",
+   "label": "stomach-navel",
+   "min": "stomach/stomach-navel-in",
+   "max": "stomach/stomach-navel-out"
+  },
+  {
+   "id": "stomach/stomach-pregnant",
+   "group": "stomach",
+   "label": "stomach-pregnant",
+   "min": "stomach/stomach-pregnant-decr",
+   "max": "stomach/stomach-pregnant-incr"
+  },
+  {
+   "id": "stomach/stomach-tone",
+   "group": "stomach",
+   "label": "stomach-tone",
+   "min": "stomach/stomach-tone-decr",
+   "max": "stomach/stomach-tone-incr"
+  },
+  {
+   "id": "torso/torso-muscle-dorsi",
+   "group": "torso",
+   "label": "torso-muscle-dorsi",
+   "min": "torso/torso-muscle-dorsi-decr",
+   "max": "torso/torso-muscle-dorsi-incr"
+  },
+  {
+   "id": "torso/torso-muscle-pectoral",
+   "group": "torso",
+   "label": "torso-muscle-pectoral",
+   "min": "torso/torso-muscle-pectoral-decr",
+   "max": "torso/torso-muscle-pectoral-incr"
+  },
+  {
+   "id": "torso/torso-scale-depth",
+   "group": "torso",
+   "label": "torso-scale-depth",
+   "min": "torso/torso-scale-depth-decr",
+   "max": "torso/torso-scale-depth-incr"
+  },
+  {
+   "id": "torso/torso-scale-horiz",
+   "group": "torso",
+   "label": "torso-scale-horiz",
+   "min": "torso/torso-scale-horiz-decr",
+   "max": "torso/torso-scale-horiz-incr"
+  },
+  {
+   "id": "torso/torso-scale-vert",
+   "group": "torso",
+   "label": "torso-scale-vert",
+   "min": "torso/torso-scale-vert-decr",
+   "max": "torso/torso-scale-vert-incr"
+  },
+  {
+   "id": "torso/torso-trans",
+   "group": "torso",
+   "label": "torso-trans",
+   "min": "torso/torso-trans-in",
+   "max": "torso/torso-trans-out"
+  },
+  {
+   "id": "torso/torso-vshape",
+   "group": "torso",
+   "label": "torso-vshape",
+   "min": "torso/torso-vshape-decr",
+   "max": "torso/torso-vshape-incr"
+  }
+ ]
+}

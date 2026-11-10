@@ -42,6 +42,60 @@ class AssetPlacementTest {
     }
 
     @Test
+    void shouldPlaceASpriteAsAnEntityThatPlaysItInOneUndoStep() {
+        EditorState editorState = new EditorState();
+        int before = editorState.getActiveScene().getAllEntities().size();
+
+        AssetPlacement.Result result = AssetPlacement.place(editorState, new AssetReference("sprites/hero.sprite"), new Vector3(5f, 6f, 0f));
+
+        assertEquals(AssetPlacement.Result.PLACED, result);
+        Entity placed = editorState.getSelectedEntity();
+        assertEquals("hero", placed.getName());
+        assertEquals("sprites/hero.sprite", placed.getComponent(io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent.class)
+            .getAssetReference().getPath());
+        editorState.undo();
+        assertEquals(before, editorState.getActiveScene().getAllEntities().size());
+    }
+
+    @Test
+    void shouldPlaceASculptAsSelectedEntityShowingThatFileInOneUndoStep() {
+        EditorState editorState = new EditorState();
+        int before = editorState.getActiveScene().getAllEntities().size();
+
+        AssetPlacement.Result result = AssetPlacement.place(editorState, new AssetReference("sculpts/Rock.sculpt"), new Vector3(5f, 0f, 7f));
+
+        assertEquals(AssetPlacement.Result.PLACED, result);
+        Entity placed = editorState.getSelectedEntity();
+        assertEquals("Rock", placed.getName());
+        assertEquals(new Vector3(5f, 0f, 7f), placed.getTransform().getWorldPosition());
+        assertEquals("sculpts/Rock.sculpt",
+            placed.getComponent(io.github.ldev22live.gdxunity.engine.render.components.DynamicMeshComponent.class).getMeshPath());
+        assertEquals(io.github.ldev22live.gdxunity.engine.core.asset.AssetType.SCULPT,
+            io.github.ldev22live.gdxunity.engine.core.asset.AssetType.fromPath("sculpts/Rock.sculpt"));
+        editorState.undo();
+        assertEquals(before, editorState.getActiveScene().getAllEntities().size());
+    }
+
+    @Test
+    void shouldPlaceADroppedWavClipAsAnAudioSourceNamedAfterTheFileInOneUndoStep() {
+        EditorState editorState = new EditorState();
+        int before = editorState.getActiveScene().getAllEntities().size();
+
+        AssetPlacement.Result result = AssetPlacement.place(editorState, new AssetReference("sounds/door-slam.wav"), new Vector3(0f, 0f, 0f));
+
+        assertEquals(AssetPlacement.Result.PLACED, result);
+        Entity placed = editorState.getSelectedEntity();
+        assertEquals("door-slam", placed.getName());
+        io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent source =
+            placed.getComponent(io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent.class);
+        assertEquals("sounds/door-slam.wav", source.getSound());
+        assertEquals("door-slam", source.getCue());
+        assertTrue(source.isClip());
+        editorState.undo();
+        assertEquals(before, editorState.getActiveScene().getAllEntities().size());
+    }
+
+    @Test
     void shouldPlaceModelAsSelectedModelEntityInOneUndoStep() {
         EditorState editorState = new EditorState();
         int before = editorState.getActiveScene().getAllEntities().size();

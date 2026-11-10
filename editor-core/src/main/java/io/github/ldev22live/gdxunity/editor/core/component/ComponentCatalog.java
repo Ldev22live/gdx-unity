@@ -3,6 +3,8 @@ package io.github.ldev22live.gdxunity.editor.core.component;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.GameModeProfile;
+import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
@@ -15,14 +17,23 @@ import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.DirectionalLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.PointLightComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.CameraRigComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioListenerComponent;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
+import io.github.ldev22live.gdxunity.engine.scene.audio.MusicSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.ToneMappingComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.CircleCollider2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.CapsuleCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.CharacterController3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.Collider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.ConvexHullCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.MeshCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.Joint3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.SphereCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent;
@@ -89,11 +100,63 @@ public class ComponentCatalog {
         return result;
     }
 
-    /** False when the entity already has a component of a single-instance type. */
+    /** Like {@link #search(String)}, without the categories the game mode hides (TD-067): 3D physics in 2D, 2D physics in 2.5D and 3D. */
+    public List<Entry> search(String query, GameMode mode) {
+        GameModeProfile profile = GameModeProfile.of(mode);
+        List<Entry> result = new ArrayList<>();
+        for (Entry entry : search(query)) {
+            if (profile.offersCategory(entry.category())) {
+                result.add(entry);
+            }
+        }
+        return result;
+    }
+
+    /** False when the entity already has a component of a single-instance type, or one that cannot go with the new one. */
     public boolean canAdd(Entity entity, Entry entry) {
         Objects.requireNonNull(entity, "entity cannot be null");
         Objects.requireNonNull(entry, "entry cannot be null");
-        return entry.allowMultiple() || entity.getComponent(entry.type()) == null;
+        return (entry.allowMultiple() || entity.getComponent(entry.type()) == null) && conflict(entity, entry) == null;
+    }
+
+    /**
+     * What stops {@code entry} from going on {@code entity} besides being a second one of a single-instance type, or null.
+     * A walking character is its own physics body (TD-049), so it excludes rigid bodies and colliders, and they exclude it.
+     */
+    private static String conflict(Entity entity, Entry entry) {
+        boolean addingCharacter = CharacterController3DComponent.class.isAssignableFrom(entry.type());
+        boolean addingBodyPart = RigidBody3DComponent.class.isAssignableFrom(entry.type())
+            || Collider3DComponent.class.isAssignableFrom(entry.type());
+        if (addingCharacter && (entity.getComponent(RigidBody3DComponent.class) != null
+            || !entity.getComponents(Collider3DComponent.class).isEmpty())) {
+            return entity.getName() + " already has a Rigid Body 3D or a 3D collider. A Character Controller 3D is its own body: "
+                + "remove those first.";
+        }
+        if (Joint3DComponent.class.isAssignableFrom(entry.type()) && entity.getComponent(CharacterController3DComponent.class) != null) {
+            return entity.getName() + " is a Character Controller 3D, and characters cannot be joined (TD-051). Use a Rigid Body 3D.";
+        }
+        if (addingCharacter && entity.getComponent(Joint3DComponent.class) != null) {
+            return entity.getName() + " has a Joint 3D, and characters cannot be joined (TD-051). Remove the joint first.";
+        }
+        boolean addingMeshCollider = MeshCollider3DComponent.class.isAssignableFrom(entry.type());
+        if (addingMeshCollider || ConvexHullCollider3DComponent.class.isAssignableFrom(entry.type())) {
+            if (entity.getComponent(ModelComponent.class) == null && entity.getComponent(MeshPrimitiveComponent.class) == null) {
+                return entity.getName() + " shows no mesh. A " + entry.displayName() + " is built from the entity's Model or Mesh "
+                    + "Primitive: add one first.";
+            }
+        }
+        if (addingMeshCollider) {
+            RigidBody3DComponent body = entity.getComponent(RigidBody3DComponent.class);
+            if (body != null && body.isEnabled() && body.getMotionType() != RigidBody3DComponent.MotionType.STATIC) {
+                return entity.getName() + " has a " + body.getMotionType() + " Rigid Body 3D, and triangle meshes only work on static "
+                    + "bodies (TD-052). Use a Convex Hull Collider 3D, or make the body static.";
+            }
+        }
+        if (addingBodyPart && entity.getComponent(CharacterController3DComponent.class) != null) {
+            return entity.getName() + " is a Character Controller 3D, which is its own body and cannot also have a "
+                + entry.displayName() + ".";
+        }
+        return null;
     }
 
     /**
@@ -104,7 +167,8 @@ public class ComponentCatalog {
     public boolean addTo(EditorState editorState, Entity entity, Entry entry) {
         Objects.requireNonNull(editorState, "editorState cannot be null");
         if (!canAdd(entity, entry)) {
-            editorState.setStatusMessage(entity.getName() + " already has a " + entry.displayName(), true);
+            String conflict = conflict(entity, entry);
+            editorState.setStatusMessage(conflict != null ? conflict : entity.getName() + " already has a " + entry.displayName(), true);
             return false;
         }
         Component component;
@@ -125,6 +189,10 @@ public class ComponentCatalog {
             state -> new ShapeRendererComponent(DEFAULT_SIZE, DEFAULT_SIZE, Color.WHITE)));
         catalog.register(new Entry("Sprite Renderer", "Rendering", SpriteRendererComponent.class, false,
             ComponentCatalog::createSprite));
+        catalog.register(new Entry("Sprite Animator", "Rendering", io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent.class, false,
+            ComponentCatalog::createSpriteAnimator));
+        catalog.register(new Entry("Tilemap", "Rendering", io.github.ldev22live.gdxunity.engine.render.components.TilemapComponent.class, false,
+            ComponentCatalog::createTilemap));
         catalog.register(new Entry("Script", "Scripting", EntityScriptBindingComponent.class, true,
             ComponentCatalog::createScriptBinding));
         catalog.register(new Entry("Rigid Body 2D", "Physics 2D", RigidBody2DComponent.class, false,
@@ -141,6 +209,13 @@ public class ComponentCatalog {
             ComponentCatalog::createSphereCollider3D));
         catalog.register(new Entry("Capsule Collider 3D", "Physics 3D", CapsuleCollider3DComponent.class, true,
             state -> new CapsuleCollider3DComponent()));
+        catalog.register(new Entry("Convex Hull Collider 3D", "Physics 3D", ConvexHullCollider3DComponent.class, true,
+            state -> new ConvexHullCollider3DComponent()));
+        catalog.register(new Entry("Mesh Collider 3D", "Physics 3D", MeshCollider3DComponent.class, false,
+            state -> new MeshCollider3DComponent()));
+        catalog.register(new Entry("Character Controller 3D", "Physics 3D", CharacterController3DComponent.class, false,
+            state -> new CharacterController3DComponent()));
+        catalog.register(new Entry("Joint 3D", "Physics 3D", Joint3DComponent.class, false, state -> new Joint3DComponent()));
         catalog.register(new Entry("Mesh Primitive", "Rendering 3D", MeshPrimitiveComponent.class, false,
             state -> new MeshPrimitiveComponent(MeshPrimitiveComponent.Shape.BOX)));
         catalog.register(new Entry("Model", "Rendering 3D", ModelComponent.class, false, ComponentCatalog::createModel));
@@ -153,7 +228,14 @@ public class ComponentCatalog {
         catalog.register(new Entry("Tone Mapping", "Lighting", ToneMappingComponent.class, false,
             state -> new ToneMappingComponent()));
         catalog.register(new Entry("Camera", "Game", CameraComponent.class, false, state -> new CameraComponent()));
+        catalog.register(new Entry("Camera Rig", "Game", CameraRigComponent.class, false, state -> new CameraRigComponent()));
         catalog.register(new Entry("Text", "Game", TextComponent.class, false, state -> new TextComponent()));
+        catalog.register(new Entry("Audio Source", "Audio", AudioSourceComponent.class, true,
+            state -> new AudioSourceComponent()));
+        catalog.register(new Entry("Audio Listener", "Audio", AudioListenerComponent.class, false,
+            state -> new AudioListenerComponent()));
+        catalog.register(new Entry("Music Source", "Audio", MusicSourceComponent.class, true,
+            state -> new MusicSourceComponent()));
         return catalog;
     }
 
@@ -193,6 +275,24 @@ public class ComponentCatalog {
         return useSelection
             ? new SpriteRendererComponent(selectedAsset, DEFAULT_SIZE, DEFAULT_SIZE)
             : new SpriteRendererComponent(DEFAULT_SIZE, DEFAULT_SIZE);
+    }
+
+    /** Plays the .sprite selected in the Content Browser, if any; without one it is assigned in Details. */
+    private static Component createSpriteAnimator(EditorState editorState) {
+        AssetReference selectedAsset = editorState.getSelectedAsset();
+        boolean useSelection = selectedAsset != null && AssetType.fromPath(selectedAsset.getPath()) == AssetType.SPRITE;
+        return useSelection
+            ? new io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent(selectedAsset)
+            : new io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent();
+    }
+
+    /** A tile map that uses the .sprite selected in the Content Browser as its tile set, if any; otherwise the tile set is assigned in Details. */
+    private static Component createTilemap(EditorState editorState) {
+        AssetReference selectedAsset = editorState.getSelectedAsset();
+        boolean useSelection = selectedAsset != null && AssetType.fromPath(selectedAsset.getPath()) == AssetType.SPRITE;
+        return useSelection
+            ? new io.github.ldev22live.gdxunity.engine.render.components.TilemapComponent(selectedAsset)
+            : new io.github.ldev22live.gdxunity.engine.render.components.TilemapComponent();
     }
 
     /** Shows the model selected in the Content Browser; there is no sensible model without one. */

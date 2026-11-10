@@ -51,6 +51,15 @@ public class ViewportOverlayToolbar extends Table {
      */
     public ViewportOverlayToolbar(EditorState editorState, EditorActionRegistry actions, Skin skin,
                                   Map<String, String> iconStyles, String... viewActionIds) {
+        this(editorState, actions, skin, true, iconStyles, viewActionIds);
+    }
+
+    /**
+     * @param withTools false to leave out the select, move, rotate and scale buttons (the top bar has them as labelled
+     *                  buttons); only the view actions and the info text are shown then
+     */
+    public ViewportOverlayToolbar(EditorState editorState, EditorActionRegistry actions, Skin skin, boolean withTools,
+                                  Map<String, String> iconStyles, String... viewActionIds) {
         super(skin);
         this.iconStyles = Map.copyOf(Objects.requireNonNull(iconStyles, "iconStyles cannot be null"));
         this.infoLabel = new Label("", skin, "muted");
@@ -60,12 +69,14 @@ public class ViewportOverlayToolbar extends Table {
         setBackground("elevated-bg");
         pad(2f);
 
-        addToolButton(ToolMode.SELECT, DefaultEditorActions.TOOL_SELECT);
-        addToolButton(ToolMode.MOVE, DefaultEditorActions.TOOL_MOVE);
-        addToolButton(ToolMode.ROTATE, DefaultEditorActions.TOOL_ROTATE);
-        addToolButton(ToolMode.SCALE, DefaultEditorActions.TOOL_SCALE);
+        if (withTools) {
+            addToolButton(ToolMode.SELECT, DefaultEditorActions.TOOL_SELECT);
+            addToolButton(ToolMode.MOVE, DefaultEditorActions.TOOL_MOVE);
+            addToolButton(ToolMode.ROTATE, DefaultEditorActions.TOOL_ROTATE);
+            addToolButton(ToolMode.SCALE, DefaultEditorActions.TOOL_SCALE);
 
-        add(new Label("|", skin, "muted")).padLeft(4).padRight(4);
+            add(new Label("|", skin, "muted")).padLeft(4).padRight(4);
+        }
         for (String id : viewActionIds) {
             Button button = createActionButton(id);
             actionButtons.put(id, button);

@@ -37,6 +37,79 @@ class SculptAssetsTest {
             + mesh.getPositions()[1] * mesh.getPositions()[1] + mesh.getPositions()[2] * mesh.getPositions()[2]), 1e-3f);
     }
 
+    /** A cube of edge 2 as a model has it: every face has its own four corners (24 vertices, 12 triangles). */
+    private static float[] splitCubePositions() {
+        float[][] corners = {{-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1}, {-1, -1, 1}, {1, -1, 1}, {1, 1, 1}, {-1, 1, 1}};
+        int[][] faces = {{0, 3, 2, 1}, {4, 5, 6, 7}, {0, 1, 5, 4}, {3, 7, 6, 2}, {0, 4, 7, 3}, {1, 2, 6, 5}};
+        float[] positions = new float[24 * 3];
+        for (int face = 0; face < 6; face++) {
+            for (int corner = 0; corner < 4; corner++) {
+                System.arraycopy(corners[faces[face][corner]], 0, positions, (face * 4 + corner) * 3, 3);
+            }
+        }
+        return positions;
+    }
+
+    private static int[] splitCubeTriangles() {
+        int[] indices = new int[36];
+        for (int face = 0; face < 6; face++) {
+            int base = face * 4;
+            System.arraycopy(new int[] {base, base + 1, base + 2, base, base + 2, base + 3}, 0, indices, face * 6, 6);
+        }
+        return indices;
+    }
+
+    @Test
+    void shouldWeldAndSubdivideGeometryTakenFromAModel() throws IOException {
+        AssetReference asset = assets().createFromGeometry("Crate", splitCubePositions(), splitCubeTriangles());
+
+        assertEquals("sculpts/Crate.sculpt", asset.getPath());
+        SculptMesh mesh = assets().load(asset);
+        assertEquals(12 * 256, mesh.getTriangleCount(), "welded to 12 triangles, subdivided " + SculptAssets.MAX_IMPORT_LEVELS + " levels");
+        float high = 0f;
+        for (float p : mesh.getPositions()) {
+            high = Math.max(high, Math.abs(p));
+        }
+        assertEquals(1f, high, 1e-5f, "the shape and size are kept");
+        // A torn surface would have boundary edges; a welded closed mesh has 3 triangles worth of edges per 2 triangles
+        assertEquals(mesh.getTriangleCount() / 2 + 2, mesh.getVertexCount(), "closed surface: V - E + F = 2");
+    }
+
+    @Test
+    void shouldNotSubdivideAMeshThatAlreadyHasEnoughTriangles() throws IOException {
+        int n = 300;
+        float[] positions = new float[(n + 1) * (n + 1) * 3];
+        int[] triangles = new int[n * n * 6];
+        for (int y = 0; y <= n; y++) {
+            for (int x = 0; x <= n; x++) {
+                int v = (y * (n + 1) + x) * 3;
+                positions[v] = x;
+                positions[v + 1] = y;
+            }
+        }
+        int t = 0;
+        for (int y = 0; y < n; y++) {
+            for (int x = 0; x < n; x++) {
+                int a = y * (n + 1) + x;
+                int[] quad = {a, a + 1, a + n + 2, a, a + n + 2, a + n + 1};
+                System.arraycopy(quad, 0, triangles, t, 6);
+                t += 6;
+            }
+        }
+
+        SculptMesh mesh = assets().load(assets().createFromGeometry("Grid", positions, triangles));
+
+        assertEquals(n * n * 2, mesh.getTriangleCount(), "180,000 triangles are already near the target");
+    }
+
+    @Test
+    void shouldRefuseEmptyGeometryAndNameTheSculptLikeCreateDoes() throws IOException {
+        assertThrows(IllegalArgumentException.class, () -> assets().createFromGeometry("Nothing", new float[0], new int[0]));
+
+        assets().createFromGeometry("Crate", splitCubePositions(), splitCubeTriangles());
+        assertEquals("sculpts/Crate 1.sculpt", assets().createFromGeometry("Crate", splitCubePositions(), splitCubeTriangles()).getPath());
+    }
+
     @Test
     void shouldNeverOverwriteAnExistingSculptWhenCreating() throws IOException {
         assertEquals("sculpts/Rock.sculpt", assets().create("Rock", 1f, 2).getPath());

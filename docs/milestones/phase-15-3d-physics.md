@@ -1,20 +1,35 @@
 # Phase 15 — 3D Physics
 
-**Decision:** TD-028 (Proposed) · **Evaluation:** [`docs/reports/3d-physics-evaluation.md`](../reports/3d-physics-evaluation.md)
+**Decision:** TD-028 (Proposed); script access TD-048 (Approved); character controller TD-049 (Approved) · **Evaluation:** [`docs/reports/3d-physics-evaluation.md`](../reports/3d-physics-evaluation.md)
 **Unreal equivalent:** Chaos physics: collision primitives, simulate physics, collision channels, overlap events
-**Status (2026-10-29):** engine-neutral parts implemented and integrated in the editor; simulation **blocked** on
-approval of the physics library (recommended: Jolt via jolt-jni 6.2.0) after its compatibility spike.
+**Status (2026-11-07):** engine-neutral parts, the Jolt backend (step E), script access (step F) and the character controller (step G) implemented; editor Play and
+the game runtime simulate 3D physics and scripts and graphs can act on it. Visual check pending. Reports:
+[phase-15e-report.md](../reports/phase-15e-report.md), [phase-15f-report.md](../reports/phase-15f-report.md), [phase-15g-report.md](../reports/phase-15g-report.md).
 
 ## Steps
 
 | Step | Content | Status |
 |---|---|---|
-| A — evaluation | Compare jolt-jni, gdx-bullet, Libbulletjme, ode4j against design doc §3.3; spike | **Done** (report); spike waits for the owner |
+| A — evaluation | Compare jolt-jni, gdx-bullet, Libbulletjme, ode4j against design doc §3.3; spike | **Done** (report); spike passed 2026-11-06 (`JoltPhysicsBackend3DTest`) |
 | B — components | `RigidBody3DComponent`, box / sphere / capsule colliders, layers and masks, serializers | **Done** |
 | C — engine-neutral system | `PhysicsBackend3D` + `PhysicsSystem3D`: fixed step, body lifecycle, transform sync, triggers, contacts, raycast | **Done** (tested with a recording backend) |
 | D — editor | Add Component ("Physics 3D"), Details editors, collider wireframes in the 3D view | **Done**; visual check pending |
-| E — Jolt backend | `engine-physics` module with `JoltPhysicsBackend3D`; play mode runs `PhysicsSystem3D` | Blocked (dependency + new module need approval) |
-| F — scripting | Contact callbacks and raycasts for scripts; forces and velocities | After E |
+| E — Jolt backend | `engine-physics` module with `JoltPhysicsBackend3D`; play mode runs `PhysicsSystem3D` | **Done** (Play and `GameSession`, sample `physics-sandbox-3d`, parity test); visual check pending |
+| F — scripting | Contact callbacks and raycasts for scripts; forces and velocities | **Done** (TD-048): scripts, graphs, forces, impulses, velocities, raycast, overlap; Play and game runtime; visual check pending |
+| G — character controller | Capsule character on Jolt `CharacterVirtual`: slopes, steps, jump, grounded; script API, graph nodes, editor, sandbox player | **Done** (TD-049): component, Jolt `CharacterVirtual`, script API, graph nodes, editor, sample `character-playground-3d`; visual check pending |
+
+### Step F scope (TD-048; built as listed, see the report)
+
+1. Scene hook so scripts reach `PhysicsSystem3D` (null when the scene has no 3D colliders).
+2. Script callbacks `onCollisionEnter3D/Exit3D`, `onTriggerEnter3D/Exit3D` through one forwarder shared by Play and the game runtime.
+3. Backend and system API: forces and torques (applied in every sub-step), impulses, linear and angular velocity, sphere overlap; clear errors for static or kinematic bodies.
+4. Graph nodes Raycast 3D, Add Force, Add Impulse, Set Velocity, Get Velocity, plus 3D contacts for the existing event nodes; Java and TypeScript generators and parity tests.
+5. `physics-sandbox-3d` gets a script using it; tests per item; report `phase-15f-report.md`; matrix and index updated.
+
+Acceptance (marked met/not met in the report): a script receives each of the four contact callbacks in both Play and the game runtime;
+a force applied every frame for one simulated second gives the same speed at 30 and at 60 frames per second (this replaces the
+draft's wording about "1 or 5 sub-steps", which described the opposite of the intent); impulses and velocities change the Jolt body; static/kinematic/no-body
+calls throw with the entity's name; graphs using the new nodes generate Java and TypeScript matching goldens (or are refused on web, per open question 1).
 
 ## Behaviour (as implemented)
 
@@ -30,12 +45,16 @@ approval of the physics library (recommended: Jolt via jolt-jni 6.2.0) after its
 
 ## Known limitations
 
-- No simulation until a backend is approved and written; play mode ignores 3D physics.
+- Bodies never sleep and the simulation runs on one thread (TD-028): fine for sample-sized scenes, not profiled for large ones.
+- Native library: Windows x64, Linux x64 and macOS arm64 only; only Windows was run. Game export is Windows-only anyway (TD-046).
+- A 3D body whose entity is destroyed gets no exit event (`PhysicsSystem3D` drops events for entities without a body).
+- The web players (`engine-web`, `engine-babylon`) do not simulate 3D physics.
 - Collider and body properties are read when a body is created; editing them during play has no effect.
 - The sensor body of a dynamic entity follows it one frame late.
 - `PhysicsSystem3D` scans the scene every frame (allocates a list); fine for editor-sized scenes, revisit with
   profiling.
-- No mesh/convex-hull colliders, joints, characters or forces yet.
+- No mesh/convex-hull colliders or joints. A walking character is the Character Controller 3D (15-G): one capsule per entity, no moving platforms, no teleport, rotation left to scripts. Forces, impulses, velocities, raycasts and sphere overlaps are available to scripts and graphs (15-F); a Raycast 3D node has no layer mask yet.
+- The 3D graph nodes and script callbacks run on the desktop only (editor Play and the game runtime); the web editor refuses them with a message.
 - Collider wireframes allocate per frame, like the selection outline.
 
 ## Tests

@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.ArrayDeque;
@@ -202,6 +203,7 @@ public class PuzzleGame extends ScriptComponent {
             history.push(snapshot());
             crateColumns[crate] = behindColumn;
             crateRows[crate] = behindRow;
+            AudioSourceComponent.play(getScene(), "push");
         } else {
             history.push(snapshot());
         }
@@ -215,6 +217,7 @@ public class PuzzleGame extends ScriptComponent {
         placeMovingPieces();
         if (allCratesOnTargets()) {
             solved = true;
+            AudioSourceComponent.play(getScene(), "win");
             boolean last = level == LEVELS.length - 1;
             messageText.setText("Solved in " + moves + " moves!  Press Space for "
                 + (last ? "the first puzzle again" : "the next puzzle"));

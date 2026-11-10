@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.ArrayList;
@@ -99,6 +100,7 @@ public class HopperPlayer extends ScriptComponent {
         }
         if (grounded && Gdx.input.isKeyJustPressed(Keys.SPACE)) {
             velocity.y = JUMP_SPEED;
+            AudioSourceComponent.play(getScene(), "jump");
         }
         velocity.y = Math.max(velocity.y - GRAVITY * deltaTime, -MAX_FALL_SPEED);
 
@@ -111,10 +113,12 @@ public class HopperPlayer extends ScriptComponent {
 
         if (landedOn == goal) {
             finished = true;
+            AudioSourceComponent.play(getScene(), "win");
             messageText.setText(String.format(Locale.ROOT, "Goal! %.1f s with %d falls. Press R to play again", elapsed, falls));
         }
         if (position.y < FALL_LIMIT) {
             falls++;
+            AudioSourceComponent.play(getScene(), "hurt");
             fallsText.setText("Falls: " + falls);
             position.set(start);
             velocity.setZero();

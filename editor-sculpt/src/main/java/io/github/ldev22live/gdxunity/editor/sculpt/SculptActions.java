@@ -1,6 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.sculpt;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
@@ -12,6 +13,9 @@ import io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.render.components.DynamicMeshComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
+import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.ColliderGeometrySource;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.MeshGeometry3D;
 import io.github.ldev22live.gdxunity.engine.sculpt.BrushSettings;
 import io.github.ldev22live.gdxunity.engine.sculpt.BrushType;
 import io.github.ldev22live.gdxunity.engine.sculpt.SymmetrySettings;
@@ -21,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -31,6 +36,10 @@ import java.util.function.Supplier;
 public final class SculptActions {
     /** Creates a sculpt asset and an entity showing it (Create menu). */
     public static final String CREATE_SCULPT = "create.sculpt";
+    /** Action id of Create > Sculpt From Selected: a sculpt made from the mesh of the selected entity. */
+    public static final String CREATE_SCULPT_FROM_SELECTED = "create.sculpt-from-selected";
+    /** Action id of File > Export Sculpt as Model: writes the selected sculpt as a glTF model. */
+    public static final String EXPORT_MODEL = "file.export-sculpt-model";
     /** Switches sculpt mode on or off (Tools menu and the viewport toolbar). */
     public static final String TOGGLE_MODE = "tools.sculpt-toggle";
     /** Turns sculpt mode on (Tools menu). */
@@ -192,10 +201,105 @@ public final class SculptActions {
             .build());
     }
 
+    /**
+     * Registers Create > Sculpt From Selected (19-B step 5): starts a sculpt from the mesh the selected entity shows, a
+     * glTF model or a primitive. The new sculpt is a separate entity at the same position; the original stays.
+     *
+     * @param geometry gives the mesh an entity shows; its message is shown when the entity shows none
+     */
+    public static void registerFromSelected(EditorActionRegistry registry, EditorState editorState, SculptSession session,
+                                            ColliderGeometrySource geometry) {
+        Objects.requireNonNull(registry, "registry cannot be null");
+        Objects.requireNonNull(editorState, "editorState cannot be null");
+        Objects.requireNonNull(session, "session cannot be null");
+        Objects.requireNonNull(geometry, "geometry cannot be null");
+        registry.register(EditorAction.builder(CREATE_SCULPT_FROM_SELECTED, "Sculpt From Selected",
+                () -> createSculptFromSelected(editorState, session, geometry))
+            .menu(DefaultEditorActions.MENU_CREATE, GROUP_BRUSH)
+            .enabledWhen(() -> !editorState.isPlayModeActive() && editorState.getSelectedEntity() != null)
+            .build());
+    }
+
+    /**
+     * Registers File > Export Sculpt as Model (19-C): writes the selected sculpt as {@code models/<name>.glb} in the
+     * sculpt's colour, so it can be placed with a Model component, in the game runtime and in the web player.
+     *
+     * @param onExported called with the new model asset, so the app can rescan its assets and reload a changed model
+     */
+    public static void registerExport(EditorActionRegistry registry, EditorState editorState, SculptSession session,
+                                      Consumer<AssetReference> onExported) {
+        Objects.requireNonNull(registry, "registry cannot be null");
+        Objects.requireNonNull(editorState, "editorState cannot be null");
+        Objects.requireNonNull(session, "session cannot be null");
+        Objects.requireNonNull(onExported, "onExported cannot be null");
+        registry.register(EditorAction.builder(EXPORT_MODEL, "Export Sculpt as Model",
+                () -> exportSelected(editorState, session, onExported))
+            .menu(DefaultEditorActions.MENU_FILE, GROUP_BRUSH)
+            .enabledWhen(() -> session.getDocumentOf(editorState.getSelectedEntity()) != null)
+            .build());
+    }
+
+    /**
+     * Exports the sculpt shown by {@code entity}; the status bar says what happened.
+     *
+     * @return the model asset, or null when nothing was exported
+     */
+    public static AssetReference exportModel(EditorState editorState, SculptSession session, Entity entity) {
+        DynamicMeshComponent component = entity == null ? null : entity.getComponent(DynamicMeshComponent.class);
+        SculptDocument document = session.getDocumentOf(entity);
+        if (component == null || document == null) {
+            editorState.setStatusMessage("Select a sculpt to export", true);
+            return null;
+        }
+        try {
+            Color color = component.getColor();
+            AssetReference model = session.getAssets().exportModel(document.getAsset(), document.getSurface().getMesh(),
+                new float[] {color.r, color.g, color.b, color.a});
+            editorState.setStatusMessage("Exported " + model.getPath() + ": add it with a Model component or drag it into the view", false);
+            return model;
+        } catch (IOException | RuntimeException e) {
+            editorState.setStatusMessage("Cannot export " + document.getAsset().getPath() + ": " + e.getMessage(), true);
+            return null;
+        }
+    }
+
+    private static void exportSelected(EditorState editorState, SculptSession session, Consumer<AssetReference> onExported) {
+        AssetReference model = exportModel(editorState, session, editorState.getSelectedEntity());
+        if (model != null) {
+            onExported.accept(model);
+        }
+    }
+
+    private static void createSculptFromSelected(EditorState editorState, SculptSession session, ColliderGeometrySource geometry) {
+        Entity source = editorState.getSelectedEntity();
+        if (source == null) {
+            editorState.setStatusMessage("Select a model or a shape first", true);
+            return;
+        }
+        AssetReference asset;
+        try {
+            MeshGeometry3D mesh = geometry.geometryOf(source);
+            asset = session.getAssets().createFromGeometry(source.getName(), mesh.positions(), mesh.indices(),
+                Math.min(SculptAssets.IMPORT_TARGET_TRIANGLES, session.getTriangleLimit()));
+            session.open(asset);
+        } catch (IOException | RuntimeException e) {
+            editorState.setStatusMessage("Cannot sculpt " + source.getName() + ": " + e.getMessage(), true);
+            return;
+        }
+        Component component = new DynamicMeshComponent(asset.getPath());
+        if (editorState.executeCommand(new CreateEntityCommand(editorState, source.getName() + " Sculpt",
+            source.getTransform().getWorldPosition(), List.of(component)))) {
+            session.setSculptMode(true);
+            editorState.setStatusMessage("Created " + asset.getPath() + " from " + source.getName() + ". " + brushSummary(session), false);
+        }
+    }
+
     private static void createSculpt(EditorState editorState, SculptSession session, Supplier<Vector3> spawnPosition) {
         AssetReference asset;
         try {
-            asset = session.getAssets().create("Sculpt");
+            asset = session.isSoftwareRendering()
+                ? session.getAssets().create("Sculpt", SculptAssets.DEFAULT_RADIUS, SculptAssets.SOFTWARE_RESOLUTION)
+                : session.getAssets().create("Sculpt");
             session.open(asset);
         } catch (IOException | RuntimeException e) {
             editorState.setStatusMessage("Cannot create the sculpt: " + e.getMessage(), true);

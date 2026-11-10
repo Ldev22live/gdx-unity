@@ -19,18 +19,30 @@ import java.util.function.IntConsumer;
 public class TabbedPanel extends Table {
 
     private static final float TAB_HEIGHT = 26f;
+    /** Space after each tab when the tabs sit in the top bar, where they would otherwise touch. */
+    private static final float HEADER_TAB_GAP = 8f;
 
     private final Skin skin;
     private final List<TextButton> tabButtons = new ArrayList<>();
     private final List<Actor> contents;
     private final Container<Actor> contentArea = new Container<>();
     private final IntConsumer onSelected;
+    private final Table tabRow;
 
     /**
      * @param selectedIndex initially selected tab
      * @param onSelected    called with the tab index whenever the user switches tabs; may be null
      */
     public TabbedPanel(Skin skin, List<String> titles, List<Actor> contents, int selectedIndex, IntConsumer onSelected) {
+        this(skin, titles, contents, selectedIndex, onSelected, true);
+    }
+
+    /**
+     * @param showTabRow false when the caller puts {@link #getTabRow()} somewhere else (the top bar), as the web editor
+     *                   does with its Viewport and Music tabs
+     */
+    public TabbedPanel(Skin skin, List<String> titles, List<Actor> contents, int selectedIndex, IntConsumer onSelected,
+                       boolean showTabRow) {
         super(skin);
         this.skin = Objects.requireNonNull(skin, "skin cannot be null");
         Objects.requireNonNull(titles, "titles cannot be null");
@@ -40,8 +52,10 @@ public class TabbedPanel extends Table {
         }
         this.onSelected = onSelected;
 
-        Table tabRow = new Table(skin);
-        tabRow.setBackground("subheader-bg");
+        this.tabRow = new Table(skin);
+        if (showTabRow) {
+            tabRow.setBackground("subheader-bg");
+        }
         tabRow.left();
         for (int i = 0; i < titles.size(); i++) {
             int index = i;
@@ -56,13 +70,20 @@ public class TabbedPanel extends Table {
                 }
             });
             tabButtons.add(tab);
-            tabRow.add(tab).height(TAB_HEIGHT).padLeft(2);
+            tabRow.add(tab).height(TAB_HEIGHT).padLeft(2).padRight(showTabRow ? 0 : HEADER_TAB_GAP);
         }
 
         contentArea.fill();
-        add(tabRow).growX().row();
+        if (showTabRow) {
+            add(tabRow).growX().row();
+        }
         add(contentArea).grow();
         select(Math.max(0, Math.min(selectedIndex, titles.size() - 1)));
+    }
+
+    /** The row of tab buttons; it is part of this panel unless the panel was made with {@code showTabRow} false. */
+    public Table getTabRow() {
+        return tabRow;
     }
 
     public void select(int index) {

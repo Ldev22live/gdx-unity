@@ -2,12 +2,16 @@ package io.github.ldev22live.gdxunity.engine.desktop;
 
 import io.github.ldev22live.gdxunity.engine.animation.AnimatorComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.CameraComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.render.components.serialization.CameraRigComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.MeshPrimitiveComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.DynamicMeshComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.ModelComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.ShapeRendererComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.SpriteRendererComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.TextComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioListenerComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.audio.MusicSourceComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.DirectionalLightComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.PointLightComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.SkyLightComponentSerializer;
@@ -17,6 +21,10 @@ import io.github.ldev22live.gdxunity.engine.scene.physics.serialization.CircleCo
 import io.github.ldev22live.gdxunity.engine.scene.physics.serialization.RigidBody2DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.BoxCollider3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.CapsuleCollider3DComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.ConvexHullCollider3DComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.MeshCollider3DComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.CharacterController3DComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.Joint3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.RigidBody3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.SphereCollider3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.prefab.PrefabInstanceComponentSerializer;
@@ -42,10 +50,13 @@ public final class GameComponentSerializers {
         registry.register(new ModelComponentSerializer());
         registry.register(new DynamicMeshComponentSerializer());
         registry.register(new CameraComponentSerializer());
+        registry.register(new CameraRigComponentSerializer());
         registry.register(new TextComponentSerializer());
         registry.register(new AnimatorComponentSerializer());
         registry.register(new ShapeRendererComponentSerializer());
         registry.register(new SpriteRendererComponentSerializer());
+        registry.register(new io.github.ldev22live.gdxunity.engine.render.components.serialization.SpriteAnimatorComponentSerializer());
+        registry.register(new io.github.ldev22live.gdxunity.engine.render.components.serialization.TilemapComponentSerializer());
         registry.register(new EntityScriptBindingComponentSerializer());
         registry.register(new RigidBody2DComponentSerializer());
         registry.register(new BoxCollider2DComponentSerializer());
@@ -59,6 +70,13 @@ public final class GameComponentSerializers {
         registry.register(new BoxCollider3DComponentSerializer());
         registry.register(new SphereCollider3DComponentSerializer());
         registry.register(new CapsuleCollider3DComponentSerializer());
+        registry.register(new ConvexHullCollider3DComponentSerializer());
+        registry.register(new MeshCollider3DComponentSerializer());
+        registry.register(new CharacterController3DComponentSerializer());
+        registry.register(new Joint3DComponentSerializer());
         registry.register(new PrefabInstanceComponentSerializer());
+        registry.register(new AudioSourceComponentSerializer());
+        registry.register(new MusicSourceComponentSerializer());
+        registry.register(new AudioListenerComponentSerializer());
     }
 }

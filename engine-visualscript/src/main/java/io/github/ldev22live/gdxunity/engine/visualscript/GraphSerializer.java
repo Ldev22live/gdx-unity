@@ -149,6 +149,7 @@ public final class GraphSerializer {
     private static JsonValue writeValue(ValueType type, Object value) {
         return switch (type) {
             case FLOAT -> new JsonValue((Float) value);
+            case INTEGER -> new JsonValue((long) (Integer) value);
             case BOOLEAN -> new JsonValue((Boolean) value);
             case STRING -> new JsonValue((String) value);
             case VECTOR3 -> {
@@ -159,7 +160,7 @@ public final class GraphSerializer {
                 object.addChild("z", new JsonValue(v.z));
                 yield object;
             }
-            case ENTITY -> throw new IllegalArgumentException("Entities cannot be stored in a graph file");
+            case ENTITY, OBJECT -> throw new IllegalArgumentException(type + " values cannot be stored in a graph file");
         };
     }
 
@@ -169,10 +170,11 @@ public final class GraphSerializer {
         }
         return switch (type) {
             case FLOAT -> value.asFloat();
+            case INTEGER -> value.asInt();
             case BOOLEAN -> value.asBoolean();
             case STRING -> value.asString();
             case VECTOR3 -> new Vector3(value.getFloat("x", 0f), value.getFloat("y", 0f), value.getFloat("z", 0f));
-            case ENTITY -> throw new IllegalArgumentException("Entities cannot be stored in a graph file");
+            case ENTITY, OBJECT -> throw new IllegalArgumentException(type + " values cannot be stored in a graph file");
         };
     }
 }

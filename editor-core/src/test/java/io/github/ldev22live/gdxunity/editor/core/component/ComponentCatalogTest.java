@@ -42,9 +42,9 @@ class ComponentCatalogTest {
     void shouldSearchByNameOrCategoryCaseInsensitively() {
         List<String> physics = catalog.search("physics").stream().map(ComponentCatalog.Entry::displayName).toList();
         assertEquals(List.of("Rigid Body 2D", "Box Collider 2D", "Circle Collider 2D",
-            "Rigid Body 3D", "Box Collider 3D", "Sphere Collider 3D", "Capsule Collider 3D"), physics);
-        assertEquals(4, catalog.search("physics 3d").size());
-        assertEquals(List.of("Sprite Renderer"), catalog.search("SPRITE").stream().map(ComponentCatalog.Entry::displayName).toList());
+            "Rigid Body 3D", "Box Collider 3D", "Sphere Collider 3D", "Capsule Collider 3D", "Convex Hull Collider 3D", "Mesh Collider 3D", "Character Controller 3D", "Joint 3D"), physics);
+        assertEquals(8, catalog.search("physics 3d").size());
+        assertEquals(List.of("Sprite Renderer", "Sprite Animator"), catalog.search("SPRITE").stream().map(ComponentCatalog.Entry::displayName).toList());
         assertEquals(catalog.getEntries().size(), catalog.search("  ").size());
         assertTrue(catalog.search("does-not-exist").isEmpty());
     }
@@ -115,6 +115,36 @@ class ComponentCatalogTest {
         assertEquals("Game", entry("Text").category());
         assertEquals(CameraComponent.class,
             entry("Camera").type());
+    }
+
+    @Test
+    void shouldOfferAudioSourceUnderAudioAndCreateAPlayableDefault() {
+        ComponentCatalog.Entry audio = entry("Audio Source");
+
+        assertEquals("Audio", audio.category());
+        assertEquals(io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent.class, audio.type());
+        assertTrue(audio.factory().apply(null)
+            instanceof io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent);
+        assertEquals(3, catalog.search("audio").size(), "Audio Source, Audio Listener and Music Source");
+    }
+
+    @Test
+    void shouldOfferASingleAudioListenerUnderAudio() {
+        ComponentCatalog.Entry listener = entry("Audio Listener");
+
+        assertEquals("Audio", listener.category());
+        assertTrue(listener.factory().apply(null)
+            instanceof io.github.ldev22live.gdxunity.engine.scene.audio.AudioListenerComponent);
+        assertFalse(listener.allowMultiple(), "a scene is heard from one place");
+    }
+
+    @Test
+    void shouldOfferMusicSourceUnderAudio() {
+        ComponentCatalog.Entry music = entry("Music Source");
+
+        assertEquals("Audio", music.category());
+        assertTrue(music.factory().apply(null)
+            instanceof io.github.ldev22live.gdxunity.engine.scene.audio.MusicSourceComponent);
     }
 
     @Test

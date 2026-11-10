@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { DrumKit } from "../src/audio/drums";
@@ -355,7 +355,7 @@ describe("the desktop's demo song", () => {
     const song = parseSong(demoText());
     expect(song.name).toBe("Demo Beat");
     expect(song.bpm).toBe(110);
-    expect(song.channels.length).toBe(4);
+    expect(song.channels.length).toBe(5);
     const again = parseSong(songToJson(song));
     expect(again).toEqual(song);
   });
@@ -419,4 +419,38 @@ describe("the audio worklet scope", () => {
       vi.unstubAllGlobals();
     }
   });
+});
+
+describe("the five sample songs shared with the desktop editor", () => {
+  const dir = join(import.meta.dirname, "..", "..", "assets", "music");
+  const files = ["lofi-evening", "neon-drive", "pixel-quest", "ambient-drift", "funk-machine"].map((n) => `${n}.song`);
+
+  it("are all in the shared music folder", () => {
+    expect(readdirSync(dir)).toEqual(expect.arrayContaining(files));
+  });
+
+  for (const file of files) {
+    it(`${file} opens, uses only instruments the web can play, and sounds like music`, () => {
+      const song = parseSong(readFileSync(join(dir, file), "utf8"));
+      expect(song.clips.length).toBeGreaterThan(2);
+      expect(song.channels.every((c) => c.instrument.type === "SYNTH" || c.instrument.type === "DRUMS")).toBe(true);
+      const player = new SongPlayer(song);
+      expect(player.errors).toEqual([]);
+      player.setPlayback("SONG", 0);
+      player.setLoop(false);
+      player.play();
+      const frames = SAMPLE_RATE * 6;
+      let peak = 0;
+      for (let done = 0; done < frames; done += 1024) {
+        const [l, r] = block(1024);
+        player.render(l, r, 1024);
+        expect(l.every(Number.isFinite) && r.every(Number.isFinite)).toBe(true);
+        peak = Math.max(peak, ...[l, r].map((a) => a.reduce((m, v) => Math.max(m, Math.abs(v)), 0)));
+      }
+      expect(peak).toBeGreaterThan(0.1);
+      expect(peak).toBeLessThanOrEqual(1);
+      // The text we write is the text the desktop wrote: a round trip changes nothing
+      expect(parseSong(songToJson(song))).toEqual(song);
+    });
+  }
 });

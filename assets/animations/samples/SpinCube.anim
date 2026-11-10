@@ -1,0 +1,45 @@
+{
+  "format": 1,
+  "name": "SpinCube",
+  "duration": 3.0,
+  "frameRate": 30,
+  "tracks": [
+    {
+      "target": "",
+      "property": "transform.rotation.yaw",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0,
+          "i": "LINEAR"
+        },
+        {
+          "t": 3.0,
+          "v": 360,
+          "i": "LINEAR"
+        }
+      ]
+    },
+    {
+      "target": "",
+      "property": "transform.position.y",
+      "keys": [
+        {
+          "t": 0,
+          "v": 40,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.5,
+          "v": 80,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3.0,
+          "v": 40,
+          "i": "BEZIER"
+        }
+      ]
+    }
+  ]
+}

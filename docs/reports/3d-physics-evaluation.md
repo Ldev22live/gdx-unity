@@ -62,6 +62,10 @@ view. Play mode cannot simulate 3D yet: no backend exists until the dependency i
 
 ## 6. Compatibility spike (needs the project owner)
 
+**Result (2026-11-06):** run as `JoltPhysicsBackend3DTest` inside the new `engine-physics` module instead of a throwaway project, after the
+owner approved Jolt: jolt-jni 6.2.0 `ReleaseSp` natives load on Windows 11 / Temurin 21, a sphere dropped on a box rests at
+radius height, and the packaged editor's bundled runtime loads them too. snaploader was not needed (see TD-028). Original plan:
+
 Throwaway Gradle project outside the repository (in the agent's scratch folder `jolt-spike`): jolt-jni 6.2.0
 (Windows64, `ReleaseSp` natives) + snaploader 1.1.1-stable on Java 21. It loads the natives, drops a sphere on a
 static box for 3 s and prints `SPIKE OK` when it rests on the floor. The agent may not download and run third-party

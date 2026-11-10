@@ -786,6 +786,17 @@ public class SceneRenderer3D implements EngineRenderer {
     public void setModelAssets(ModelAssets modelAssets) {
         this.modelAssets = modelAssets;
         modelInstances.clear();
+        bindColliderGeometry();
+    }
+
+    /**
+     * Lets the active scene's mesh and convex hull colliders read the meshes this renderer shows (TD-052). It reads from this
+     * renderer's models, so it is set whenever either the scene or the models change.
+     */
+    private void bindColliderGeometry() {
+        if (activeScene != null) {
+            activeScene.setColliderGeometry(new ColliderGeometry(modelAssets));
+        }
     }
 
     public boolean isClearEnabled() {
@@ -929,6 +940,7 @@ public class SceneRenderer3D implements EngineRenderer {
 
     public void setActiveScene(Scene activeScene) {
         this.activeScene = activeScene;
+        bindColliderGeometry();
     }
 
     public Color getAmbientLight() {

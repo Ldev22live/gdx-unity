@@ -37,7 +37,10 @@ export class RunnerPlayer extends ScriptComponent {
     if (this.input.isJustPressed("KeyA", "ArrowLeft") && this.lane > 0) this.lane--;
     if (this.input.isJustPressed("KeyD", "ArrowRight") && this.lane < lanes.length - 1) this.lane++;
     const onGround = this.y <= this.groundY;
-    if (onGround && this.input.isJustPressed("Space", "KeyW", "ArrowUp")) this.velocityY = RunnerPlayer.JUMP_SPEED;
+    if (onGround && this.input.isJustPressed("Space", "KeyW", "ArrowUp")) {
+      this.velocityY = RunnerPlayer.JUMP_SPEED;
+      this.scene.playCue("jump");
+    }
     const targetX = lanes[this.lane]!;
     const step = RunnerPlayer.LANE_CHANGE_SPEED * dt;
     this.x = Math.abs(targetX - this.x) <= step ? targetX : this.x + Math.sign(targetX - this.x) * step;
@@ -120,6 +123,7 @@ export class RunnerGame extends ScriptComponent {
         block.setActive(false);
       } else if (this.touches(playerPosition, p)) {
         this.gameOver = true;
+        this.scene.playCue("crash");
         this.messageText.setText(`Crashed after ${this.metres()} m. Press R to run again`);
       }
     }

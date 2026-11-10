@@ -13,6 +13,7 @@ import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 
+import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +30,9 @@ public class SceneRenderer2D implements EngineRenderer {
 
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
+    private boolean depthComposite = true;
+    /** Moves a renderable to its entity's Z while drawing with depth (scratch matrix, no allocation per frame). */
+    private final Matrix4 zShift = new Matrix4();
 
     private Color clearColor = new Color(0.12f, 0.14f, 0.18f, 1.0f);
     private boolean clearEnabled = true;
@@ -117,31 +121,96 @@ public class SceneRenderer2D implements EngineRenderer {
 
         Matrix4 combinedMatrix = (camera != null) ? camera.getCombinedMatrix() : new Matrix4();
 
-        // 5. Draw primitives
-        if (!primitivesToRender.isEmpty() && shapeRenderer != null) {
-            shapeRenderer.setProjectionMatrix(combinedMatrix);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            try {
-                for (int i = 0; i < primitivesToRender.size(); i++) {
-                    primitivesToRender.get(i).render(shapeRenderer);
-                }
-            } finally {
-                shapeRenderer.end();
+        // 5. Draw primitives and 6. sprites. Seen through a perspective camera (the 3D view, a 3D game) they are tested against the
+        // depth the 3D pass left, at the entity's own world Z, so a wall in front of a sprite hides it (Phase 13-D).
+        boolean depth = isDepthCompositeActive() && !(primitivesToRender.isEmpty() && spritesToRender.isEmpty());
+        if (depth) {
+            Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+            Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
+            // Tested but not written: sprites keep their painter's order among themselves, and transparent edges leave no halo
+            Gdx.gl.glDepthMask(false);
+        }
+        try {
+            drawPrimitives(primitivesToRender, combinedMatrix, depth);
+            drawSprites(spritesToRender, combinedMatrix, depth);
+        } finally {
+            if (depth) {
+                Gdx.gl.glDepthMask(true);
+                Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
             }
         }
+    }
 
-        // 6. Draw sprites
-        if (!spritesToRender.isEmpty() && spriteBatch != null) {
-            spriteBatch.setProjectionMatrix(combinedMatrix);
-            spriteBatch.begin();
-            try {
-                for (int i = 0; i < spritesToRender.size(); i++) {
-                    spritesToRender.get(i).render(spriteBatch);
-                }
-            } finally {
-                spriteBatch.end();
-            }
+    private void drawPrimitives(List<Renderable> primitives, Matrix4 combinedMatrix, boolean depth) {
+        if (primitives.isEmpty() || shapeRenderer == null) {
+            return;
         }
+        shapeRenderer.setProjectionMatrix(combinedMatrix);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        try {
+            float z = 0f;
+            for (int i = 0; i < primitives.size(); i++) {
+                Renderable primitive = primitives.get(i);
+                if (depth) {
+                    float entityZ = worldZ(primitive);
+                    if (entityZ != z) {
+                        z = entityZ;
+                        shapeRenderer.setTransformMatrix(zShift.setToTranslation(0f, 0f, z));
+                    }
+                }
+                primitive.render(shapeRenderer);
+            }
+        } finally {
+            shapeRenderer.end();
+            // Hosts draw overlays with this renderer next: leave it as it was found
+            shapeRenderer.setTransformMatrix(zShift.idt());
+        }
+    }
+
+    private void drawSprites(List<Renderable> sprites, Matrix4 combinedMatrix, boolean depth) {
+        if (sprites.isEmpty() || spriteBatch == null) {
+            return;
+        }
+        spriteBatch.setProjectionMatrix(combinedMatrix);
+        spriteBatch.begin();
+        try {
+            float z = 0f;
+            for (int i = 0; i < sprites.size(); i++) {
+                Renderable sprite = sprites.get(i);
+                if (depth) {
+                    float entityZ = worldZ(sprite);
+                    if (entityZ != z) {
+                        z = entityZ;
+                        spriteBatch.setTransformMatrix(zShift.setToTranslation(0f, 0f, z));
+                    }
+                }
+                sprite.render(spriteBatch);
+            }
+        } finally {
+            spriteBatch.end();
+            spriteBatch.setTransformMatrix(zShift.idt());
+        }
+    }
+
+    /** The world Z of the entity a renderable belongs to; 0 for one that is not a component. */
+    private static float worldZ(Renderable renderable) {
+        if (renderable instanceof Component component && component.getEntity() != null) {
+            return component.getEntity().getTransform().getWorldPosition().z;
+        }
+        return 0f;
+    }
+
+    /**
+     * Whether 2D renderables are depth tested against the 3D pass: on for a perspective camera, where depth means something. An
+     * orthographic camera draws everything on one plane in painter's order, whatever the Z of the entities.
+     */
+    public boolean isDepthCompositeActive() {
+        return depthComposite && Gdx.gl != null && camera instanceof PerspectiveCamera3D;
+    }
+
+    /** Turns the depth test against the 3D pass off or on (on by default, and only used with a perspective camera). */
+    public void setDepthComposite(boolean depthComposite) {
+        this.depthComposite = depthComposite;
     }
 
     /**
@@ -178,6 +247,20 @@ public class SceneRenderer2D implements EngineRenderer {
                         }
                         if (sprite.isSprite()) {
                             sprites.add(sprite);
+                        }
+                    } else if (c instanceof io.github.ldev22live.gdxunity.engine.render.components.TilemapComponent tilemap) {
+                        if (tilemap.needsLoad() && assetService != null) {
+                            tilemap.load(assetService.resolve(tilemap.getTileSetReference()));
+                        }
+                        if (tilemap.isSprite()) {
+                            sprites.add(tilemap);
+                        }
+                    } else if (c instanceof io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent animator) {
+                        if (animator.needsLoad() && assetService != null) {
+                            animator.load(assetService.resolve(animator.getAssetReference()));
+                        }
+                        if (animator.isSprite()) {
+                            sprites.add(animator);
                         }
                     } else if (renderable.isSprite()) {
                         sprites.add(renderable);

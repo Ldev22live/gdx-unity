@@ -112,6 +112,8 @@ public class SceneEditorWorkspace implements StudioWorkspace {
     /** Renders 3D primitives in both views, before the 2D content; may be null to disable. */
     public void setSceneRenderer3D(SceneRenderer3D sceneRenderer3D) {
         this.sceneRenderer3D = sceneRenderer3D;
+        // Depth testing of 2D entities needs a 3D pass that cleared and filled the depth buffer first (Phase 13-D)
+        sceneRenderer.setDepthComposite(sceneRenderer3D != null);
     }
 
     /** Sets the selection outline renderers for the 2D and 3D views (either may be null to disable). */

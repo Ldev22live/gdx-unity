@@ -1,0 +1,89 @@
+/* The Animations and Visual Scripting tabs (TD-044). Like the Music tab they fill the page under the top bar. */
+body.fullpanel #bar > *:not(.brand):not(.tab):not(.link) { display: none; }
+body.fullpanel #workspace { display: none; }
+
+#animations, #scripting { min-height: 0; overflow: hidden; background: #14161c; }
+#animations[hidden], #scripting[hidden] { display: none; }
+#animations h2, #scripting h2 { margin: 0; padding: 6px 10px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; border-bottom: 1px solid #2a2e3a; }
+
+/* Animations */
+#animations { display: grid; grid-template-columns: 220px 1fr 280px; grid-template-rows: 1fr auto; }
+#animations .library, #animations .inspect { background: #1a1d25; overflow: auto; min-height: 0; }
+#animations .library { border-right: 1px solid #2a2e3a; }
+#animations .inspect { border-left: 1px solid #2a2e3a; padding-bottom: 12px; }
+#animations .group { padding: 8px 10px 2px; font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.06em; }
+#animations button.clip { display: block; width: 100%; text-align: left; border-radius: 0; border: 0; border-left: 3px solid transparent; background: transparent; padding: 5px 10px; }
+#animations button.clip:hover { background: #242836; }
+#animations button.clip.active { background: #2d4a78; border-left-color: #5aa0ff; }
+#animations .preview { position: relative; min-width: 0; min-height: 0; }
+#animations .preview canvas { width: 100%; height: 100%; display: block; outline: none; }
+#animations .message { position: absolute; left: 10px; right: 10px; bottom: 8px; font-size: 12px; opacity: 0.8; pointer-events: none; }
+#animations .message.error { color: #ff8585; opacity: 1; }
+#animations .clip-title { padding: 8px 10px; font-size: 13px; }
+#animations .inspect > button { margin: 0 10px 10px; }
+#animations .tracks { padding: 4px 0; font-size: 12px; }
+#animations .track { padding: 2px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#animations .track.missing { opacity: 0.4; text-decoration: line-through; }
+#animations .transport { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 6px 10px; background: #1a1d25; border-top: 1px solid #2a2e3a; }
+#animations .transport input[type="range"] { flex: 1; }
+#animations .transport .clock { min-width: 9em; text-align: center; font-variant-numeric: tabular-nums; background: #0e1015; padding: 2px 6px; border-radius: 3px; }
+#animations .transport label.inline { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+#animations .transport select { background: #12141a; color: inherit; border: 1px solid #343949; border-radius: 3px; }
+
+/* Visual Scripting */
+#scripting { display: grid; grid-template-columns: 200px 1fr 320px; grid-template-rows: auto 1fr; }
+#scripting .gbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 10px; background: #1a1d25; border-bottom: 1px solid #2a2e3a; }
+#scripting .gbar .spacer { flex: 1; }
+#scripting .graph-name { width: 150px; background: #12141a; color: inherit; border: 1px solid #343949; border-radius: 3px; padding: 2px 6px; font: inherit; }
+#scripting .problems { font-size: 12px; opacity: 0.7; }
+#scripting .problems.bad { color: #ffb347; opacity: 1; }
+#scripting .palette, #scripting .gside { background: #1a1d25; overflow: auto; min-height: 0; }
+#scripting .palette { border-right: 1px solid #2a2e3a; }
+#scripting .gside { border-left: 1px solid #2a2e3a; }
+#scripting .palette input[type="search"] { width: calc(100% - 16px); margin: 6px 8px; background: #12141a; color: inherit; border: 1px solid #343949; border-radius: 3px; padding: 3px 6px; }
+#scripting .group { padding: 8px 10px 2px; font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.06em; }
+#scripting button.node-type { display: block; width: 100%; text-align: left; border: 0; border-radius: 0; background: transparent; padding: 4px 10px; }
+#scripting button.node-type:hover { background: #242836; }
+
+#scripting .viewport { position: relative; overflow: hidden; min-width: 0; min-height: 0; outline: none; cursor: grab;
+  background-color: #14161c; background-image: radial-gradient(#262a36 1px, transparent 1px); background-size: 24px 24px; }
+#scripting .world { position: absolute; left: 0; top: 0; }
+#scripting svg.wires { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; }
+#scripting path.wire { fill: none; stroke-width: 2.5; pointer-events: stroke; cursor: pointer; opacity: 0.9; }
+#scripting path.wire:hover { stroke-width: 4.5; }
+#scripting path.wire.dragging { stroke-dasharray: 6 4; pointer-events: none; }
+
+#scripting .node { position: absolute; min-width: 190px; background: #232733; border: 1px solid #3a4052; border-radius: 6px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); font-size: 12px; cursor: default; user-select: none; }
+#scripting .node.selected { border-color: #5aa0ff; box-shadow: 0 0 0 1px #5aa0ff, 0 2px 8px rgba(0, 0, 0, 0.4); }
+#scripting .node.bad { border-color: #d36c6c; }
+#scripting .node .title { padding: 4px 8px; border-radius: 5px 5px 0 0; font-weight: bold; cursor: grab; background: #3b4a6b; }
+#scripting .node.event .title { background: #7a2f35; }
+#scripting .node.action .title { background: #3b4a6b; }
+#scripting .node.pure .title { background: #2f6a47; }
+#scripting .node .property { padding: 4px 8px 0; }
+#scripting .node .property input, #scripting .node .property select { width: 100%; background: #12141a; color: inherit; border: 1px solid #343949; border-radius: 3px; padding: 2px 4px; font: inherit; }
+#scripting .node .pins { padding: 6px 0; }
+#scripting .node .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 22px; }
+#scripting .node .pin { display: flex; align-items: center; gap: 5px; padding: 0 8px; }
+#scripting .node .pin.out { margin-left: auto; }
+#scripting .node .dot { width: 11px; height: 11px; border: 2px solid var(--pin); border-radius: 50%; background: #14161c; cursor: crosshair; flex: none; }
+#scripting .node .dot.exec { border-radius: 2px; }
+#scripting .node .dot:hover { background: var(--pin); }
+#scripting .node .num { width: 56px; }
+#scripting .node .num.small { width: 38px; }
+#scripting .node .text { width: 90px; }
+#scripting .node input[type="number"], #scripting .node input[type="text"] { background: #12141a; color: inherit; border: 1px solid #343949; border-radius: 3px; padding: 1px 3px; font: inherit; }
+#scripting .node .vec { display: flex; gap: 2px; }
+#scripting .node .self { opacity: 0.5; font-style: italic; }
+
+#scripting .gside .variable { display: flex; align-items: center; gap: 6px; padding: 3px 10px; font-size: 12px; }
+#scripting .gside .vname { font-weight: bold; }
+#scripting .gside .vtype { opacity: 0.5; font-size: 11px; }
+#scripting .gside .variable input[type="number"], #scripting .gside .variable input[type="text"] { width: 70px; background: #12141a; color: inherit; border: 1px solid #343949; border-radius: 3px; padding: 1px 3px; }
+#scripting .gside .variable button { margin-left: auto; }
+#scripting .gside .add-variable { display: flex; gap: 4px; padding: 6px 10px; }
+#scripting .gside .add-variable input { width: 90px; background: #12141a; color: inherit; border: 1px solid #343949; border-radius: 3px; padding: 2px 4px; }
+#scripting .gside .add-variable select { background: #12141a; color: inherit; border: 1px solid #343949; border-radius: 3px; }
+#scripting .gside .code-buttons { display: flex; gap: 6px; padding: 6px 10px; }
+#scripting .gside pre.code { margin: 0; padding: 8px 10px; font-size: 11px; line-height: 1.4; white-space: pre; overflow: auto; color: #cfd6e6; }
+#scripting .gside pre.code.error { color: #ff8585; white-space: pre-wrap; }

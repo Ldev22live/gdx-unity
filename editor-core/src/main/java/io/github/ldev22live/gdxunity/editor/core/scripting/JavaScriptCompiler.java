@@ -77,6 +77,7 @@ public class JavaScriptCompiler {
             options.add("-classpath");
             options.add(cpBuilder.toString());
             options.add("-proc:none"); // disable annotation processing for fast script compiles
+            options.add("-parameters"); // pins of method nodes show parameter names (TD-060)
 
             JavaCompiler.CompilationTask task = compiler.getTask(
                 compilerOutput,

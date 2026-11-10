@@ -40,6 +40,9 @@ export const COMPONENT_TEMPLATES: Record<string, () => ComponentData> = {
   SkyLightComponent: () =>
     component("SkyLightComponent", { skyR: 0.62, skyG: 0.72, skyB: 0.88, groundR: 0.32, groundG: 0.29, groundB: 0.26, intensity: 0.6 }),
   ToneMappingComponent: () => component("ToneMappingComponent", { exposure: 1, operator: "ACES_FILMIC" }),
+  AnimatorComponent: () => component("AnimatorComponent", { clip: "animations/humanoid/Idle.anim", playOnStart: true, wrap: "LOOP", speed: 1 }),
+  MusicSource: () => component("MusicSource", { song: "music/neon-drive.song", volume: 1, loop: true, playOnStart: true }),
+  GraphScriptComponent: () => component("GraphScriptComponent", { graph: "graphs/Spinner.graph" }),
   RigidBody2DComponent: () =>
     component("RigidBody2DComponent", {
       bodyType: "DYNAMIC", gravityScale: 1, linearDamping: 0, angularDamping: 0.05, fixedRotation: false, bullet: false,

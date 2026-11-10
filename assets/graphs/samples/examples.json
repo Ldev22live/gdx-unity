@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "kind": "graphExamples",
+  "examples": [
+    {
+      "graph": "samples/ShooterShip.graph",
+      "mirrors": "shooter/ShooterShip.java",
+      "covers": "All of it: WASD or arrows fly the ship at 340 units a second inside the same box (x 30 to 610, y 40 to 260).",
+      "notCovered": "Nothing left out. The script moves the local position, the graph the world position; they are the same for a ship with no parent."
+    },
+    {
+      "graph": "samples/BreakoutPaddle.graph",
+      "mirrors": "breakout/BreakoutPaddle.java",
+      "covers": "A/D or arrows slide the paddle at 520 units a second between the walls.",
+      "notCovered": "Nothing left out of the paddle script: Begin Play reads and caches half the Shape Renderer's width, and Tick applies the same speed and bounds. Paddle has no parent, so local and world positions agree. The ball and bricks remain on their Java script."
+    },
+    {
+      "graph": "samples/WalkerPlayer.graph",
+      "mirrors": "walker/WalkerPlayer.java",
+      "covers": "WASD or arrows walk a Character Controller 3D at 300 units a second (W goes into the screen); Space jumps at 450 while on the ground.",
+      "notCovered": "Walking diagonally is faster (the script normalises the direction). Space jumps whenever it is held on the ground, not only on the press. The help text that says whether the character stands on the ground is not covered."
+    },
+    {
+      "graph": "samples/CollectorPlayer.graph",
+      "mirrors": "collector/CollectorPlayer.java",
+      "covers": "WASD or arrows accelerate the ball (1500 a second squared), it slows down on its own and stays inside the arena (plus or minus 740).",
+      "notCovered": "Rolling friction is a straight-line approximation (the script uses a power of the frame time). The speed limit is 460 on each axis, not on the whole speed. The ball stops at the walls instead of bouncing, and R does not restart."
+    },
+    {
+      "graph": "samples/HopperPlayer.graph",
+      "mirrors": "hopper/HopperPlayer.java",
+      "covers": "WASD or arrows move the player at 330 units a second (W is away from the camera).",
+      "notCovered": "Jumping, gravity, landing on the platforms and the goal, and going back to the start after a fall: all of the script's collision code (boxes written in Java) is left out."
+    },
+    {
+      "graph": "samples/RunnerPlayer.graph",
+      "mirrors": "runner/RunnerPlayer.java",
+      "covers": "A/D or arrows change lane on the press (three lanes 130 apart) and the player slides across at 1100 units a second.",
+      "notCovered": "Space and the jump (gravity, 760 take-off) are left out, and so is the world that moves towards the player (RunnerGame)."
+    },
+    {
+      "graph": "samples/RaceCar.graph",
+      "mirrors": "racing/RaceCar.java (drive)",
+      "covers": "W/S accelerate (520 a second squared, top speed 820 forward and 220 in reverse) and A/D turn the car, more the faster it goes (115 degrees a second, full at 250); the car drives the way it points.",
+      "notCovered": "Grass, the track, laps, rivals and the AI (RaceGame, RaceTrack) are left out, and the car keeps the heading it has: it does not slide. The heading is kept in a variable, so a car that starts turned needs the variable set to match."
+    },
+    {
+      "graph": "samples/ArenaPlayer.graph",
+      "mirrors": "fps/FpsGame.java (the player)",
+      "covers": "The left and right arrows turn the player at 150 degrees a second; W and S walk at 320 the way the player looks.",
+      "notCovered": "Strafing, looking up and down, firing balls, the drones, waves and walls (Arena) are left out. The heading is kept in a variable, so a player that starts turned needs the variable set to match."
+    },
+    {
+      "graph": "samples/PuzzlePlayer.graph",
+      "mirrors": "puzzle/PuzzleGame.java (the player's step)",
+      "covers": "One press of WASD or an arrow moves the player one cell (100 units) and holding the key does not repeat.",
+      "notCovered": "The walls, the crates and pushing them, the targets, the levels, undo and restart. Two keys pressed together move diagonally; the script moves along one axis."
+    },
+    {
+      "graph": "samples/FighterWalk.graph",
+      "mirrors": "fighter/Fighter.java (control, walking)",
+      "covers": "A/D walk along X at 260 units a second, and holding S (blocking) slows the walk to 110.",
+      "notCovered": "Everything else a fighter does: jumping, punches and kicks, taking hits, facing the opponent, the stage limits and the computer opponent (FighterGame)."
+    },
+    {
+      "graph": "samples/GrappleRunner.graph",
+      "mirrors": "grapple/GrappleGame.java (running and the hook key)",
+      "covers": "A/D run at 300 units a second; pressing J or Shift is noticed once per press (it prints a line).",
+      "notCovered": "The swing itself: finding an anchor, the pendulum, letting go, jumping, the crates, the plate and gate, checkpoints and collision with platforms (SideBody)."
+    },
+    {
+      "graph": "samples/RuinsRunner.graph",
+      "mirrors": "ruins/RuinsGame.java (running and collecting)",
+      "covers": "A/D run at 300 units a second; anything that touches the player's trigger (an orb) is removed.",
+      "notCovered": "It removes whatever enters the trigger, not only entities named Orb, and keeps no score. Jumping, solid platforms, movers, spikes, checkpoints and the goal are left out."
+    },
+    {
+      "graph": "samples/TrioScout.graph",
+      "mirrors": "trio/TrioGame.java (the Scout's speed)",
+      "covers": "A/D run; holding Shift runs faster, the way the Scout hero does (the speeds 220 and 340 are an approximation to the script's).",
+      "notCovered": "Switching heroes, Mason's crates, the Brute's pushing and smashing, the Scout's double jump, platforms and the goal. The Shift key stands in for choosing the Scout."
+    },
+    {
+      "graph": "samples/SandboxKick.graph",
+      "mirrors": "sandbox/SandboxLauncher.java (the kick)",
+      "covers": "Space (once per press) casts a ray 6000 units from the entity along -Z and kicks the first thing it hits with an impulse of 900 along -Z.",
+      "notCovered": "The ray always points along -Z; the script aims along the camera's view. The kick does not scale with the target's mass, and the push (F), pop (E), stop (T) and the aimed-at name on the help text are left out."
+    },
+    {
+      "graph": "samples/PlatformerRunner.graph",
+      "mirrors": "platformer/PlatformerPlayer.java (running)",
+      "covers": "A/D run at 260 units a second, and touching something prints its name.",
+      "notCovered": "Jumping and gravity, landing on solid platforms, coins, score text, the goal and the messages: the script's collision code (boxes written in Java) has no nodes."
+    }
+  ]
+}
