@@ -6,6 +6,11 @@ import io.github.ldev22live.gdxunity.engine.desktop.GameSession;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
+import io.github.ldev22live.gdxunity.engine.visualscript.BuiltInNodes;
+import io.github.ldev22live.gdxunity.engine.visualscript.Graph;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphNode;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphScriptComponent;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -34,7 +39,7 @@ class SampleAudioCuesTest {
     private static final File PROJECT = new File("../assets");
     private static final List<String> SCRIPTED_SAMPLES = List.of("platformer-2d", "breakout-2d", "shooter-2d",
         "collector-3d", "runner-3d", "hopper-3d", "ruins-runner-25d", "three-heroes-25d", "grapple-gorge-25d",
-        "racing-3d", "arena-fps-3d", "fighter-25d", "puzzle-3d");
+        "racing-3d", "arena-fps-3d", "fighter-25d", "puzzle-3d", "blockworld-3d", "obby-3d");
     private static final Pattern PLAY_CALL = Pattern.compile("AudioSourceComponent\\.play\\([^;]*\\);");
     private static final Pattern QUOTED = Pattern.compile("\"(\\w+)\"");
 
@@ -61,6 +66,21 @@ class SampleAudioCuesTest {
                         cues.add(cue.group(1));
                     }
                 }
+            }
+            for (GraphScriptComponent graph : entity.getComponents(GraphScriptComponent.class)) {
+                cues.addAll(cuesOfGraph(new File(PROJECT, graph.getGraphPath())));
+            }
+        }
+        return cues;
+    }
+
+    /** The cues of the Play Sound nodes of a graph file (TD-072). */
+    private static Set<String> cuesOfGraph(File file) throws IOException {
+        Set<String> cues = new TreeSet<>();
+        Graph graph = GraphSerializer.fromJson(Files.readString(file.toPath()));
+        for (GraphNode node : graph.getNodes()) {
+            if (BuiltInNodes.ACTION_PLAY_CUE.equals(node.getTypeId()) && node.getProperty(BuiltInNodes.PROPERTY_CUE) instanceof String cue) {
+                cues.add(cue);
             }
         }
         return cues;

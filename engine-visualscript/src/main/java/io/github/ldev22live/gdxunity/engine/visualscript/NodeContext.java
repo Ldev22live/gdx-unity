@@ -50,6 +50,11 @@ public interface NodeContext {
         return instance().isKeyDown(keycode);
     }
 
+    /** Whether the key with this libGDX key code went down since the last frame (TD-072). */
+    default boolean isKeyJustPressed(int keycode) {
+        return instance().isKeyJustPressed(keycode);
+    }
+
     /** The entity running this graph. */
     Entity self();
 

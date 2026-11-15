@@ -27,7 +27,10 @@ import io.github.ldev22live.gdxunity.engine.desktop.GameSession;
 import io.github.ldev22live.gdxunity.engine.render.camera.GameCameraRig;
 import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
+import io.github.ldev22live.gdxunity.engine.audio.EngineProfile;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioListenerComponent;
+import io.github.ldev22live.gdxunity.engine.scene.audio.EngineSoundComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D;
 import io.github.ldev22live.gdxunity.engine.scene.physics.PhysicsSystem2D;
@@ -76,7 +79,7 @@ class SampleGamesTest {
     private static final float FRAME = 1f / 60f;
     private static final List<String> SAMPLES = List.of("platformer-2d", "breakout-2d", "shooter-2d",
         "physics-sandbox-2d", "collector-3d", "runner-3d", "hopper-3d", "ruins-runner-25d", "three-heroes-25d",
-        "grapple-gorge-25d", "racing-3d", "arena-fps-3d", "fighter-25d", "puzzle-3d", "physics-sandbox-3d", "character-playground-3d", "physics-joints-3d");
+        "grapple-gorge-25d", "racing-3d", "arena-fps-3d", "fighter-25d", "puzzle-3d", "physics-sandbox-3d", "character-playground-3d", "physics-joints-3d", "blockworld-3d", "obby-3d", "materials-3d", "terrain-3d");
 
     @TempDir
     static Path compiledScripts;
@@ -709,6 +712,307 @@ class SampleGamesTest {
         scene.dispose();
     }
 
+    /** The last state each engine of the racer was given, by car name: {revs, throttle, gain, pan}. */
+    private static java.util.Map<String, float[]> listenToEngines(Scene scene) {
+        java.util.Map<String, float[]> heard = new java.util.HashMap<>();
+        for (String car : List.of("Player", "Rival 1", "Rival 2")) {
+            float[] last = new float[4];
+            heard.put(car, last);
+            entity(scene, car).getComponent(EngineSoundComponent.class).bind((revs, throttle, gain, pan) -> {
+                last[0] = revs;
+                last[1] = throttle;
+                last[2] = gain;
+                last[3] = pan;
+            });
+        }
+        return heard;
+    }
+
+    @Test
+    void shouldGiveEveryCarOfTheRacerAnEngineThatIdlesOnTheGridRevsAtTheStartAndFollowsItsSpeed() throws IOException {
+        Scene scene = load("racing-3d");
+        java.util.Map<String, float[]> heard = listenToEngines(scene);
+        for (String car : List.of("Player", "Rival 1", "Rival 2")) {
+            assertNotNull(entity(scene, car).getComponent(EngineSoundComponent.class), car + " has an engine");
+            assertTrue(EngineProfile.isKnown(entity(scene, car).getComponent(EngineSoundComponent.class).getProfile()), car);
+        }
+        assertTrue(entity(scene, "Rival 1").getComponent(EngineSoundComponent.class).isSpatial(), "rivals are heard in place");
+        assertFalse(entity(scene, "Player").getComponent(EngineSoundComponent.class).isSpatial(), "the player's own car is not");
+
+        run(scene, 60);
+        assertEquals(0f, heard.get("Player")[0], 0.02f, "idles on the grid");
+        assertEquals(0f, heard.get("Player")[1], 0.02f);
+
+        run(scene, 40, Keys.W);
+        assertTrue(heard.get("Player")[0] > 0.4f, "the engine revs against the held clutch in the countdown: " + heard.get("Player")[0]);
+        assertTrue(heard.get("Player")[1] > 0.9f);
+        assertTrue(heard.get("Rival 1")[0] > 0.1f, "the rivals rev too");
+        assertEquals(0f, x(scene, "Player") + 50f, 0.01f, "still on the grid");
+
+        // Drive off: revs rise and fall as gears change, and speed and revs stay within their ranges
+        run(scene, 200);
+        held.add(Keys.W);
+        float lowest = 1f;
+        float highest = 0f;
+        float previousSpeedRevs = -1f;
+        int drops = 0;
+        for (int frame = 0; frame < 150; frame++) {
+            run(scene, 1);
+            float revs = heard.get("Player")[0];
+            assertTrue(revs >= 0f && revs <= 1f, "revs " + revs);
+            lowest = Math.min(lowest, revs);
+            highest = Math.max(highest, revs);
+            if (previousSpeedRevs > 0.6f && revs < previousSpeedRevs - 0.02f) {
+                drops++;
+            }
+            previousSpeedRevs = revs;
+        }
+        held.clear();
+        assertTrue(highest > 0.85f, "revs the engine out in a gear: " + highest);
+        assertTrue(drops >= 2, "revs fall when the gearbox changes up: " + drops);
+
+        // Lifting off: the throttle drops to nothing and the revs fall away
+        run(scene, 90);
+        assertEquals(0f, heard.get("Player")[1], 0.01f, "no throttle when coasting");
+        assertTrue(heard.get("Player")[0] < highest - 0.3f, "revs fall with speed");
+        assertTrue(heard.get("Rival 1")[2] >= 0f && heard.get("Rival 1")[2] <= 1f);
+        assertTrue(Math.abs(heard.get("Rival 1")[3]) <= 1f);
+        scene.dispose();
+    }
+
+    @Test
+    void shouldPlaceARivalsEngineInTheStereoFieldRelativeToTheChaseCamera() throws IOException {
+        Scene scene = load("racing-3d");
+        assertNotNull(entity(scene, "Main Camera").getComponent(AudioListenerComponent.class), "the camera is the listener");
+        java.util.Map<String, float[]> heard = listenToEngines(scene);
+
+        run(scene, 5);
+
+        float[] player = heard.get("Player");
+        assertEquals(entity(scene, "Player").getComponent(EngineSoundComponent.class).getVolume(), player[2], 1e-3f,
+            "the player's engine is at its own volume, not faded by distance");
+        assertEquals(0f, player[3], 1e-3f, "nor panned");
+        // On the grid the rivals stand beside the player (x -50 for the player, rivals to the sides)
+        for (String rival : List.of("Rival 1", "Rival 2")) {
+            float[] state = heard.get(rival);
+            float expectedSide = Math.signum(x(scene, rival) - x(scene, "Main Camera"));
+            assertTrue(state[2] > 0f, rival + " is within earshot of the camera on the grid");
+            if (Math.abs(x(scene, rival) - x(scene, "Main Camera")) > 20f) {
+                assertEquals(expectedSide, Math.signum(state[3]), rival + " pans to the side it stands on");
+            }
+        }
+        scene.dispose();
+    }
+
+    private static long activeBlocks(Scene scene) {
+        return scene.getAllEntities().stream().filter(e -> e.getName().startsWith("Block ") && e.isActiveSelf()).count();
+    }
+
+    private static float[] centreOf(Scene scene, String name) {
+        var position = entity(scene, name).getTransform().getWorldPosition();
+        return new float[] {position.x, position.y, position.z};
+    }
+
+    @Test
+    void shouldBuildABlockWorldThatOnlyDrawsBlocksWithAnOpenSideAndLetThePlayerWalkAndJump() throws IOException {
+        Scene scene = load("blockworld-3d");
+        run(scene, 5);
+        long drawn = activeBlocks(scene);
+        assertTrue(drawn > 200 && drawn < 1200, "only blocks with an open side are drawn, not all " + 16 * 16 * 12 + ": " + drawn);
+        assertEquals("Broken 0   Placed 0   Height 3", text(scene, "Stats Text"));
+        assertTrue(text(scene, "Hotbar Text").contains("[1 Grass]"), text(scene, "Hotbar Text"));
+        float eyeHeight = y(scene, "Main Camera");
+        assertEquals(450f, eyeHeight, 0.5f, "eyes 150 above the ground, three blocks up");
+
+        float startZ = z(scene, "Main Camera");
+        run(scene, 30, Keys.W);
+        assertEquals(startZ - 190f, z(scene, "Main Camera"), 2f, "walks 380 units per second across the flat start");
+        run(scene, 1, Keys.SPACE);
+        run(scene, 20);
+        assertTrue(y(scene, "Main Camera") > eyeHeight + 80f, "jumping lifts the eyes");
+        run(scene, 90);
+        assertEquals(eyeHeight, y(scene, "Main Camera"), 0.5f, "lands flush on the ground again");
+
+        run(scene, 1, Keys.NUM_3);
+        assertTrue(text(scene, "Hotbar Text").contains("[3 Stone]"), text(scene, "Hotbar Text"));
+        scene.dispose();
+    }
+
+    @Test
+    void shouldStopAtTheEdgeOfTheBlockWorldAndNotWalkThroughBlocks() throws IOException {
+        Scene scene = load("blockworld-3d");
+        held.add(Keys.W);
+        run(scene, 900);
+        held.clear();
+        float stoppedZ = z(scene, "Main Camera");
+        run(scene, 30, Keys.W);
+        assertEquals(stoppedZ, z(scene, "Main Camera"), 0.01f, "a wall of blocks or the world edge stops the walk");
+        assertTrue(Math.abs(stoppedZ) < 800f && Math.abs(x(scene, "Main Camera")) < 800f, "never leaves the world: " + stoppedZ);
+        scene.dispose();
+    }
+
+    @Test
+    void shouldPlaceABlockInFrontBreakTheBlockUnderfootAndDropOneBlock() throws IOException {
+        Scene scene = load("blockworld-3d");
+        run(scene, 5);
+        long drawn = activeBlocks(scene);
+
+        // Look down at the ground just in front of the feet and place a block there
+        held.add(Keys.DOWN);
+        run(scene, 30);
+        held.clear();
+        run(scene, 1, Keys.G);
+        assertEquals("Broken 0   Placed 1   Height 3", text(scene, "Stats Text"));
+        // Placed in the next column ahead, on top of the ground: block (8, 3, 7), centred at x 50, y 350, z -50
+        assertTrue(scene.getAllEntities().stream().anyMatch(e -> e.getName().startsWith("Block ") && e.isActiveSelf()
+            && Math.abs(e.getTransform().getWorldPosition().x - 50f) < 0.5f && Math.abs(e.getTransform().getWorldPosition().y - 350f) < 0.5f
+            && Math.abs(e.getTransform().getWorldPosition().z + 50f) < 0.5f), "the new block is drawn in front of the player");
+        assertTrue(activeBlocks(scene) >= drawn - 1, "the block it covers may disappear, nothing else does");
+        assertTrue(entity(scene, "Selection").isActiveSelf(), "the block in the crosshair is outlined");
+
+        // Looking straight down: building would fill the player's own space, so it is refused
+        held.add(Keys.DOWN);
+        run(scene, 90);
+        held.clear();
+        run(scene, 1, Keys.G);
+        assertEquals("Broken 0   Placed 1   Height 3", text(scene, "Stats Text"));
+
+        // Digging out the block underfoot drops the player one block
+        run(scene, 1, Keys.F);
+        run(scene, 40);
+        assertEquals("Broken 1   Placed 1   Height 2", text(scene, "Stats Text"));
+        assertEquals(350f, y(scene, "Main Camera"), 0.5f);
+
+        run(scene, 1, Keys.R);
+        assertEquals("Broken 0   Placed 0   Height 3", text(scene, "Stats Text"), "R builds the world again");
+        scene.dispose();
+    }
+
+    @Test
+    void shouldStartTheObbyOnItsStartPadWithTheAvatarAndRunAwayFromTheCamera() throws IOException {
+        Scene scene = load("obby-3d");
+        run(scene, 60);
+        assertEquals("Stage 1 / 6", text(scene, "Stage Text"));
+        assertEquals("Coins 0 / 12", text(scene, "Coins Text"));
+        assertEquals(78f, y(scene, "Player"), 0.5f, "stands on the start pad");
+        for (String limb : List.of("Arm L Pivot", "Arm R Pivot", "Leg L Pivot", "Leg R Pivot", "Head", "Torso")) {
+            assertNotNull(entity(scene, limb), limb);
+        }
+        float startZ = z(scene, "Player");
+        run(scene, 20, Keys.W);
+        assertTrue(z(scene, "Player") < startZ - 100f, "W runs away from the camera");
+        assertTrue(z(scene, "Main Camera") > z(scene, "Player"), "the camera follows behind");
+        scene.dispose();
+    }
+
+    @Test
+    void shouldRunRelativeToTheCameraAndTurnItWithTheArrowKeysInTheObby() throws IOException {
+        Scene scene = load("obby-3d");
+        run(scene, 30);
+        float cameraX = x(scene, "Main Camera");
+        held.add(Keys.LEFT);
+        run(scene, 49);
+        held.clear();
+        assertTrue(Math.abs(x(scene, "Main Camera") - cameraX) > 300f, "the camera swings round the character");
+        float startX = x(scene, "Player");
+        run(scene, 24, Keys.W);
+        assertTrue(x(scene, "Player") < startX - 80f, "after turning the camera a quarter, W runs sideways along the course");
+        scene.dispose();
+    }
+
+    @Test
+    void shouldSendTheObbyCharacterBackAfterAFallAndAfterTouchingLavaOrASpinner() throws IOException {
+        Scene scene = load("obby-3d");
+        place3D(scene, "Player", 1500f, 78f, 0f);
+        run(scene, 150);
+        assertNotEquals("Deaths 0", text(scene, "Deaths Text"), "falls into the void");
+        assertEquals(78f, y(scene, "Player"), 1000f, "and is put back where it started (here over the void again, so it falls again)");
+        scene.dispose();
+
+        Scene lava = load("obby-3d");
+        float[] lavaAt = centreOf(lava, "Kill Lava 1");
+        place3D(lava, "Player", lavaAt[0], lavaAt[1] + 40f, lavaAt[2]);
+        run(lava, 3);
+        assertNotEquals("Deaths 0", text(lava, "Deaths Text"), "lava hurts");
+        lava.dispose();
+
+        Scene spinner = load("obby-3d");
+        float[] barAt = centreOf(spinner, "Spinner 1");
+        place3D(spinner, "Player", barAt[0], barAt[1] + 20f, barAt[2]);
+        run(spinner, 3);
+        assertNotEquals("Deaths 0", text(spinner, "Deaths Text"), "a spinner bar hurts");
+        spinner.dispose();
+    }
+
+    @Test
+    void shouldTakeCoinsSetCheckpointsAndComeBackToTheCheckpointInTheObby() throws IOException {
+        Scene scene = load("obby-3d");
+        float[] coin = centreOf(scene, "Coin 1");
+        place3D(scene, "Player", coin[0], coin[1], coin[2]);
+        run(scene, 2);
+        assertEquals("Coins 1 / 12", text(scene, "Coins Text"));
+        assertFalse(active(scene, "Coin 1"), "a taken coin disappears");
+        scene.dispose();
+
+        Scene checkpoint = load("obby-3d");
+        float[] pad = centreOf(checkpoint, "Checkpoint 1");
+        place3D(checkpoint, "Player", pad[0], pad[1] + 20f + 78f + 3f, pad[2]);
+        run(checkpoint, 20);
+        assertEquals("Stage 2 / 6", text(checkpoint, "Stage Text"), "landing on a checkpoint reaches the next stage");
+        // Walk off the end of the pad: back on the checkpoint, not at the very start of the course
+        held.add(Keys.W);
+        run(checkpoint, 240);
+        held.clear();
+        run(checkpoint, 10);
+        assertNotEquals("Deaths 0", text(checkpoint, "Deaths Text"));
+        assertTrue(Math.abs(z(checkpoint, "Player") - pad[2]) < 220f, "respawns on the checkpoint: " + z(checkpoint, "Player"));
+        checkpoint.dispose();
+    }
+
+    @Test
+    void shouldCarryTheCharacterOnAMoverDropAFadingTileAndBounceOffAPadInTheObby() throws IOException {
+        Scene scene = load("obby-3d");
+        float[] mover = centreOf(scene, "Mover Z 1");
+        // The mover starts a quarter of a trip out, towards the pad behind it
+        place3D(scene, "Player", mover[0], mover[1] + 20f + 78f + 2f, mover[2] + 260f);
+        run(scene, 5);
+        float startZ = z(scene, "Player");
+        run(scene, 115);
+        assertEquals(z(scene, "Mover Z 1"), z(scene, "Player"), 10f, "rides along with the mover");
+        assertTrue(Math.abs(z(scene, "Player") - startZ) > 300f, "and the mover took it a long way");
+        scene.dispose();
+
+        Scene fade = load("obby-3d");
+        float[] tile = centreOf(fade, "Fade 1");
+        place3D(fade, "Player", tile[0], tile[1] + 20f + 78f + 2f, tile[2]);
+        run(fade, 20);
+        assertTrue(active(fade, "Fade 1"), "a fading tile holds for a moment after it is stood on");
+        run(fade, 40);
+        assertFalse(active(fade, "Fade 1"), "and then drops out");
+        run(fade, 200);
+        assertTrue(active(fade, "Fade 1"), "and comes back later");
+        fade.dispose();
+
+        Scene bounce = load("obby-3d");
+        float[] pad = centreOf(bounce, "Pad 1");
+        place3D(bounce, "Player", pad[0], pad[1] + 20f + 78f + 2f, pad[2]);
+        run(bounce, 20);
+        assertTrue(y(bounce, "Player") > pad[1] + 20f + 78f + 200f, "a pad launches the character: " + y(bounce, "Player"));
+        bounce.dispose();
+    }
+
+    @Test
+    void shouldFinishTheObbyByLandingOnTheFinishPart() throws IOException {
+        Scene scene = load("obby-3d");
+        float[] finish = centreOf(scene, "Finish");
+        place3D(scene, "Player", finish[0], finish[1] + 20f + 78f + 3f, finish[2]);
+        run(scene, 30);
+        assertTrue(text(scene, "Message Text").startsWith("Course complete!"), text(scene, "Message Text"));
+        run(scene, 1, Keys.R);
+        assertEquals("", text(scene, "Message Text"));
+        scene.dispose();
+    }
+
     @Test
     void shouldWalkStopAtWallsAndShootDronesThroughWavesInTheArenaShooter() throws IOException {
         Scene scene = load("arena-fps-3d");
@@ -1083,6 +1387,82 @@ class SampleGamesTest {
             graph.dispose();
             java.dispose();
         }
+    }
+
+    /** Hero keys per stretch of frames for the walker parity run: {frames, keys...} held; a key not held the frame before counts as pressed. The first second the hero lands. */
+    private static final int[][] WALKER_SCHEDULE = {
+        {60}, {40, Keys.D, Keys.W}, {20}, {1, Keys.SPACE}, {30, Keys.SPACE}, {70}, {25, Keys.LEFT, Keys.S},
+        {1, Keys.SPACE, Keys.A}, {20, Keys.A}, {1, Keys.SPACE, Keys.A}, {60}, {30, Keys.A, Keys.D, Keys.UP}, {30}};
+
+    /**
+     * Roadmap M1.2: the walker graph does what {@code WalkerPlayer.java} does, frame for frame, with real 3D physics: a diagonal walks
+     * at the same 300 units a second (the direction is normalised), Space jumps once per press and only on the ground (holding it or
+     * pressing it in the air does nothing), and the Help Text says whether the hero stands on the ground.
+     */
+    @Test
+    void shouldWalkJumpAndLabelLikeTheReferenceWalkerScriptFrameForFrame() throws IOException {
+        File file = new File(PROJECT, "samples/character-playground-3d.json");
+        Scene graphScene = GameSession.loadScene(file);
+        Scene javaScene = GameSession.loadScene(file);
+        Entity graphHero = entity(graphScene, "Hero");
+        Entity javaHero = entity(javaScene, "Hero");
+        graphHero.getComponents(EntityScriptBindingComponent.class).forEach(graphHero::removeComponent);
+        graphHero.getComponents(GraphScriptComponent.class).forEach(graphHero::removeComponent);
+        graphHero.addComponent(new GraphScriptComponent("graphs/samples/WalkerPlayer.graph"));
+        javaHero.getComponents(GraphScriptComponent.class).forEach(javaHero::removeComponent);
+        javaHero.getComponents(EntityScriptBindingComponent.class).forEach(javaHero::removeComponent);
+        javaHero.addComponent(new EntityScriptBindingComponent("scripts/samples/walker/WalkerPlayer.java",
+            "samples.walker.WalkerPlayer", ScriptLanguage.JAVA));
+        for (Entity hero : List.of(graphHero, javaHero)) {
+            hero.getTransform().setLocalPosition(-700f, 75f, 900f);
+        }
+        GameSession graph = new GameSession(PROJECT, graphScene,
+            new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+        GameSession java = new GameSession(PROJECT, javaScene,
+            new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+        assertEquals(List.of(), graph.start());
+        assertEquals(List.of(), java.start());
+        int frame = 0;
+        int jumps = 0;
+        int airPresses = 0;
+        boolean wasGrounded = true;
+        Set<Integer> previous = new HashSet<>();
+        for (int[] stretch : WALKER_SCHEDULE) {
+            for (int i = 0; i < stretch[0]; i++, frame++) {
+                held.clear();
+                justPressed.clear();
+                for (int k = 1; k < stretch.length; k++) {
+                    held.add(stretch[k]);
+                    if (!previous.contains(stretch[k])) {
+                        justPressed.add(stretch[k]); // went down this frame, as libGDX reports it
+                    }
+                }
+                previous = new HashSet<>(held);
+                graph.update(FRAME);
+                java.update(FRAME);
+                String at = "frame " + frame;
+                assertEquals(x(javaScene, "Hero"), x(graphScene, "Hero"), 1e-3f, at);
+                assertEquals(y(javaScene, "Hero"), y(graphScene, "Hero"), 1e-3f, at);
+                assertEquals(z(javaScene, "Hero"), z(graphScene, "Hero"), 1e-3f, at);
+                assertEquals(entity(javaScene, "Help Text").getComponent(TextComponent.class).getText(),
+                    entity(graphScene, "Help Text").getComponent(TextComponent.class).getText(), at);
+                boolean grounded = graph.getPhysicsSystem3D().isCharacterGrounded(graphHero);
+                if (justPressed.contains(Keys.SPACE)) {
+                    if (!wasGrounded) {
+                        airPresses++;
+                    } else if (!grounded) {
+                        jumps++;
+                    }
+                }
+                wasGrounded = grounded;
+            }
+        }
+        assertEquals(2, jumps, "both presses on the ground take off; holding Space does not jump again");
+        assertEquals(1, airPresses, "the scenario presses Space once in the air, which does nothing (the positions above match)");
+        assertTrue(graph.getRuntimeErrors().isEmpty(), () -> graph.getRuntimeErrors().toString());
+        assertTrue(java.getRuntimeErrors().isEmpty(), () -> java.getRuntimeErrors().toString());
+        graph.dispose();
+        java.dispose();
     }
 
     @Test

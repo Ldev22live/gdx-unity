@@ -109,6 +109,31 @@ public class GraphCanvas extends WidgetGroup implements Disposable {
         rebuild();
     }
 
+    public boolean hasDocument() {
+        return document != null;
+    }
+
+    /** Adds a node of {@code type} where the stage point is (a palette drop, TD-069) and selects it; null when no graph is open. */
+    public GraphNode addNodeAt(NodeType type, float stageX, float stageY) {
+        Objects.requireNonNull(type, "type cannot be null");
+        if (document == null) {
+            return null;
+        }
+        Vector2 at = content.stageToLocalCoordinates(new Vector2(stageX, stageY));
+        GraphNode node = document.addNode(type, at.x, at.y);
+        if (node != null) {
+            selection.clear();
+            selection.add(node.getId());
+        }
+        return node;
+    }
+
+    /** Adds a node of {@code type} at the middle of the visible canvas (a click in the palette). */
+    public GraphNode addNodeAtCenter(NodeType type) {
+        Vector2 middle = localToStageCoordinates(new Vector2(getWidth() / 2f, getHeight() / 2f));
+        return addNodeAt(type, middle.x, middle.y);
+    }
+
     /** Recreates the node views from the graph; called after every edit. */
     public void rebuild() {
         content.clearChildren();
@@ -116,8 +141,8 @@ public class GraphCanvas extends WidgetGroup implements Disposable {
         if (document == null) {
             return;
         }
-        selection.removeIf(id -> document.getGraph().getNode(id) == null);
-        for (GraphNode node : document.getGraph().getNodes()) {
+        selection.removeIf(id -> document.getViewGraph().getNode(id) == null);
+        for (GraphNode node : document.getViewGraph().getNodes()) {
             NodeType type = document.getRegistry().get(node.getTypeId());
             GraphNodeView view = new GraphNodeView(this, skin, document, node, type);
             view.pack();
@@ -158,7 +183,7 @@ public class GraphCanvas extends WidgetGroup implements Disposable {
         }
         GraphNodeView.PinView from = start.def.isInput() ? target : start;
         GraphNodeView.PinView to = start.def.isInput() ? start : target;
-        GraphCommands.Connect connect = new GraphCommands.Connect(document.getGraph(), document.getRegistry(),
+        GraphCommands.Connect connect = new GraphCommands.Connect(document.getViewGraph(), document.getRegistry(),
             new GraphLink(from.nodeId, from.def.id(), to.nodeId, to.def.id()));
         if (!document.execute(connect) && connect.getRefusal() != null) {
             editorState.setStatusMessage("Cannot connect: " + connect.getRefusal(), true);
@@ -167,16 +192,16 @@ public class GraphCanvas extends WidgetGroup implements Disposable {
 
     void breakWires(GraphNodeView.PinView pin) {
         List<GraphLink> links = pin.def.isInput()
-            ? document.getGraph().linksInto(pin.nodeId, pin.def.id())
-            : document.getGraph().linksFrom(pin.nodeId, pin.def.id());
+            ? document.getViewGraph().linksInto(pin.nodeId, pin.def.id())
+            : document.getViewGraph().linksFrom(pin.nodeId, pin.def.id());
         if (!links.isEmpty()) {
-            document.execute(new GraphCommands.Disconnect(document.getGraph(), links));
+            document.execute(new GraphCommands.Disconnect(document.getViewGraph(), links));
         }
     }
 
     boolean isConnected(String nodeId, PinDef pin) {
-        return pin.isInput() ? !document.getGraph().linksInto(nodeId, pin.id()).isEmpty()
-            : !document.getGraph().linksFrom(nodeId, pin.id()).isEmpty();
+        return pin.isInput() ? !document.getViewGraph().linksInto(nodeId, pin.id()).isEmpty()
+            : !document.getViewGraph().linksFrom(nodeId, pin.id()).isEmpty();
     }
 
     /** Ids of the selected nodes, in the order they were selected. */
@@ -186,7 +211,7 @@ public class GraphCanvas extends WidgetGroup implements Disposable {
 
     void deleteSelection() {
         if (document != null && !selection.isEmpty()) {
-            document.execute(new GraphCommands.RemoveNodes(document.getGraph(), new ArrayList<>(selection)));
+            document.execute(new GraphCommands.RemoveNodes(document.getViewGraph(), new ArrayList<>(selection)));
             selection.clear();
         }
     }
@@ -222,7 +247,7 @@ public class GraphCanvas extends WidgetGroup implements Disposable {
         shapes.begin(ShapeRenderer.ShapeType.Line);
         if (document != null) {
             drawOutlines();
-            for (GraphLink link : document.getGraph().getLinks()) {
+            for (GraphLink link : document.getViewGraph().getLinks()) {
                 GraphNodeView from = views.get(link.fromNode());
                 GraphNodeView to = views.get(link.toNode());
                 GraphNodeView.PinView fromPin = from != null ? from.pin(link.fromPin()) : null;

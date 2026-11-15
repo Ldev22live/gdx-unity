@@ -11,6 +11,7 @@ import io.github.ldev22live.gdxunity.engine.render.components.serialization.Spri
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.TextComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.audio.AudioListenerComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.audio.EngineSoundComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.audio.MusicSourceComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.DirectionalLightComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.PointLightComponentSerializer;
@@ -78,5 +79,7 @@ public final class GameComponentSerializers {
         registry.register(new AudioSourceComponentSerializer());
         registry.register(new MusicSourceComponentSerializer());
         registry.register(new AudioListenerComponentSerializer());
+        registry.register(new EngineSoundComponentSerializer());
+        registry.register(new io.github.ldev22live.gdxunity.engine.render.components.serialization.TerrainComponentSerializer());
     }
 }

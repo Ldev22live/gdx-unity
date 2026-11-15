@@ -302,6 +302,7 @@ export class ScenePlayer {
     }
     const host: GraphHost = {
       isKeyDown: (codes) => this.input.isDown(...codes),
+      isKeyJustPressed: (codes) => this.input.isJustPressed(...codes),
       log: (_instance, message) => this.onGraphMessage(message, false),
       error: (_instance, error) => this.onGraphMessage(`Visual script: ${error.message} (node ${error.nodeId})`, true),
     };

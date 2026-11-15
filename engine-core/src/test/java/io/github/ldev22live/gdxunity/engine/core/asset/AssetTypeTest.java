@@ -19,6 +19,12 @@ class AssetTypeTest {
     }
 
     @Test
+    void shouldRecognizeSongFilesSoTheContentBrowserListsThem() {
+        assertEquals(AssetType.SONG, AssetType.fromExtension("song"));
+        assertEquals(AssetType.SONG, AssetType.fromPath("music/demo.song"));
+    }
+
+    @Test
     void shouldKeepTheOtherTypes() {
         assertEquals(AssetType.GRAPH, AssetType.fromPath("a.graph"));
         assertEquals(AssetType.SOUND, AssetType.fromPath("a.wav"));

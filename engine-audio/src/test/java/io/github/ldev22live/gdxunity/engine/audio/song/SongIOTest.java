@@ -1,6 +1,8 @@
 package io.github.ldev22live.gdxunity.engine.audio.song;
 
 import io.github.ldev22live.gdxunity.engine.audio.DelayEffect;
+import io.github.ldev22live.gdxunity.engine.audio.FmPatch;
+import io.github.ldev22live.gdxunity.engine.audio.PluckPatch;
 import io.github.ldev22live.gdxunity.engine.audio.SfxrParams;
 import io.github.ldev22live.gdxunity.engine.audio.SynthPatch;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,12 @@ class SongIOTest {
         sample.rootNote = 48;
         sample.oneShot = true;
         song.addChannel("Smp", sample, 7);
+        FmPatch fm = FmPatch.preset("Glass");
+        fm.ratio = 7.5f;
+        song.addChannel("Fm", InstrumentSpec.fm(fm), 0);
+        PluckPatch pluck = PluckPatch.preset("Harp");
+        pluck.decay = 3.25f;
+        song.addChannel("Strum", InstrumentSpec.pluck(pluck), 1);
         DelayEffect delay = new DelayEffect(Song.SAMPLE_RATE);
         delay.setParameter("time", 0.33f);
         song.getMixer().getStrip(3).addEffect(delay);
@@ -57,6 +65,10 @@ class SongIOTest {
         assertEquals(InstrumentSpec.Type.SOUNDFONT, read.getChannels().get(6).getInstrument().type);
         assertEquals(3, read.getChannels().get(6).getInstrument().program);
         assertEquals(48, read.getChannels().get(7).getInstrument().rootNote);
+        assertEquals(InstrumentSpec.Type.FM, read.getChannels().get(8).getInstrument().type);
+        assertEquals(7.5f, read.getChannels().get(8).getInstrument().fm.ratio);
+        assertEquals(InstrumentSpec.Type.PLUCK, read.getChannels().get(9).getInstrument().type);
+        assertEquals(3.25f, read.getChannels().get(9).getInstrument().pluck.decay);
         assertEquals(List.of(new Note(0, 48, 72, 0.5f), new Note(96, 24, 74, 1f)),
             read.getPatterns().get(0).getNotes(read.getChannels().get(3).getId()));
         assertEquals(song.getClips(), read.getClips());
@@ -65,6 +77,49 @@ class SongIOTest {
         assertEquals(-0.4f, read.getMixer().getStrip(3).getPan());
         assertTrue(read.getMixer().getStrip(3).isSolo());
         assertEquals(0.9f, read.getMixer().getMaster().getVolume());
+    }
+
+    @Test
+    void shouldLoadASongWrittenBeforeFmAndPluckExistedAndSoundTheSame() throws Exception {
+        Song song = Song.createDefault("old");
+        Pattern pattern = song.getPatterns().get(0);
+        Channel lead = song.getChannels().get(3);
+        pattern.setNotes(lead.getId(), List.of(new Note(0, 48, 64, 0.8f)));
+        String current = SongIO.toJson(song);
+        assertTrue(current.contains("\"fm\":{") && current.contains("\"pluck\":{"));
+        // A file from before TD-075 has neither block in any instrument
+        String old = current.replaceAll(",\"fm\":\\{[^}]*\\},\"pluck\":\\{[^}]*\\}", "");
+        assertTrue(!old.contains("\"fm\"") && !old.contains("\"pluck\""), "the blocks were not all removed");
+        Song read = SongIO.fromJson(old);
+        assertEquals(song.getChannels().size(), read.getChannels().size());
+        for (Channel channel : read.getChannels()) {
+            assertEquals(FmPatch.preset("Bell").toJson(), channel.getInstrument().fm.toJson());
+            assertEquals(PluckPatch.preset("Nylon Guitar").toJson(), channel.getInstrument().pluck.toJson());
+        }
+        int id = pattern.getId();
+        org.junit.jupiter.api.Assertions.assertArrayEquals(
+            SongExporter.render(song, MusicAssets.NONE, Schedule.Mode.PATTERN, id).getLeft(),
+            SongExporter.render(read, MusicAssets.NONE, Schedule.Mode.PATTERN, id).getLeft());
+    }
+
+    @Test
+    void shouldRenderASongWithFmAndPluckedStringChannelsAndSoundTheSameAfterReloading() throws Exception {
+        Song song = Song.createDefault("new instruments");
+        Pattern pattern = song.getPatterns().get(0);
+        Channel fm = song.addChannel("Bell", InstrumentSpec.fm(FmPatch.preset("Bell")), 5);
+        Channel string = song.addChannel("Harp", InstrumentSpec.pluck(PluckPatch.preset("Harp")), 6);
+        pattern.setNotes(fm.getId(), List.of(new Note(0, 96, 72, 1f)));
+        pattern.setNotes(string.getId(), List.of(new Note(0, 96, 52, 1f), new Note(96, 96, 55, 1f)));
+        int id = pattern.getId();
+        float[] left = SongExporter.render(song, MusicAssets.NONE, Schedule.Mode.PATTERN, id).getLeft();
+        float peak = 0f;
+        for (float v : left) {
+            assertTrue(Float.isFinite(v), "the render holds a non-number");
+            peak = Math.max(peak, Math.abs(v));
+        }
+        assertTrue(peak > 0.05f, "the new channels are silent: " + peak);
+        org.junit.jupiter.api.Assertions.assertArrayEquals(left,
+            SongExporter.render(SongIO.fromJson(SongIO.toJson(song)), MusicAssets.NONE, Schedule.Mode.PATTERN, id).getLeft());
     }
 
     @Test

@@ -1,5 +1,5 @@
-import { copyValue, defaultValue, accepts, isVec3, type Graph, type GraphNode, type ValueType, type Vec3 } from "./graph";
-import { EXEC_OUT, MAX_LOOP_ITERATIONS, NODE, PIN_DELTA_TIME, PIN_OTHER, PROPERTY_NAME, type GraphEntity, type NodeContext, type NodeRegistry, type NodeType } from "./nodes";
+import { copyValue, defaultValue, accepts, isVec3, type Graph, type GraphFunction, type GraphNode, type ValueType, type Vec3 } from "./graph";
+import { EXEC_OUT, MAX_CALL_DEPTH, MAX_EVENT_DEPTH, MAX_LOOP_ITERATIONS, NODE, PIN_DELTA_TIME, PIN_OTHER, PROPERTY_NAME, type GraphEntity, type NodeContext, type NodeRegistry, type NodeType } from "./nodes";
 import { validateGraph } from "./validator";
 
 /** A node failed; {@code nodeId} says which. */
@@ -22,6 +22,8 @@ export interface GraphHost {
   nodeExecuted?(instance: GraphInstance, nodeId: string): void;
   /** Whether any of the keys (`KeyboardEvent.code` values) is held down; without it Key Down and Input Axis read no key. */
   isKeyDown?(codes: string[]): boolean;
+  /** Whether any of the keys went down since the last frame; without it Key Pressed reads no key (TD-072). */
+  isKeyJustPressed?(codes: string[]): boolean;
 }
 
 /** Nodes one event may run before it is stopped as an endless loop. */
@@ -45,10 +47,18 @@ interface Continuation { nodeId: string; pinId: string; index?: number }
  * is stopped as a probable endless loop.
  */
 export class GraphInstance {
-  private readonly variables = new Map<string, unknown>();
+  /** Shared by the graph's own instance and every function frame it starts. */
+  private variables = new Map<string, unknown>();
   private readonly lastOutputs = new Map<string, Map<string, unknown>>();
   private readonly delays: PendingDelay[] = [];
   private stopped = false;
+  /** For the frame of a function call (TD-070): the instance that made the call; null for the graph's own instance. */
+  private caller: GraphInstance | null = null;
+  private callDepth = 0;
+  /** Custom events firing custom events, how deep now (the graph's own instance only). */
+  private eventDepth = 0;
+  /** Set by a Return node: the function frame's outputs; the frame stops running. */
+  private returned: Record<string, unknown> | null = null;
 
   /**
    * @param isAlive whether the entity is still in the scene; the graph stops running when it is not
@@ -60,12 +70,69 @@ export class GraphInstance {
     readonly self: GraphEntity,
     private readonly host: GraphHost,
     private readonly isAlive: () => boolean = () => true,
+    /** @internal set only for the frame of a function call */
+    caller: GraphInstance | null = null,
   ) {
+    if (caller) {
+      this.caller = caller;
+      this.callDepth = caller.callDepth + 1;
+      this.variables = caller.variables;
+      return;
+    }
     const problems = validateGraph(graph, registry);
     if (problems.length > 0) {
       throw new Error(`Graph ${graph.name} has ${problems.length} problem(s), first: ${problems[0]!.message}`);
     }
     for (const variable of graph.variables) this.variables.set(variable.name, copyValue(variable.value));
+  }
+
+  // --- Functions (TD-070) ---
+
+  /** The graph's own instance: this one, or for a function frame the instance that started the outermost call. */
+  private root(): GraphInstance {
+    return this.caller ? this.caller.root() : this;
+  }
+
+  /**
+   * Runs `fn` to its Return (or to the end of its chain) and gives back its outputs by name; an output no Return reached holds the
+   * default of its type. Errors in the body stop the caller's chain too.
+   * @internal used by the node context
+   */
+  callFunction(fn: GraphFunction, args: Record<string, unknown>): Record<string, unknown> {
+    if (this.callDepth >= MAX_CALL_DEPTH) throw new GraphRuntimeError("", `Functions called more than ${MAX_CALL_DEPTH} deep: ${fn.name}`);
+    const entry = fn.body.nodes.find((node) => node.type === NODE.functionEntry);
+    if (!entry) throw new GraphRuntimeError("", `Function ${fn.name} has no Function Entry node`);
+    const frame = new GraphInstance(fn.body, this.registry, this.self, this.host, this.isAlive, this);
+    const outputs = frame.outputsOf(entry.id);
+    for (const [name, value] of Object.entries(args)) outputs.set(name, value);
+    frame.runChain(entry.id, EXEC_OUT);
+    const results: Record<string, unknown> = {};
+    for (const output of fn.outputs) {
+      const value = frame.returned?.[output.name];
+      results[output.name] = value !== undefined && value !== null ? value : defaultValue(output.type);
+    }
+    return results;
+  }
+
+  /** @internal used by the node context */
+  returnFromFunction(values: Record<string, unknown>): void {
+    if (!this.caller) throw new Error("Return outside a function");
+    this.returned = values;
+    this.stopped = true;
+  }
+
+  /** Runs the Custom Event nodes named `name` with `args` before this returns. @internal used by the node context */
+  fireEvent(name: string, args: Record<string, unknown>): boolean {
+    const root = this.root();
+    if (root.eventDepth >= MAX_EVENT_DEPTH) {
+      throw new GraphRuntimeError("", `Custom events fired more than ${MAX_EVENT_DEPTH} deep: ${name}; does an event fire itself?`);
+    }
+    root.eventDepth++;
+    try {
+      return root.fire(NODE.custom, args, name);
+    } finally {
+      root.eventDepth--;
+    }
   }
 
   // --- Events ---
@@ -136,6 +203,10 @@ export class GraphInstance {
     return this.host.isKeyDown?.(codes) ?? false;
   }
 
+  isKeyJustPressed(codes: string[]): boolean {
+    return this.host.isKeyJustPressed?.(codes) ?? false;
+  }
+
   getVariable(name: string): unknown {
     const variable = this.graph.variable(name);
     if (!variable) throw new Error(`Unknown variable: ${name}`);
@@ -179,15 +250,17 @@ export class GraphInstance {
             throw new GraphRuntimeError(current, `Stopped after ${MAX_NODES_PER_EVENT} nodes in one event; is there an endless loop?`);
           }
           const context = new Context(this, target, 0);
-          this.host.nodeExecuted?.(this, target.id);
+          if (!this.caller) this.host.nodeExecuted?.(this, target.id);
           this.registry.require(target.type).run?.(context);
           // Continue in the order the node asked for (a stack pops the last push first)
           for (let i = context.continuations.length - 1; i >= 0; i--) pending.push(context.continuations[i]!);
         }
       }
     } catch (error) {
-      if (error instanceof GraphRuntimeError) this.host.error(this, error);
-      else this.host.error(this, new GraphRuntimeError(current, error instanceof Error ? error.message : String(error)));
+      const failure = error instanceof GraphRuntimeError ? error : new GraphRuntimeError(current, error instanceof Error ? error.message : String(error));
+      // The graph's own instance reports to the host; a function frame hands the error to its caller, so the calling chain stops
+      if (this.caller) throw failure;
+      this.host.error(this, failure);
     }
   }
 
@@ -340,7 +413,27 @@ class Context implements NodeContext {
     return this.instance.isKeyDown(codes);
   }
 
+  isKeyJustPressed(codes: string[]): boolean {
+    return this.instance.isKeyJustPressed(codes);
+  }
+
   error(message: string): Error {
     return new GraphRuntimeError(this.node.id, message);
+  }
+
+  graph(): Graph {
+    return this.instance.graphOf();
+  }
+
+  callFunction(fn: GraphFunction, args: Record<string, unknown>): Record<string, unknown> {
+    return this.instance.callFunction(fn, args);
+  }
+
+  returnFromFunction(values: Record<string, unknown>): void {
+    this.instance.returnFromFunction(values);
+  }
+
+  fireEvent(name: string, args: Record<string, unknown>): void {
+    this.instance.fireEvent(name, args);
   }
 }

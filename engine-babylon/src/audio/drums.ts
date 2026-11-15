@@ -1,6 +1,8 @@
 import { BiquadFilter, MIN_Q, Oscillator, type Instrument } from "./dsp";
 
-export type Drum = "KICK" | "SNARE" | "CLAP" | "CLOSED_HAT" | "OPEN_HAT" | "TOM" | "CRASH";
+export type Drum =
+  | "KICK" | "SNARE" | "CLAP" | "CLOSED_HAT" | "OPEN_HAT" | "TOM" | "CRASH"
+  | "RIM_SHOT" | "FLOOR_TOM" | "MID_TOM" | "HIGH_TOM" | "RIDE" | "TAMBOURINE" | "COWBELL" | "SHAKER";
 
 /** Each drum answers to its General MIDI note, as on the desktop. */
 export const DRUMS: readonly { drum: Drum; note: number; name: string }[] = [
@@ -11,6 +13,15 @@ export const DRUMS: readonly { drum: Drum; note: number; name: string }[] = [
   { drum: "OPEN_HAT", note: 46, name: "Open Hat" },
   { drum: "TOM", note: 45, name: "Tom" },
   { drum: "CRASH", note: 49, name: "Crash" },
+  // Added in TD-074; the first seven keep their order so saved step grids still mean the same drums
+  { drum: "RIM_SHOT", note: 37, name: "Rim Shot" },
+  { drum: "FLOOR_TOM", note: 41, name: "Floor Tom" },
+  { drum: "MID_TOM", note: 47, name: "Mid Tom" },
+  { drum: "HIGH_TOM", note: 50, name: "High Tom" },
+  { drum: "RIDE", note: 51, name: "Ride" },
+  { drum: "TAMBOURINE", note: 54, name: "Tambourine" },
+  { drum: "COWBELL", note: 56, name: "Cowbell" },
+  { drum: "SHAKER", note: 70, name: "Shaker" },
 ];
 
 export function drumForNote(note: number): Drum | null {
@@ -28,11 +39,29 @@ const CLAP_BURST_GAP_SECONDS = 0.011;
 const TOM_START_HZ = 220;
 const TOM_END_HZ = 110;
 const HAT_HIGH_PASS_HZ = 7000;
+/** How fast a tom's pitch falls from its start to its end frequency. */
+const TOM_PITCH_DROP_SECONDS = 0.08;
+const RIM_SHOT_TONE_HZ = 1700;
+const FLOOR_TOM_START_HZ = 150;
+const FLOOR_TOM_END_HZ = 75;
+const MID_TOM_START_HZ = 260;
+const MID_TOM_END_HZ = 130;
+const HIGH_TOM_START_HZ = 340;
+const HIGH_TOM_END_HZ = 170;
+/** The ride's bell-like ping, mixed under its noise. */
+const RIDE_PING_HZ = 4200;
+const TAMBOURINE_JINGLE_HZ = 6200;
+/** The cowbell is two square tones this far apart. */
+const COWBELL_LOW_HZ = 560;
+const COWBELL_HIGH_HZ = 845;
+/** Share of the shaker's length it takes to swell to full level. */
+const SHAKER_ATTACK_FRACTION = 0.15;
 /** The amplitude envelope falls by e^-8 over a drum's length. */
 const DECAY_FALL = 8;
 
 const SECONDS: Record<Drum, number> = {
   KICK: 0.45, SNARE: 0.22, CLAP: 0.25, CLOSED_HAT: 0.06, OPEN_HAT: 0.35, TOM: 0.35, CRASH: 1.2,
+  RIM_SHOT: 0.08, FLOOR_TOM: 0.45, MID_TOM: 0.3, HIGH_TOM: 0.25, RIDE: 0.9, TAMBOURINE: 0.3, COWBELL: 0.35, SHAKER: 0.12,
 };
 
 class Hit {
@@ -45,6 +74,7 @@ class Hit {
   frame = 0;
   length = 0;
   phase = 0;
+  phase2 = 0;
 
   constructor(private readonly sampleRate: number) {
     this.highPass = new BiquadFilter(sampleRate);
@@ -56,6 +86,7 @@ class Hit {
     this.velocity = velocity;
     this.frame = 0;
     this.phase = 0;
+    this.phase2 = 0;
     this.active = true;
     this.noise.setPhase(0);
     this.highPass.reset();
@@ -86,7 +117,31 @@ class Hit {
           sample = this.clap(t);
           break;
         case "TOM":
-          sample = this.tone(TOM_END_HZ + (TOM_START_HZ - TOM_END_HZ) * Math.exp(-t / 0.08)) * decay;
+          sample = this.tom(t, TOM_START_HZ, TOM_END_HZ, decay);
+          break;
+        case "FLOOR_TOM":
+          sample = this.tom(t, FLOOR_TOM_START_HZ, FLOOR_TOM_END_HZ, decay);
+          break;
+        case "MID_TOM":
+          sample = this.tom(t, MID_TOM_START_HZ, MID_TOM_END_HZ, decay);
+          break;
+        case "HIGH_TOM":
+          sample = this.tom(t, HIGH_TOM_START_HZ, HIGH_TOM_END_HZ, decay);
+          break;
+        case "RIM_SHOT":
+          sample = (this.bandPass.process(this.noiseSample()) * 0.8 + this.tone(RIM_SHOT_TONE_HZ) * 0.6) * decay;
+          break;
+        case "RIDE":
+          sample = (this.highPass.process(this.noiseSample()) * 0.35 + this.tone(RIDE_PING_HZ) * 0.12) * decay;
+          break;
+        case "TAMBOURINE":
+          sample = (this.highPass.process(this.noiseSample()) * 0.45 + this.tone(TAMBOURINE_JINGLE_HZ) * 0.15) * decay;
+          break;
+        case "COWBELL":
+          sample = this.cowbell(decay);
+          break;
+        case "SHAKER":
+          sample = this.highPass.process(this.noiseSample()) * 0.8 * Math.min(progress / SHAKER_ATTACK_FRACTION, 1) * decay;
           break;
         default:
           sample = this.highPass.process(this.noiseSample()) * decay * 0.6;
@@ -111,6 +166,20 @@ class Hit {
   private kick(t: number, decay: number): number {
     const drop = Math.exp(-t / KICK_PITCH_DROP_SECONDS);
     return this.tone(KICK_END_HZ + (KICK_START_HZ - KICK_END_HZ) * drop) * decay;
+  }
+
+  private tom(t: number, startHz: number, endHz: number, decay: number): number {
+    return this.tone(endHz + (startHz - endHz) * Math.exp(-t / TOM_PITCH_DROP_SECONDS)) * decay;
+  }
+
+  private cowbell(decay: number): number {
+    this.phase += COWBELL_LOW_HZ / this.sampleRate;
+    if (this.phase >= 1) this.phase -= 1;
+    this.phase2 += COWBELL_HIGH_HZ / this.sampleRate;
+    if (this.phase2 >= 1) this.phase2 -= 1;
+    const low = this.phase < 0.5 ? 1 : -1;
+    const high = this.phase2 < 0.5 ? 1 : -1;
+    return (low + high) * 0.3 * decay;
   }
 
   /** Three short noise bursts, then a tail. */

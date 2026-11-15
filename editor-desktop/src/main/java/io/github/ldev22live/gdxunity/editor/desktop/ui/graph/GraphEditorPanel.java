@@ -9,8 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Disposable;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.ScrollingBar;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.file.EditorDialogService;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.ContextMenu;
@@ -22,6 +24,7 @@ import io.github.ldev22live.gdxunity.editor.visualscript.GraphExecutionTrace;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializationException;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphCodeGenerator;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphFunction;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphSourceEmbed;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphValidator;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphVariable;
@@ -41,6 +44,16 @@ import java.util.function.Supplier;
  * {@link GraphCanvas}. Opening another graph saves the current one first, so edits are never lost.
  */
 public class GraphEditorPanel extends Table implements Disposable {
+    /** Width of the node palette beside the canvas (TD-069). */
+    /** Space between the toolbar buttons; they have no edges, so a small gap reads as one line of text. */
+    private static final float BUTTON_GAP = 14f;
+    /** Height of a toolbar button and of a toolbar row. */
+    private static final float BAR_BUTTON_HEIGHT = 24f;
+    private static final float BAR_HEIGHT = 30f;
+    private static final float PALETTE_WIDTH = 280f;
+    /** In a narrow centre column the palette takes this share of the width, but never less than {@link #PALETTE_MIN_WIDTH} (TD-077). */
+    private static final float PALETTE_SHARE = 0.4f;
+    private static final float PALETTE_MIN_WIDTH = 160f;
     private final Skin skin;
     private final EditorState editorState;
     private final GraphAssets assets;
@@ -50,8 +63,11 @@ public class GraphEditorPanel extends Table implements Disposable {
     private final Runnable onAssetsChanged;
     private final Supplier<String> refreshNodes;
     private final GraphCanvas canvas;
+    private final NodePalette palette;
     private final Label titleLabel;
     private final Label problemsLabel;
+    /** Leaves a function body for the graph itself (TD-070); only shown while a function is open. */
+    private final TextButton mainGraphButton;
     private final ContextMenu variableMenu;
     private final GraphDocument.Listener documentListener = d -> refresh();
 
@@ -75,17 +91,25 @@ public class GraphEditorPanel extends Table implements Disposable {
         this.refreshNodes = Objects.requireNonNull(refreshNodes, "refreshNodes cannot be null");
         this.canvas = new GraphCanvas(skin, editorState, trace);
         this.variableMenu = new ContextMenu(skin);
+        this.palette = new NodePalette(skin, () -> this.registry, canvas);
         setBackground("panel-bg");
         top().left();
 
+        // Two rows, because one row of every button plus the title was wider than the centre of the editor, which made the whole
+        // editor wider than the window (found in a frame, TD-076). The first row edits the graph, the second makes and finds code.
         Table bar = new Table(skin);
         bar.setBackground("subheader-bg");
         bar.left();
+        Table assetBar = new Table(skin);
+        assetBar.setBackground("subheader-bg");
+        assetBar.left();
         titleLabel = new Label("No graph open. Create one, or double-click a .graph in the Content Browser.", skin, "muted");
-        bar.add(button("New Graph", this::newGraph)).height(24).padLeft(4);
-        bar.add(button("Save", this::save)).height(24);
-        bar.add(button("Undo", () -> withDocument(GraphDocument::undo))).height(24);
-        bar.add(button("Redo", () -> withDocument(GraphDocument::redo))).height(24);
+        // The title may be longer than the room it has: it is cut with an ellipsis instead of widening the toolbar
+        titleLabel.setEllipsis(true);
+        bar.add(button("New Graph", this::newGraph)).height(BAR_BUTTON_HEIGHT).padLeft(4).padRight(BUTTON_GAP);
+        bar.add(button("Save", this::save)).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        bar.add(button("Undo", () -> withDocument(GraphDocument::undo))).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        bar.add(button("Redo", () -> withDocument(GraphDocument::redo))).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
         TextButton addVariable = new TextButton("Add Variable", skin, "flat");
         addVariable.addListener(new ChangeListener() {
             @Override
@@ -93,11 +117,35 @@ public class GraphEditorPanel extends Table implements Disposable {
                 showAddVariable(addVariable);
             }
         });
-        bar.add(addVariable).height(24);
-        bar.add(button("Generate Java", () -> generate(GraphCodeGenerator.Language.JAVA))).height(24);
-        bar.add(button("Generate Kotlin", () -> generate(GraphCodeGenerator.Language.KOTLIN))).height(24);
-        bar.add(button("Generate TypeScript", this::generateTypeScript)).height(24);
-        bar.add(button("Import Script", this::importScript)).height(24);
+        bar.add(addVariable).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        bar.add(button("Pure/Action", this::switchSelectedKind)).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        TextButton functions = new TextButton("Functions", skin, "flat");
+        functions.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                showSignatures(functions, true);
+            }
+        });
+        bar.add(functions).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        TextButton events = new TextButton("Events", skin, "flat");
+        events.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                showSignatures(events, false);
+            }
+        });
+        bar.add(events).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        mainGraphButton = button("Main Graph", () -> withDocument(GraphDocument::showMainGraph));
+        mainGraphButton.setVisible(false);
+        bar.add(mainGraphButton).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        bar.add(titleLabel).padLeft(12).left().growX().minWidth(0);
+        problemsLabel = new Label("", skin, "muted");
+        bar.add(problemsLabel).padRight(8);
+
+        assetBar.add(button("Generate Java", () -> generate(GraphCodeGenerator.Language.JAVA))).height(BAR_BUTTON_HEIGHT).padLeft(4).padRight(BUTTON_GAP);
+        assetBar.add(button("Generate Kotlin", () -> generate(GraphCodeGenerator.Language.KOTLIN))).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        assetBar.add(button("Generate TypeScript", this::generateTypeScript)).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        assetBar.add(button("Import Script", this::importScript)).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
         TextButton examples = new TextButton("Examples", skin, "flat");
         examples.addListener(new ChangeListener() {
             @Override
@@ -105,14 +153,20 @@ public class GraphEditorPanel extends Table implements Disposable {
                 showExamples(examples);
             }
         });
-        bar.add(examples).height(24);
-        bar.add(button("Pure/Action", this::switchSelectedKind)).height(24);
-        bar.add(button("Refresh Nodes", () -> editorState.setStatusMessage("Method nodes: " + this.refreshNodes.get(), false))).height(24);
-        bar.add(titleLabel).padLeft(12).left().expandX();
-        problemsLabel = new Label("", skin, "muted");
-        bar.add(problemsLabel).padRight(8);
-        add(bar).growX().height(30).row();
-        add(canvas).grow();
+        assetBar.add(examples).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        assetBar.add(button("Refresh Nodes", () -> { editorState.setStatusMessage("Method nodes: " + this.refreshNodes.get(), false); palette.refill(); })).height(BAR_BUTTON_HEIGHT).padRight(BUTTON_GAP);
+        assetBar.add().growX();
+        add(ScrollingBar.around(bar, skin)).growX().minWidth(0).height(BAR_HEIGHT).row();
+        add(ScrollingBar.around(assetBar, skin)).growX().minWidth(0).height(BAR_HEIGHT).row();
+        Table body = new Table(skin);
+        body.add(palette).width(Value.percentWidth(PALETTE_SHARE, body)).minWidth(PALETTE_MIN_WIDTH).maxWidth(PALETTE_WIDTH).growY();
+        body.add(canvas).grow();
+        add(body).grow();
+    }
+
+    /** Types {@code text} into the node palette's search (a testing aid, TD-069). */
+    public void searchPalette(String text) {
+        palette.setSearch(text);
     }
 
     public GraphDocument getDocument() {
@@ -265,7 +319,10 @@ public class GraphEditorPanel extends Table implements Disposable {
         if (document == null) {
             return;
         }
-        titleLabel.setText(document.getGraph().getName() + (document.isDirty() ? " *" : "") + "   " + document.getAsset().getPath());
+        GraphFunction open = document.getOpenFunction();
+        mainGraphButton.setVisible(open != null);
+        titleLabel.setText((open != null ? "Function " + open.getName() + " of " : "") + document.getGraph().getName()
+            + (document.isDirty() ? " *" : "") + "   " + document.getAsset().getPath());
         List<GraphValidator.Problem> problems = document.validate();
         problemsLabel.setText(problems.isEmpty() ? "No problems" : problems.size() + " problem(s): " + problems.get(0).message());
         problemsLabel.setColor(problems.isEmpty() ? skin.getColor("text-muted") : skin.getColor("error"));
@@ -303,6 +360,28 @@ public class GraphEditorPanel extends Table implements Disposable {
         Vector2 at = anchor.localToStageCoordinates(new Vector2(0f, 0f));
         variableMenu.showContent(getStage(), at.x, at.y, popup);
         getStage().setKeyboardFocus(name);
+    }
+
+    /** Opens the Functions or Events pop-up (TD-070): declare, edit and remove them, and add their parameters. */
+    private void showSignatures(Actor anchor, boolean functions) {
+        if (getStage() == null) {
+            return;
+        }
+        if (canvas.getDocument() == null) {
+            editorState.setStatusMessage("Open a graph first", true);
+            return;
+        }
+        Runnable closeAndRefresh = () -> {
+            variableMenu.close();
+            refresh();
+        };
+        Consumer<String> error = message -> editorState.setStatusMessage(message, true);
+        SignaturePopup popup = functions
+            ? SignaturePopup.forFunctions(skin, canvas::getDocument, error, closeAndRefresh)
+            : SignaturePopup.forEvents(skin, canvas::getDocument, error, closeAndRefresh);
+        Vector2 at = anchor.localToStageCoordinates(new Vector2(0f, 0f));
+        variableMenu.showContent(getStage(), at.x, at.y, popup.build());
+        getStage().setKeyboardFocus(popup.nameField());
     }
 
     /** Lists the project's example graphs (TD-060): what each mirrors, covers and leaves out, and opens the one chosen. */
@@ -355,8 +434,8 @@ public class GraphEditorPanel extends Table implements Disposable {
         }
         int switched = 0;
         for (String id : canvas.getSelectedNodeIds()) {
-            if (GraphCommands.SwitchMethodKind.canSwitch(document.getGraph(), registry, id)
-                && document.execute(new GraphCommands.SwitchMethodKind(document.getGraph(), registry, id))) {
+            if (GraphCommands.SwitchMethodKind.canSwitch(document.getViewGraph(), registry, id)
+                && document.execute(new GraphCommands.SwitchMethodKind(document.getViewGraph(), registry, id))) {
                 switched++;
             }
         }

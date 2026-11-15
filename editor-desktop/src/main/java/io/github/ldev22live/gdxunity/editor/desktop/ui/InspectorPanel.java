@@ -145,6 +145,9 @@ public class InspectorPanel extends Table {
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.Joint3DComponentEditorProvider());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.GameComponentEditorProviders.Text());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.AudioSourceComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.EngineSoundComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.AudioListenerComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.ShapeRendererComponentEditorProvider());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.MusicSourceComponentEditorProvider());
         reg.register(new Physics3DComponentEditorProviders.RigidBody());
         reg.register(new Physics3DComponentEditorProviders.Box());

@@ -34,6 +34,9 @@ import java.util.Objects;
  * middle, layers, tools, auto-tile rules and collision on the right. Edits are undoable inside the tab (its own history, like the Sprites tab).
  */
 public final class TilemapStudioPanel extends Table implements Disposable {
+    /** Shown instead of the editor while no entity with a Tilemap component is selected; it must also be shown before any selection (TD-078). */
+    static final String NO_TILEMAP_MESSAGE = "Select an entity with a Tilemap component (Add Component > Tilemap) to paint its tiles here. "
+        + "The tile set is a .sprite file whose frames are the tiles; make one in 2D Studio: Sprites.";
     private static final float TOOL_WIDTH = 74f;
     private static final float ROW_HEIGHT = 24f;
     private static final float RIGHT_WIDTH = 220f;
@@ -70,7 +73,7 @@ public final class TilemapStudioPanel extends Table implements Disposable {
         super(skin);
         this.skin = Objects.requireNonNull(skin, "skin cannot be null");
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
-        message = new Label("", skin, "muted");
+        message = new Label(NO_TILEMAP_MESSAGE, skin, "muted");
         message.setWrap(true);
         statusLabel = new Label("", skin, "muted");
         hoverLabel = new Label("", skin, "muted");
@@ -262,8 +265,7 @@ public final class TilemapStudioPanel extends Table implements Disposable {
         builtRevision = -1;
         canvas.requestFit();
         if (next == null) {
-            message.setText("Select an entity with a Tilemap component (Add Component > Tilemap) to paint its tiles here. "
-                + "The tile set is a .sprite file whose frames are the tiles; make one in the Sprites tab.");
+            message.setText(NO_TILEMAP_MESSAGE);
         }
     }
 

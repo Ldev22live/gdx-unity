@@ -55,6 +55,23 @@ function boundClasses(file: string): string[] {
   return names;
 }
 
+/** Cues played by the Play Sound nodes of the graphs a scene binds (TD-072). */
+function graphCues(file: string): string[] {
+  const cues: string[] = [];
+  for (const entity of loadSample(file).entities) {
+    for (const component of entity.components) {
+      if (component.type !== "GraphScriptComponent") continue;
+      const graph = JSON.parse(readFileSync(join(SAMPLES_DIR, "..", String(component.data["graph"])), "utf8")) as {
+        nodes: { type: string; properties: { name: string; value: string }[] }[];
+      };
+      for (const node of graph.nodes) {
+        if (node.type === "action.playCue") cues.push(...node.properties.filter((p) => p.name === "cue").map((p) => p.value));
+      }
+    }
+  }
+  return cues;
+}
+
 function sceneCues(file: string): string[] {
   const cues: string[] = [];
   for (const entity of loadSample(file).entities) {
@@ -87,7 +104,7 @@ describe("sample sound effects", () => {
       const classes = boundClasses(file);
       // Only samples whose every script has a web version play there; the others (fps, fighter, puzzle, racing) are desktop only
       if (classes.length === 0 || !classes.every((name) => web.has(name))) continue;
-      const played = new Set(classes.flatMap((name) => [...web.get(name)!]));
+      const played = new Set([...classes.flatMap((name) => [...web.get(name)!]), ...graphCues(file)]);
       expect([...played].sort(), file).toEqual([...sceneCues(file)].sort());
       checked++;
     }

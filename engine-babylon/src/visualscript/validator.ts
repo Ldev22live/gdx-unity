@@ -1,5 +1,5 @@
 import { accepts, type Graph } from "./graph";
-import { PROPERTY_VARIABLE, type NodeRegistry, type PinDef } from "./nodes";
+import { NODE, PROPERTY_FUNCTION, PROPERTY_NAME, PROPERTY_VARIABLE, type NodeRegistry, type PinDef } from "./nodes";
 
 /** One problem; {@code nodeId} is null for problems not tied to a node. */
 export interface GraphProblem {
@@ -63,8 +63,13 @@ export function validateGraph(graph: Graph, registry: NodeRegistry): GraphProble
         problems.push({ nodeId: node.id, message: `${type.title} needs a ${property}` });
       } else if (property === PROPERTY_VARIABLE && !graph.variable(value)) {
         problems.push({ nodeId: node.id, message: `Variable ${value} does not exist` });
+      } else if (property === PROPERTY_FUNCTION && !graph.functionNamed(value)) {
+        problems.push({ nodeId: node.id, message: `Function ${value} does not exist` });
+      } else if (node.type === NODE.fireEvent && property === PROPERTY_NAME && !graph.eventNamed(value)) {
+        problems.push({ nodeId: node.id, message: `Custom event ${value} is not declared; declare it with its parameters first` });
       }
     }
+    problems.push(...placementProblems(graph, node.id, node.type, type.title, type.kind));
     for (const [pinId, literal] of Object.entries(node.literals)) {
       const pin = registry.pin(node, graph, pinId);
       if (pin && !pin.exec && pin.input && pin.type && !accepts(pin.type, literal)) {
@@ -102,7 +107,66 @@ export function validateGraph(graph: Graph, registry: NodeRegistry): GraphProble
 
   const loop = findDataLoop(graph, registry);
   if (loop) problems.push({ nodeId: loop, message: "Data wires form a loop: a value cannot depend on itself" });
+  if (graph.owner) {
+    const entries = graph.nodes.filter((node) => node.type === NODE.functionEntry).length;
+    if (entries !== 1) problems.push({ nodeId: null, message: `Function ${graph.owner.name} needs exactly one Function Entry node, has ${entries}` });
+  } else {
+    for (const fn of graph.functions) {
+      for (const inner of validateGraph(fn.body, registry)) problems.push({ nodeId: null, message: `Function ${fn.name}: ${inner.message}` });
+    }
+    const cycle = findCallCycle(graph);
+    if (cycle) problems.push({ nodeId: null, message: `Functions call each other in a circle (${cycle}); a function cannot call itself, directly or through others` });
+  }
   return problems;
+}
+
+/**
+ * Source generation does not cover functions and parameterized events yet (TD-070): a graph that has them runs in the interpreter, on the
+ * web and on the desktop, but cannot become Java, Kotlin or TypeScript.
+ * @throws Error saying so
+ */
+export function refuseFunctionsForGeneration(graph: Graph, target: string): void {
+  const fires = graph.nodes.some((node) => node.type === NODE.fireEvent || node.type === NODE.functionCall);
+  if (graph.usesFunctionsOrEvents() || fires) {
+    throw new Error(`Graph ${graph.name} uses functions or declared custom events: ${target} source generation does not support them yet; the graph runs as it is in the editor, the game runtime and the web player`);
+  }
+}
+
+/** Nodes that only make sense in a function body, or only outside one, and what a body may not hold. */
+function placementProblems(graph: Graph, nodeId: string, typeId: string, title: string, kind: string): GraphProblem[] {
+  const problems: GraphProblem[] = [];
+  const inBody = graph.owner !== null;
+  if (!inBody && (typeId === NODE.functionEntry || typeId === NODE.functionReturn)) problems.push({ nodeId, message: `${title} can only be used inside a function` });
+  if (inBody && kind === "event" && typeId !== NODE.functionEntry) problems.push({ nodeId, message: `A function cannot hold ${title}; events belong to the graph` });
+  if (inBody && typeId === NODE.delay) problems.push({ nodeId, message: "A function cannot hold a Delay: it runs to its end in one go" });
+  return problems;
+}
+
+/** A path like "a -> b -> a" when functions call each other in a circle, else null. */
+function findCallCycle(graph: Graph): string | null {
+  const calls = new Map<string, string[]>();
+  for (const fn of graph.functions) {
+    calls.set(fn.name, fn.body.nodes.filter((node) => node.type === NODE.functionCall).map((node) => node.properties[PROPERTY_FUNCTION] ?? ""));
+  }
+  const done = new Set<string>();
+  const visit = (name: string, path: string[]): string | null => {
+    if (done.has(name) || !calls.has(name)) return null;
+    const at = path.indexOf(name);
+    if (at >= 0) return [...path.slice(at), name].join(" -> ");
+    path.push(name);
+    for (const next of calls.get(name)!) {
+      const found = visit(next, path);
+      if (found) return found;
+    }
+    path.pop();
+    done.add(name);
+    return null;
+  };
+  for (const start of calls.keys()) {
+    const found = visit(start, []);
+    if (found) return found;
+  }
+  return null;
 }
 
 /** A node on a cycle of data wires, or null. */

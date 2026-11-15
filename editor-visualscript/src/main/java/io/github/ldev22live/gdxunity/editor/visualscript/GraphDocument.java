@@ -4,6 +4,7 @@ import io.github.ldev22live.gdxunity.editor.core.command.CommandHistory;
 import io.github.ldev22live.gdxunity.editor.core.command.EditorCommand;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.visualscript.Graph;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphFunction;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphNode;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphValidator;
 import io.github.ldev22live.gdxunity.engine.visualscript.NodeRegistry;
@@ -30,11 +31,14 @@ public class GraphDocument {
     private final CommandHistory history = new CommandHistory();
     private final List<Listener> listeners = new CopyOnWriteArrayList<>();
     private boolean dirty;
+    /** The graph the canvas shows: {@link #graph}, or the body of one of its functions (TD-070). */
+    private Graph view;
 
     public GraphDocument(AssetReference asset, Graph graph, NodeRegistry registry) {
         this.asset = Objects.requireNonNull(asset, "asset cannot be null");
         this.graph = Objects.requireNonNull(graph, "graph cannot be null");
         this.registry = Objects.requireNonNull(registry, "registry cannot be null");
+        this.view = graph;
         history.addListener(h -> {
             dirty = true;
             notifyChanged();
@@ -45,8 +49,45 @@ public class GraphDocument {
         return asset;
     }
 
+    /** The graph of the file: what is saved, run and turned into code. */
     public Graph getGraph() {
         return graph;
+    }
+
+    /**
+     * The graph being edited: {@link #getGraph()}, or a function's body after {@link #openFunction}. Falls back to the graph when the
+     * function was removed (an undo can do that).
+     */
+    public Graph getViewGraph() {
+        if (view != graph) {
+            GraphFunction owner = view.getOwner();
+            if (owner == null || graph.getFunction(owner.getName()) != owner) {
+                view = graph;
+            }
+        }
+        return view;
+    }
+
+    /** The function whose body is being edited, or null when the graph itself is. */
+    public GraphFunction getOpenFunction() {
+        return getViewGraph().getOwner();
+    }
+
+    /** Shows the body of the function {@code name} for editing. @return false when there is no such function */
+    public boolean openFunction(String name) {
+        GraphFunction function = graph.getFunction(name);
+        if (function == null) {
+            return false;
+        }
+        view = function.getBody();
+        notifyChanged();
+        return true;
+    }
+
+    /** Shows the graph itself again. */
+    public void showMainGraph() {
+        view = graph;
+        notifyChanged();
     }
 
     public NodeRegistry getRegistry() {
@@ -75,8 +116,9 @@ public class GraphDocument {
 
     /** Places a new node of {@code type} at the given canvas position as one undo step. */
     public GraphNode addNode(NodeType type, float x, float y) {
-        GraphNode node = new GraphNode(graph.newNodeId(), type.getId(), x, y);
-        return execute(new GraphCommands.AddNode(graph, node)) ? node : null;
+        Graph target = getViewGraph();
+        GraphNode node = new GraphNode(target.newNodeId(), type.getId(), x, y);
+        return execute(new GraphCommands.AddNode(target, node)) ? node : null;
     }
 
     public boolean undo() {
@@ -88,7 +130,7 @@ public class GraphDocument {
     }
 
     public List<GraphValidator.Problem> validate() {
-        return new GraphValidator(registry).validate(graph);
+        return new GraphValidator(registry).validate(getViewGraph());
     }
 
     /** Writes the graph to its asset file. Graphs with problems are saved too, so work is never lost. */

@@ -4049,6 +4049,17 @@
             "colorB": 0.15,
             "colorA": 1.0
           }
+        },
+        {
+          "type": "EngineSound",
+          "enabled": true,
+          "data": {
+            "profile": "Hatchback",
+            "volume": 0.8,
+            "spatial": true,
+            "minDistance": 400.0,
+            "maxDistance": 3500.0
+          }
         }
       ]
     },
@@ -4329,6 +4340,17 @@
             "colorB": 0.15,
             "colorA": 1.0
           }
+        },
+        {
+          "type": "EngineSound",
+          "enabled": true,
+          "data": {
+            "profile": "Sports Coupe",
+            "volume": 0.8,
+            "spatial": true,
+            "minDistance": 400.0,
+            "maxDistance": 3500.0
+          }
         }
       ]
     },
@@ -4608,6 +4630,17 @@
             "colorG": 0.45,
             "colorB": 0.95,
             "colorA": 1.0
+          }
+        },
+        {
+          "type": "EngineSound",
+          "enabled": true,
+          "data": {
+            "profile": "Muscle V8",
+            "volume": 0.9,
+            "spatial": false,
+            "minDistance": 400.0,
+            "maxDistance": 3500.0
           }
         }
       ]
@@ -8530,6 +8563,11 @@
             "scriptClassName": "samples.racing.ChaseCamera3D",
             "language": "JAVA"
           }
+        },
+        {
+          "type": "AudioListener",
+          "enabled": true,
+          "data": {}
         }
       ]
     },

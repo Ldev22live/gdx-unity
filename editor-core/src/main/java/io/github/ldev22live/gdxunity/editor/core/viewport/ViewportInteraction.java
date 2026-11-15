@@ -1,6 +1,9 @@
 package io.github.ldev22live.gdxunity.editor.core.viewport;
 
 import com.badlogic.gdx.math.Vector3;
+import io.github.ldev22live.gdxunity.engine.scene.Entity;
+
+import java.util.Optional;
 
 /**
  * Pointer and keyboard handling for the scene view, independent of any UI toolkit.
@@ -34,4 +37,12 @@ public interface ViewportInteraction {
 
     /** World position under the pointer, used to place dropped assets. Never null. */
     Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight);
+
+    /**
+     * The entity under the pointer, picked the way a click picks it, used to apply a dropped asset to it (roadmap M2.2). An
+     * interaction that wraps another must pass this on to it. The default, for a view that picks nothing, is none.
+     */
+    default Optional<Entity> entityAt(float localX, float localY, float panelWidth, float panelHeight) {
+        return Optional.empty();
+    }
 }

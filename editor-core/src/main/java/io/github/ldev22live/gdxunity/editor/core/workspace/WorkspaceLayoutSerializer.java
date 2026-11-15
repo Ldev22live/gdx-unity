@@ -11,7 +11,12 @@ import java.nio.file.Files;
  * Handles versioned serialization, validation, and safe default recovery for workspace layout configurations.
  */
 public class WorkspaceLayoutSerializer {
-    public static final int CURRENT_VERSION = 1;
+    /**
+     * Version 2 (TD-085) adds which panels are open. A version 1 file keeps its sizes and gets the World layout's panels (Outliner and
+     * the bottom panel closed, Details with the selection), so the World-first layout is what an existing install sees next.
+     */
+    public static final int CURRENT_VERSION = 2;
+    private static final int VERSION_WITHOUT_PANELS = 1;
     private final Json json;
 
     public WorkspaceLayoutSerializer() {
@@ -44,7 +49,13 @@ public class WorkspaceLayoutSerializer {
             if (config == null) {
                 return createDefaultConfig();
             }
-            if (config.getVersion() != CURRENT_VERSION) {
+            if (config.getVersion() == VERSION_WITHOUT_PANELS) {
+                WorkspaceLayoutConfig defaults = createDefaultConfig();
+                config.setBottomPanelCollapsed(defaults.isBottomPanelCollapsed());
+                config.setOutlinerShown(defaults.isOutlinerShown());
+                config.setDetailsMode(defaults.getDetailsMode());
+                config.setVersion(CURRENT_VERSION);
+            } else if (config.getVersion() != CURRENT_VERSION) {
                 // If unsupported schema version, return safe default
                 return createDefaultConfig();
             }
@@ -95,7 +106,9 @@ public class WorkspaceLayoutSerializer {
         config.setSplitRatioMain(0.72f);
         config.setSplitRatioLeft(0.20f);
         config.setSplitRatioRight(0.25f);
-        config.setBottomPanelCollapsed(false);
+        config.setBottomPanelCollapsed(true);
+        config.setOutlinerShown(false);
+        config.setDetailsMode(PanelLayout.DetailsMode.WITH_SELECTION.name());
         return config;
     }
 
@@ -106,6 +119,9 @@ public class WorkspaceLayoutSerializer {
         config.setSplitRatioMain(clamp(config.getSplitRatioMain(), 0.1f, 0.9f, 0.8f));
         config.setSplitRatioLeft(clamp(config.getSplitRatioLeft(), 0.1f, 0.5f, 0.25f));
         config.setSplitRatioRight(clamp(config.getSplitRatioRight(), 0.1f, 0.5f, 0.25f));
+        if (PanelLayout.DetailsMode.parse(config.getDetailsMode()).isEmpty()) {
+            config.setDetailsMode(PanelLayout.DetailsMode.WITH_SELECTION.name());
+        }
     }
 
     private float clamp(float value, float min, float max, float fallback) {

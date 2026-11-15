@@ -731,12 +731,10 @@
           }
         },
         {
-          "type": "EntityScriptBindingComponent",
+          "type": "GraphScriptComponent",
           "enabled": true,
           "data": {
-            "scriptPath": "scripts/samples/collector/CollectorPlayer.java",
-            "scriptClassName": "samples.collector.CollectorPlayer",
-            "language": "JAVA"
+            "graph": "graphs/samples/CollectorPlayer.graph"
           }
         }
       ]

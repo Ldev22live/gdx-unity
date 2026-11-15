@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Launcher for the desktop Forgeroom Editor application.
@@ -29,6 +31,12 @@ import java.util.List;
  * found errors.
  */
 public class EditorLauncher {
+    /** The smallest window the editor supports; the window cannot be dragged smaller. */
+    static final int MIN_WINDOW_WIDTH = 1024;
+    static final int MIN_WINDOW_HEIGHT = 640;
+    private static final String WINDOW_SIZE_VARIABLE = "GDXUNITY_EDITOR_WINDOW";
+    private static final Pattern WINDOW_SIZE = Pattern.compile("(\\d+)[xX](\\d+)");
+
     /**
      * System property naming the sample project bundled with a packaged editor; set by the {@code jpackage} launcher
      * (see {@code editor-desktop/build.gradle}). Absent in development runs.
@@ -172,7 +180,36 @@ public class EditorLauncher {
         configuration.setWindowedMode(defaultWidth, defaultHeight);
         configuration.setMaximized(true);
         configuration.setResizable(true);
-        configuration.setWindowSizeLimits(1024, 640, -1, -1);
+        configuration.setWindowSizeLimits(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT, -1, -1);
+        // Testing aid (TD-077): GDXUNITY_EDITOR_WINDOW=1366x768 opens a window of that size instead of a maximized one
+        int[] aidSize = parseWindowSize(System.getenv(WINDOW_SIZE_VARIABLE));
+        if (aidSize != null) {
+            configuration.setMaximized(false);
+            configuration.setWindowedMode(aidSize[0], aidSize[1]);
+        }
         return configuration;
+    }
+
+    /**
+     * Reads a window size written {@code 1366x768}.
+     *
+     * @return width and height, or null when {@code text} is null or blank
+     * @throws IllegalArgumentException when the text is not a size or is smaller than the editor's minimum window
+     */
+    static int[] parseWindowSize(String text) {
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+        Matcher size = WINDOW_SIZE.matcher(text.trim());
+        if (!size.matches()) {
+            throw new IllegalArgumentException(WINDOW_SIZE_VARIABLE + " must look like 1366x768, not '" + text + "'");
+        }
+        int width = Integer.parseInt(size.group(1));
+        int height = Integer.parseInt(size.group(2));
+        if (width < MIN_WINDOW_WIDTH || height < MIN_WINDOW_HEIGHT) {
+            throw new IllegalArgumentException(WINDOW_SIZE_VARIABLE + " " + width + "x" + height + " is smaller than the editor's minimum window "
+                + MIN_WINDOW_WIDTH + "x" + MIN_WINDOW_HEIGHT);
+        }
+        return new int[] {width, height};
     }
 }

@@ -30,10 +30,19 @@ public final class GraphInstance {
     private final NodeRegistry registry;
     private final Entity self;
     private final GraphHost host;
-    private final Map<String, Object> variables = new LinkedHashMap<>();
+    /** Shared by the graph's own instance and every function frame it starts. */
+    private final Map<String, Object> variables;
     private final Map<String, Map<String, Object>> lastOutputs = new HashMap<>();
     private final List<PendingDelay> delays = new ArrayList<>();
     private boolean stopped;
+    /** For the frame of a function call (TD-070): the instance that made the call; null for the graph's own instance. */
+    private final GraphInstance caller;
+    /** How many function calls deep this frame is; 0 for the graph's own instance. */
+    private final int callDepth;
+    /** Custom events firing custom events, how deep now (the graph's own instance only). */
+    private int eventDepth;
+    /** Set by a Return node: the function frame's outputs; the frame stops running. */
+    private Map<String, Object> returned;
 
     private record Continuation(String nodeId, String pinId, Integer index) { }
 
@@ -57,11 +66,19 @@ public final class GraphInstance {
         return host.isKeyDown(keycode);
     }
 
+    /** Whether the key with this libGDX key code went down since the last frame, according to the host. */
+    public boolean isKeyJustPressed(int keycode) {
+        return host.isKeyJustPressed(keycode);
+    }
+
     public GraphInstance(Graph graph, NodeRegistry registry, Entity self, GraphHost host) {
         this.graph = Objects.requireNonNull(graph, "graph cannot be null");
         this.registry = Objects.requireNonNull(registry, "registry cannot be null");
         this.self = Objects.requireNonNull(self, "self cannot be null");
         this.host = Objects.requireNonNull(host, "host cannot be null");
+        this.caller = null;
+        this.callDepth = 0;
+        this.variables = new LinkedHashMap<>();
         List<GraphValidator.Problem> problems = new GraphValidator(registry).validate(graph);
         if (!problems.isEmpty()) {
             throw new IllegalArgumentException("Graph " + graph.getName() + " has " + problems.size()
@@ -72,8 +89,68 @@ public final class GraphInstance {
         }
     }
 
+    /** The frame of one call of {@code function}: its body graph, with the variables, host and entity of the caller. */
+    private GraphInstance(GraphInstance caller, GraphFunction function) {
+        this.graph = function.getBody();
+        this.registry = caller.registry;
+        this.self = caller.self;
+        this.host = caller.host;
+        this.caller = caller;
+        this.callDepth = caller.callDepth + 1;
+        this.variables = caller.variables;
+    }
+
     public Graph getGraph() {
         return graph;
+    }
+
+    /** The graph's own instance: this one, or for a function frame the instance that started the outermost call. */
+    private GraphInstance root() {
+        return caller == null ? this : caller.root();
+    }
+
+    // --- Functions (TD-070) ---
+
+    /**
+     * Runs {@code function} to its Return (or to the end of its chain) and gives back its outputs by name; an output no Return reached
+     * holds the default of its type. Errors in the body stop the caller's chain too.
+     *
+     * @param arguments the function's inputs by name
+     * @throws GraphRuntimeException when the body fails or the calls are nested deeper than {@link FunctionNodes#MAX_CALL_DEPTH}
+     */
+    public Map<String, Object> callFunction(GraphFunction function, Map<String, Object> arguments) {
+        Objects.requireNonNull(function, "function cannot be null");
+        Objects.requireNonNull(arguments, "arguments cannot be null");
+        if (callDepth >= FunctionNodes.MAX_CALL_DEPTH) {
+            throw new GraphRuntimeException(null, "Functions called more than " + FunctionNodes.MAX_CALL_DEPTH + " deep: " + function.getName());
+        }
+        GraphInstance frame = new GraphInstance(this, function);
+        GraphNode entry = null;
+        for (GraphNode node : function.getBody().getNodes()) {
+            if (FunctionNodes.ENTRY.equals(node.getTypeId())) {
+                entry = node;
+            }
+        }
+        if (entry == null) {
+            throw new GraphRuntimeException(null, "Function " + function.getName() + " has no Function Entry node");
+        }
+        frame.lastOutputs.put(entry.getId(), new HashMap<>(arguments));
+        frame.runChain(entry.getId(), PinDef.EXEC_OUT);
+        Map<String, Object> results = new LinkedHashMap<>();
+        for (GraphParam output : function.getOutputs()) {
+            Object value = frame.returned != null ? frame.returned.get(output.name()) : null;
+            results.put(output.name(), value != null || output.type().allowsNull() ? value : output.type().defaultValue());
+        }
+        return results;
+    }
+
+    /** Called by a Return node: records the outputs and ends this function frame. */
+    void returnFromFunction(Map<String, Object> values) {
+        if (caller == null) {
+            throw new IllegalStateException("Return outside a function");
+        }
+        returned = values;
+        stopped = true;
     }
 
     public Entity getSelf() {
@@ -118,6 +195,28 @@ public final class GraphInstance {
     public boolean fireCustomEvent(String name) {
         Objects.requireNonNull(name, "name cannot be null");
         return fire(BuiltInNodes.EVENT_CUSTOM, Map.of(), name);
+    }
+
+    /**
+     * Runs the Custom Event nodes named {@code name} with the event's parameters in {@code arguments} (by name), before this call
+     * returns; used by Fire Custom Event nodes (TD-070).
+     *
+     * @throws GraphRuntimeException when events fire each other deeper than {@link FunctionNodes#MAX_EVENT_DEPTH}
+     */
+    public boolean fireEvent(String name, Map<String, Object> arguments) {
+        Objects.requireNonNull(name, "name cannot be null");
+        Objects.requireNonNull(arguments, "arguments cannot be null");
+        GraphInstance root = root();
+        if (root.eventDepth >= FunctionNodes.MAX_EVENT_DEPTH) {
+            throw new GraphRuntimeException(null, "Custom events fired more than " + FunctionNodes.MAX_EVENT_DEPTH
+                + " deep: " + name + "; does an event fire itself?");
+        }
+        root.eventDepth++;
+        try {
+            return root.fire(BuiltInNodes.EVENT_CUSTOM, arguments, name);
+        } finally {
+            root.eventDepth--;
+        }
     }
 
     /** No more events run; pending delays are dropped. */
@@ -199,7 +298,9 @@ public final class GraphInstance {
                             "Stopped after " + MAX_NODES_PER_EVENT + " nodes in one event; is there an endless loop?");
                     }
                     Context context = new Context(target, 0);
-                    host.nodeExecuted(this, target.getId());
+                    if (caller == null) {
+                        host.nodeExecuted(this, target.getId());
+                    }
                     registry.get(target.getTypeId()).run(context);
                     // Continue in the order the node asked for (a stack pops the last push first)
                     for (int i = context.continuations.size() - 1; i >= 0; i--) {
@@ -208,10 +309,18 @@ public final class GraphInstance {
                 }
             }
         } catch (GraphRuntimeException e) {
-            host.error(this, e);
+            reportOrRethrow(e);
         } catch (RuntimeException e) {
-            host.error(this, new GraphRuntimeException(current, e.getClass().getSimpleName() + ": " + e.getMessage()));
+            reportOrRethrow(new GraphRuntimeException(current, e.getClass().getSimpleName() + ": " + e.getMessage()));
         }
+    }
+
+    /** The graph's own instance reports an error to the host; a function frame hands it to its caller, so the calling chain stops. */
+    private void reportOrRethrow(GraphRuntimeException error) {
+        if (caller != null) {
+            throw error;
+        }
+        host.error(this, error);
     }
 
     /** Value of output {@code pinId} of node {@code nodeId}, computing pure nodes now. */

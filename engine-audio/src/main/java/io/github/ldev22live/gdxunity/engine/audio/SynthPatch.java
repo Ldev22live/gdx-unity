@@ -16,7 +16,8 @@ public final class SynthPatch {
     public enum LfoTarget { NONE, PITCH, CUTOFF, VOLUME }
 
     /** Names of the factory patches, in menu order. */
-    private static final List<String> PRESETS = List.of("Saw Lead", "Square Chip", "Sub Bass", "Soft Pad", "Pluck");
+    private static final List<String> PRESETS = List.of("Saw Lead", "Square Chip", "Sub Bass", "Soft Pad", "Pluck",
+        "Electric Piano", "Organ", "Strings", "Brass", "Flute", "Marimba", "Wobble Bass", "Arp Lead", "Choir");
 
     /** First oscillator. */
     public Waveform osc1 = Waveform.SAW;
@@ -141,6 +142,129 @@ public final class SynthPatch {
                 p.cutoff = 1200f;
                 p.filterEnvOctaves = 3f;
                 p.resonance = 2f;
+            }
+            case "Electric Piano" -> {
+                p.osc1 = Waveform.TRIANGLE;
+                p.osc2 = Waveform.SINE;
+                p.osc2Octave = 1;
+                p.osc2Detune = 3f;
+                p.osc2Mix = 0.35f;
+                p.attack = 0.003f;
+                p.decay = 0.9f;
+                p.sustain = 0.25f;
+                p.release = 0.35f;
+                p.cutoff = 4500f;
+                p.resonance = 0.9f;
+                p.filterEnvOctaves = 1.5f;
+            }
+            case "Organ" -> {
+                p.osc1 = Waveform.SQUARE;
+                p.osc2 = Waveform.SINE;
+                p.osc2Octave = 1;
+                p.osc2Detune = 0f;
+                p.osc2Mix = 0.5f;
+                p.attack = 0.01f;
+                p.decay = 0.05f;
+                p.sustain = 1f;
+                p.release = 0.08f;
+                p.cutoff = 3500f;
+                p.lfoTarget = LfoTarget.VOLUME;
+                p.lfoRate = 6f;
+                p.lfoDepth = 0.08f;
+            }
+            case "Strings" -> {
+                p.osc2Detune = 14f;
+                p.attack = 0.35f;
+                p.decay = 0.3f;
+                p.sustain = 0.85f;
+                p.release = 0.6f;
+                p.cutoff = 3200f;
+                p.lfoTarget = LfoTarget.PITCH;
+                p.lfoRate = 5f;
+                p.lfoDepth = 0.08f;
+                p.volume = 0.5f;
+            }
+            case "Brass" -> {
+                p.osc2Detune = 5f;
+                p.attack = 0.06f;
+                p.decay = 0.2f;
+                p.sustain = 0.75f;
+                p.release = 0.15f;
+                p.cutoff = 1500f;
+                p.resonance = 1.2f;
+                p.filterEnvOctaves = 2.5f;
+                p.volume = 0.55f;
+            }
+            case "Flute" -> {
+                p.osc1 = Waveform.SINE;
+                p.osc2 = Waveform.TRIANGLE;
+                p.osc2Octave = 1;
+                p.osc2Detune = 0f;
+                p.osc2Mix = 0.2f;
+                p.attack = 0.08f;
+                p.decay = 0.1f;
+                p.sustain = 0.8f;
+                p.release = 0.2f;
+                p.cutoff = 5000f;
+                p.lfoTarget = LfoTarget.PITCH;
+                p.lfoRate = 5f;
+                p.lfoDepth = 0.1f;
+            }
+            case "Marimba" -> {
+                p.osc1 = Waveform.SINE;
+                p.osc2 = Waveform.TRIANGLE;
+                p.osc2Octave = 2;
+                p.osc2Detune = 0f;
+                p.osc2Mix = 0.25f;
+                p.attack = 0.001f;
+                p.decay = 0.35f;
+                p.sustain = 0f;
+                p.release = 0.2f;
+                p.cutoff = 3000f;
+                p.volume = 0.7f;
+            }
+            case "Wobble Bass" -> {
+                p.osc2 = Waveform.SQUARE;
+                p.osc2Octave = -1;
+                p.osc2Detune = 0f;
+                p.attack = 0.005f;
+                p.decay = 0.1f;
+                p.sustain = 0.9f;
+                p.release = 0.1f;
+                p.cutoff = 500f;
+                p.resonance = 4f;
+                p.lfoTarget = LfoTarget.CUTOFF;
+                p.lfoRate = 3f;
+                p.lfoDepth = 1f;
+                p.volume = 0.7f;
+            }
+            case "Arp Lead" -> {
+                p.osc1 = Waveform.SQUARE;
+                p.osc2Detune = 9f;
+                p.osc2Mix = 0.4f;
+                p.pulseWidth = 0.4f;
+                p.attack = 0.002f;
+                p.decay = 0.15f;
+                p.sustain = 0.3f;
+                p.release = 0.1f;
+                p.cutoff = 3000f;
+                p.resonance = 1.5f;
+                p.filterEnvOctaves = 2f;
+            }
+            case "Choir" -> {
+                p.osc1 = Waveform.TRIANGLE;
+                p.osc2Detune = 10f;
+                p.osc2Mix = 0.3f;
+                p.attack = 0.5f;
+                p.decay = 0.4f;
+                p.sustain = 0.85f;
+                p.release = 1f;
+                p.cutoff = 1800f;
+                p.resonance = 1.5f;
+                p.lfoTarget = LfoTarget.PITCH;
+                p.lfoRate = 4.5f;
+                p.lfoDepth = 0.1f;
+                p.volume = 0.5f;
             }
             default -> throw new IllegalArgumentException("Unknown synth preset: " + name);
         }

@@ -2249,4 +2249,349 @@ Nodes cannot yet touch components (a Sprite Animator's `play`, a Tilemap, the ca
   `SampleGraphsTest` checks the wiring; `GraphExamplesTest` (desktop) and `javaMethodNodes.test.ts` (web) already fly the ship from the graph. The Java `ShooterShip.java` stays in `scripts/samples/shooter` as the reference.
 - Seen: the game runtime played the shooter with the graph (240 frames, 0 errors). Editing the graph in the Visual Scripting tab with the mouse was **not tried by a person**.
 
-**TD-068 implementation notes (2026-11-10, component-node milestone):** Curated typed component lookup/API nodes and bounded synchronous Repeat are implemented in the desktop and Babylon interpreters. Breakout's paddle now reads/caches its actual Shape Renderer width in its graph; the Java paddle remains the reference and the ball/game rules stay Java. Kotlin numeric widening and graph initialization in the sample test harness were corrected. [Scope, limits and manual checklist](milestones/td-068-component-nodes.md); [test and acceptance evidence](reports/td-068-component-nodes-report.md). No new module, dependency, graph schema version or scripting runtime is introduced. This note does not approve another milestone or claim that manual acceptance has passed.
+**TD-068 implementation notes (2026-11-10, component-node milestone):** Curated typed component lookup/API nodes and bounded synchronous Repeat are implemented in the desktop and Babylon interpreters. Breakout's paddle now reads/caches its actual Shape Renderer width in its graph; the Java paddle remains the reference and the ball/game rules stay Java. Kotlin numeric widening and graph initialization in the sample test harness were corrected. [Scope, limits and manual checklist](milestones/td-068-component-nodes.md); test and acceptance evidence: the cited report `reports/td-068-component-nodes-report.md` **is missing from the repository** (checked 2026-11-14), so that evidence cannot be checked. No new module, dependency, graph schema version or scripting runtime is introduced. This note does not approve another milestone or claim that manual acceptance has passed.
+
+### TD-069: Node Palette for the Graph Editor (Drag a Node Onto the Graph)
+
+**Status**: **Approved** (2026-11-10: "approve TD-067"). The owner approved the milestone proposed in chat under the number TD-067, which the repository had already given to *Game Modes*; the work is recorded here under the next free number. It is the first part of that proposal; see the notes for what was dropped.
+
+**Context**: TD-060 made Java methods into nodes, but nodes were added only from a right-click menu on the canvas. The owner asked for the methods to be "draggable components".
+
+**Decision**: a **node palette** column beside the Graph canvas: a search box and every node grouped by category (the categories start closed without a search, since the Java method nodes alone number in the thousands; a search lists up to 200 matches across categories). Dragging a node onto the canvas adds it where it is dropped; clicking adds it at the middle of the canvas.
+The right-click menu stays. No new module, dependency, node type or graph file change.
+
+**Implementation notes (2026-11-10)**:
+- `NodePaletteModel` (`editor-visualscript`, headless, tested) holds grouping, search and the cap; `NodePalette` and `GraphCanvas.addNodeAt` / `addNodeAtCenter` (`editor-desktop`) are the scene2d glue. Refresh Nodes refills the palette.
+- Also done: gaps between the Graph toolbar buttons; testing aids `GDXUNITY_EDITOR_GRAPH=<graph path>` and `GDXUNITY_EDITOR_PALETTE=<search>` (see `AGENTS.md` §5).
+- **Dropped from the proposal because it already existed**: the Pure/Action switch (`GraphCommands.SwitchMethodKind` and the toolbar button) and a TD-060 report is replaced by the report below. **Not done**: running each of the 15 example graphs in the interpreter beyond what `GraphExamplesTest` already does (TD-060, TD-068).
+- **Seen**: still frames from the running editor of the palette (closed categories, a search) and of `ShooterShip.graph` drawn on the canvas. **Not seen**: a drag or a click with the mouse; a person has not tried it.
+
+### TD-070: Functions and Parameterized Custom Events for Visual Scripting (TD-068, Milestone 3, First Part)
+
+**Status**: **Approved** (2026-11-11: "approve TD-070"). Implemented in part; see the notes for what is not done.
+
+**Context**: TD-068 lists functions, macros and custom events as the third visual scripting milestone, and found that the other 14 example graphs cannot reproduce their Java samples without reusable logic. Custom events existed (TD-029) but had no parameters and no node to fire them from a graph.
+
+**Decision**:
+- **Functions**: a graph holds named functions. A function has typed inputs and outputs (`GraphParam`: Number, Whole Number, Boolean, Text, Vector, Entity; not objects) and a **body graph** of its own: one **Function Entry** node (its data outputs are the inputs), any number of **Return** nodes (their data inputs are the outputs; a Return ends the call), and the usual nodes. A **Call Function** node runs the body to its end, then continues; its outputs are the function's outputs (an output no Return reached holds the default of its type).
+  Bodies share the variables of the graph, hold no events and no Delay, and cannot call each other in a circle (refused by the validator; a call depth of 32 is the second guard). An error in a body stops the caller's chain.
+- **Custom events with parameters**: a graph declares events (`GraphEventDef`: a name and typed parameters). A Custom Event node of a declared name gets one output per parameter. The new **Fire Custom Event** node (declared events only) has one input per parameter and runs the receiving Custom Event nodes **before it continues** (synchronous; an event that fires itself is stopped at depth 32). An undeclared Custom Event node keeps working as before, with no parameters, from `GraphInstance.fireCustomEvent`.
+- **File format**: `.graph` schema **version 2** adds `events` and `functions` (each with its own `nodes` and `links`). A graph without them is still **written as version 1**, so existing files are unchanged by saving; version 1 files are read as before; a newer version is refused. Desktop (`GraphSerializer`) and web (`graph.ts`) read and write the same files.
+- **Code generation**: Java, Kotlin and TypeScript source generation **refuse** graphs that declare functions or events or use the new nodes, with a message saying so (TD-068 allowed "code generation (or a clear refusal)"). The interpreter runs them in the editor, the game runtime and the web player. This is a cut from the plan I proposed in chat ("Java and Kotlin generate direct calls").
+- **Editor**: Functions and Events pop-ups in the Graph tab (add and delete functions and events, add and remove inputs, outputs and parameters, Edit a function to open its body), a Main Graph button, drop-downs for the function or event a node names, and the palette lists the new nodes. Every change is an undoable command (`GraphSignatures`); removing a parameter removes the wires on its pin and undo puts them back. One undo history covers the graph and all its function bodies.
+
+**Not done**: macros; renaming a function, event or parameter (delete and add again); function-local variables; pure (no execution pins) functions; converting another sample to a graph (the example list is still the 15 slices of TD-060); the **web editor** cannot create or edit functions (it reads, runs and saves them unchanged); source generation (above); live value debugging (TD-068 milestone 5).
+
+**Implementation notes (2026-11-11)**: engine `GraphParam`, `GraphFunction`, `GraphEventDef`, `FunctionNodes`, `Graph` (functions, events, body parent for variables), `GraphInstance` (function frames sharing the variable map, `callFunction`, `fireEvent`), `GraphValidator`, `GraphSerializer`; web `graph.ts`, `nodes.ts`, `interpreter.ts`, `validator.ts`; editor `GraphSignatures`, `GraphDocument.getViewGraph/openFunction`, `SignaturePopup`, `GraphNodeView`, `GraphEditorPanel`. The file `engine-visualscript/src/test/resources/functions-parity.graph` is run by the desktop and the web test with the same expected output. `assets/graphs/FunctionsDemo.graph` shows a function and a parameterized event.
+Seen: still frames of the Graph tab with the demo open, in the main graph and in the function body (`docs/reports/images/td70-*.png`). **Not seen**: any mouse use of the Functions and Events pop-ups, adding a parameter, the Edit button, the Main Graph button; no person has tried them. Report: [td-070-functions-report.md](reports/td-070-functions-report.md).
+
+### TD-071: More Samples Run Editable Graphs (TD-068, Milestone 1 Continued): the Collector Ball
+
+**Status**: **Approved** (2026-11-11: "approve TD-071"). Implemented for one sample; the audit says why the others are not converted.
+
+**Context**: TD-068 found that only `ShooterShip` reproduced its whole Java script, so only two samples (the shooter's ship and Breakout's paddle) ran graphs. The proposal for this milestone was to audit the other 14 example graphs, add the nodes they lack, and convert the samples whose graph can be shown to match their script.
+
+**Audit** (from each example's own "notCovered" text in `examples.json`, and for the player scripts by reading the Java):
+- **Converted: Collector ball.** The whole `CollectorPlayer.java` is keys and arithmetic. It needed one new node, **Power** (`math.power`, `Math.pow`), for the rolling friction `0.15 ^ dt`; the rest was Input Axis, `Vector3.limit`, variables and Branch.
+- **Not converted, game rules or collision in Java the graph has no nodes for**: Hopper, Platformer, Ruins (boxes, gravity, landing, goals, coins written in Java), Grapple (anchor search, pendulum, platforms), Fighter, Trio (hits, switching heroes, opponents), Arena (waves, drones, firing), Puzzle (walls, crates, levels), Race (grass, track, laps, rivals; only the drive part is a script of its own), Sandbox (aims along the camera).
+- **Not converted, plausible later**: Runner player (lane change, jump and gravity are arithmetic and variables, but the jump calls `AudioSourceComponent.play`, and its game script reads `RunnerPlayer.LANES`; not checked for a web audio call node), Walker (needs the character nodes on the web, which `DESKTOP_ONLY_NODE_TYPES` still lists, a vector normalise, and the help text). I did not try either.
+- Shooter ship and Breakout paddle were already graphs.
+
+**Decision**: the `collector-3d` scene's **Player** runs `graphs/samples/CollectorPlayer.graph` (a Graph Script component, no Java binding on the ball). `CollectorPlayer.java` stays in `scripts/samples/collector` as the reference (and its game script `CollectorGame` is untouched). The graph is written by `tools/make_collector_graph.py` (93 nodes).
+- **New node**: Power (`math.power`: base, exponent), on desktop and web, with Java, Kotlin and TypeScript generation.
+- **Proof of match**: `CollectorParityTest` compiles and runs the real Java script and the graph with the same key schedule (accelerate, diagonal, drift, hit the left wall and bounce, press R held for 12 frames, run into a corner) and requires the positions to agree to 0.05 units every frame sampled (every 10 frames, 1,000 frames). The positions of the script are recorded in `editor-visualscript/src/test/resources/collector-trajectory.json`, which the web test `sampleGraphs.test.ts` replays against the web interpreter (tolerance 0.1: the web does its sums in doubles). `SampleGraphsTest` checks the scene wiring; the collector sample's existing gameplay tests (desktop `SampleGamesTest` and web `gameplay.test.ts`) run the ball from its graph.
+- **Example list**: the Collector entry now says nothing is left out of the player script.
+
+**Not done / not seen**: 12 of 15 example graphs still leave rules out after TD-072 converted the Runner (above); the web player was not run in a browser with the converted scene (`vite build` and the Vitest checks pass); the desktop editor and game were not run with the converted scene by a person, and I did not open the Collector graph in the Graph tab; the Collector graph's layout was machine-made and overlapped; TD-072 replaced it with a layered layout (`tools/graph_layout.py`).
+
+### TD-072: Key Pressed and Play Sound Nodes, and the Runner Player as a Graph (TD-068, Milestone 1 Continued)
+
+**Status**: **Approved** (2026-11-11: "approve TD-072"). Implemented for one more sample.
+
+**Context**: after the Collector (TD-071) the next candidate was the Runner player: lane changes once per press, a jump and gravity, a jump sound. Two things were missing: a way for a graph to react to a key going down (only "held" existed, so every press needed a "was it held last frame" variable), and a way to play a sound cue (only `AudioSourceComponent.play()` on a given component existed). A third gap showed up while checking the Graph tab: **Key Down, Key Pressed and Input Axis nodes had no editor for their key names** (only variable, name and function settings had one), so a user could not set a key.
+
+**Decision**:
+- **Key Pressed** (`input.keyPressed`, setting `key` as for Key Down, output `pressed`): true only on the frame a key goes down, like `Gdx.input.isKeyJustPressed`. `GraphHost.isKeyJustPressed(int)` (default: `Gdx.input`), `NodeContext.isKeyJustPressed`; on the web `GraphHost.isKeyJustPressed(codes)`, filled by `ScenePlayer` from the web input's `isJustPressed`.
+- **Play Sound** (`action.playCue`, setting `cue`): plays the audio sources of the scene that answer that cue, like `AudioSourceComponent.play(scene, cue)`. Web: `GraphEntity.playCue`, which calls the scene's `playCue`. An empty cue is a validation problem.
+- Both nodes: desktop and web interpreters, and Java, Kotlin and TypeScript generation (Java and Kotlin add a `keyPressed(...)` helper and the audio import; TypeScript uses `this.input.isJustPressed` and `this.scene.playCue`).
+- **Editor**: text fields on nodes for the other string settings (`key`, `positive`, `negative`, `cue`), with hints.
+- **Runner**: the `runner-3d` scene's Player runs `graphs/samples/RunnerPlayer.graph` (99 nodes, written by `tools/make_runner_graph.py`). `RunnerPlayer.java` stays as the reference, and because `RunnerGame` reads `RunnerPlayer.LANES`. The blocks, speed-up, distance and crash messages stay Java.
+- **Proof of match**: `RunnerParityTest` compiles and runs the real `RunnerPlayer.java` and the graph with the same key schedule (lane changes at the walls, a jump, a press in the air, a held Space, a restart, a jump on Up) and requires the positions to agree to 0.05 units every 10 frames (1,000 frames). The shared harness `SampleParity` also runs the Collector test now. The recorded positions of the script are in `runner-trajectory.json`; the web test replays them (tolerance 0.1) and requires exactly **3** "jump" sounds. On desktop the sound is not observed in the parity test (it needs a bound audio source); the generated Java and Kotlin are tested to compile and react only on the press.
+- **Layout**: the generated graphs were stacked on top of each other and unreadable in the editor (found by looking at a frame). `tools/graph_layout.py` now places nodes in columns by their distance from the start of their chains and stacks each column; both generator scripts use it, and the Collector and Runner graphs were regenerated.
+- Existing tests changed because the Runner no longer has a Java player in the scene: the desktop examples test's keyboard now reports presses, the desktop and web sound-cue tests also read the Play Sound nodes of the scene's graphs, and the web sample helpers start the scene's graphs.
+
+**Not done / not seen**: 12 of the 15 example graphs still leave rules out (see TD-071); the Runner graph has not been played by a person on desktop or web, and the web player was not run in a browser with the converted scene; the layout, though readable in a frame, has long wires and the graph is large (99 nodes), so it needs zooming out; the Key Pressed generators for Java and Kotlin are tested for one graph only; no test generates code from the Runner graph.
+
+### TD-073: Mockito for Unit Tests (Test Scope Only)
+
+**Status**: **Approved** (2026-11-11: "include junit and mockito for unit testing"). Implemented. The number TD-073 was first proposed for a variables panel that was never approved; that proposal gets a later number.
+
+**Context**: JUnit 5.10 was already in every module. Mockito was in none; tests that needed to know how a collaborator was called used hand-written fakes that answer questions but do not record them. The same message also suggested Jasmine or Karma for the frontend.
+
+**Decision**:
+- **Mockito `mockito-core` 5.14.2**, pinned as `mockitoVersion` in `gradle.properties`, as a `testImplementation` dependency of `engine-scene`, `engine-visualscript`, `editor-core`, `editor-visualscript`, `engine-desktop` and `editor-desktop` (the modules with host and scene seams). Test scope only: nothing in a shipped jar or the web player changes.
+- Hand-written fakes stay where they work (for example the `GraphHost` fakes that answer key questions). A mock is for checking calls: which method, how often, never called.
+- First use: `GraphHostMockTest` (`engine-visualscript`, 3 tests): Key Pressed asks the host once per tick and never reads a held key, prints only on the tick the host reports a press, and reports an unknown key to the host without printing.
+- **Jasmine and Karma were not added.** The frontend (`engine-babylon`) already has Vitest (425 tests) for the same job; Karma is deprecated and needs a real browser; a second runner would split one codebase's tests in two. Reversible: say so and a record supersedes this one.
+
+**Alternatives**: keep only hand-written fakes (no new dependency, but no call checks); a newer Mockito than 5.14.2 (not chosen: I could not check the newest release, and the repository rule is not to bump versions without a reason).
+
+**Not done / not seen**: only `engine-visualscript` has a test that uses Mockito; the other five modules resolve and compile with it (the whole-repo run passed) but use it nowhere yet. No existing fake was converted. The JDK's note about loading a Mockito agent dynamically was not seen in the run output, but only the Gradle output was read.
+
+### TD-074: More Synth Presets and More Drums in the Music Studio
+
+**Status**: **Approved** (2026-11-11: "approve TD-074", after the question "is it possible to add more musical instruments to the audio editor"). Implemented; integrated through the existing preset menu and drum picker; not heard by a person.
+
+**Context**: the studio had 5 synth presets and 7 generated drums. The user asked for more instruments and chose all four options I listed (more presets, more drums, new synthesis methods, a bundled SoundFont); I split them into TD-074 (presets and drums), TD-075 (new synthesis methods) and TD-076 (SoundFont, which needs a freely licensed `.sf2` that the user has to supply or name). Only TD-074 is built.
+
+**Decision**:
+- **9 new synth presets** in `SynthPatch` (Java) and `synth.ts` (web), with identical values: Electric Piano, Organ, Strings, Brass, Flute, Marimba, Wobble Bass, Arp Lead, Choir. All use the existing two oscillators, envelope, filter and LFO; no new synthesis. Every value is inside the range of the editors' sliders (a test checks this), so touching a slider does not clamp a preset.
+- **8 new drums** in `DrumKit` and `drums.ts`, on General MIDI notes: Rim Shot 37, Floor Tom 41, Mid Tom 47, High Tom 50, Ride 51, Tambourine 54, Cowbell 56, Shaker 70. They are appended after the original seven, so step grids and songs saved before keep their meaning. The original `Tom` (45) stays as it was; the new toms are tuned below and above it.
+- Sounds are generated from the same parts as the old drums (noise, filters, sine and square tones, a falling-pitch envelope). Original tom code was generalized to take a start and end pitch; its sound is unchanged (checked by the recorded fingerprints).
+- **Java and web must sound the same.** `InstrumentFingerprintTest` records the peak and loudness (RMS) of half a second of every preset and drum into `engine-audio/src/test/resources/instrument-fingerprints.json` (`GDXUNITY_RECORD_FIXTURES=1`); the web test `instrumentFingerprints.test.ts` renders the same from the TypeScript code and requires agreement within 0.5% (the Java side is 32-bit floats, the web 64-bit). A change to a sound on one side only fails a test. I checked that by nudging one web value: the test failed on it.
+- The web editor's hint for the drum kit is now generated from the drum list instead of written by hand.
+- No change to the song file format, the instrument types, the editors' layout or the web player's list of playable instruments.
+
+**Alternatives**: new synthesis methods (FM, plucked string, noise oscillator) for more realistic bells and strings (TD-075, needs a format change and a web port); a bundled SoundFont for real instrument samples (TD-076, licensing). Not chosen here because they are larger and TD-076 is blocked on a file.
+
+**Not done / not seen**: **nobody has listened to any of the 17 new sounds.** The tests show each one makes sound, is finite, does not clip, ends, has the right note and pitch ordering, and matches the other platform; they cannot show that an "Electric Piano" sounds like one (it is a two-oscillator approximation). The preset menu and the drum picker list the new entries because they read the same lists, but I did not open the Music Studio to look; the web editor's slider ranges were checked against the presets by a Java test only. The whole-repo test run was not repeated after this milestone (four Gradle modules and the web suite were).
+
+### TD-075: FM and Plucked-String Instruments for the Music Studio
+
+**Status**: **Approved** (2026-11-11: "approve TD-075"). Implemented on desktop and web; integrated through the instrument picker, the "+ FM" and "+ String" buttons and a preset menu on each platform; not heard by a person.
+
+**Context**: TD-074 added presets and drums but the synth could not make bells, electric pianos or plucked strings convincingly (two oscillators, a filter and an LFO). The user chose all four instrument options; this is the third (new synthesis methods). I had listed a "noise oscillator" as missing; it already exists (`Waveform.NOISE`), so it is out of scope.
+
+**Decision**:
+- **FM synthesizer** (`FmPatch`, `FmSynthesizer`; web `fm.ts`): a sine carrier whose phase is bent by a sine modulator at `ratio` times the note's frequency. `index` is the bend at the start, falling towards `indexSustain` of it over `indexDecay` seconds, so a note starts bright and settles; an ADSR shapes the level. 5 presets: Bell, FM Piano, Glass, Metal Pad, FM Bass. 16 voices; the modulator is held at half the sample rate so it cannot fold back.
+- **Plucked string** (`PluckPatch`, `PluckedString`; web `pluck.ts`): Karplus-Strong. A burst of low-passed noise fills a delay line one pitch period long; each trip passes an averaging filter (`damping`) and a gain set so the string falls 60 dB in `decay` seconds. `brightness` is how bright the burst is; `release` how fast a released string dies. 3 presets: Nylon Guitar, Harp, Pizzicato. The burst comes from a fixed 32-bit integer generator seeded by the pitch, so a note always sounds the same and the web version, which uses the same integer arithmetic, matches. Each voice owns its delay line (no allocation when a note starts).
+- **Fractional delay by all-pass.** The first version read the delay line with linear interpolation; a test showed that dulled the sound on every trip, most for notes whose period falls half-way between two samples (a "bright" string at zero damping was not bright). It now uses a first-order all-pass for the fraction of a sample, which delays without dulling.
+- **Song format**: two new instrument types `FM` and `PLUCK`, and two optional blocks `fm` and `pluck` that every channel's instrument writes (as it already writes `patch` and `sfxr`). A song written before this has neither block and loads with the defaults (a test strips them and checks the song still renders identically). **Limit**: a program older than this change cannot open a song that uses an FM or string channel (unknown type).
+- **Editors**: desktop `InstrumentPanel` has "FM Synth" and "Plucked String" kinds with a preset menu and knobs (bound live to the patch, one undo step per drag, as for the synth), and "+ FM", "+ String" buttons beside "+ Synth". Web `instrumentView.ts` and `studio.ts` do the same; `MusicModel` gained `loadFmPreset`, `loadPluckPreset`, `setFmField`, `setPluckField`. The web player now lists FM and PLUCK as playable.
+- **Java and web must sound the same**: `InstrumentFingerprintTest` records the peak and loudness of half a second of every preset (the previous kinds, the new ones and the drums); the web test replays them within 0.5%. Changing one value on the web (the FM voice headroom, a digit of the noise generator) failed 8 tests; restored.
+
+**Alternatives**: more operators and routing (not chosen: bigger editors, no need yet); linear-interpolated fractional delay (tried, rejected above); a noise oscillator (exists); a bundled SoundFont (TD-076, blocked on a licensed `.sf2`).
+
+**Not done / not seen**: **nobody has listened to any of the 8 new presets**, and the Music Studio was not opened on desktop or web: the picker, buttons, preset menus and knobs are wired and compiled but never seen. The tests show pitch, decay, brightness ordering, no clipping or NaN across the keyboard, determinism, voice limits, undo and file round-trips; they cannot show that "Bell" sounds like a bell. Java and web are compared by peak and loudness of half a second at middle C, not sample for sample. Very low notes (below 20 Hz) are held at the longest delay line, so they sound a little sharp. FM is two operators only.
+
+### TD-076: Look at the Editors (Music Studio and Graph Tab) and Fix What the Frames Show
+
+**Status**: **Approved** (2026-11-11: "approve TD-076"). Implemented. The editor was **seen in still frames** at one window size (1920 by 990); nothing was clicked, dragged or heard.
+
+**Context**: TD-069 to TD-075 added editor UI that had never been looked at beyond a frame or two, and the earlier frames were described as readable without being read closely enough. This milestone opens the editor on the new instrument panels and the Graph tab with the testing aids, reads each frame, and fixes what it shows.
+
+**Decision**:
+- **Test aids** (environment variables, like the Graph ones): `GDXUNITY_EDITOR_SONG=<song>` opens a song in the Music tab, `GDXUNITY_EDITOR_CHANNEL=<name or number from 1>` selects a channel, `GDXUNITY_EDITOR_MUSIC_TAB=<Channel rack|Piano roll|Playlist|Mixer|Instrument>` picks the sub-tab. (The studio already had JVM-property aids `gdxunity.openSong`, `gdxunity.musicTab` and `gdxunity.musicChannel`, which I had not found; they cannot be passed through `gradlew run`, so the environment variables stay.) Listed in `AGENTS.md`.
+- **A demo song** `assets/music/instruments-demo.song`: the default five channels plus an FM Bell and a Harp, with the Lead set to the Electric Piano preset and short notes on each. `InstrumentsDemoSongTest` makes the file (`GDXUNITY_RECORD_FIXTURES=1`), requires it to match the code exactly, and renders it audibly.
+- **What the frames showed, and what was done** (frames in `docs/reports/images/td76-*.png`):
+  1. The instrument panel's **Preset menu said "Custom"** for a channel that was exactly a factory preset (synth, FM and string). It now shows the matching preset (`InstrumentPanel.matchingPresetIndex`, 3 tests); it says "Custom" again as soon as a knob moves.
+  2. **Scroll bars were invisible in the whole editor**: the default scroll style had none, so the synth panel was cut off mid-row with nothing to say there was more. The skin now draws a track and knob.
+  3. **Tab titles ran together** ("Channel rackPiano rollPlaylistMixerInstrument", also "Content BrowserOutput Log"): a gap after each tab inside a panel.
+  4. The **buttons under the channel rack** (now seven) read as one line of text, because flat buttons have no edges: wider gaps.
+  5. The **Graph tab made the whole editor wider than the window**: the left of the top bar, the Outline and the Details panel were cut off. The cause was one toolbar row of 14 buttons plus a long title whose width could not shrink. It is now two rows (editing; code and assets), the title is cut with an ellipsis, and the gaps are wider. **The TD-072 frame already showed this** and I had called it readable; that was wrong.
+- No change to what any button does.
+
+**Not fixed, seen**: the Timeline toolbar in the Animations tab has the same run-together, partly cut-off buttons; the node palette's long group names are cut at the panel edge (now with a horizontal scroll bar).
+
+**Not done / not seen**: only one window size was looked at (a smaller window may overflow somewhere else); only the Viewport, Music, Visual Scripting, Animations and Sprites tabs were captured and only Music and Visual Scripting were examined closely; no click, drag, typing, scrolling, undo or sound was tried (those are **Manually Not Verified (Headless Environment)**); the web editor was not looked at; the Graph tab palette, the Functions and Events pop-ups and the Edit buttons were not opened in a frame.
+
+### TD-077: The Editor Fits a Small Window (Frames at 1024 by 640 and 1366 by 768)
+
+**Status**: **Approved** (2026-11-11: "approve TD-077"; the same message said the owner can run end-to-end tests of these milestones around 7pm that evening). Implemented. Seen in still frames at 1024 by 640 and 1366 by 768; nothing clicked, dragged, scrolled or heard.
+
+**Context**: TD-076's frames were all at 1920 by 990. The editor starts maximized and declares a minimum window of 1024 by 640, so the real small cases are 1366 by 768 (a common laptop) and the minimum. Frames at those sizes showed that **the editor was laid out about 1,900 pixels wide in every window** and cropped on both sides when the window was smaller: the top bar, the Outline, the Details panel, "2D 2.5D 3D" and "AI Assistant" were cut off even on the plain Viewport tab. At 1024 by 640 the Sprites and Tiles tabs also made the layout taller than the window, so the top bars were gone.
+
+**Cause**: the editor's root is one column, and a column is as wide as the minimum width of its widest row. The top bar is one row of buttons about 1,500 pixels wide, so the whole editor took that width and was centred, which cropped both sides. Tab contents with a large minimum size did the same in both directions.
+
+**Decision**:
+- **`GDXUNITY_EDITOR_WINDOW=<w>x<h>`** (test aid, `EditorLauncher.parseWindowSize`): opens a window of that size, not maximized. A malformed size or one below the editor's minimum (1024 by 640, now named constants) is refused with a message. Listed in `AGENTS.md`.
+- **`ScrollingBar.around`**: a toolbar in a horizontal scroll pane has no minimum width, so it keeps its natural width and the panel keeps its own. The scroll bar shows over the bottom edge while the mouse is over the bar, so the bar keeps its height; the wheel scrolls it. Used for the editor's two top bars, the Graph tab's two toolbar rows, the Timeline toolbar (it already scrolled, by its own code; now the shared helper, with wider gaps) and the Music transport (with `minHeight(Value.prefHeight)`, because a scroll pane reports no minimum height and a short window squeezed the transport's two rows).
+- **`TabbedPanel`**: the content area has a minimum size of 0, so no tab's content can set the editor's size.
+- **`ScrollingBar.panel`**: both-way scroller, bars always visible, no drag scrolling (a panel may be a drawing surface), around the Sprites and Tiles panels.
+- **Graph palette**: a share (40%, between 160 and 280 pixels) of a narrow centre column, not a fixed 280; rows fill the width so long names are cut with an ellipsis (`getLabelCell().width(0).growX()`), and the palette no longer scrolls sideways.
+- Tests: `EditorLauncherWindowConfigurationTest` (+2: a size is read, a bad or too-small size is refused), `ScrollingBarTest` (5; scene2d needs `Gdx.files` and `Gdx.app`, so the test mocks them with Mockito). No behaviour of any button changed.
+
+**Not fixed, seen**: at 1024 by 640 the **Music channel rack's name column is cropped** (the rack is a custom-drawn widget that takes its name column from the room left over; wrapping it in a scroll pane changed nothing, so that attempt was removed), and the Graph canvas is about 200 pixels wide with the Graph tab's palette open; the Tiles tab shows an empty panel in every frame (not examined: it may simply be "no tilemap"); the Piano roll, Playlist and Mixer sub-tabs, the Scene tab's panels, the Graph pop-ups and the other panels were not looked at in detail.
+
+**Not done / not seen**: no click, drag, wheel or typing: whether the top bar scrolls with the wheel, whether the bar appears on hover, and whether dragging in the sprite canvas still draws were **not tried**; the web editor was not looked at; 1280 by 720 and sizes above 1366 were not captured; the Timeline and Animations tabs at 1366 were captured but only the Animations tab at 1024 was read.
+
+### TD-078: Close the TD-077 Open Findings (Music Rack, Tiles Tab, Palette)
+
+**Status**: **Approved** (2026-11-12: "approve TD-078"). Implemented. Seen in still frames at 1024 by 640; nothing clicked, scrolled or heard. The owner's end-to-end results had not been given, so the scope is the three findings TD-077 left open.
+
+**Findings and actions**:
+- **Music channel rack cropped at 1024 by 640**: the cause was not the rack widget (TD-077's scroll-pane wrap around it was the wrong place) but the **row of buttons under the rack** ("+ Synth" to "Remove channel"), whose minimum width made the whole tab wider than the window, so it was centred and cropped. The row is now in `ScrollingBar.around`, and the rack cell has minimum width 0. Frame `td78-1024x640-music-rack.png`: channel names and mute boxes are visible; the button row clips at the right edge and scrolls.
+- **Tiles tab showed an empty panel**: a bug that predates TD-077 (the "before" frame is empty too). The "Select an entity with a Tilemap component..." message was set only when the selection *changed*, so at startup with nothing selected it was blank. It is now set when the label is made (`TilemapStudioPanel.NO_TILEMAP_MESSAGE`). Frame `td78-1024x640-tiles.png` shows the message.
+- **Palette ellipsis**: re-reading `td77-1366x768-graph-after.png` shows names cut with "..." ("Components: ShapeRendererCom..."), so the TD-077 doubt is resolved: it works.
+
+**Not done / not seen**: no new automated test (the Tiles message needs a font, so a unit test would need a GL context; the constant is package-visible for one later); no click, drag, wheel or typing; the Piano roll, Playlist and Mixer sub-tabs, Graph pop-ups, 1280 by 720, larger sizes and the web editor were not looked at; the Graph canvas is still about 200 px at 1024 by 640.
+
+### TD-079: Test the Scrolling Panes by Input Events; Look at the Remaining Music Sub-tabs
+
+**Status**: **Approved** (2026-11-12: "approve TD-079"). Implemented. The owner's end-to-end results had not been given, so the scope is the interactions TD-077 could not check from still frames, plus the sub-tabs it did not look at. Seen in still frames at 1024 by 640 and 1280 by 720; nothing was clicked by hand or heard.
+
+**Done**:
+- **Input events fired at the scroll panes in a unit test** (`ScrollingBarTest`, +2): the mouse wheel scrolls a toolbar sideways and never up or down; a press-drag-release on a panel (Sprites/Tiles, which may be drawing surfaces) does not scroll it. The drag test was shown able to fail: with drag scrolling switched on in `ScrollingBar.panel` it failed, and with the original code it passes. This is scene2d's own input handling driven by synthetic events, not a person with a mouse.
+- **Frames** of the Piano roll, Playlist and Mixer at 1024 by 640 and 1280 by 720 (`td79-*.png`). Piano roll and Playlist: nothing wrong seen. **Mixer**: only 2 of 7 strips fit at 1024 and 4 at 1280, the sideways scroll bar faded out (nothing hinted the others existed), and the first strip's "Pan 0.00" text was cut by the scroll pane's left edge. The bar is now always shown, the strips have 6 px of room on the left, and the pane has minimum width 0 (`MixerView`). Frames `td79-1024x640-mixer-after.png` and `td79-1280x720-mixer-after.png`.
+
+**Not done / not seen**: no hand clicking, wheel or drag in the running editor; Mixer strips were not scrolled in a frame; the Instrument sub-tab at 1280 by 720, the Scene tab's panels, Graph pop-ups, sizes above 1366 and the web editor were not looked at; the Graph canvas is still about 200 px wide at 1024 by 640.
+
+### TD-080: Engine Sound, a Continuous Synthesized Engine for Cars (Racing Sample)
+
+**Status**: **Proposed** (2026-11-13: the owner asked for "vehicle sounds so that the vehicles sound like real cars" in the racing sample, and chose the desktop and editor Play scope). Implemented; not yet approved. It extends TD-043 and TD-063 and supersedes none.
+
+**Context**: scenes could only play short effects once (`AudioSourceComponent`, TD-043). A car engine is not an effect: it sounds all the time and its pitch and loudness follow the car every frame, which one-shot cues re-triggered with a pitch cannot do without stuttering.
+
+**Decision**:
+- `engine-audio`: `EngineSynth` makes an engine from firing pulses (cylinder count, per-cylinder unevenness), an exhaust low-pass that opens with throttle and revs, a pipe resonance, intake roar, a tone at crankshaft speed, a rev limiter, crackle on the overrun and a soft clipper. `EngineProfile` names the factory engines (Hatchback 4 cylinders, Sports Coupe 6, Muscle V8). Headless, seeded and deterministic, like the rest of the module.
+- `engine-scene`: `EngineSoundComponent` (type id `EngineSound`: profile, volume, spatial, min and max distance) and `EngineVoice`. A script calls `setState(revs, throttle)` every frame: `revs` is 0 at idle and 1 at the redline, so a script needs no knowledge of the profile. A spatial engine is faded and panned with the existing `SpatialAudio` from the `AudioListenerComponent`.
+- `engine-desktop`: `GameAudio` creates one synth per enabled Engine Sound at `bind()`, mixes them after the effects and songs (gain ramped over each block, equal-power pan), and opens the sound device when there is one, so the game runtime and editor Play both get it. An unknown profile name refuses to start like an unknown sound does.
+- `editor-core` / `editor-desktop`: Add Component > Audio > Engine Sound, and a Details editor with undoable edits.
+- Racing sample: `CarEngine` (4-gear box, clutch slip on the grid, throttle cut and revs dropping on up-shifts, a pedal-less coast) is run by `RaceCar` and handed to the Engine Sound of the Player (Muscle V8, not spatial), Rival 1 (Hatchback) and Rival 2 (Sports Coupe) (spatial) by `RaceGame` every frame; the Main Camera became the Audio Listener. Engines idle on the grid, the rivals rev during the countdown and the player's engine revs against the clutch while W is held.
+
+**Consequences / known gaps**:
+- **Nobody has listened to it** (**Manually Not Verified**). The tests check pitch (the firing frequency is the spectral peak), loudness against throttle and revs, range, determinism, the limiter flutter, crackle, stereo placement and the sample's gear behaviour; whether it sounds like a car, and the mix levels, are unjudged. A render of the three engines through a launch is the quickest way to judge: it is not stored in the repository.
+- **Web player**: no engine sound; `engine-babylon` lists `EngineSound` as unsupported for `racing-3d.json` (`sceneBuilder.test.ts`, `KNOWN_UNSUPPORTED`).
+- The racing handling accelerates 0 to 820 units per second (about 185 km/h on the HUD) in 1.6 s, so the gearbox changes up every 0.3 to 0.4 s. It is a sample, but it shows in the sound; retuning the car's acceleration is a separate decision.
+- No Doppler, no tyre or wind noise, no collision or skid sounds beyond the existing "bump" effect, three engines only, no engine sample import.
+
+### TD-081: Materials as Assets: the `.material` File and the `engine-material` Module (Roadmap R2, First Part)
+
+**Status**: **Approved** (2026-11-13: asked which way to proceed with R2, the owner chose "R2 now, approve engine-material"). First
+part implemented; the Material Editor tab, textures and glTF model materials are not.
+
+**Context**: looks were a colour on a Mesh Primitive, and imported glTF models carried materials nobody could edit. The R2 goal
+(13-nov roadmap) is that looks become data a person can edit. AGENTS.md section 4 says a new module needs approval; it was given.
+
+**Decision**:
+- New module `engine-material` (depends on `engine-core` only; headless): `Material` (PBR parameters: base colour with opacity, metallic,
+  roughness, emissive colour and strength, normal scale, occlusion strength, alpha mode OPAQUE/BLEND/MASK with cutoff, double sided,
+  tiling and offset, five texture slots), `MaterialIO` (the `.material` file, JSON, version 1, strict about what it reads and
+  forgiving about what is missing), `MaterialLibrary` (one shared `Material` per path, so editing one changes every user; a missing or
+  broken file gives no material and a stored reason instead of an invented look).
+- `AssetType.MATERIAL` (`.material`), listed by the Content Browser like other assets.
+- `MeshPrimitiveComponent` gets `materialPath` (written only when set, so existing scenes do not change). With a material, its base colour
+  replaces the component colour; without one, or if the file cannot be read, the primitive keeps its plain colour.
+- `engine-render`: `MaterialAttributes` maps a material to gdx-gltf's PBR attributes (base colour in linear light, metallic, roughness,
+  emissive colour times strength, blend or alpha-test, double-sided); `SceneRenderer3D.setMaterialLibrary` applies it per primitive and
+  re-applies only when the material's revision changes. The editor viewport and Play share this renderer, so an edit shows in both.
+- `editor-core`: `ModifyMaterialPropertyCommand` (undoable, saves the file on every execute and undo) and `MaterialAssets.createNew`.
+- `editor-desktop`: the Mesh Primitive Details editor gains a Material section: the file, Use Selected Material, New Material, No
+  Material, and the material's own parameters edited in place. `EditorApplication.createDetailEditors` is the one list of Details
+  editors, shared with the editability audit.
+- `engine-desktop`: `GameRenderer` gives the renderer a library on the project, so a played scene shows its materials.
+- Sample: `materials-3d.json` (a showroom) and six materials in `assets/materials` (Rock, Wood, Water, Gold, Lava, Glass), written by
+  `tools/make_material_samples.py`.
+
+**Consequences / known gaps**:
+- **Nobody has used the Details section or looked at the editor viewport with materials** (**Manually Not Verified**). One frame of the
+  game runtime showing the showroom was looked at: metal, glow, glass, matte and the plain ball are told apart.
+- **Textures (second part, 2026-11-14):** the five slots, tiling, offset, normal scale and occlusion strength are drawn on primitives. The unit shapes
+  have texture coordinates; `MaterialTextures` reads png/jpg from the project (repeating, mip mapped, one per path, owned by the renderer).
+  An emissive texture with a black emissive colour glows at the strength by itself. Tiling repeats per face of the shape, not per world unit,
+  so a stretched box stretches the texture. A texture is read when its material is applied, so a file fixed on disk shows after the next edit.
+  The Details Material section has a text row per slot, a button for the selected image, tiling, offset, normal and occlusion rows.
+- **No Material Editor tab and no node graph**, no live preview sphere, no parameter instances. Editing is in the Details of a surface
+  that uses the material. The audit therefore lists `material` as an asset type with no opening editor: double-clicking one in the Content
+  Browser does nothing.
+- **Only Mesh Primitives.** Imported glTF models keep their own materials; a material slot on a Model component is not done.
+- **Web player:** reads no `.material` and ignores `materialPath`, so a primitive there shows its plain colour. Not recorded in a support
+  matrix yet (that is R9).
+- **No agent tools** for materials (create, assign, set a parameter). `AgentToolContext` has no asset root or library, so this needs a
+  context extension first; roadmap rule 8 and R10-A will need it.
+- Editing a material writes its file on every change, including each undo and redo.
+
+### TD-082: Terrain as an Asset: the `.terrain` File and the `engine-terrain` and `editor-terrain` Modules (Roadmap R3, First Part)
+
+**Status**: **Approved** (2026-11-14: asked how to start R3, the owner chose "Approve modules, start R3"). First part implemented; most of R3 is not.
+
+**Context**: ground was a generated glTF model nobody could reshape. R3 (13-nov roadmap) makes terrain an editable asset with brush tools.
+AGENTS.md section 4 says a new module needs approval; it was given for both.
+
+**Decision**:
+- New module `engine-terrain` (depends on `engine-core` only; headless): `Terrain` (a grid of heights centred on the origin, a cell size,
+  chunks of 32 cells with a revision each, bilinear `heightAt`, normals, ray picking), `TerrainBrush` and `TerrainStroke` (raise, lower,
+  smooth, flatten, noise; dabs spaced by distance; one `TerrainDelta` per stroke), `TerrainIO` (the `.terrain` file: JSON version 1,
+  heights as one Base64 string of 32-bit floats, exact round trip, strict reading), `TerrainLibrary` (one shared `Terrain` per path, a missing
+  or broken file gives no terrain and a stored reason), `TerrainGenerator` (flat, rolling hills).
+- `AssetType.TERRAIN` (`.terrain`).
+- `engine-render`: `TerrainComponent` (type id `Terrain`, a path), `TerrainMeshBuilder` (pure chunk geometry, colours from slope and height),
+  `TerrainGpu` (a mesh per chunk, rebuilt only for chunks whose revision changed), `SceneRenderer3D.setTerrainLibrary`. The editor viewport and
+  Play share this renderer.
+- New module `editor-terrain` (depends on `editor-core` and `engine-terrain`; headless): `TerrainSession` (paint mode, brush, library),
+  `TerrainStrokeCommand` (one undo step per stroke, the file rewritten on execute and undo), `TerrainViewportInteraction` (a left-button drag
+  paints while paint mode is on; Ctrl inverts, Shift smooths, Alt orbits), `TerrainAssets.createNew`.
+- `editor-desktop`: `TerrainComponentEditorProvider` (file, New Hills, New Flat, Use Selected, Paint toggle, tool, radius, strength);
+  interactions wrapped in all 3D panes; `EditorApplication.createDetailEditors` takes the session.
+- `engine-desktop`: the serializer is registered and `GameRenderer` gives the renderer a library on the project.
+- Sample: `terrain-3d.json` and `assets/terrains/Valley.terrain`, made by `tools/make_terrain_samples.py`.
+
+**Consequences / known gaps** (R3 is mostly not done):
+- **Nobody has painted in the running editor** (**Manually Not Verified**). The game runtime showed the sample's ground in a frame that was looked at.
+- **No paint layers** (grass, rock, sand, snow, dirt) or holes: colour is computed from slope and height. **No water level**, scatter tools,
+  splines, erosion, ramp, heightmap PNG import or export, level of detail.
+- **No collision**: neither Box2D, Jolt nor the character controller know the terrain, so nothing stands on it. This is the biggest gap.
+- **No brush outline** in the viewport, and no click-to-select of a terrain in the viewport (select it in the Hierarchy).
+- **Web player** does not read `.terrain`; the sample's ground is missing there (listed in the web test's known-unsupported list).
+- The five landscape samples are still glTF models; none is converted.
+- Dabs are distance-based: holding the button still after the first dab adds nothing.
+- A stroke rewrites the whole file (a 129 by 129 map is about 90 KB; a 1025 by 1025 one about 5.6 MB).
+
+### TD-083: Level Editor: Ground Surfaces, Placed Objects and the Level Button (Roadmap R3, Second Part)
+
+**Status:** Approved by the request of 2026-11-14 ("add a level editor to function like the campaign editor from age of empires ... grass/sand/snow/gravel as the base ... prefab assets like trees, rocks, boulders ... shaping and editing the terrain ... its own button"). No new module: it lives in `engine-terrain`, `editor-terrain` and `editor-desktop`.
+
+**Decision.**
+- A terrain point has a `Surface` (Auto, Grass, Sand, Snow, Gravel), one byte per point beside the heights. Auto is the earlier look (grass, rock, snow by slope and height), so existing terrains do not change. The `.terrain` file stays version 1 and gains an optional `surfaces` Base64 string, written only when any point is not Auto; a file without it reads as before, a wrong length or unknown code is an error.
+- The brush gains a Paint type that lays the brush's surface on the points inside it (Ctrl lays Auto). A stroke's `TerrainDelta` now also carries surface changes, so one undo step covers heights and ground, and the file follows undo and redo. Changing the base of the whole ground is one such step.
+- The level editor is a mode, not a window: the Level button in the top bar (and Tools > Level) turns it on and shows a palette over the 3D view with New Level, the base ground, and the tools Raise, Lower, Smooth, Flatten, Rough, Ground, Place and Erase. The level's ground is the first entity with a Terrain component, so strokes go there whatever is selected.
+- Objects are prefabs in `assets/prefabs/level/` (Oak Tree, Pine Tree, Bush, Rock, Boulder, built from the built-in shapes by `tools/make_level_prefabs.py`). Place drops one at the clicked point with a random turn and up to 20% size change, through `PrefabService.instantiate`, which gained a form taking the turn, the scale and whether to select; Erase removes the nearest placed object within 160 units. Both are single undo steps. Any prefab added to the folder shows in the palette.
+
+**Why.** It gives the editing loop of the old campaign editors (pick the ground, shape it, paint other ground, drop trees and rocks) using the terrain, prefab and undo systems that already exist.
+
+**Limits.** Surfaces are one hard value per point, so patch edges are one cell wide gradients and not blended weights; objects do not collide (terrain has no collision yet) and are placed on the ground at click height, not snapped again if the ground is reshaped later; no object brush, no random scatter, no water, no cliffs or roads; the web player ignores terrain and so the level.
+
+### TD-084: Customize Gateway and the Back to World Contract (Roadmap M1b.7, World-first Stage 2)
+
+**Status:** **Approved by the owner on 2026-11-14** ("Approve TD-084"), as built. It was written and implemented the same day for stage 2 of the World-first plan (decision 16 approved, staged). It changes no file format and adds no module.
+
+**Decision.**
+- The editor has seven **workspaces** (`Workspace`, editor-core): World, 3D Modeling, 2D Studio, Animation, Audio & Music, Logic and Assets. Each is shown by an existing part of the editor: World by the Viewport tab (the Scene tab while playing), 3D Modeling by sculpt mode in that view, 2D Studio by the Sprites tab (and Tiles), Animation, Audio & Music and Logic by their tabs, Assets by the Content Browser. Customize is a **gateway, not a second editor** (Appendix E2): it only changes which existing panel is shown.
+- **Customize** (beside Play, where the Appendix E1 footer will put it) lists **Edit Selected** first, then the workspaces with the current one marked. Edit Selected (`CustomizeGateway`) finds the files the selected entity uses from its saved form, so a component type added later is covered: a sculpt opens in 3D Modeling; a model or shape can be **sculpted as a copy** (the original stays); a sprite, clip, song or graph opens in its editor. A file with no editor yet (a sound, model file, material, terrain, texture, prefab) is **listed and marked "no editor yet"**, and choosing it explains why in the status bar; it is never faked.
+- **Back to World** (shown whenever the workspace is not the World) and Customize > World show the scene view (the game view while playing) and turn sculpt mode off. **Switching workspaces never closes, saves, discards or deselects anything and never moves the scene camera**: open documents (graph, clip, song, sprite, sculpts) stay open in their sessions with their unsaved changes and undo history; the selection is kept. So no confirmation prompt is needed, because nothing is lost.
+- The centre tabs stay as a second way in until the World layout replaces them (stage 4); the workspace on screen is read from the tab actually shown, so both ways agree.
+
+**Why.** It is the smallest step that gives Appendix E2's "Edit Selected, then Back to World" loop with the editors that exist, without a new layout and without risk to unsaved work.
+
+**Limits (TD-084).** "Sculpt a copy" makes a new entity and selects it (that is what the existing action does), so after Back to World the copy, not the original, is selected; 2D Studio opens the Sprites tab, not Tiles; Assets only brings the Content Browser forward; Customize does not open a sprite from a Sprite Renderer that names an image rather than a `.sprite`; the 3D Modeling workspace is sculpting only (mesh editing is R7a).
+
+### TD-085: The World Layout: Collapsible Panels, Selection-Aware Details and the World Strip (Roadmap M1b.2 and M1b.4, World-first Stage 4)
+
+**Status:** **Approved by the owner on 2026-11-14** ("Approve TD-085"), as built. No new module and no scene file change. The saved editor layout file goes from version 1 to 2 (below). The owner also approved the next step it left open: the thin header (M1b.2's last part, recorded in the M1b.2 header report).
+
+**Decision.**
+- **No permanent hierarchy, inspector or asset browser** (Appendix E1). The Outliner, Details and the bottom panel (Content Browser and Output Log) are **collapsible**. A closed panel is taken out of its split, so the scene view gets the room; it keeps its own state (scroll, folder, filter) while closed.
+- **Defaults (the World layout):** Outliner closed, bottom panel closed, **Details shown while something is selected** (selection-aware, M1b.4). Details has three modes, stepped by its button: *with selection*, *always*, *hidden*. The AI Assistant shares the right column with Details, so an open Assistant keeps that column open.
+- **Nothing becomes unreachable:** three actions (Window menu: Outliner, Details, Content Browser and Log) with buttons that are always on screen at the end of toolbar row 2. The buttons show the state: Outliner and Content Browser light up when open, and Details names its mode. `ActionInventoryTest` pins these buttons.
+- **The choice is saved** with the editor layout (`WorkspaceLayoutConfig`). The layout file becomes **version 2**. A version 1 file keeps its sizes and gets the World defaults, so an existing install opens in the World layout once, and after that it keeps whatever the person chooses. Before this, a version mismatch reset the whole file.
+- **The World strip** at the bottom centre of the scene view. A 2.5D or 3D scene gets Terrain, Objects, Buildings and Characters; a 2D scene gets Tiles, Sprites, Objects and Characters. Terrain and Objects open the level editor (TD-083) with **only that part of its palette**: the ground tools and base ground for Terrain, Place and Erase with the objects for Objects (`LevelSession.Focus`). Pressing the lit entry again closes it. The top bar's Level button still opens the full palette. Tiles and Sprites open their tabs. Buildings, Characters and 2D Objects have nothing behind them yet and say so in the status bar. The strip hides during Play and in sculpt mode.
+- **Not in this step:** the centre tabs and the tool buttons stay in the top bar, because Customize (TD-084) and the tabs are both still routes. Removing the tabs, which would make the thin header of Appendix E1, is a later step and needs its own approval.
+
+**Why.** It makes the World the default screen without removing a feature. Every panel is one click away, and the inventory test shows that every action still has a route.
+
+**Limits.** The strip's sections for buildings and characters, and 2D objects, are placeholders that explain themselves. Strip and panel clicks were not tried on screen. The layout migration changes the person's saved layout file once.
+
+### TD-086: The Template Gallery and Opening a New Project by Restarting the Editor (Roadmap M1.4)
+
+**Status:** **Proposed** (2026-11-14), built and tested. M1.4 has no approval gate in the milestone chart; this record exists because opening a project now starts a second editor process, which changes how the editor hands over between projects. No new module, no new dependency, no scene file change.
+
+**Decision.**
+- **Project > New Game...** opens the template gallery: the empty 2D, 2.5D and 3D starts, then every sample listed in `assets/templates/gallery.json` (title, genre, one-line summary, and whether the web player has its scripts). The dimension is read from each scene's own `gameMode`; the size is what Use as Template would copy (`TemplateProject.plan`). A catalog entry that names a missing scene, or a scene with no game mode, is an error that names it; the gallery never shows half a catalog.
+- **Play Sample** is the existing Open Sample on the listed scene (an untitled copy; the shipped file stays read-only). **Use as Template** (or **Create Project** for an empty start) makes a separate project in the user's projects folder (`TemplateProject` from M1.3, `StarterProject` for empty starts) and never overwrites a folder.
+- **Opening the new project restarts the editor on it.** The editor opens one project per start, and its whole state (asset root, libraries, sessions) is built around that project, so switching in place would be a large and risky change. Instead a separate button, *Open '<name>' (restarts the editor)*, asks the usual unsaved-changes questions (scene, sculpts, song), starts a second editor with `--project <folder> --scene <start scene>` and closes this one. The command is the one this editor was started with: the packaged launcher (`jpackage.app-path`) when there is one, otherwise the same Java, JVM options (without a debugger agent) and class path (`EditorRelaunch`). If the second editor cannot be started, this one stays open and says why.
+- **Previews** are real frames: `tools/make_template_previews.py` plays each sample in the game runtime for 120 frames and keeps the runtime's own last frame (TD-054), cropped to 400 by 225. A sample without a preview shows "No preview image".
+- **Status shown honestly:** every offered choice says "Desktop: opens, plays and exports (checked by test)"; the web line is "scripts ported (headless tests, not run in a browser)" only for the nine samples the web player's tests list, otherwise "not checked"; samples say they are not yet rated Fully Customizable (the release gate is M1.7).
+
+**Why.** It gives the owner journey's first step (roadmap §3, step 1: open or create a project and land in World) a single place to start, without the risk of rebuilding the editor in place.
+
+**Limits.** A restart takes as long as a cold start, and the second editor's window opens where the window system puts it. The gallery is not shown at startup; it is reached from the Project menu. Templates are offered as listed. (2026-11-15: the fixed "not yet rated" line is replaced by M1.7's label, read from the editability matrix each time a template is shown; see the M1.7 report.)

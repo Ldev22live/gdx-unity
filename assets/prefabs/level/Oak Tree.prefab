@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "Oak Tree",
+  "rootId": "8ca7bddf-9dd2-559b-abf9-45e03c0372a5",
+  "entities": [
+    {
+      "id": "8ca7bddf-9dd2-559b-abf9-45e03c0372a5",
+      "parentId": null,
+      "name": "Oak Tree",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "24c3331b-f0c7-5d96-8c5c-585aa71ec2c0",
+      "parentId": "8ca7bddf-9dd2-559b-abf9-45e03c0372a5",
+      "name": "Trunk",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 75.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 36.0,
+            "sizeY": 150.0,
+            "sizeZ": 36.0,
+            "colorR": 0.38,
+            "colorG": 0.25,
+            "colorB": 0.14,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a72b02ea-547d-5ca9-bf5a-18a1a3d0908a",
+      "parentId": "8ca7bddf-9dd2-559b-abf9-45e03c0372a5",
+      "name": "Crown",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 215.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 190.0,
+            "sizeY": 150.0,
+            "sizeZ": 190.0,
+            "colorR": 0.16,
+            "colorG": 0.42,
+            "colorB": 0.14,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b4d4541e-5f78-5c76-99fc-5607e08234c0",
+      "parentId": "8ca7bddf-9dd2-559b-abf9-45e03c0372a5",
+      "name": "Crown Side",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 60.0,
+          "y": 180.0,
+          "z": 25.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 130.0,
+            "sizeY": 110.0,
+            "sizeZ": 130.0,
+            "colorR": 0.24,
+            "colorG": 0.52,
+            "colorB": 0.18,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f8c1693f-1f64-54be-ab31-5831913efea8",
+      "parentId": "8ca7bddf-9dd2-559b-abf9-45e03c0372a5",
+      "name": "Crown Top",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -30.0,
+          "y": 285.0,
+          "z": -20.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 120.0,
+            "sizeY": 100.0,
+            "sizeZ": 120.0,
+            "colorR": 0.24,
+            "colorG": 0.52,
+            "colorB": 0.18,
+            "colorA": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}

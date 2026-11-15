@@ -13,6 +13,11 @@ public interface GraphHost {
         return com.badlogic.gdx.Gdx.input != null && com.badlogic.gdx.Gdx.input.isKeyPressed(keycode);
     }
 
+    /** Whether the key went down since the last frame (Key Pressed nodes, TD-072); false where there is no keyboard. */
+    default boolean isKeyJustPressed(int keycode) {
+        return com.badlogic.gdx.Gdx.input != null && com.badlogic.gdx.Gdx.input.isKeyJustPressed(keycode);
+    }
+
     /** Called for every node that runs, so an editor can highlight it. */
     default void nodeExecuted(GraphInstance instance, String nodeId) {
     }

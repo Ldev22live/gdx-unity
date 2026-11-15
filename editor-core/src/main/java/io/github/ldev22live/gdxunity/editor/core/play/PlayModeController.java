@@ -369,15 +369,23 @@ public class PlayModeController {
             deltaTime = 0.1f; // clamp to 100ms max to prevent physics or simulation explosion
         }
 
-        // Advance 2D physics simulation first, then 3D (the same order as GameSession)
-        if (physicsSystem != null) {
-            physicsSystem.update(deltaTime);
-        }
-        if (physicsSystem3D != null) {
-            physicsSystem3D.update(deltaTime);
-        }
+        try {
+            // Advance 2D physics simulation first, then 3D (the same order as GameSession)
+            if (physicsSystem != null) {
+                physicsSystem.update(deltaTime);
+            }
+            if (physicsSystem3D != null) {
+                physicsSystem3D.update(deltaTime);
+            }
 
-        runtimeScene.update(deltaTime);
+            runtimeScene.update(deltaTime);
+        } catch (RuntimeException e) {
+            // A scene that is set up wrongly (a joint with no collider, a script that throws) fails on its first step, after Play has
+            // started. Left alone the exception ends the editor and loses unsaved work, so Play stops and the reason is shown.
+            String reason = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            stop();
+            editorState.setStatusMessage("Play stopped: " + reason, true);
+        }
     }
 
     /**

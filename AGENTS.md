@@ -79,7 +79,10 @@ Only the modules in `settings.gradle` are part of the build:
 | `engine-character` | Character creator core (TD-053): MakeHuman-derived CC0 body data, morph targets, skin, glTF writer, humanoid animation templates baked onto the rig; headless, no GL | `engine-animation` |
 | `editor-character` | Headless character creator editing (TD-053): settings with undo, template selection, bake to glTF, place in the scene | `editor-core`, `editor-animation`, `engine-character` |
 | `engine-sprite` | Pixel-art sprite core (TD-066): layered multi-frame images, tags, slices, palette, `.sprite` file, sprite sheets, tag playback; headless, no GL | `engine-core` |
+| `engine-material` | Materials (TD-081): `Material` (PBR parameters), the `.material` file (`MaterialIO`) and the shared `MaterialLibrary`; headless, no GL; how a material is drawn is `engine-render`'s job | `engine-core` |
+| `engine-terrain` | Terrain (TD-082): `Terrain` (heightmap with chunk revisions and ray picking), brushes and strokes, the `.terrain` file (`TerrainIO`), the shared `TerrainLibrary`; headless, no GL; how it is drawn is `engine-render`'s job | `engine-core` |
 | `editor-sprite` | Headless sprite editing (TD-066): drawing tools, undoable commands, layers, frames, tags, palette, session | `editor-core`, `engine-sprite` |
+| `editor-terrain` | Headless terrain editing (TD-082): session and brush, undoable strokes, the viewport interaction, new terrain files | `editor-core`, `engine-terrain` |
 | `editor-desktop` | scene2d.ui editor shell, panels, renderers for gizmos/grid/physics debug/bones, graph canvas, Timeline | `editor-core`, `editor-visualscript`, `editor-animation`, engine modules (including `engine-desktop`, for the shared serializer list) |
 
 Rules:
@@ -106,7 +109,8 @@ Run from the repository root (`gradlew.bat` on Windows cmd/PowerShell, `./gradle
 ./gradlew :editor-desktop:run --args="--smoke-test"   # render a few seconds, exit 0/1 (needs a display)
 # Testing aids (TD-054), environment variables: GDXUNITY_SCREENSHOT=<file.png> saves the app's own last frame at the end of a
 # --smoke-test run (game runtime and editor); editor only: GDXUNITY_EDITOR_TAB=Animations, GDXUNITY_EDITOR_SELECT=<entity>,
-# GDXUNITY_EDITOR_CREATOR=1 (or <saved character>[:<preview animation>], TD-056), GDXUNITY_EDITOR_ASSISTANT=0
+# GDXUNITY_EDITOR_CREATOR=1 (or <saved character>[:<preview animation>], TD-056), GDXUNITY_EDITOR_ASSISTANT=0,
+# GDXUNITY_EDITOR_GRAPH=<graph path>, GDXUNITY_EDITOR_GRAPH_FUNCTION=<function> and GDXUNITY_EDITOR_PALETTE=<search text> (TD-069, TD-070); Music Studio (TD-076): GDXUNITY_EDITOR_SONG=<song path>, GDXUNITY_EDITOR_CHANNEL=<name or number from 1> and GDXUNITY_EDITOR_MUSIC_TAB=<Channel rack|Piano roll|Playlist|Mixer|Instrument>; window size (TD-077): GDXUNITY_EDITOR_WINDOW=<width>x<height> (at least 1024x640, the editor's minimum); template gallery (M1.4): GDXUNITY_EDITOR_GALLERY=1 (or a template's title, to select it) opens Project > New Game on the first frame
 ```
 
 `gradle.properties` sets `org.gradle.logging.level=quiet`, so a passing run prints almost nothing. Do not

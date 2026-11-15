@@ -25,6 +25,7 @@ public class MeshPrimitiveComponent extends BaseComponent {
     private Shape shape;
     private final Vector3 size = new Vector3();
     private final Color color = new Color();
+    private String materialPath = "";
 
     public MeshPrimitiveComponent() {
         this(Shape.BOX);
@@ -73,6 +74,19 @@ public class MeshPrimitiveComponent extends BaseComponent {
 
     public void setColor(Color color) {
         this.color.set(Objects.requireNonNull(color, "color cannot be null"));
+    }
+
+    /**
+     * The {@code .material} file that decides how the surface looks (TD-081), or an empty string for none: then the plain
+     * {@link #getColor() color} is used. With a material, the material's base color replaces the color.
+     */
+    public String getMaterialPath() {
+        return materialPath;
+    }
+
+    /** @param path a project-relative {@code .material} path; null or blank for none */
+    public void setMaterialPath(String path) {
+        this.materialPath = path == null ? "" : path.trim();
     }
 
     /** Extent in world units before entity scale; a plane has no thickness along Y. */

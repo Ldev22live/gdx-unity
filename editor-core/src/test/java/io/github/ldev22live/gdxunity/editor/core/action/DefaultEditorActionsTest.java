@@ -112,6 +112,23 @@ class DefaultEditorActionsTest {
         assertEquals("Ctrl+Shift+S", fileRegistry.find(DefaultEditorActions.FILE_SAVE_SCENE_AS).orElseThrow().getShortcutText());
     }
 
+    @Test
+    void shouldOfferUseSampleAsTemplateInTheFileMenuOnlyWhenTheSamplesFolderExists(@org.junit.jupiter.api.io.TempDir java.nio.file.Path temp)
+        throws Exception {
+        EditorState state = new EditorState();
+        SceneFileController files = new SceneFileController(state, new StubDialogs(), temp.toFile());
+        File samples = temp.resolve("samples").toFile();
+        EditorActionRegistry registry = new EditorActionRegistry();
+        DefaultEditorActions.registerTemplateAction(registry, state, files, temp.toFile(), samples, temp.resolve("projects").toFile());
+
+        EditorAction action = registry.find(DefaultEditorActions.FILE_USE_SAMPLE_AS_TEMPLATE).orElseThrow();
+        assertEquals("Use Sample as Template...", action.getLabel());
+        assertEquals(DefaultEditorActions.MENU_FILE, action.getMenu());
+        assertFalse(action.isEnabled(), "no samples folder, nothing to use");
+        assertTrue(samples.mkdirs());
+        assertTrue(action.isEnabled());
+    }
+
     private static class StubDialogs implements EditorDialogService {
         UnsavedChangesChoice answer = UnsavedChangesChoice.CANCEL;
 

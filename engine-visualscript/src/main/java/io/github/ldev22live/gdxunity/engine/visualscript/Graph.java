@@ -16,6 +16,12 @@ public final class Graph {
     private final Map<String, GraphNode> nodes = new LinkedHashMap<>();
     private final List<GraphLink> links = new ArrayList<>();
     private final Map<String, GraphVariable> variables = new LinkedHashMap<>();
+    private final Map<String, GraphFunction> functions = new LinkedHashMap<>();
+    private final Map<String, GraphEventDef> events = new LinkedHashMap<>();
+    /** The function this graph is the body of (TD-070), or null for a graph of its own. */
+    private GraphFunction owner;
+    /** For a function body: the graph the function belongs to, whose variables, functions and events the body uses. */
+    private Graph parent;
     private int nextNodeNumber = 1;
 
     public Graph(String name) {
@@ -116,11 +122,100 @@ public final class Graph {
         return variables.remove(name);
     }
 
+    /** A variable of this graph; in a function body, of the graph the function belongs to. */
     public GraphVariable getVariable(String name) {
-        return name != null ? variables.get(name) : null;
+        if (name == null) {
+            return null;
+        }
+        GraphVariable own = variables.get(name);
+        return own == null && parent != null ? parent.getVariable(name) : own;
     }
 
     public List<GraphVariable> getVariables() {
         return List.copyOf(variables.values());
+    }
+
+    // --- Functions and custom events (TD-070) ---
+
+    /** The function whose body this graph is, or null when it is a graph of its own. */
+    public GraphFunction getOwner() {
+        return owner;
+    }
+
+    void setOwner(GraphFunction owner) {
+        this.owner = owner;
+    }
+
+    /** @throws IllegalArgumentException when a function of that name exists, or this graph is itself a function body */
+    public void putFunction(GraphFunction function) {
+        Objects.requireNonNull(function, "function cannot be null");
+        if (owner != null) {
+            throw new IllegalArgumentException("A function body cannot hold functions");
+        }
+        if (functions.containsKey(function.getName())) {
+            throw new IllegalArgumentException("Function " + function.getName() + " already exists");
+        }
+        functions.put(function.getName(), function);
+        function.getBody().parent = this;
+    }
+
+    public GraphFunction removeFunction(String name) {
+        GraphFunction removed = functions.remove(name);
+        if (removed != null) {
+            removed.getBody().parent = null;
+        }
+        return removed;
+    }
+
+    /** A function of this graph; in a function body, of the graph the function belongs to. */
+    public GraphFunction getFunction(String name) {
+        if (name == null) {
+            return null;
+        }
+        GraphFunction own = functions.get(name);
+        return own == null && parent != null ? parent.getFunction(name) : own;
+    }
+
+    /** The graph a function body belongs to, or null. */
+    public Graph getParent() {
+        return parent;
+    }
+
+    public List<GraphFunction> getFunctions() {
+        return List.copyOf(functions.values());
+    }
+
+    /** @throws IllegalArgumentException when an event of that name is declared, or this graph is a function body */
+    public void putEvent(GraphEventDef event) {
+        Objects.requireNonNull(event, "event cannot be null");
+        if (owner != null) {
+            throw new IllegalArgumentException("A function body cannot declare events");
+        }
+        if (events.containsKey(event.getName())) {
+            throw new IllegalArgumentException("Event " + event.getName() + " already exists");
+        }
+        events.put(event.getName(), event);
+    }
+
+    public GraphEventDef removeEvent(String name) {
+        return events.remove(name);
+    }
+
+    /** An event declared by this graph; in a function body, by the graph the function belongs to. */
+    public GraphEventDef getEvent(String name) {
+        if (name == null) {
+            return null;
+        }
+        GraphEventDef own = events.get(name);
+        return own == null && parent != null ? parent.getEvent(name) : own;
+    }
+
+    public List<GraphEventDef> getEvents() {
+        return List.copyOf(events.values());
+    }
+
+    /** Whether the graph needs {@link GraphSerializer#SCHEMA_VERSION_FUNCTIONS} to be saved. */
+    public boolean usesFunctionsOrEvents() {
+        return !functions.isEmpty() || !events.isEmpty();
     }
 }

@@ -1,3 +1,5 @@
+import { fmPreset, type FmPatch } from "../../audio/fm";
+import { pluckPreset, type PluckPatch } from "../../audio/pluck";
 import { LFO_TARGETS, presetPatch, type SynthPatch } from "../../audio/synth";
 import { createEffect } from "../../audio/effects";
 import { MAX_EFFECTS } from "../../audio/mixer";
@@ -218,14 +220,17 @@ export class MusicModel {
   // ---- Channels -----------------------------------------------------------------------------------------------
 
   /** Adds a channel on the first mixer insert not used by another channel (or insert 1 when all are), and selects it. */
-  addChannel(kind: "SYNTH" | "DRUMS", name?: string): number {
+  addChannel(kind: "SYNTH" | "DRUMS" | "FM" | "PLUCK", name?: string): number {
     if (this.songData.channels.length >= MAX_CHANNELS) throw new Error(`A song has at most ${MAX_CHANNELS} channels`);
     let id = 0;
     this.edit("Add channel", (s) => {
       const used = new Set(s.channels.map((c) => c.mixerIndex));
       const free = s.mixer.strips.findIndex((_, i) => !used.has(i));
-      const label = name ?? (kind === "DRUMS" ? `Drums ${s.nextChannelId}` : `Synth ${s.nextChannelId}`);
-      const channel = addChannel(s, label, kind === "DRUMS" ? drumSpec() : synthSpec(presetPatch("Saw Lead")), free < 0 ? 0 : free);
+      const labels = { SYNTH: "Synth", DRUMS: "Drums", FM: "FM", PLUCK: "String" };
+      const label = name ?? `${labels[kind]} ${s.nextChannelId}`;
+      const spec = kind === "DRUMS" ? drumSpec() : synthSpec(presetPatch("Saw Lead"));
+      if (kind === "FM" || kind === "PLUCK") spec.type = kind;
+      const channel = addChannel(s, label, spec, free < 0 ? 0 : free);
       if (kind === "DRUMS") channel.stepPitch = 36;
       id = channel.id;
     });
@@ -268,7 +273,7 @@ export class MusicModel {
     });
   }
 
-  /** Switches a channel between the synthesizer and the drum kit (the only kinds this version plays). */
+  /** Switches a channel between the kinds this version plays: synthesizer, drum kit, FM and plucked string. */
   setInstrumentType(id: number, type: InstrumentType): void {
     this.requireChannel(id);
     this.edit("Change instrument", (s) => {
@@ -285,6 +290,40 @@ export class MusicModel {
       channel.instrument.type = "SYNTH";
       channel.instrument.patch = patch;
     });
+  }
+
+  /** Replaces a channel's instrument with an FM preset (TD-075). */
+  loadFmPreset(id: number, preset: string): void {
+    this.requireChannel(id);
+    const patch = fmPreset(preset);
+    this.edit("Load preset", (s) => {
+      const channel = findChannel(s, id)!;
+      channel.instrument.type = "FM";
+      channel.instrument.fm = patch;
+    });
+  }
+
+  /** Replaces a channel's instrument with a plucked-string preset (TD-075). */
+  loadPluckPreset(id: number, preset: string): void {
+    this.requireChannel(id);
+    const patch = pluckPreset(preset);
+    this.edit("Load preset", (s) => {
+      const channel = findChannel(s, id)!;
+      channel.instrument.type = "PLUCK";
+      channel.instrument.pluck = patch;
+    });
+  }
+
+  /** Sets one FM setting; the UI range-checks the number. */
+  setFmField<K extends keyof FmPatch>(id: number, field: K, value: FmPatch[K]): void {
+    this.requireChannel(id);
+    this.edit("Edit instrument", (s) => (findChannel(s, id)!.instrument.fm[field] = value), { kind: "song", quiet: true }, `fm:${id}:${field}`);
+  }
+
+  /** Sets one plucked-string setting; the UI range-checks the number. */
+  setPluckField<K extends keyof PluckPatch>(id: number, field: K, value: PluckPatch[K]): void {
+    this.requireChannel(id);
+    this.edit("Edit instrument", (s) => (findChannel(s, id)!.instrument.pluck[field] = value), { kind: "song", quiet: true }, `pluck:${id}:${field}`);
   }
 
   /** Sets one synth setting; numbers outside the setting's use are the caller's to range-check (the UI does). */

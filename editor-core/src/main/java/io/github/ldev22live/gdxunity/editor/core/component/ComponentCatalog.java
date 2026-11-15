@@ -9,6 +9,7 @@ import io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.TerrainComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
@@ -22,6 +23,7 @@ import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.audio.AudioListenerComponent;
 import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
+import io.github.ldev22live.gdxunity.engine.scene.audio.EngineSoundComponent;
 import io.github.ldev22live.gdxunity.engine.scene.audio.MusicSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.ToneMappingComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent;
@@ -219,6 +221,7 @@ public class ComponentCatalog {
         catalog.register(new Entry("Mesh Primitive", "Rendering 3D", MeshPrimitiveComponent.class, false,
             state -> new MeshPrimitiveComponent(MeshPrimitiveComponent.Shape.BOX)));
         catalog.register(new Entry("Model", "Rendering 3D", ModelComponent.class, false, ComponentCatalog::createModel));
+        catalog.register(new Entry("Terrain", "Rendering 3D", TerrainComponent.class, false, state -> new TerrainComponent()));
         catalog.register(new Entry("Directional Light", "Lighting", DirectionalLightComponent.class, false,
             state -> new DirectionalLightComponent()));
         catalog.register(new Entry("Point Light", "Lighting", PointLightComponent.class, false,
@@ -227,13 +230,15 @@ public class ComponentCatalog {
             state -> new SkyLightComponent()));
         catalog.register(new Entry("Tone Mapping", "Lighting", ToneMappingComponent.class, false,
             state -> new ToneMappingComponent()));
-        catalog.register(new Entry("Camera", "Game", CameraComponent.class, false, state -> new CameraComponent()));
+        catalog.register(new Entry("Camera", "Game", CameraComponent.class, false, ComponentCatalog::createCamera));
         catalog.register(new Entry("Camera Rig", "Game", CameraRigComponent.class, false, state -> new CameraRigComponent()));
         catalog.register(new Entry("Text", "Game", TextComponent.class, false, state -> new TextComponent()));
         catalog.register(new Entry("Audio Source", "Audio", AudioSourceComponent.class, true,
             state -> new AudioSourceComponent()));
         catalog.register(new Entry("Audio Listener", "Audio", AudioListenerComponent.class, false,
             state -> new AudioListenerComponent()));
+        catalog.register(new Entry("Engine Sound", "Audio", EngineSoundComponent.class, true,
+            state -> new EngineSoundComponent()));
         catalog.register(new Entry("Music Source", "Audio", MusicSourceComponent.class, true,
             state -> new MusicSourceComponent()));
         return catalog;
@@ -296,6 +301,19 @@ public class ComponentCatalog {
     }
 
     /** Shows the model selected in the Content Browser; there is no sensible model without one. */
+    /**
+     * A new camera suits the scene it goes into: perspective in a 3D or 2.5D scene, orthographic in a 2D one. An orthographic camera
+     * in a 3D scene shows a flat slice of it (the acceptance project saw only the top of a ball and no floor), and Play switches the
+     * view to 2D for it.
+     */
+    private static Component createCamera(EditorState editorState) {
+        CameraComponent camera = new CameraComponent();
+        if (editorState.getGameMode() != GameMode.MODE_2D) {
+            camera.setProjection(CameraComponent.Projection.PERSPECTIVE);
+        }
+        return camera;
+    }
+
     private static Component createModel(EditorState editorState) {
         AssetReference selectedAsset = editorState.getSelectedAsset();
         if (selectedAsset == null || AssetType.fromPath(selectedAsset.getPath()) != AssetType.MODEL) {

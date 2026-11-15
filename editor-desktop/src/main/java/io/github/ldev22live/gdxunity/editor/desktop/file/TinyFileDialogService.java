@@ -23,9 +23,14 @@ public class TinyFileDialogService implements EditorDialogService {
 
     @Override
     public Optional<File> chooseOpenFile(String title, File initialDirectory, String filterDescription, String extension) {
+        return chooseOpenFile(title, initialDirectory, filterDescription, java.util.List.of(extension));
+    }
+
+    @Override
+    public Optional<File> chooseOpenFile(String title, File initialDirectory, String filterDescription, java.util.List<String> extensions) {
         String defaultPath = initialDirectory != null ? initialDirectory.getAbsolutePath() + File.separator : null;
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            PointerBuffer filters = filterPatterns(stack, extension);
+            PointerBuffer filters = filterPatterns(stack, extensions);
             String result = TinyFileDialogs.tinyfd_openFileDialog(sanitize(title), defaultPath, filters,
                 sanitize(filterDescription), false);
             return Optional.ofNullable(result).map(File::new);
@@ -36,7 +41,7 @@ public class TinyFileDialogService implements EditorDialogService {
     public Optional<File> chooseSaveFile(String title, File suggestedFile, String filterDescription, String extension) {
         String defaultPath = suggestedFile != null ? suggestedFile.getAbsolutePath() : null;
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            PointerBuffer filters = filterPatterns(stack, extension);
+            PointerBuffer filters = filterPatterns(stack, java.util.List.of(extension));
             String result = TinyFileDialogs.tinyfd_saveFileDialog(sanitize(title), defaultPath, filters,
                 sanitize(filterDescription));
             return Optional.ofNullable(result).map(File::new);
@@ -67,9 +72,11 @@ public class TinyFileDialogService implements EditorDialogService {
         TinyFileDialogs.tinyfd_messageBox(sanitize(title), sanitize(message), "ok", "error", true);
     }
 
-    private static PointerBuffer filterPatterns(MemoryStack stack, String extension) {
-        PointerBuffer filters = stack.mallocPointer(1);
-        filters.put(stack.UTF8("*." + extension));
+    private static PointerBuffer filterPatterns(MemoryStack stack, java.util.List<String> extensions) {
+        PointerBuffer filters = stack.mallocPointer(extensions.size());
+        for (String extension : extensions) {
+            filters.put(stack.UTF8("*." + extension));
+        }
         filters.flip();
         return filters;
     }

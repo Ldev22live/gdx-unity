@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -21,11 +22,17 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import io.github.ldev22live.gdxunity.editor.core.asset.AssetChangeWatcher;
 import io.github.ldev22live.gdxunity.editor.core.asset.AssetPlacement;
+import io.github.ldev22live.gdxunity.editor.core.agent.tools.MaterialAssignTool;
+import io.github.ldev22live.gdxunity.editor.core.material.MaterialAssignment;
+import io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceNavigator;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 import io.github.ldev22live.gdxunity.editor.core.component.ComponentCatalog;
 import io.github.ldev22live.gdxunity.editor.core.inspector.ComponentEditorRegistry;
+import io.github.ldev22live.gdxunity.editor.desktop.audit.EditabilityAudit;
+import io.github.ldev22live.gdxunity.editor.desktop.audit.TemplateRatings;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.graph.GraphEditorPanel;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.ScrollingBar;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.SkeletonOverlayRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.AnimatorComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.ModelComponentEditorProvider;
@@ -34,6 +41,7 @@ import io.github.ldev22live.gdxunity.editor.desktop.ui.timeline.CharacterCreator
 import io.github.ldev22live.gdxunity.editor.desktop.ui.timeline.TimelinePanel;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.music.MusicStudioPanel;
 import io.github.ldev22live.gdxunity.editor.audio.MusicSession;
+import io.github.ldev22live.gdxunity.engine.audio.song.Channel;
 import io.github.ldev22live.gdxunity.editor.animation.AnimationAssets;
 import io.github.ldev22live.gdxunity.editor.animation.ClipLibrary;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportLayout;
@@ -42,6 +50,11 @@ import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ScenePaneFactory
 import io.github.ldev22live.gdxunity.editor.sculpt.SculptActions;
 import io.github.ldev22live.gdxunity.editor.sculpt.SculptAssets;
 import io.github.ldev22live.gdxunity.editor.sculpt.SculptSession;
+import io.github.ldev22live.gdxunity.editor.terrain.LevelActions;
+import io.github.ldev22live.gdxunity.editor.terrain.LevelSession;
+import io.github.ldev22live.gdxunity.editor.terrain.LevelViewportInteraction;
+import io.github.ldev22live.gdxunity.editor.terrain.TerrainSession;
+import io.github.ldev22live.gdxunity.editor.terrain.TerrainViewportInteraction;
 import io.github.ldev22live.gdxunity.editor.sculpt.SculptViewportInteraction;
 import io.github.ldev22live.gdxunity.editor.animation.AnimationPlayModeExtension;
 import io.github.ldev22live.gdxunity.editor.animation.TimelineSession;
@@ -68,6 +81,9 @@ import io.github.ldev22live.gdxunity.editor.core.project.EditorProject;
 import io.github.ldev22live.gdxunity.editor.core.project.GameExportCommand;
 import io.github.ldev22live.gdxunity.editor.core.project.GameExporter;
 import io.github.ldev22live.gdxunity.editor.core.project.PlatformDirectories;
+import io.github.ldev22live.gdxunity.editor.core.project.TemplateGallery;
+import io.github.ldev22live.gdxunity.editor.core.project.TemplateProject;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.TemplateGalleryScreen;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.ToneMappingComponent;
 import io.github.ldev22live.gdxunity.editor.core.action.EditorAction;
@@ -88,6 +104,7 @@ import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportInteraction;
 import io.github.ldev22live.gdxunity.editor.core.play.PlayModeController;
 import io.github.ldev22live.gdxunity.editor.core.play.PlayModeState;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorSkinFactory;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorFooter;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorStatusBar;
 import io.github.ldev22live.gdxunity.editor.core.ToolMode;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.ActionTextButton;
@@ -99,7 +116,13 @@ import io.github.ldev22live.gdxunity.editor.desktop.ui.OutputLogPanel;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.TabbedPanel;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetSource;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.ContextMenu;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.CustomizeMenu;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.EditorMenuBar;
+import io.github.ldev22live.gdxunity.editor.core.workspace.CustomizeGateway;
+import io.github.ldev22live.gdxunity.editor.core.workspace.PanelLayout;
+import io.github.ldev22live.gdxunity.editor.core.workspace.WorldStrip;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.WorldStripBar;
+import io.github.ldev22live.gdxunity.editor.core.workspace.Workspace;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.SceneViewportWidget;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ViewportGridRenderer3D;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.SculptToolbar;
@@ -155,6 +178,8 @@ public class EditorApplication extends ApplicationAdapter {
     static final String ACTION_RENAME = "edit.rename";
     /** Opens the mode screen: pick 2D, 2.5D or 3D for a new scene (TD-067). */
     static final String ACTION_NEW_SCENE_SCREEN = "file.new-scene-screen";
+    /** Opens the template gallery: an empty start or a sample as a new project (roadmap M1.4, TD-086). */
+    static final String ACTION_NEW_GAME = "file.new-game";
     static final String ACTION_FOCUS_SELECTION = "view.focus-selection";
 
     /** Actions in the Outliner right-click menu. */
@@ -176,12 +201,17 @@ public class EditorApplication extends ApplicationAdapter {
     private static final int CENTER_TAB_SPRITES = 5;
     /** The Tiles tab (TD-066, milestone E). */
     private static final int CENTER_TAB_TILES = 6;
+    /** The centre tabs' titles, in the index order above; the Customize gateway maps them to workspaces (M1b.7). */
+    private static final List<String> CENTER_TAB_TITLES = List.of(Workspace.TAB_VIEWPORT, Workspace.TAB_SCENE, Workspace.TAB_ANIMATIONS,
+        Workspace.TAB_VISUAL_SCRIPTING, Workspace.TAB_MUSIC, Workspace.TAB_SPRITES, Workspace.TAB_TILES);
     /** System property naming a song to open at startup (a testing aid, not a user setting). */
     static final String OPEN_SONG_PROPERTY = "gdxunity.openSong";
 
     private static final float MENU_BAR_HEIGHT = 28f;
     private static final float TOOLBAR_HEIGHT = 34f;
     private static final float STATUS_BAR_HEIGHT = 24f;
+    /** The World-first footer's height (M1b.3): room for the 26-pixel play and mode buttons. */
+    private static final float FOOTER_HEIGHT = 36f;
     private static final float RENAME_FIELD_WIDTH = 260f;
 
     // 3D view. Scene units are pixel-sized (the sample scene spans 640x480), so distances and speeds are large.
@@ -275,6 +305,15 @@ public class EditorApplication extends ApplicationAdapter {
     private EditorDialogService editorDialogs;
     private ContextMenu renamePopup;
     private GameModeScreen gameModeScreen;
+    /** Project > New Game... (roadmap M1.4); owns its preview texture. */
+    private TemplateGalleryScreen templateGallery;
+    /** The Details editors, which the gallery's ratings (roadmap M1.7) judge editability by; set when the panels are built. */
+    private ComponentEditorRegistry<Table> detailEditors;
+    /** The user's projects folder, where the gallery makes new projects. */
+    private final File projectsDir;
+    /** Testing aid: {@value #SHOW_GALLERY_VARIABLE} opens the gallery on the first frame, with this template selected (null: the first). */
+    private boolean galleryOnFirstFrame;
+    private String galleryAidSelection;
     private int selectedBottomTab = BOTTOM_TAB_CONTENT_BROWSER;
 
     /** Share of the right column Details keeps while the AI Assistant is open. */
@@ -283,6 +322,8 @@ public class EditorApplication extends ApplicationAdapter {
     private static final float ASSISTANT_SPLIT_MIN = 0.2f;
     private boolean isAssistantVisible = false;
     private com.badlogic.gdx.scenes.scene2d.ui.SplitPane rightSplit;
+    /** Which panels are open (TD-085), backed by {@link #layoutConfig}. */
+    private PanelLayout panelLayout;
 
     // Visual scripting (TD-029)
     private final NodeRegistry nodeRegistry = NodeRegistry.createDefault();
@@ -293,8 +334,16 @@ public class EditorApplication extends ApplicationAdapter {
     private GraphEditorPanel graphEditorPanel;
     /** Imported glTF models, shared by the 3D renderer and the Details panel (TD-030); disposed after the renderer. */
     private final ModelAssets modelAssets;
+    /** The project's materials, shared by the viewport, Play and the Details editor (TD-081). */
+    private final io.github.ldev22live.gdxunity.engine.material.MaterialLibrary materialLibrary;
+    private final File projectRoot;
     /** The sculpts open in the editor and the sculpt brush (TD-038); also the source of their geometry. */
     private final SculptSession sculptSession;
+    /** Terrain painting (TD-082): the project's terrains and the brush. */
+    private final TerrainSession terrainSession;
+    private final LevelSession levelSession;
+    /** Customize and Back to World, built on first use (M1b.5). */
+    private WorkspaceNavigator workspaceNavigator;
     private final TimelineSession timelineSession;
     private TimelinePanel timelinePanel;
     private AnimationsPanel animationsPanel;
@@ -319,6 +368,7 @@ public class EditorApplication extends ApplicationAdapter {
         this.projectNodes = new ProjectNodeCatalog(nodeRegistry, project.getRoot(), project.getScriptsBuildDir());
         projectNodes.refresh();
         Objects.requireNonNull(directories, "directories cannot be null");
+        this.projectsDir = directories.projectsDir();
         this.launchOptions = Objects.requireNonNull(launchOptions, "launchOptions cannot be null");
         this.layoutConfigFile = new File(directories.settingsDir(), LAYOUT_FILE_NAME);
         this.editorState = new EditorState();
@@ -337,12 +387,28 @@ public class EditorApplication extends ApplicationAdapter {
         this.graphAssets = new GraphAssets(assetRoot);
         registerComponentSerializers(editorState.getSerializer().getRegistry());
         this.modelAssets = new ModelAssets(assetRoot);
+        this.materialLibrary = new io.github.ldev22live.gdxunity.engine.material.MaterialLibrary(
+            io.github.ldev22live.gdxunity.engine.core.asset.AssetSource.directory(assetRoot));
+        this.projectRoot = assetRoot;
         this.sculptSession = new SculptSession(new SculptAssets(assetRoot));
+        this.terrainSession = new TerrainSession(new io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary(
+            io.github.ldev22live.gdxunity.engine.core.asset.AssetSource.directory(assetRoot)));
+        this.levelSession = new LevelSession(editorState, terrainSession, assetRoot);
         this.musicSession = new MusicSession(assetRoot.toPath());
         // Testing aid: -Dgdxunity.openSong=music/demo.song opens that song and shows the Music tab at startup
         String openSong = System.getProperty(OPEN_SONG_PROPERTY);
         if (openSong != null && musicSession.open(openSong)) {
             selectedCenterTab = CENTER_TAB_MUSIC;
+        }
+        // Testing aid (TD-076): GDXUNITY_EDITOR_SONG=music/instruments-demo.song opens that song in the Music tab (like the property above),
+        // and GDXUNITY_EDITOR_CHANNEL=<channel name or its number, from 1> selects that channel, so its instrument panel shows
+        String songAid = System.getenv(OPEN_SONG_VARIABLE);
+        if (songAid != null && !songAid.isBlank() && musicSession.open(songAid)) {
+            selectedCenterTab = CENTER_TAB_MUSIC;
+        }
+        String channelAid = System.getenv(SELECT_CHANNEL_VARIABLE);
+        if (channelAid != null && !channelAid.isBlank() && musicSession.hasSong()) {
+            selectChannelByNameOrNumber(channelAid.trim());
         }
         // Testing aid (TD-054): GDXUNITY_EDITOR_TAB=Animations starts on that center tab (Viewport, Scene, Animations, Graph, Music)
         String startTab = System.getenv(START_TAB_VARIABLE);
@@ -415,18 +481,24 @@ public class EditorApplication extends ApplicationAdapter {
         sceneRenderer3D.setDefaultLightEnabled(true);
         sceneRenderer3D.setAmbientLight(EDITOR_AMBIENT_LIGHT);
         sceneRenderer3D.setModelAssets(modelAssets);
+        sceneRenderer3D.setMaterialLibrary(materialLibrary);
         sceneRenderer3D.setDynamicMeshSource(sculptSession);
+        sceneRenderer3D.setTerrainLibrary(terrainSession.getLibrary());
         this.viewportInteraction3D = new SceneViewportInteraction3D(editorState, sceneCamera3D, cameraController3D, gizmoController);
         this.viewportInteraction = new ModeSwitchingViewportInteraction(editorState,
             // The Tiles tab can paint in this view (TD-066); with it off this is the ordinary 2D interaction
             new io.github.ldev22live.gdxunity.editor.sprite.TilePaintInteraction(
                 new SceneViewportInteraction2D(editorState, sceneCamera, gizmoController, colliderController),
                 () -> tilemapPanel == null ? null : tilemapPanel.getPaintTarget()),
-            new SculptViewportInteraction(editorState, sculptSession, sceneCamera3D, viewportInteraction3D));
+            new LevelViewportInteraction(levelSession, sceneCamera3D,
+                new TerrainViewportInteraction(editorState, terrainSession, sceneCamera3D,
+                    new SculptViewportInteraction(editorState, sculptSession, sceneCamera3D, viewportInteraction3D))));
         // Workspace and Layout initialization
         this.workspaceManager = new io.github.ldev22live.gdxunity.editor.core.workspace.DefaultWorkspaceManager(() -> editorState);
         this.layoutSerializer = new io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceLayoutSerializer();
         this.layoutConfig = layoutSerializer.loadFromFile(layoutConfigFile);
+        // Which panels are open is part of the saved layout (World layout by default, TD-085)
+        this.panelLayout = new PanelLayout(layoutConfig);
         this.themeManager = new io.github.ldev22live.gdxunity.editor.core.theme.EditorThemeManager(
             new File(directories.settingsDir(), THEME_FILE_NAME));
 
@@ -446,10 +518,12 @@ public class EditorApplication extends ApplicationAdapter {
             editorState, sceneCamera3D, physicsDebugRenderer::isDebugVisible));
         this.viewportLayoutFile = new File(directories.settingsDir(), VIEWPORT_LAYOUT_FILE_NAME);
         this.viewportLayout = loadViewportLayout();
-        this.scenePaneFactory = new ScenePaneFactory(editorState, gizmoController, sculptSession, sceneRenderer3D,
+        this.scenePaneFactory = new ScenePaneFactory(editorState, gizmoController, sculptSession, terrainSession, levelSession, sceneRenderer3D,
             sceneEditorWorkspace, physicsDebugRenderer::isDebugVisible,
             new ScenePaneFactory.MainPerspective(sceneCamera3D, cameraController3D,
-                new SculptViewportInteraction(editorState, sculptSession, sceneCamera3D, viewportInteraction3D),
+                new LevelViewportInteraction(levelSession, sceneCamera3D,
+                    new TerrainViewportInteraction(editorState, terrainSession, sceneCamera3D,
+                        new SculptViewportInteraction(editorState, sculptSession, sceneCamera3D, viewportInteraction3D))),
                 this::reset3DView),
             new Vector3(DEFAULT_VIEW_CENTER_X, DEFAULT_VIEW_CENTER_Y, 0f));
         // The editor starts in the 3D view with its four panes: perspective, X axis, Y axis, Z axis
@@ -494,12 +568,15 @@ public class EditorApplication extends ApplicationAdapter {
 
         // Output Log records every status message from here on
         editorLog.captureStatusMessages(editorState);
+        // Testing aid: GDXUNITY_EDITOR_TRACE=<file> writes the log, undo steps and uncaught exceptions to that file as they happen
+        EditorTrace.install(System.getenv("GDXUNITY_EDITOR_TRACE"), editorLog, editorState.getCommandHistory());
 
         // Scene files (TD-022). Created after the initial scene is set so the document starts clean.
         // Smoke tests run unattended: a modal dialog would wait forever (errors still reach the Output Log)
         EditorDialogService dialogs = launchOptions.isSmokeTest() ? new NonInteractiveDialogService() : new TinyFileDialogService();
         this.editorDialogs = dialogs;
         this.sceneFiles = new SceneFileController(editorState, dialogs, project.getRoot());
+        sceneFiles.setAssetOpener(this::openAssetFromFile);
         editorLog.info(LOG_SOURCE, "Project: " + project.getRoot().getPath());
         sceneFiles.addListener(files -> {
             if (Gdx.graphics != null) {
@@ -508,6 +585,8 @@ public class EditorApplication extends ApplicationAdapter {
         });
         // A Timeline preview pose is never written to the scene file
         sceneFiles.addBeforeSaveHook(timelineSession::endPreview);
+        // Shipped samples are originals: set before any scene is opened, so one opened at launch is a copy too (roadmap R1)
+        sceneFiles.setReadOnlyFolder(new File(project.getRoot(), SAMPLES_FOLDER));
         if (launchOptions.scene() != null) {
             File scene = launchOptions.scene().isAbsolute()
                 ? launchOptions.scene() : new File(project.getRoot(), launchOptions.scene().getPath());
@@ -515,6 +594,9 @@ public class EditorApplication extends ApplicationAdapter {
             sceneFiles.openFile(scene);
         }
         this.playOnFirstFrame = launchOptions.play();
+        String galleryAid = System.getenv(SHOW_GALLERY_VARIABLE);
+        this.galleryOnFirstFrame = galleryAid != null && !galleryAid.isBlank() && !galleryAid.equals("0");
+        this.galleryAidSelection = galleryOnFirstFrame && !galleryAid.equals("1") ? galleryAid : null;
         // Testing aid (TD-054): GDXUNITY_EDITOR_SELECT=<entity name> selects that entity once the scene is open
         String selectName = System.getenv(SELECT_VARIABLE);
         if (selectName != null && !selectName.isBlank()) {
@@ -534,19 +616,33 @@ public class EditorApplication extends ApplicationAdapter {
         });
         DefaultEditorActions.registerSampleActions(actionRegistry, editorState, sceneFiles,
             new File(project.getRoot(), SAMPLES_FOLDER));
+        DefaultEditorActions.registerTemplateAction(actionRegistry, editorState, sceneFiles, project.getRoot(),
+            new File(project.getRoot(), SAMPLES_FOLDER), directories.projectsDir());
+        DefaultEditorActions.registerImportAction(actionRegistry, editorState, editorDialogs, project.getRoot(), this::onAssetImported);
         DefaultEditorActions.registerDefaults(actionRegistry, editorState);
         DefaultEditorActions.registerCreate3DActions(actionRegistry, editorState, this::spawnPosition);
         SculptActions.register(actionRegistry, editorState, sculptSession, this::spawnPosition);
         SculptActions.registerExport(actionRegistry, editorState, sculptSession, this::onSculptExported);
         SculptActions.registerFromSelected(actionRegistry, editorState, sculptSession,
             new io.github.ldev22live.gdxunity.engine.render.ColliderGeometry(modelAssets));
+        LevelActions.register(actionRegistry, editorState, levelSession, on -> {
+            if (on) {
+                // The level editor takes the mouse in the 3D view; sculpting would too, so only one of them is on
+                sculptSession.setSculptMode(false);
+                if (centerTabs != null) {
+                    centerTabs.select(0);
+                }
+            }
+        });
         DefaultEditorActions.registerLightingActions(actionRegistry, editorState, sceneRenderer3D);
+        PanelLayout.registerActions(actionRegistry, editorState, panelLayout);
         registerDesktopActions();
         actionRegistry.bindShortcuts(keyboardDispatcher);
 
         // Initialize AI tool registry, provider registry, and assistant service
         io.github.ldev22live.gdxunity.editor.core.agent.AgentToolRegistry toolRegistry =
             io.github.ldev22live.gdxunity.editor.core.agent.DefaultAgentTools.createDefaultRegistry();
+        toolRegistry.registerTool(new MaterialAssignTool(materialLibrary));
         io.github.ldev22live.gdxunity.editor.core.agent.provider.ModelProviderRegistry providerRegistry =
             new io.github.ldev22live.gdxunity.editor.core.agent.provider.ModelProviderRegistry();
         providerRegistry.registerProvider(new io.github.ldev22live.gdxunity.editor.core.agent.provider.MockModelProvider());
@@ -676,6 +772,30 @@ public class EditorApplication extends ApplicationAdapter {
     }
 
     /**
+     * Every Details editor the editor offers: the ones that need nothing ({@link InspectorPanel#createDefaultRegistry()}) plus the
+     * ones that open or export assets and so need the editor's collaborators. One list for the editor and for the editability audit
+     * (roadmap R1), so a component type that gets an editor here is seen by the audit, and one that loses its editor fails it.
+     */
+    public static ComponentEditorRegistry<Table> createDetailEditors(
+        java.util.function.Consumer<AssetReference> openGraph, ModelAssets modelAssets,
+        java.util.function.BiConsumer<AssetReference, io.github.ldev22live.gdxunity.engine.scene.Entity> openClip,
+        SculptSession sculptSession, java.util.function.Consumer<AssetReference> onSculptExported,
+        io.github.ldev22live.gdxunity.engine.material.MaterialLibrary materialLibrary, TerrainSession terrainSession, File assetRoot) {
+        ComponentEditorRegistry<Table> detailEditors = InspectorPanel.createDefaultRegistry();
+        detailEditors.register(new GraphScriptComponentEditorProvider(openGraph));
+        detailEditors.register(new ModelComponentEditorProvider(modelAssets));
+        detailEditors.register(new AnimatorComponentEditorProvider(openClip));
+        detailEditors.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.SpriteAnimatorComponentEditorProvider());
+        detailEditors.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.TilemapComponentEditorProvider());
+        detailEditors.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.DynamicMeshComponentEditorProvider(sculptSession, onSculptExported));
+        // Replaces the plain Mesh Primitive editor with the one that also edits materials
+        detailEditors.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.MeshPrimitiveComponentEditorProvider(
+            materialLibrary, assetRoot));
+        detailEditors.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.TerrainComponentEditorProvider(terrainSession, assetRoot));
+        return detailEditors;
+    }
+
+    /**
      * Files changed on disk: textures and models that changed or went away are dropped from their caches so the next draw reads the
      * file again, and the Content Browser lists what is there now.
      */
@@ -759,14 +879,28 @@ public class EditorApplication extends ApplicationAdapter {
         SculptToolbar sculptBar = new SculptToolbar(actionRegistry, sculptSession, skin);
         Table overlayColumn = new Table();
         // The tool strip lives in the toolbar now (as in the web editor); only the sculpt brush panel floats over the view
-        overlayColumn.add(sculptBar).left();
+        overlayColumn.add(sculptBar).left().row();
+        overlayColumn.add(new io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.LevelPalette(skin, levelSession)).left().padTop(4);
         // Only the strips take clicks; the rest of the column lets the mouse through to the viewport
         overlayColumn.setTouchable(Touchable.childrenOnly);
         Container<Table> overlayContainer = new Container<>(overlayColumn);
         overlayContainer.top().left().pad(6f);
         // The container covers the whole scene view; only the toolbar itself should take clicks
         overlayContainer.setTouchable(Touchable.childrenOnly);
-        Stack sceneView = new Stack(sceneViewport, multiViewport, overlayContainer);
+        // The World strip (Appendix E1, M1b.2, TD-085): bottom centre of the scene view, hidden while the game plays
+        WorldStripBar worldStrip = new WorldStripBar(skin, editorState, levelSession, () -> actionRegistry.execute(LevelActions.TOGGLE),
+            Map.of(WorldStrip.Section.TILES, () -> showCenterTab(CENTER_TAB_TILES),
+                WorldStrip.Section.SPRITES, () -> showCenterTab(CENTER_TAB_SPRITES))) {
+            @Override
+            public void act(float delta) {
+                setVisible(!editorState.isPlayModeActive() && !sculptSession.isSculptMode());
+                super.act(delta);
+            }
+        };
+        Container<Table> stripContainer = new Container<>(worldStrip);
+        stripContainer.bottom().pad(8f);
+        stripContainer.setTouchable(Touchable.childrenOnly);
+        Stack sceneView = new Stack(sceneViewport, multiViewport, overlayContainer, stripContainer);
 
         // Graph tab beside the viewport; a rebuilt UI reopens the graph that was open (saved first)
         AssetReference openGraph = null;
@@ -817,51 +951,101 @@ public class EditorApplication extends ApplicationAdapter {
                 characterCreator.open(parts[0], parts.length > 1 ? parts[1] : null);
             }
         }
-        this.centerTabs = new TabbedPanel(skin, List.of("Viewport", "Scene", "Animations", "Visual Scripting", "Music", "Sprites", "Tiles"),
-            List.of(sceneView, gameView, animationsPanel, graphEditorPanel, musicPanel, spritePanel, tilemapPanel),
+        // Testing aid (TD-069): GDXUNITY_EDITOR_GRAPH=graphs/samples/ShooterShip.graph opens that graph in the Visual Scripting tab;
+        // GDXUNITY_EDITOR_PALETTE=<text> types that into the node palette's search
+        String graphAid = System.getenv(SHOW_GRAPH_VARIABLE);
+        if (graphAid != null && !graphAid.isBlank()) {
+            graphEditorPanel.open(new AssetReference(graphAid));
+            // GDXUNITY_EDITOR_GRAPH_FUNCTION=<name> then shows that function's body (TD-070)
+            String functionAid = System.getenv(SHOW_FUNCTION_VARIABLE);
+            if (functionAid != null && !functionAid.isBlank() && graphEditorPanel.getDocument() != null) {
+                graphEditorPanel.getDocument().openFunction(functionAid);
+            }
+        }
+        String paletteAid = System.getenv(PALETTE_SEARCH_VARIABLE);
+        if (paletteAid != null && !paletteAid.isBlank()) {
+            graphEditorPanel.searchPalette(paletteAid);
+        }
+        this.centerTabs = new TabbedPanel(skin, CENTER_TAB_TITLES,
+            List.of(sceneView, gameView, animationsPanel, graphEditorPanel, musicPanel, ScrollingBar.panel(spritePanel, skin),
+                ScrollingBar.panel(tilemapPanel, skin)),
             selectedCenterTab, index -> selectedCenterTab = index, false);
 
-        Label documentLabel = new Label("", skin, "muted") {
+        // The thin header of Appendix E1 (M1b.2, approved 2026-11-14): the context ("World / Untitled ●") on the left, and Save,
+        // Undo, Redo, Project, Settings and Create on the right. The centre tabs are no longer shown: Customize and Back to World
+        // switch workspaces (TD-084). The tools moved to the view's own row below; New and Open are in Project (and Ctrl+N, Ctrl+O).
+        Label contextLabel = new Label("", skin) {
             @Override
             public void act(float delta) {
                 super.act(delta);
-                String text = sceneFiles.getDocumentName() + (sceneFiles.isDirty() ? " ●" : "");
+                String text = currentWorkspace().getLabel() + " / " + sceneFiles.getDocumentName() + (sceneFiles.isDirty() ? " ●" : "");
                 if (!text.contentEquals(getText())) {
                     setText(text);
                 }
             }
         };
-        menuRow.add(centerTabs.getTabRow()).padRight(10);
-        // The web editor's button row, in its order: file, history, add / duplicate / delete, then the tools
-        menuRow.add(new Label("|", skin, "muted")).padRight(8);
-        addBarButtons(menuRow, new String[][] {
-            {ACTION_NEW_SCENE_SCREEN, "New"}, {DefaultEditorActions.FILE_OPEN_SCENE, "Open..."},
-            {DefaultEditorActions.FILE_SAVE_SCENE, "Save"}});
+        menuRow.add(contextLabel).padRight(10);
+        menuRow.add().expandX();
+        addBarButtons(menuRow, new String[][] {{DefaultEditorActions.FILE_SAVE_SCENE, "Save"}});
         menuRow.add(new Label("|", skin, "muted")).padLeft(4).padRight(8);
         addBarButtons(menuRow, new String[][] {
             {DefaultEditorActions.EDIT_UNDO, "Undo"}, {DefaultEditorActions.EDIT_REDO, "Redo"}});
         menuRow.add(new Label("|", skin, "muted")).padLeft(4).padRight(8);
-        menuRow.add(new EditorMenuBar(actionRegistry, List.of(DefaultEditorActions.MENU_CREATE), skin)).padRight(4);
-        addBarButtons(menuRow, new String[][] {
-            {DefaultEditorActions.EDIT_DUPLICATE, "Duplicate"}, {DefaultEditorActions.EDIT_DELETE, "Delete"}});
+        // Project holds every File action (the M1.5 File dropdown under its Appendix E name) and Settings the graphics, theme and
+        // about entries (stage 1); the rest of the old menu bar stays removed, as asked. Create keeps its dropdown.
+        menuRow.add(EditorMenuBar.header(actionRegistry, skin)).padRight(4);
         menuRow.add(new Label("|", skin, "muted")).padLeft(4).padRight(8);
-        addToolButton(menuRow, DefaultEditorActions.TOOL_SELECT, "Select", ToolMode.SELECT);
-        addToolButton(menuRow, DefaultEditorActions.TOOL_MOVE, "Move", ToolMode.MOVE);
-        addToolButton(menuRow, DefaultEditorActions.TOOL_ROTATE, "Rotate", ToolMode.ROTATE);
-        addToolButton(menuRow, DefaultEditorActions.TOOL_SCALE, "Scale", ToolMode.SCALE);
-        menuRow.add(new ActionTextButton(skin, actionRegistry, SculptActions.TOGGLE_MODE, "Sculpt", sculptSession::isSculptMode))
+        menuRow.add(new EditorMenuBar(actionRegistry, List.of(DefaultEditorActions.MENU_CREATE), skin))
+            .padRight(10);
+
+        // The view's tools, beside the view icons in the second row: transform tools, Frame, Sculpt and Level (M1b.2)
+        Table viewTools = new Table(skin);
+        viewTools.add(overlay);
+        viewTools.add(new Label("|", skin, "muted")).padLeft(6).padRight(6);
+        addToolButton(viewTools, DefaultEditorActions.TOOL_SELECT, "Select", ToolMode.SELECT);
+        addToolButton(viewTools, DefaultEditorActions.TOOL_MOVE, "Move", ToolMode.MOVE);
+        addToolButton(viewTools, DefaultEditorActions.TOOL_ROTATE, "Rotate", ToolMode.ROTATE);
+        addToolButton(viewTools, DefaultEditorActions.TOOL_SCALE, "Scale", ToolMode.SCALE);
+        viewTools.add(new ActionTextButton(skin, actionRegistry, ACTION_FOCUS_SELECTION, "Frame", null))
             .height(BAR_BUTTON_HEIGHT).padRight(BAR_BUTTON_GAP);
-        menuRow.add(new ActionTextButton(skin, actionRegistry, ACTION_FOCUS_SELECTION, "Frame", null))
+        viewTools.add(new ActionTextButton(skin, actionRegistry, SculptActions.TOGGLE_MODE, "Sculpt", sculptSession::isSculptMode))
             .height(BAR_BUTTON_HEIGHT).padRight(BAR_BUTTON_GAP);
-        menuRow.add().expandX();
-        menuRow.add(documentLabel).padRight(10);
-        root.add(menuRow).growX().height(MENU_BAR_HEIGHT).row();
+        viewTools.add(new ActionTextButton(skin, actionRegistry, LevelActions.TOGGLE, "Level", levelSession::isActive))
+            .height(BAR_BUTTON_HEIGHT);
+        // Wider than a small window: the bar scrolls sideways instead of making the whole editor that wide (TD-077)
+        root.add(ScrollingBar.around(menuRow, skin)).growX().minWidth(0).height(MENU_BAR_HEIGHT).row();
 
         // 2. Second row, like the web editor's wrapped toolbar: the view toggles, then compile and the play controls.
         //    (The File / Edit / Tools / Window / Help menu bar was removed at the user's request.)
-        root.add(new EditorToolbar(editorState, playModeController, editorLog, skin, this::toggleAssistantPanel, overlay,
-            new GameModeSelector(editorState, skin)))
-            .growX().height(TOOLBAR_HEIGHT).row();
+        //    Play, Game Mode and the Customize gateway are in the footer (M1b.3, decision 11); the toolbar keeps the tools and compile
+        EditorToolbar toolbar = new EditorToolbar(editorState, playModeController, editorLog, skin, this::toggleAssistantPanel, viewTools,
+            null, false);
+        EditorFooter footer = new EditorFooter(skin, new GameModeSelector(editorState, skin), createCustomizeGateway(),
+            toolbar.getPlayControls());
+        // Panel buttons at the end of the second row (TD-085): the World layout starts with them closed, so they are always on screen
+        Table panelButtons = new Table(skin);
+        panelButtons.add(new Label("|", skin, "muted")).padRight(4);
+        panelButtons.add(new ActionTextButton(skin, actionRegistry, PanelLayout.TOGGLE_OUTLINER, "Outliner", panelLayout::isOutlinerShown))
+            .height(BAR_BUTTON_HEIGHT).padRight(BAR_BUTTON_GAP);
+        panelButtons.add(new ActionTextButton(skin, actionRegistry, PanelLayout.CYCLE_DETAILS, "Details", null) {
+            @Override
+            public void act(float delta) {
+                super.act(delta);
+                String text = "Details: " + panelLayout.getDetailsMode().getLabel();
+                if (!text.contentEquals(getText())) {
+                    setText(text);
+                }
+            }
+        }).height(BAR_BUTTON_HEIGHT).padRight(BAR_BUTTON_GAP);
+        panelButtons.add(new ActionTextButton(skin, actionRegistry, PanelLayout.TOGGLE_BOTTOM_PANEL, "Content Browser",
+            panelLayout::isBottomPanelShown)).height(BAR_BUTTON_HEIGHT).padRight(6);
+        // The tools scroll sideways in a narrow window; the panel buttons stay put at the right, so a closed panel can always be
+        // reopened (TD-085; at 1024x640 they had scrolled out of view)
+        Table secondRow = new Table(skin);
+        secondRow.setBackground("header-bg");
+        secondRow.add(ScrollingBar.around(toolbar, skin)).growX().minWidth(0).fillY();
+        secondRow.add(panelButtons).right();
+        root.add(secondRow).growX().minWidth(0).height(TOOLBAR_HEIGHT).row();
 
         com.badlogic.gdx.scenes.scene2d.ui.SplitPane leftSplit =
             new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(hierarchyPanel, centerTabs, false, skin);
@@ -869,13 +1053,8 @@ public class EditorApplication extends ApplicationAdapter {
         leftSplit.setMinSplitAmount(0.12f);
         leftSplit.setMaxSplitAmount(0.40f);
 
-        ComponentEditorRegistry<Table> detailEditors = InspectorPanel.createDefaultRegistry();
-        detailEditors.register(new GraphScriptComponentEditorProvider(this::openGraph));
-        detailEditors.register(new ModelComponentEditorProvider(modelAssets));
-        detailEditors.register(new AnimatorComponentEditorProvider(this::openClip));
-        detailEditors.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.SpriteAnimatorComponentEditorProvider());
-        detailEditors.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.TilemapComponentEditorProvider());
-        detailEditors.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.DynamicMeshComponentEditorProvider(sculptSession, this::onSculptExported));
+        detailEditors = createDetailEditors(this::openGraph, modelAssets, this::openClip,
+            sculptSession, this::onSculptExported, materialLibrary, terrainSession, projectRoot);
         ComponentCatalog componentCatalog = ComponentCatalog.createDefault();
         componentCatalog.register(new ComponentCatalog.Entry("Graph Script", "Scripting", GraphScriptComponent.class, true,
             this::createGraphScript));
@@ -906,8 +1085,15 @@ public class EditorApplication extends ApplicationAdapter {
 
             @Override
             public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                AssetReference asset = (AssetReference) payload.getObject();
+                if (AssetType.fromPath(asset.getPath()) == AssetType.MATERIAL) {
+                    // A material goes on the shape under the mouse (roadmap M2.2), not into the scene as a new entity
+                    MaterialAssignment.assign(editorState, materialLibrary, viewportInteraction.entityAt(x, y, sceneViewport.getWidth(),
+                        sceneViewport.getHeight()).orElse(null), asset.getPath());
+                    return;
+                }
                 Vector3 position = viewportInteraction.worldPointAt(x, y, sceneViewport.getWidth(), sceneViewport.getHeight());
-                AssetPlacement.place(editorState, (AssetReference) payload.getObject(), position);
+                AssetPlacement.place(editorState, asset, position);
             }
         });
         // In the multi-pane view the drop lands at the orbit target, since no single pane is under the mouse
@@ -919,7 +1105,26 @@ public class EditorApplication extends ApplicationAdapter {
 
             @Override
             public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-                AssetPlacement.place(editorState, (AssetReference) payload.getObject(), spawnPosition());
+                AssetReference asset = (AssetReference) payload.getObject();
+                if (AssetType.fromPath(asset.getPath()) == AssetType.MATERIAL) {
+                    // No single pane is under the mouse here, so a material goes on the selection
+                    MaterialAssignment.assign(editorState, materialLibrary, editorState.getSelectedEntity(), asset.getPath());
+                    return;
+                }
+                AssetPlacement.place(editorState, asset, spawnPosition());
+            }
+        });
+        // A material dropped on Details goes on the selected entity's material slot (roadmap M2.2)
+        assetDragAndDrop.addTarget(new DragAndDrop.Target(inspectorPanel) {
+            @Override
+            public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                return payload.getObject() instanceof AssetReference asset && AssetType.fromPath(asset.getPath()) == AssetType.MATERIAL;
+            }
+
+            @Override
+            public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                MaterialAssignment.assign(editorState, materialLibrary, editorState.getSelectedEntity(),
+                    ((AssetReference) payload.getObject()).getPath());
             }
         });
         io.github.ldev22live.gdxunity.editor.desktop.ui.AssetBrowserPanel assetBrowser =
@@ -932,15 +1137,7 @@ public class EditorApplication extends ApplicationAdapter {
         if (startFolder != null && !startFolder.isBlank()) {
             assetBrowser.showFolder(startFolder);
         }
-        assetBrowser.setOnOpen(asset -> {
-            if (AssetType.fromPath(asset.getPath()) == AssetType.GRAPH) {
-                openGraph(asset);
-            } else if (AssetType.fromPath(asset.getPath()) == AssetType.ANIMATION) {
-                openClip(asset, animatorEntityFor(asset));
-            } else if (AssetType.fromPath(asset.getPath()) == AssetType.SPRITE) {
-                openSprite(asset);
-            }
-        });
+        assetBrowser.setOnOpen(this::openAssetInItsEditor);
 
         com.badlogic.gdx.scenes.scene2d.ui.SplitPane mainSplit =
             new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(centerRightSplit, createBottomTabs(assetBrowser), true, skin);
@@ -948,9 +1145,51 @@ public class EditorApplication extends ApplicationAdapter {
         mainSplit.setMinSplitAmount(0.55f);
         mainSplit.setMaxSplitAmount(0.92f);
 
-        root.add(mainSplit).grow().row();
+        // 3. The panels around the centre tabs, open or closed as PanelLayout says (World layout, TD-085). A closed panel is taken
+        //    out of the split rather than squeezed to nothing, so the centre gets the whole room; the panels keep their state.
+        Actor rightColumn = "0".equals(System.getenv(ASSISTANT_VARIABLE)) ? inspectorPanel : rightSplit;
+        Actor bottomPanel = bottomTabs;
+        Container<Actor> panelsArea = new Container<Actor>() {
+            private int arranged = -1;
 
-        // 4. Status bar
+            @Override
+            public void act(float delta) {
+                boolean outliner = panelLayout.isOutlinerShown();
+                // The AI Assistant shares the right column with Details, so an open Assistant keeps the column open
+                boolean right = panelLayout.isDetailsShown(editorState.getSelectedEntity() != null) || isAssistantVisible;
+                boolean bottom = panelLayout.isBottomPanelShown();
+                int key = (outliner ? 1 : 0) | (right ? 2 : 0) | (bottom ? 4 : 0);
+                if (key != arranged) {
+                    Actor middle = centerTabs;
+                    if (outliner) {
+                        leftSplit.setFirstWidget(hierarchyPanel);
+                        leftSplit.setSecondWidget(middle);
+                        middle = leftSplit;
+                    }
+                    if (right) {
+                        centerRightSplit.setFirstWidget(middle);
+                        centerRightSplit.setSecondWidget(rightColumn);
+                        middle = centerRightSplit;
+                    }
+                    if (bottom) {
+                        mainSplit.setFirstWidget(middle);
+                        mainSplit.setSecondWidget(bottomPanel);
+                        middle = mainSplit;
+                    }
+                    setActor(middle);
+                    arranged = key;
+                }
+                super.act(delta);
+            }
+        };
+        panelsArea.fill();
+        panelsArea.minSize(0f);
+        root.add(panelsArea).grow().row();
+
+        // 4. Footer (Appendix E1, M1b.3): Game Genre and Game Mode, then Customize and Play, visible in every workspace
+        root.add(footer).growX().minWidth(0).height(FOOTER_HEIGHT).row();
+
+        // 5. Status bar
         root.add(new EditorStatusBar(editorState, skin)).growX().height(STATUS_BAR_HEIGHT);
     }
 
@@ -1001,6 +1240,59 @@ public class EditorApplication extends ApplicationAdapter {
             editorState.setStatusMessage(selected.getName() + " now plays " + asset.getFileName(), false);
             openClip(asset, selected);
         }
+    }
+
+    /**
+     * Opens a graph, clip, sprite or song in the editor that belongs to it, as a double-click in the Content Browser and File > Open do.
+     *
+     * @return false when the asset's type has no editor to open it in
+     */
+    private boolean openAssetInItsEditor(AssetReference asset) {
+        switch (AssetType.fromPath(asset.getPath())) {
+            case GRAPH -> openGraph(asset);
+            case ANIMATION -> openClip(asset, animatorEntityFor(asset));
+            case SPRITE -> openSprite(asset);
+            case SONG -> openSong(asset);
+            default -> {
+                // No editor of its own: say how this kind of file is used instead of doing nothing (roadmap M1.5)
+                editorState.setStatusMessage(asset.getFileName() + ": "
+                    + io.github.ldev22live.gdxunity.editor.core.asset.AssetOpening.guidance(AssetType.fromPath(asset.getPath())), false);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** An asset was imported: list it in the Content Browser, show its folder and select it. */
+    private void onAssetImported(String path) {
+        assetCatalog.scan();
+        AssetReference asset = new AssetReference(path);
+        if (assetBrowserPanel != null) {
+            assetBrowserPanel.onAssetsChanged();
+            String folder = path.contains("/") ? path.substring(0, path.lastIndexOf('/')) : "";
+            assetBrowserPanel.showFolder(folder);
+        }
+        editorState.setSelectedAsset(asset);
+    }
+
+    /**
+     * File > Open of a song, graph, clip or sprite. The editors name only what the project holds, so a file outside the project's
+     * assets folder is refused with the reason instead of being opened by an absolute path.
+     *
+     * @return null when the editor was started, otherwise why not
+     */
+    private String openAssetFromFile(File file, AssetType type) {
+        java.util.Optional<String> relative = io.github.ldev22live.gdxunity.editor.core.file.ProjectPaths.relativeAssetPath(
+            project.getRoot(), file);
+        if (relative.isEmpty()) {
+            return file.getName() + " is outside this project's assets folder (" + project.getRoot() + "), so the editor cannot open it. "
+                + "Copy it into the project first.";
+        }
+        if (!file.isFile()) {
+            return file.getName() + " does not exist.";
+        }
+        return openAssetInItsEditor(new AssetReference(relative.get())) ? null
+            : "No editor opens " + type.name().toLowerCase(java.util.Locale.ROOT) + " files.";
     }
 
     /** Opens a clip in the Timeline to animate {@code entity} (the entity with the Animator) and shows the tab. */
@@ -1058,6 +1350,18 @@ public class EditorApplication extends ApplicationAdapter {
     private void openSprite(AssetReference asset) {
         if (spritePanel != null && spritePanel.open(new File(project.getRoot(), asset.getPath())) && centerTabs != null) {
             centerTabs.select(CENTER_TAB_SPRITES);
+        }
+    }
+
+    /** Opens a {@code .song} asset in the Music tab and switches to it; a failure is shown in the status bar. */
+    private void openSong(AssetReference asset) {
+        if (!musicSession.open(asset.getPath())) {
+            editorState.setStatusMessage(musicSession.getLastError(), true);
+            return;
+        }
+        editorState.setStatusMessage("Opened " + asset.getPath(), false);
+        if (centerTabs != null) {
+            centerTabs.select(CENTER_TAB_MUSIC);
         }
     }
 
@@ -1136,6 +1440,10 @@ public class EditorApplication extends ApplicationAdapter {
             .menu(DefaultEditorActions.MENU_FILE, 0)
             .enabledWhen(() -> !editorState.isPlayModeActive())
             .build());
+        actionRegistry.register(EditorAction.builder(ACTION_NEW_GAME, "New Game...", this::showTemplateGallery)
+            .menu(DefaultEditorActions.MENU_FILE, 0)
+            .enabledWhen(() -> !editorState.isPlayModeActive())
+            .build());
         actionRegistry.register(EditorAction.builder(ACTION_RENAME, "Rename", this::showRenamePopup)
             .menu(DefaultEditorActions.MENU_EDIT, 1)
             .shortcut(Input.Keys.F2, 0)
@@ -1177,6 +1485,81 @@ public class EditorApplication extends ApplicationAdapter {
             gameModeScreen = new GameModeScreen(skin);
         }
         gameModeScreen.show(uiStage, editorState.getGameMode(), sceneFiles::newScene);
+    }
+
+    /**
+     * Project > New Game... (roadmap M1.4): the template gallery. A catalog that cannot be read is reported, never shown half-filled.
+     */
+    private void showTemplateGallery() {
+        showTemplateGallery(null);
+    }
+
+    /** The gallery with the template of this title selected (null: the first); an unknown title is reported. */
+    private void showTemplateGallery(String selectTitle) {
+        if (uiStage == null) {
+            return;
+        }
+        if (templateGallery == null) {
+            templateGallery = new TemplateGalleryScreen(skin, project.getRoot());
+        }
+        try {
+            templateGallery.show(uiStage, new TemplateGalleryScreen.Actions() {
+                @Override
+                public void playSample(String scene) {
+                    // Open Sample: the shipped file is read-only, so this works on an untitled copy
+                    if (sceneFiles.confirmDiscardChanges()) {
+                        sceneFiles.openFile(new File(project.getRoot(), scene));
+                    }
+                }
+
+                @Override
+                public TemplateProject.Result create(
+                    TemplateGallery.Choice choice, String name) throws IOException {
+                    TemplateProject.Result result =
+                        TemplateGallery.create(choice, project.getRoot(), projectsDir,
+                            name, editorState.getSerializer());
+                    editorLog.info(LOG_SOURCE, "New Game: made the project " + result.folder() + " from " + choice.title());
+                    return result;
+                }
+
+                @Override
+                public void openProject(TemplateProject.Result made) {
+                    openProjectByRestarting(made.folder(), made.startScene());
+                }
+
+                @Override
+                public TemplateRatings.Rating rating(TemplateGallery.Choice choice) throws IOException {
+                    // Read from the matrix each time, with this editor's own serializers and Details editors (roadmap M1.7)
+                    return new TemplateRatings(project.getRoot(), new EditabilityAudit(project.getRoot(),
+                        editorState.getSerializer().getRegistry(), detailEditors)).rate(choice);
+                }
+            }, selectTitle);
+        } catch (IOException | IllegalArgumentException e) {
+            String message = "Cannot show the template gallery: " + e.getMessage();
+            editorLog.error(LOG_SOURCE, message);
+            editorState.setStatusMessage(message, true);
+        }
+    }
+
+    /**
+     * Hands over to a new project (TD-086): the usual unsaved-changes questions first, then a second editor is started on it and
+     * this one closes. If the second editor cannot be started, this one stays open and says why.
+     */
+    private void openProjectByRestarting(File folder, String startScene) {
+        if (!confirmClose()) {
+            return;
+        }
+        try {
+            EditorRelaunch.start(folder, startScene);
+        } catch (IOException e) {
+            String message = "Could not start the editor on " + folder + ": " + e.getMessage()
+                + ". Start it with --project \"" + folder.getAbsolutePath() + "\".";
+            editorLog.error(LOG_SOURCE, message);
+            editorState.setStatusMessage(message, true);
+            return;
+        }
+        editorLog.info(LOG_SOURCE, "Opening " + folder + " in a new editor; this one closes");
+        Gdx.app.exit();
     }
 
     /** Small popup with the selected entity's name; Enter or OK renames it as one undoable command. */
@@ -1385,6 +1768,10 @@ public class EditorApplication extends ApplicationAdapter {
 
     @Override
     public void render() {
+        if (galleryOnFirstFrame && uiStage != null) {
+            galleryOnFirstFrame = false;
+            showTemplateGallery(galleryAidSelection);
+        }
         if (playOnFirstFrame) {
             playOnFirstFrame = false;
             if (!playModeController.play()) {
@@ -1443,6 +1830,137 @@ public class EditorApplication extends ApplicationAdapter {
         centerTabs.select(tab);
     }
 
+    /**
+     * The Customize gateway (roadmap Appendix E2, M1b.7, TD-084): the name of the workspace on screen, Back to World when it is not the
+     * World, and the Customize dropdown. Switching only changes what is shown: nothing is closed, saved, discarded or deselected, and
+     * the scene view's camera is not touched. The centre tabs stay as a second way in until the World layout replaces them.
+     */
+    private Table createCustomizeGateway() {
+        Table bar = new Table(skin);
+        // The workspace name is in the header's context indicator (M1b.2), so the gateway is just its two buttons
+        TextButton back = new TextButton("Back to World", skin) {
+            @Override
+            public void act(float delta) {
+                super.act(delta);
+                setVisible(currentWorkspace() != Workspace.WORLD);
+            }
+        };
+        back.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                backToWorld();
+            }
+        });
+        TextButton customize = new TextButton("Customize", skin);
+        ContextMenu dropDown = new ContextMenu(skin);
+        customize.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Entity selected = editorState.getSelectedEntity();
+                List<CustomizeGateway.EditOffer> offers =
+                    CustomizeGateway.editSelected(selected, editorState.getSerializer().getRegistry());
+                Vector2 corner = customize.localToStageCoordinates(new Vector2(0f, 0f));
+                dropDown.show(uiStage, corner.x, corner.y, CustomizeMenu.items(selected == null ? null : selected.getName(), offers,
+                    currentWorkspace(), CENTER_TAB_TITLES.get(centerTabs.getSelectedIndex()), EditorApplication.this::runEditOffer,
+                    EditorApplication.this::openWorkspace));
+            }
+        });
+        // Back to World first, so Customize stays directly beside Play whether or not Back to World shows (Appendix E1, M1b.3)
+        bar.add(back).height(BAR_BUTTON_HEIGHT).padRight(BAR_BUTTON_GAP);
+        bar.add(customize).height(BAR_BUTTON_HEIGHT);
+        return bar;
+    }
+
+    /** The workspace on screen: the centre tab shown, and sculpt mode for 3D Modeling. */
+    private Workspace currentWorkspace() {
+        return navigator().current();
+    }
+
+    /** Customize > a workspace. Only what is shown changes (TD-084); the rules are in {@link WorkspaceNavigator} (M1b.5). */
+    private void openWorkspace(Workspace.Destination destination) {
+        navigator().open(destination);
+    }
+
+    /**
+     * Back to World: the scene view (the game view while playing), with sculpt mode off. The selection, open documents, unsaved changes
+     * and the camera stay as they are (TD-084).
+     */
+    private void backToWorld() {
+        navigator().backToWorld();
+    }
+
+    private WorkspaceNavigator navigator() {
+        if (workspaceNavigator == null) {
+            workspaceNavigator = new WorkspaceNavigator(editorState, new WorkspaceNavigator.View() {
+                @Override
+                public String centerTab() {
+                    return centerTabs == null ? Workspace.TAB_VIEWPORT : CENTER_TAB_TITLES.get(centerTabs.getSelectedIndex());
+                }
+
+                @Override
+                public void showCenterTab(String title) {
+                    EditorApplication.this.showCenterTab(CENTER_TAB_TITLES.indexOf(title));
+                }
+
+                @Override
+                public boolean isSculptMode() {
+                    return sculptSession.isSculptMode();
+                }
+
+                @Override
+                public boolean runAction(String actionId) {
+                    return actionRegistry.execute(actionId);
+                }
+
+                @Override
+                public void showContentBrowser() {
+                    selectedBottomTab = BOTTOM_TAB_CONTENT_BROWSER;
+                    bottomTabs.select(BOTTOM_TAB_CONTENT_BROWSER);
+                }
+            });
+        }
+        return workspaceNavigator;
+    }
+
+    /** Customize > an "Edit Selected" entry. */
+    private void runEditOffer(CustomizeGateway.EditOffer offer) {
+        switch (offer.kind()) {
+            case OPEN_ASSET -> openAssetInItsEditor(new AssetReference(offer.assetPath()));
+            case RUN_ACTION -> {
+                showCenterTab(CENTER_TAB_VIEWPORT);
+                if (!actionRegistry.execute(offer.actionId())) {
+                    editorState.setStatusMessage(offer.label() + " is not available now" + (editorState.isPlayModeActive()
+                        ? " (stop Play first)" : ""), true);
+                }
+            }
+            case SHOW_DETAILS -> {
+                backToWorld();
+                panelLayout.revealDetails();
+                editorState.setStatusMessage("Details: the Material section of " + selectedName() + " edits " + offer.assetPath()
+                    + ", which every surface using it shares", false);
+            }
+            case OPEN_TERRAIN_TOOLS -> {
+                backToWorld();
+                if (!levelSession.isActive()) {
+                    actionRegistry.execute(LevelActions.TOGGLE);
+                }
+                if (levelSession.isActive()) {
+                    levelSession.setFocus(LevelSession.Focus.TERRAIN);
+                    editorState.setStatusMessage("Terrain: sculpt and paint " + offer.assetPath() + " in the World", false);
+                } else {
+                    editorState.setStatusMessage("The Terrain tools are not available now" + (editorState.isPlayModeActive()
+                        ? " (stop Play first)" : ""), true);
+                }
+            }
+            case UNAVAILABLE -> editorState.setStatusMessage(offer.label() + ": " + offer.unavailableReason(), false);
+        }
+    }
+
+    private String selectedName() {
+        Entity selected = editorState.getSelectedEntity();
+        return selected == null ? "the selection" : selected.getName();
+    }
+
     /** The Scene tab shows the game and takes no editing input: clicks and keys do nothing there. */
     private static final class NoInteraction implements ViewportInteraction {
         @Override
@@ -1471,13 +1989,41 @@ public class EditorApplication extends ApplicationAdapter {
         }
     }
 
+    /** Testing aid (TD-076): selects the open song's channel with this name (any case) or, for a number, that channel counted from 1. */
+    private void selectChannelByNameOrNumber(String nameOrNumber) {
+        List<Channel> channels = musicSession.getDocument().getSong().getChannels();
+        for (Channel channel : channels) {
+            if (channel.getName().equalsIgnoreCase(nameOrNumber)) {
+                musicSession.selectChannel(channel.getId());
+                return;
+            }
+        }
+        try {
+            int number = Integer.parseInt(nameOrNumber);
+            if (number >= 1 && number <= channels.size()) {
+                musicSession.selectChannel(channels.get(number - 1).getId());
+                return;
+            }
+        } catch (NumberFormatException e) {
+            // Not a number: it was a name, and none matched
+        }
+        throw new IllegalArgumentException("GDXUNITY_EDITOR_CHANNEL '" + nameOrNumber + "' is no channel of the open song");
+    }
+
     /** Testing aid (TD-054): GDXUNITY_EDITOR_ASSISTANT=0 leaves the AI Assistant out of the layout, so Details gets the whole right column. */
     private static final String ASSISTANT_VARIABLE = "GDXUNITY_EDITOR_ASSISTANT";
     private static final String START_TAB_VARIABLE = "GDXUNITY_EDITOR_TAB";
     private static final String START_FOLDER_VARIABLE = "GDXUNITY_EDITOR_FOLDER";
     private static final String SELECT_VARIABLE = "GDXUNITY_EDITOR_SELECT";
     private static final String SHOW_CREATOR_VARIABLE = "GDXUNITY_EDITOR_CREATOR";
+    private static final String OPEN_SONG_VARIABLE = "GDXUNITY_EDITOR_SONG";
+    private static final String SELECT_CHANNEL_VARIABLE = "GDXUNITY_EDITOR_CHANNEL";
+    private static final String SHOW_GRAPH_VARIABLE = "GDXUNITY_EDITOR_GRAPH";
+    private static final String PALETTE_SEARCH_VARIABLE = "GDXUNITY_EDITOR_PALETTE";
+    private static final String SHOW_FUNCTION_VARIABLE = "GDXUNITY_EDITOR_GRAPH_FUNCTION";
     private static final String SCREENSHOT_VARIABLE = "GDXUNITY_SCREENSHOT";
+    /** Testing aid (M1.4): any value but 0 opens the template gallery on the first frame; a template's title also selects it. */
+    private static final String SHOW_GALLERY_VARIABLE = "GDXUNITY_EDITOR_GALLERY";
 
     private static int centerTabIndex(String name) {
         return switch (name.trim().toLowerCase(java.util.Locale.ROOT)) {
@@ -1536,6 +2082,9 @@ public class EditorApplication extends ApplicationAdapter {
 
     @Override
     public void dispose() {
+        if (templateGallery != null) {
+            templateGallery.dispose();
+        }
         if (tilemapPanel != null) {
             tilemapPanel.dispose();
         }

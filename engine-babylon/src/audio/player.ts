@@ -1,5 +1,7 @@
 import { DrumKit } from "./drums";
 import type { Instrument } from "./dsp";
+import { FmSynthesizer } from "./fm";
+import { PluckedString } from "./pluck";
 import { Mixer, type StripSource } from "./mixer";
 import {
   PLAYABLE_INSTRUMENTS,
@@ -252,12 +254,16 @@ export class SongPlayer implements StripSource {
       // A synth's patch is read live, so only a change of kind needs a new instrument
       if (previous && previous.signature === sig && previous.mixerIndex === channel.mixerIndex) {
         if (previous.instrument instanceof Synthesizer) Object.assign(previous.instrument.patch, spec.patch);
+        else if (previous.instrument instanceof FmSynthesizer) Object.assign(previous.instrument.patch, spec.fm);
+        else if (previous.instrument instanceof PluckedString) Object.assign(previous.instrument.patch, spec.pluck);
         rebuilt.push(previous);
         continue;
       }
       let instrument: Instrument;
       if (spec.type === "SYNTH") instrument = new Synthesizer(this.sampleRate, { ...spec.patch });
       else if (spec.type === "DRUMS") instrument = new DrumKit(this.sampleRate);
+      else if (spec.type === "FM") instrument = new FmSynthesizer(this.sampleRate, { ...spec.fm });
+      else if (spec.type === "PLUCK") instrument = new PluckedString(this.sampleRate, { ...spec.pluck });
       else {
         problems.push(`${channel.name}: ${spec.type} instruments are not supported in the web version (playable: ${PLAYABLE_INSTRUMENTS.join(", ")})`);
         instrument = new SilentInstrument();

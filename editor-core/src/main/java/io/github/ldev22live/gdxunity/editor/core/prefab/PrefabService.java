@@ -183,6 +183,17 @@ public class PrefabService {
      * @return the instance root, or null when the prefab could not be read or placed
      */
     public Entity instantiate(AssetReference prefab, Vector3 position) {
+        return instantiate(prefab, position, 0f, 1f, true);
+    }
+
+    /**
+     * Places a new instance like {@link #instantiate(AssetReference, Vector3)}, turned by {@code yawDegrees} about the vertical axis
+     * and scaled evenly by {@code scale}, as part of the same undo step. The level editor places many objects in a row and keeps what
+     * it was editing, so {@code select} can leave the selection alone.
+     *
+     * @return the instance root, or null when the prefab could not be read or placed
+     */
+    public Entity instantiate(AssetReference prefab, Vector3 position, float yawDegrees, float scale, boolean select) {
         Objects.requireNonNull(prefab, "prefab cannot be null");
         Objects.requireNonNull(position, "position cannot be null");
         PrefabDocument document;
@@ -203,6 +214,12 @@ public class PrefabService {
                 }
                 Entity root = bySource.get(document.getRootId());
                 root.getTransform().setLocalPosition(position);
+                if (yawDegrees != 0f) {
+                    root.getTransform().setLocalEulerAngles(yawDegrees, 0f, 0f);
+                }
+                if (scale != 1f) {
+                    root.getTransform().setLocalScale(scale, scale, scale);
+                }
                 linkOf(root).setKnownSourceIds(new LinkedHashSet<>(document.getEntityIds()));
                 created[0] = root;
                 return true;
@@ -210,7 +227,9 @@ public class PrefabService {
         if (!placed) {
             return null;
         }
-        editorState.setSelectedEntity(created[0]);
+        if (select) {
+            editorState.setSelectedEntity(created[0]);
+        }
         editorState.setStatusMessage("Placed prefab " + prefab.getFileName(), false);
         return created[0];
     }

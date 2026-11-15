@@ -1,5 +1,8 @@
 import { WAVEFORMS, FILTER_TYPES } from "../../audio/dsp";
 import { LFO_TARGETS, PRESET_NAMES, type SynthPatch } from "../../audio/synth";
+import { DRUMS } from "../../audio/drums";
+import { FM_PRESET_NAMES, type FmPatch } from "../../audio/fm";
+import { PLUCK_PRESET_NAMES, type PluckPatch } from "../../audio/pluck";
 import { PLAYABLE_INSTRUMENTS, type InstrumentType } from "../../audio/song";
 import { h } from "../dom";
 import type { MusicModel } from "./MusicModel";
@@ -29,6 +32,32 @@ const FILTER_FIELDS: NumberField[] = [
   { key: "cutoff", label: "Cutoff (Hz)", min: 20, max: 16000, step: 10 },
   { key: "resonance", label: "Resonance", min: 0.5, max: 20, step: 0.1 },
   { key: "filterEnvOctaves", label: "Filter envelope (octaves)", min: 0, max: 6, step: 0.1 },
+];
+const FM_FIELDS: { title: string; fields: { key: keyof FmPatch; label: string; min: number; max: number; step: number }[] }[] = [
+  {
+    title: "Operators",
+    fields: [
+      { key: "ratio", label: "Modulator ratio", min: 0.25, max: 16, step: 0.01 },
+      { key: "index", label: "Modulation", min: 0, max: 12, step: 0.01 },
+      { key: "indexSustain", label: "Modulation kept", min: 0, max: 1, step: 0.01 },
+      { key: "indexDecay", label: "Modulation fall (s)", min: 0.01, max: 5, step: 0.01 },
+    ],
+  },
+  {
+    title: "Envelope",
+    fields: [
+      { key: "attack", label: "Attack (s)", min: 0.001, max: 5, step: 0.001 },
+      { key: "decay", label: "Decay (s)", min: 0.001, max: 5, step: 0.001 },
+      { key: "sustain", label: "Sustain", min: 0, max: 1, step: 0.01 },
+      { key: "release", label: "Release (s)", min: 0.001, max: 5, step: 0.001 },
+    ],
+  },
+];
+const PLUCK_FIELDS: { key: keyof PluckPatch; label: string; min: number; max: number; step: number }[] = [
+  { key: "brightness", label: "Brightness", min: 0, max: 1, step: 0.01 },
+  { key: "damping", label: "Damping", min: 0, max: 1, step: 0.01 },
+  { key: "decay", label: "Ring time (s)", min: 0.1, max: 10, step: 0.01 },
+  { key: "release", label: "Release (s)", min: 0.01, max: 2, step: 0.01 },
 ];
 const LFO_FIELDS: NumberField[] = [
   { key: "lfoRate", label: "LFO rate (Hz)", min: 0.1, max: 20, step: 0.1 },
@@ -73,7 +102,40 @@ export class InstrumentView {
     );
 
     if (channel.instrument.type === "DRUMS") {
-      this.root.append(h("div", { class: "empty" }, "The drum kit answers to General MIDI notes: kick 36, snare 38, clap 39, closed hat 42, tom 45, open hat 46, crash 49."));
+      this.root.append(h("div", { class: "empty" }, `The drum kit answers to General MIDI notes: ${DRUMS.map((entry) => `${entry.name.toLowerCase()} ${entry.note}`).join(", ")}.`));
+      return;
+    }
+    if (channel.instrument.type === "FM") {
+      const patch = channel.instrument.fm;
+      const presets = h("select", { title: "Replace the sound with a preset" }, h("option", { value: "" }, "Preset…")) as HTMLSelectElement;
+      for (const preset of FM_PRESET_NAMES) presets.append(h("option", { value: preset }, preset));
+      presets.addEventListener("change", () => {
+        if (presets.value) model.loadFmPreset(id, presets.value);
+      });
+      this.root.append(
+        h("div", { class: "row" }, presets, slider("Volume", 0, 1, 0.01, patch.volume, (v) => model.setFmField(id, "volume", v)).row),
+        h("div", { class: "groups" },
+          ...FM_FIELDS.map((g) =>
+            h("div", { class: "group" }, h("div", { class: "group-title" }, g.title),
+              ...g.fields.map((f) => slider(f.label, f.min, f.max, f.step, patch[f.key], (v) => model.setFmField(id, f.key, v)).row))),
+        ),
+      );
+      return;
+    }
+    if (channel.instrument.type === "PLUCK") {
+      const patch = channel.instrument.pluck;
+      const presets = h("select", { title: "Replace the sound with a preset" }, h("option", { value: "" }, "Preset…")) as HTMLSelectElement;
+      for (const preset of PLUCK_PRESET_NAMES) presets.append(h("option", { value: preset }, preset));
+      presets.addEventListener("change", () => {
+        if (presets.value) model.loadPluckPreset(id, presets.value);
+      });
+      this.root.append(
+        h("div", { class: "row" }, presets, slider("Volume", 0, 1, 0.01, patch.volume, (v) => model.setPluckField(id, "volume", v)).row),
+        h("div", { class: "groups" },
+          h("div", { class: "group" }, h("div", { class: "group-title" }, "String"),
+            ...PLUCK_FIELDS.map((f) => slider(f.label, f.min, f.max, f.step, patch[f.key], (v) => model.setPluckField(id, f.key, v)).row)),
+        ),
+      );
       return;
     }
     if (channel.instrument.type !== "SYNTH") {

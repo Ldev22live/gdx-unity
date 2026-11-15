@@ -6,7 +6,7 @@ import { buildScene, type BuiltScene } from "../src/runtime/SceneBuilder";
 import { createDefaultRegistry } from "../src/scripts/registry";
 import { placeAtAnchor } from "../src/runtime/Hud";
 import { str } from "../src/scene/types";
-import { createHeadlessEngine, loadSample } from "./support";
+import { createHeadlessEngine, loadSample, startGraphs } from "./support";
 
 /** Starts the scripts a scene binds, the way ScenePlayer.play does, without a canvas. */
 function startScripts(built: BuiltScene, input: Input) {
@@ -31,19 +31,25 @@ describe("collector sample scripts", () => {
     const built = buildScene(engine, loadSample("collector-3d.json"));
     const input = new Input();
     const scripts = startScripts(built, input);
+    const graphs = startGraphs(built, input);
+    expect(graphs).toHaveLength(1);
     const player = built.game.findByName("Player")!;
     const startX = player.getLocalPosition().x;
 
     input.press("KeyD");
     for (let i = 0; i < 60; i++) {
       scripts.forEach((script) => script.onUpdate(1 / 60));
+      graphs.forEach((graph) => graph.tick(1 / 60));
       input.endFrame();
     }
     const afterOneSecond = player.getLocalPosition().x;
     expect(afterOneSecond).toBeGreaterThan(startX + 50);
     expect(afterOneSecond).toBeLessThanOrEqual(740);
 
-    for (let i = 0; i < 600; i++) scripts.forEach((script) => script.onUpdate(1 / 60));
+    for (let i = 0; i < 600; i++) {
+      scripts.forEach((script) => script.onUpdate(1 / 60));
+      graphs.forEach((graph) => graph.tick(1 / 60));
+    }
     expect(player.getLocalPosition().x).toBeLessThanOrEqual(740);
     engine.dispose();
   });

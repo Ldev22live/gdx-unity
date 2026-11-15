@@ -1,6 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.core.file;
 
 import java.io.File;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -22,6 +23,16 @@ public interface EditorDialogService {
      * @return the chosen file, or empty if the user cancelled
      */
     Optional<File> chooseOpenFile(String title, File initialDirectory, String filterDescription, String extension);
+
+    /**
+     * Like {@link #chooseOpenFile(String, File, String, String)} with one filter that accepts files of several extensions. A dialog that
+     * can only filter one extension falls back to the first.
+     *
+     * @param extensions file extensions without the dot, the first being the main one; not empty
+     */
+    default Optional<File> chooseOpenFile(String title, File initialDirectory, String filterDescription, List<String> extensions) {
+        return chooseOpenFile(title, initialDirectory, filterDescription, extensions.get(0));
+    }
 
     /**
      * @param suggestedFile file pre-filled in the dialog; may be null

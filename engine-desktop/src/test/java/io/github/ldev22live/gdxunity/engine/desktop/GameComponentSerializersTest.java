@@ -20,11 +20,13 @@ class GameComponentSerializersTest {
         GameComponentSerializers.registerAll(registry);
 
         Map<String, ?> all = registry.getAll();
-        assertEquals(32, all.size(), () -> "registered: " + all.keySet());
+        assertEquals(34, all.size(), () -> "registered: " + all.keySet());
         assertNotNull(registry.getByTypeId(PrefabInstanceComponentSerializer.TYPE_ID));
         assertNotNull(registry.getByTypeId(DynamicMeshComponentSerializer.TYPE_ID), "sculpts and other editable meshes");
         assertNotNull(registry.getByTypeId(AudioSourceComponentSerializer.TYPE_ID), "sound effects");
         assertNotNull(registry.getByTypeId("MusicSource"), "songs in scenes");
         assertNotNull(registry.getByTypeId("AudioListener"), "positional sound");
+        assertNotNull(registry.getByTypeId("EngineSound"), "running engines");
+        assertNotNull(registry.getByTypeId("Terrain"), "heightmap ground");
     }
 }

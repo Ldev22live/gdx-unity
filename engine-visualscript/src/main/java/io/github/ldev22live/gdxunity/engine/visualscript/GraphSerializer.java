@@ -19,9 +19,18 @@ import java.util.Map;
  * </pre>
  * Values carry their type so a file can be read without the node registry. Reading does not validate the graph;
  * use {@link GraphValidator}.
+ * <p>
+ * Version 2 (TD-070) adds {@code "events"} (declared custom events: {@code name} and typed {@code params}) and {@code "functions"}
+ * ({@code name}, typed {@code inputs} and {@code outputs}, and the body's own {@code nodes} and {@code links}). A graph without
+ * functions and events is still written as version 1, so existing files stay as they are; version 1 files are read as before.
  */
 public final class GraphSerializer {
-    public static final int SCHEMA_VERSION = 1;
+    /** Newest version this code reads and writes. */
+    public static final int SCHEMA_VERSION = 2;
+    /** The version of graphs without functions and declared events. */
+    public static final int SCHEMA_VERSION_BASIC = 1;
+    /** The version that adds functions and declared custom events (TD-070). */
+    public static final int SCHEMA_VERSION_FUNCTIONS = 2;
     public static final String KIND = "graph";
     /** Width at which the pretty printer puts small objects on one line. */
     private static final int PRETTY_PRINT_LINE_WIDTH = 100;
@@ -30,7 +39,7 @@ public final class GraphSerializer {
 
     public static String toJson(Graph graph) {
         JsonValue root = new JsonValue(JsonValue.ValueType.object);
-        root.addChild("schemaVersion", new JsonValue(SCHEMA_VERSION));
+        root.addChild("schemaVersion", new JsonValue(graph.usesFunctionsOrEvents() ? SCHEMA_VERSION_FUNCTIONS : SCHEMA_VERSION_BASIC));
         root.addChild("kind", new JsonValue(KIND));
         root.addChild("name", new JsonValue(graph.getName()));
 
@@ -44,6 +53,33 @@ public final class GraphSerializer {
         }
         root.addChild("variables", variables);
 
+        root.addChild("nodes", writeNodes(graph));
+        root.addChild("links", writeLinks(graph));
+        if (graph.usesFunctionsOrEvents()) {
+            JsonValue events = new JsonValue(JsonValue.ValueType.array);
+            for (GraphEventDef event : graph.getEvents()) {
+                JsonValue e = new JsonValue(JsonValue.ValueType.object);
+                e.addChild("name", new JsonValue(event.getName()));
+                e.addChild("params", writeParams(event.getParams()));
+                events.addChild(e);
+            }
+            root.addChild("events", events);
+            JsonValue functions = new JsonValue(JsonValue.ValueType.array);
+            for (GraphFunction function : graph.getFunctions()) {
+                JsonValue f = new JsonValue(JsonValue.ValueType.object);
+                f.addChild("name", new JsonValue(function.getName()));
+                f.addChild("inputs", writeParams(function.getInputs()));
+                f.addChild("outputs", writeParams(function.getOutputs()));
+                f.addChild("nodes", writeNodes(function.getBody()));
+                f.addChild("links", writeLinks(function.getBody()));
+                functions.addChild(f);
+            }
+            root.addChild("functions", functions);
+        }
+        return root.prettyPrint(JsonWriter.OutputType.json, PRETTY_PRINT_LINE_WIDTH);
+    }
+
+    private static JsonValue writeNodes(Graph graph) {
         JsonValue nodes = new JsonValue(JsonValue.ValueType.array);
         for (GraphNode node : graph.getNodes()) {
             JsonValue n = new JsonValue(JsonValue.ValueType.object);
@@ -55,8 +91,10 @@ public final class GraphSerializer {
             n.addChild("properties", writeTypedValues(node.getProperties(), "name"));
             nodes.addChild(n);
         }
-        root.addChild("nodes", nodes);
+        return nodes;
+    }
 
+    private static JsonValue writeLinks(Graph graph) {
         JsonValue links = new JsonValue(JsonValue.ValueType.array);
         for (GraphLink link : graph.getLinks()) {
             JsonValue l = new JsonValue(JsonValue.ValueType.object);
@@ -66,8 +104,18 @@ public final class GraphSerializer {
             l.addChild("toPin", new JsonValue(link.toPin()));
             links.addChild(l);
         }
-        root.addChild("links", links);
-        return root.prettyPrint(JsonWriter.OutputType.json, PRETTY_PRINT_LINE_WIDTH);
+        return links;
+    }
+
+    private static JsonValue writeParams(java.util.List<GraphParam> params) {
+        JsonValue array = new JsonValue(JsonValue.ValueType.array);
+        for (GraphParam param : params) {
+            JsonValue p = new JsonValue(JsonValue.ValueType.object);
+            p.addChild("name", new JsonValue(param.name()));
+            p.addChild("type", new JsonValue(param.type().name()));
+            array.addChild(p);
+        }
+        return array;
     }
 
     /** @throws SceneSerializationException when the text is not a graph document */
@@ -97,25 +145,58 @@ public final class GraphSerializer {
                 ValueType type = ValueType.valueOf(v.getString("type"));
                 graph.putVariable(new GraphVariable(v.getString("name"), type, readValue(type, v.get("value"))));
             }
-            for (JsonValue n = child(root, "nodes"); n != null; n = n.next) {
-                GraphNode node = new GraphNode(n.getString("id"), n.getString("type"), n.getFloat("x", 0f), n.getFloat("y", 0f));
-                for (JsonValue l = child(n, "literals"); l != null; l = l.next) {
-                    ValueType type = ValueType.valueOf(l.getString("type"));
-                    node.setLiteral(l.getString("pin"), readValue(type, l.get("value")));
+            readBody(root, graph);
+            if (version >= SCHEMA_VERSION_FUNCTIONS) {
+                for (JsonValue e = child(root, "events"); e != null; e = e.next) {
+                    GraphEventDef event = new GraphEventDef(e.getString("name"));
+                    for (GraphParam param : readParams(e, "params")) {
+                        event.addParam(param);
+                    }
+                    graph.putEvent(event);
                 }
-                for (JsonValue p = child(n, "properties"); p != null; p = p.next) {
-                    ValueType type = ValueType.valueOf(p.getString("type"));
-                    node.setProperty(p.getString("name"), readValue(type, p.get("value")));
+                for (JsonValue f = child(root, "functions"); f != null; f = f.next) {
+                    GraphFunction function = new GraphFunction(f.getString("name"));
+                    for (GraphParam param : readParams(f, "inputs")) {
+                        function.addInput(param);
+                    }
+                    for (GraphParam param : readParams(f, "outputs")) {
+                        function.addOutput(param);
+                    }
+                    readBody(f, function.getBody());
+                    graph.putFunction(function);
                 }
-                graph.addNode(node);
-            }
-            for (JsonValue l = child(root, "links"); l != null; l = l.next) {
-                graph.addLink(new GraphLink(l.getString("from"), l.getString("fromPin"), l.getString("to"), l.getString("toPin")));
             }
             return graph;
         } catch (IllegalArgumentException e) {
             // Missing fields, unknown types, duplicate ids, bad values
             throw new SceneSerializationException("Invalid graph: " + e.getMessage(), e);
+        }
+    }
+
+    private static java.util.List<GraphParam> readParams(JsonValue parent, String name) {
+        java.util.List<GraphParam> params = new java.util.ArrayList<>();
+        for (JsonValue p = child(parent, name); p != null; p = p.next) {
+            params.add(new GraphParam(p.getString("name"), ValueType.valueOf(p.getString("type"))));
+        }
+        return params;
+    }
+
+    /** Reads the nodes and links of {@code source} (the file's root, or one function) into {@code target}. */
+    private static void readBody(JsonValue source, Graph target) {
+        for (JsonValue n = child(source, "nodes"); n != null; n = n.next) {
+            GraphNode node = new GraphNode(n.getString("id"), n.getString("type"), n.getFloat("x", 0f), n.getFloat("y", 0f));
+            for (JsonValue l = child(n, "literals"); l != null; l = l.next) {
+                ValueType type = ValueType.valueOf(l.getString("type"));
+                node.setLiteral(l.getString("pin"), readValue(type, l.get("value")));
+            }
+            for (JsonValue p = child(n, "properties"); p != null; p = p.next) {
+                ValueType type = ValueType.valueOf(p.getString("type"));
+                node.setProperty(p.getString("name"), readValue(type, p.get("value")));
+            }
+            target.addNode(node);
+        }
+        for (JsonValue l = child(source, "links"); l != null; l = l.next) {
+            target.addLink(new GraphLink(l.getString("from"), l.getString("fromPin"), l.getString("to"), l.getString("toPin")));
         }
     }
 

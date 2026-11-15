@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "name": "Rock",
+  "baseColor": [
+    0.45,
+    0.43,
+    0.4,
+    1.0
+  ],
+  "metallic": 0.0,
+  "roughness": 0.95,
+  "emissive": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "emissiveStrength": 1.0,
+  "normalScale": 1.0,
+  "occlusionStrength": 1.0,
+  "alphaMode": "OPAQUE",
+  "alphaCutoff": 0.5,
+  "doubleSided": false,
+  "tiling": [
+    1.0,
+    1.0
+  ],
+  "offset": [
+    0.0,
+    0.0
+  ],
+  "textures": {}
+}

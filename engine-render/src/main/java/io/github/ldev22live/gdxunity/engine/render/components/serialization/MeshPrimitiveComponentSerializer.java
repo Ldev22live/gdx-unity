@@ -34,6 +34,10 @@ public class MeshPrimitiveComponentSerializer implements ComponentSerializer<Mes
         json.writeValue("colorG", color.g);
         json.writeValue("colorB", color.b);
         json.writeValue("colorA", color.a);
+        // Written only when set, so scenes without materials do not change when saved again
+        if (!component.getMaterialPath().isEmpty()) {
+            json.writeValue("materialPath", component.getMaterialPath());
+        }
     }
 
     @Override
@@ -46,9 +50,11 @@ public class MeshPrimitiveComponentSerializer implements ComponentSerializer<Mes
             throw new SceneSerializationException("Unknown mesh primitive shape: " + shapeName, e);
         }
         float size = MeshPrimitiveComponent.DEFAULT_SIZE;
-        return new MeshPrimitiveComponent(shape,
+        MeshPrimitiveComponent component = new MeshPrimitiveComponent(shape,
             jsonData.getFloat("sizeX", size), jsonData.getFloat("sizeY", size), jsonData.getFloat("sizeZ", size),
             new Color(jsonData.getFloat("colorR", 1f), jsonData.getFloat("colorG", 1f),
                 jsonData.getFloat("colorB", 1f), jsonData.getFloat("colorA", 1f)));
+        component.setMaterialPath(jsonData.getString("materialPath", ""));
+        return component;
     }
 }

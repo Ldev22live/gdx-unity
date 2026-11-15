@@ -76,6 +76,13 @@ class SceneViewportInteraction2DTest {
     }
 
     @Test
+    void shouldReportTheEntityUnderThePointerForADropWithoutChangingTheSelection() {
+        assertEquals(java.util.Optional.of(box), interaction.entityAt(localX(100f), localY(50f), PANEL_W, PANEL_H));
+        assertEquals(java.util.Optional.empty(), interaction.entityAt(localX(-300f), localY(-200f), PANEL_W, PANEL_H));
+        assertNull(editorState.getSelectedEntity());
+    }
+
+    @Test
     void shouldToggleEntityInSelectionWhenAdditive() {
         Entity other = editorState.getActiveScene().createEntity("Other");
         editorState.setSelectedEntity(other);

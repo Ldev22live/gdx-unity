@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "Bush",
+  "rootId": "b61059d8-d92b-5a59-8e0d-1a81f44e3dfa",
+  "entities": [
+    {
+      "id": "b61059d8-d92b-5a59-8e0d-1a81f44e3dfa",
+      "parentId": null,
+      "name": "Bush",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "acc7fabe-427d-53f5-bd11-dd8f52f648a6",
+      "parentId": "b61059d8-d92b-5a59-8e0d-1a81f44e3dfa",
+      "name": "Main",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 28.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 90.0,
+            "sizeY": 60.0,
+            "sizeZ": 90.0,
+            "colorR": 0.16,
+            "colorG": 0.42,
+            "colorB": 0.14,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1bdadb01-1128-50a0-9a1b-e4503d4e0a47",
+      "parentId": "b61059d8-d92b-5a59-8e0d-1a81f44e3dfa",
+      "name": "Side",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 40.0,
+          "y": 20.0,
+          "z": 18.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 60.0,
+            "sizeY": 45.0,
+            "sizeZ": 60.0,
+            "colorR": 0.24,
+            "colorG": 0.52,
+            "colorB": 0.18,
+            "colorA": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}

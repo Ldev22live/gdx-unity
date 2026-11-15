@@ -54,6 +54,32 @@ final class AudioTestSupport {
         return (crossings - 1) * RATE / (last - first);
     }
 
+    /**
+     * The lag, in samples, at which the signal best matches itself shifted, searched within 20% of the lag expected for {@code hz}
+     * over the window {@code from..to}. Unlike zero crossings it reads the pitch of a wave that crosses zero more than once a cycle.
+     */
+    static double period(float[] data, int from, int to, double hz) {
+        double expected = RATE / hz;
+        int bestLag = 0;
+        double best = -2.0;
+        for (int lag = (int) (expected * 0.8); lag <= (int) (expected * 1.2) + 1; lag++) {
+            double sum = 0.0;
+            double energyA = 0.0;
+            double energyB = 0.0;
+            for (int i = from; i < to; i++) {
+                sum += (double) data[i] * data[i + lag];
+                energyA += (double) data[i] * data[i];
+                energyB += (double) data[i + lag] * data[i + lag];
+            }
+            double score = sum / Math.sqrt(energyA * energyB + 1e-12);
+            if (score > best) {
+                best = score;
+                bestLag = lag;
+            }
+        }
+        return bestLag;
+    }
+
     /** A pure sine of {@code hz} lasting {@code frames}. */
     static float[] sine(double hz, int frames) {
         float[] data = new float[frames];

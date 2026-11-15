@@ -73,6 +73,8 @@ public final class GameRenderer implements EngineRenderer {
         ModelAssets models = resources.register(new ModelAssets(project));
         this.renderer3D = resources.register(new Disposing3D(new SceneRenderer3D())).renderer;
         renderer3D.setModelAssets(models);
+        renderer3D.setMaterialLibrary(new io.github.ldev22live.gdxunity.engine.material.MaterialLibrary(project));
+        renderer3D.setTerrainLibrary(new io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary(project));
         // Same fallback sun as the editor when the scene has no directional light, so unlit scenes look the same
         renderer3D.setDefaultLightEnabled(true);
         renderer3D.setActiveScene(session.getScene());

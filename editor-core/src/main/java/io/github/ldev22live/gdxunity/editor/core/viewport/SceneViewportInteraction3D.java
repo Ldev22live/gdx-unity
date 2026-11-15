@@ -1,5 +1,6 @@
 package io.github.ldev22live.gdxunity.editor.core.viewport;
 
+import java.util.Optional;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -184,5 +185,13 @@ public class SceneViewportInteraction3D implements ViewportInteraction {
             return NavigationMode.ORBIT;
         }
         return NavigationMode.NONE;
+    }
+
+    /** The entity a left click here would pick (gizmo handles are not entities). */
+    @Override
+    public Optional<Entity> entityAt(float localX, float localY, float panelWidth, float panelHeight) {
+        camera.update();
+        Ray ray = ViewportCoordinates3D.panelToRay(localX, localY, panelWidth, panelHeight, camera.getGdxCamera());
+        return Optional.ofNullable(ViewportPicker.pickEntity3D(editorState.getActiveScene(), ray));
     }
 }

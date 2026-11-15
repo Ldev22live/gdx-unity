@@ -3,6 +3,7 @@ package io.github.ldev22live.gdxunity.engine.visualscript;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.Transform;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsLayers3D;
@@ -60,11 +61,18 @@ public final class BuiltInNodes {
     /** Desktop-only helper nodes that read the keyboard (TD-060, milestone C). */
     public static final String INPUT_KEY_DOWN = "input.keyDown";
     public static final String INPUT_AXIS = "input.axis";
+    /** True only on the frame a key goes down, like {@code Gdx.input.isKeyJustPressed} (TD-072). */
+    public static final String INPUT_KEY_PRESSED = "input.keyPressed";
+    /** Plays the audio sources of the scene that have a cue (TD-072), like {@code AudioSourceComponent.play(scene, cue)}. */
+    public static final String ACTION_PLAY_CUE = "action.playCue";
+    public static final String PROPERTY_CUE = "cue";
     public static final String PROPERTY_KEY = "key";
     public static final String PROPERTY_NEGATIVE = "negative";
     public static final String PROPERTY_POSITIVE = "positive";
     public static final String MATH_SIN = "math.sin";
     public static final String MATH_COS = "math.cos";
+    /** Base to the power of exponent (TD-071), like {@code Math.pow}; rolling friction that keeps a share of speed per second needs it. */
+    public static final String MATH_POWER = "math.power";
     public static final String MATH_ADD = "math.add";
     public static final String MATH_SUBTRACT = "math.subtract";
     public static final String MATH_MULTIPLY = "math.multiply";
@@ -110,7 +118,7 @@ public final class BuiltInNodes {
         registry.register(NodeType.builder(EVENT_TRIGGER, "Event Trigger Enter", "Events", EVENT)
             .pin(out(PIN_OTHER, "Other", ENTITY)).build());
         registry.register(NodeType.builder(EVENT_CUSTOM, "Custom Event", "Events", EVENT)
-            .property(PROPERTY_NAME, STRING).build());
+            .property(PROPERTY_NAME, STRING).dynamicPins(FunctionNodes::customEventPins).build());
 
         // Flow control
         registry.register(NodeType.builder(FLOW_BRANCH, "Branch", "Flow", ACTION)
@@ -264,6 +272,19 @@ public final class BuiltInNodes {
         registry.register(NodeType.builder(INPUT_KEY_DOWN, "Key Down", "Input", PURE)
             .property(PROPERTY_KEY, STRING).pin(out("pressed", "Pressed", BOOLEAN))
             .behaviour(c -> c.output("pressed", anyKeyDown(c, (String) c.property(PROPERTY_KEY)))).build());
+        registry.register(NodeType.builder(INPUT_KEY_PRESSED, "Key Pressed", "Input", PURE)
+            .property(PROPERTY_KEY, STRING).pin(out("pressed", "Pressed", BOOLEAN))
+            .behaviour(c -> c.output("pressed", anyKey(c, (String) c.property(PROPERTY_KEY), true))).build());
+        registry.register(NodeType.builder(ACTION_PLAY_CUE, "Play Sound", "Actions", ACTION)
+            .property(PROPERTY_CUE, STRING)
+            .behaviour(c -> {
+                Object cue = c.property(PROPERTY_CUE);
+                if (!(cue instanceof String name) || name.isBlank()) {
+                    throw c.error("No sound cue chosen");
+                }
+                AudioSourceComponent.play(c.self().getScene(), name);
+                c.continueWith(PinDef.EXEC_OUT);
+            }).build());
         registry.register(NodeType.builder(INPUT_AXIS, "Input Axis", "Input", PURE)
             .property(PROPERTY_NEGATIVE, STRING).property(PROPERTY_POSITIVE, STRING).pin(out("value", "Value", FLOAT))
             .behaviour(c -> c.output("value", (anyKeyDown(c, (String) c.property(PROPERTY_POSITIVE)) ? 1f : 0f)
@@ -323,6 +344,9 @@ public final class BuiltInNodes {
         registry.register(NodeType.builder(MATH_COS, "Cosine", "Math", PURE)
             .pin(in("degrees", "Degrees", FLOAT)).pin(out("result", "Result", FLOAT))
             .behaviour(c -> c.output("result", (float) Math.cos(Math.toRadians(c.inputFloat("degrees"))))).build());
+        registry.register(NodeType.builder(MATH_POWER, "Power", "Math", PURE)
+            .pin(in("base", "Base", FLOAT)).pin(in("exponent", "Exponent", FLOAT)).pin(out("result", "Result", FLOAT))
+            .behaviour(c -> c.output("result", (float) Math.pow(c.inputFloat("base"), c.inputFloat("exponent")))).build());
         registerComparison(registry, MATH_GREATER, "Greater Than", (a, b) -> a > b);
         registerComparison(registry, MATH_LESS, "Less Than", (a, b) -> a < b);
         registerComparison(registry, MATH_EQUAL, "Equal", (a, b) -> Float.compare(a, b) == 0);
@@ -362,6 +386,8 @@ public final class BuiltInNodes {
         registry.register(NodeType.builder(TEXT_FROM_FLOAT, "Number to Text", "Text", PURE)
             .pin(in("value", "Value", FLOAT)).pin(out("text", "Text", STRING))
             .behaviour(c -> c.output("text", formatNumber(c.inputFloat("value")))).build());
+
+        FunctionNodes.registerAll(registry);
     }
 
     private static void registerFloatMath(NodeRegistry registry, String id, String title, BinaryOperator<Float> op) {
@@ -391,6 +417,11 @@ public final class BuiltInNodes {
 
     /** Whether any of the comma separated libGDX key names is held down; an unknown name is an error that names the node. */
     private static boolean anyKeyDown(NodeContext c, String keys) {
+        return anyKey(c, keys, false);
+    }
+
+    /** Whether any of the keys is held down, or (with {@code justPressed}) went down this frame. */
+    private static boolean anyKey(NodeContext c, String keys, boolean justPressed) {
         List<Integer> codes;
         try {
             codes = KeyNames.parse(keys);
@@ -399,7 +430,7 @@ public final class BuiltInNodes {
         }
         boolean down = false;
         for (int code : codes) {
-            down |= c.isKeyDown(code);
+            down |= justPressed ? c.isKeyJustPressed(code) : c.isKeyDown(code);
         }
         return down;
     }

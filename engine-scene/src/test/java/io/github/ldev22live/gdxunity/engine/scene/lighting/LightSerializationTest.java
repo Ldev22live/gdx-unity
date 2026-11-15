@@ -125,6 +125,35 @@ class LightSerializationTest {
             error.getMessage());
     }
 
+    @Test
+    void shouldWriteTheSameLightDirectionAfterEverySaveAndLoad() {
+        SceneSerializer serializer = createSerializer();
+        Scene scene = new Scene("Sun");
+        DirectionalLightComponent sun = new DirectionalLightComponent();
+        sun.setDirection(0.3f, -0.8f, -0.4f);
+        scene.createEntity("Sun").addComponent(sun);
+
+        String first = serializer.toJson(scene);
+        String second = serializer.toJson(serializer.fromJson(first));
+        String third = serializer.toJson(serializer.fromJson(second));
+
+        assertEquals(first, second, "a no-op save and reopen must not change the file");
+        assertEquals(second, third);
+    }
+
+    @Test
+    void shouldKeepAUnitDirectionExactlyAndNormaliseOneThatIsNot() {
+        DirectionalLightComponent sun = new DirectionalLightComponent();
+        sun.setDirection(0f, -0.8944272f, -0.4472136f);
+        assertEquals(-0.8944272f, sun.getDirection().y, 0f, "already a unit direction: kept exactly");
+        assertEquals(-0.4472136f, sun.getDirection().z, 0f);
+
+        sun.setDirection(3f, 0f, 4f);
+        assertEquals(1f, sun.getDirection().len(), 1e-6f, "a longer direction is normalised");
+        assertEquals(0.6f, sun.getDirection().x, 1e-6f);
+        assertEquals(0.8f, sun.getDirection().z, 1e-6f);
+    }
+
     private static SceneSerializer createSerializer() {
         ComponentSerializerRegistry registry = new ComponentSerializerRegistry();
         registry.register(new DirectionalLightComponentSerializer());

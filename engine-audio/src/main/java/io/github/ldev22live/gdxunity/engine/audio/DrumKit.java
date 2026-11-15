@@ -10,7 +10,10 @@ public final class DrumKit implements Instrument {
     /** The drums and the note that plays each. */
     public enum Drum {
         KICK(36, "Kick"), SNARE(38, "Snare"), CLAP(39, "Clap"), CLOSED_HAT(42, "Closed Hat"),
-        OPEN_HAT(46, "Open Hat"), TOM(45, "Tom"), CRASH(49, "Crash");
+        OPEN_HAT(46, "Open Hat"), TOM(45, "Tom"), CRASH(49, "Crash"),
+        /** Added in TD-074; the first seven keep their order so saved step grids still mean the same drums. */
+        RIM_SHOT(37, "Rim Shot"), FLOOR_TOM(41, "Floor Tom"), MID_TOM(47, "Mid Tom"), HIGH_TOM(50, "High Tom"),
+        RIDE(51, "Ride"), TAMBOURINE(54, "Tambourine"), COWBELL(56, "Cowbell"), SHAKER(70, "Shaker");
 
         private final int note;
         private final String displayName;
@@ -45,6 +48,31 @@ public final class DrumKit implements Instrument {
     private static final float TOM_START_HZ = 220f;
     private static final float TOM_END_HZ = 110f;
     private static final float TOM_SECONDS = 0.35f;
+    /** How fast a tom's pitch falls from its start to its end frequency. */
+    private static final float TOM_PITCH_DROP_SECONDS = 0.08f;
+    private static final float RIM_SHOT_SECONDS = 0.08f;
+    private static final float RIM_SHOT_TONE_HZ = 1700f;
+    private static final float FLOOR_TOM_START_HZ = 150f;
+    private static final float FLOOR_TOM_END_HZ = 75f;
+    private static final float FLOOR_TOM_SECONDS = 0.45f;
+    private static final float MID_TOM_START_HZ = 260f;
+    private static final float MID_TOM_END_HZ = 130f;
+    private static final float MID_TOM_SECONDS = 0.3f;
+    private static final float HIGH_TOM_START_HZ = 340f;
+    private static final float HIGH_TOM_END_HZ = 170f;
+    private static final float HIGH_TOM_SECONDS = 0.25f;
+    private static final float RIDE_SECONDS = 0.9f;
+    /** The ride's bell-like ping, mixed under its noise. */
+    private static final float RIDE_PING_HZ = 4200f;
+    private static final float TAMBOURINE_SECONDS = 0.3f;
+    private static final float TAMBOURINE_JINGLE_HZ = 6200f;
+    private static final float COWBELL_SECONDS = 0.35f;
+    /** The cowbell is two square tones this far apart (a little under a fifth). */
+    private static final float COWBELL_LOW_HZ = 560f;
+    private static final float COWBELL_HIGH_HZ = 845f;
+    private static final float SHAKER_SECONDS = 0.12f;
+    /** Share of the shaker's length it takes to swell to full level. */
+    private static final float SHAKER_ATTACK_FRACTION = 0.15f;
     private static final float CRASH_SECONDS = 1.2f;
     /** Noise for hats and crash is high-passed here to keep it bright. */
     private static final float HAT_HIGH_PASS_HZ = 7000f;
@@ -131,12 +159,14 @@ public final class DrumKit implements Instrument {
         int frame;
         int length;
         double phase;
+        double phase2;
 
         void start(Drum which, float vel) {
             drum = which;
             velocity = vel;
             frame = 0;
             phase = 0.0;
+            phase2 = 0.0;
             active = true;
             noise.setPhase(0.0);
             highPass.reset();
@@ -160,7 +190,15 @@ public final class DrumKit implements Instrument {
                     case SNARE -> snare(t, decay);
                     case CLAP -> clap(t);
                     case CLOSED_HAT, OPEN_HAT, CRASH -> highPass.process(noise()) * decay * 0.6f;
-                    case TOM -> tom(t, progress, decay);
+                    case TOM -> tom(t, TOM_START_HZ, TOM_END_HZ, decay);
+                    case RIM_SHOT -> (bandPass.process(noise()) * 0.8f + tone(RIM_SHOT_TONE_HZ) * 0.6f) * decay;
+                    case FLOOR_TOM -> tom(t, FLOOR_TOM_START_HZ, FLOOR_TOM_END_HZ, decay);
+                    case MID_TOM -> tom(t, MID_TOM_START_HZ, MID_TOM_END_HZ, decay);
+                    case HIGH_TOM -> tom(t, HIGH_TOM_START_HZ, HIGH_TOM_END_HZ, decay);
+                    case RIDE -> (highPass.process(noise()) * 0.35f + tone(RIDE_PING_HZ) * 0.12f) * decay;
+                    case TAMBOURINE -> (highPass.process(noise()) * 0.45f + tone(TAMBOURINE_JINGLE_HZ) * 0.15f) * decay;
+                    case COWBELL -> cowbell(decay);
+                    case SHAKER -> highPass.process(noise()) * 0.8f * Math.min(progress / SHAKER_ATTACK_FRACTION, 1f) * decay;
                 };
                 sample *= velocity;
                 left[offset + i] += sample;
@@ -203,9 +241,23 @@ public final class DrumKit implements Instrument {
             return bandPass.process(noise()) * envelope * 1.5f;
         }
 
-        private float tom(float t, float progress, float decay) {
-            float hz = TOM_END_HZ + (TOM_START_HZ - TOM_END_HZ) * (float) Math.exp(-t / 0.08f);
+        private float tom(float t, float startHz, float endHz, float decay) {
+            float hz = endHz + (startHz - endHz) * (float) Math.exp(-t / TOM_PITCH_DROP_SECONDS);
             return tone(hz) * decay;
+        }
+
+        private float cowbell(float decay) {
+            phase += COWBELL_LOW_HZ / sampleRate;
+            if (phase >= 1.0) {
+                phase -= 1.0;
+            }
+            phase2 += COWBELL_HIGH_HZ / sampleRate;
+            if (phase2 >= 1.0) {
+                phase2 -= 1.0;
+            }
+            float low = phase < 0.5 ? 1f : -1f;
+            float high = phase2 < 0.5 ? 1f : -1f;
+            return (low + high) * 0.3f * decay;
         }
     }
 
@@ -218,6 +270,14 @@ public final class DrumKit implements Instrument {
             case OPEN_HAT -> OPEN_HAT_SECONDS;
             case TOM -> TOM_SECONDS;
             case CRASH -> CRASH_SECONDS;
+            case RIM_SHOT -> RIM_SHOT_SECONDS;
+            case FLOOR_TOM -> FLOOR_TOM_SECONDS;
+            case MID_TOM -> MID_TOM_SECONDS;
+            case HIGH_TOM -> HIGH_TOM_SECONDS;
+            case RIDE -> RIDE_SECONDS;
+            case TAMBOURINE -> TAMBOURINE_SECONDS;
+            case COWBELL -> COWBELL_SECONDS;
+            case SHAKER -> SHAKER_SECONDS;
         };
     }
 }

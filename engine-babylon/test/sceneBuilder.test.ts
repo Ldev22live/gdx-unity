@@ -9,9 +9,13 @@ const sampleFiles = readdirSync(SAMPLES_DIR).filter((name) => name.endsWith(".js
 /**
  * Samples that use components this player does not simulate yet. None are left: rigid bodies and box, sphere and capsule colliders
  * run since TD-059 step 1, hull and mesh colliders and joints since TD-064 step 2, and character controllers and camera rigs since
- * step 3. The list stays, empty, so a component added to the desktop without a web version fails this test.
+ * step 3. The list stays so a component added to the desktop without a web version fails this test.
+ * Engine Sound (TD-080) is desktop only for now: the racing sample's three cars carry one and the web player makes no engine noise.
  */
 const KNOWN_UNSUPPORTED: Readonly<Record<string, string[]>> = {
+  "racing-3d.json": ["EngineSound"],
+  // Terrain (TD-082) is desktop only for now: the web player reads no .terrain file, so the sample's ground is missing there
+  "terrain-3d.json": ["Terrain"],
 };
 
 describe("parseSceneFile", () => {

@@ -44,6 +44,9 @@ public class RaceGame extends ScriptComponent {
     /** Metres per second to kilometres per hour. */
     static final float MPS_TO_KMH = 3.6f;
 
+    /** How far down the rivals' pedals are while the countdown runs. */
+    static final float GRID_REV_PEDAL = 0.6f;
+
     /** Shown on the grid; the race does not start by itself, so nobody misses the start. */
     static final String START_MESSAGE = "Press W or Up to start";
 
@@ -105,17 +108,28 @@ public class RaceGame extends ScriptComponent {
 
     @Override
     public void onUpdate(float deltaTime) {
+        step(deltaTime);
+        // After the rules, so every state (waiting on the grid, counting down, racing, finished) sounds
+        player.applySound();
+        for (RaceCar rival : rivals) {
+            rival.applySound();
+        }
+    }
+
+    private void step(float deltaTime) {
         if (Gdx.input.isKeyJustPressed(Keys.R)) {
             restart();
             return;
         }
         if (state == State.WAITING) {
             if (!Gdx.input.isKeyPressed(Keys.W) && !Gdx.input.isKeyPressed(Keys.UP)) {
+                reviveGrid(0f, deltaTime);
                 return;
             }
             state = State.COUNTDOWN;
         }
         if (state == State.COUNTDOWN) {
+            reviveGrid(1f, deltaTime);
             countdown -= deltaTime;
             if (countdown > 0f) {
                 messageText.setText(Integer.toString(MathUtils.ceil(countdown)));
@@ -150,6 +164,15 @@ public class RaceGame extends ScriptComponent {
         }
         player.apply();
         updateHud();
+    }
+
+    /** Cars on the grid: the player's engine follows the pedal, the rivals rev when the countdown runs. */
+    private void reviveGrid(float rivalPedal, float deltaTime) {
+        boolean pedalDown = Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP);
+        player.updateEngine(pedalDown ? 1f : 0f, deltaTime);
+        for (RaceCar rival : rivals) {
+            rival.updateEngine(rivalPedal * GRID_REV_PEDAL, deltaTime);
+        }
     }
 
     private void drivePlayer(float deltaTime) {

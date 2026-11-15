@@ -1,0 +1,24 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-engine-terrain'
+
+apply plugin: 'java-library'
+
+// Terrain (TD-082): the `.terrain` asset, a heightmap grid with brush strokes, ray picking and the shared library. Headless and pure
+// Java (plus libGDX's math and JSON reader), so it is unit-tested and the web player can read the same file. How terrain is drawn is
+// the renderer's job (engine-render builds its chunk meshes).
+dependencies {
+  api project(':engine-core')
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+  testRuntimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}
+
+test {
+  useJUnitPlatform()
+}
+
+jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

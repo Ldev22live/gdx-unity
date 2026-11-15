@@ -1,5 +1,6 @@
 package io.github.ldev22live.gdxunity.editor.core.viewport;
 
+import java.util.Optional;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -157,6 +158,13 @@ public class SceneViewportInteraction2D implements ViewportInteraction {
     public Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight) {
         Vector2 world = toWorld(localX, localY, panelWidth, panelHeight);
         return new Vector3(world.x, world.y, 0f);
+    }
+
+    /** The entity a left click here would pick. */
+    @Override
+    public Optional<Entity> entityAt(float localX, float localY, float panelWidth, float panelHeight) {
+        Vector2 world = toWorld(localX, localY, panelWidth, panelHeight);
+        return Optional.ofNullable(ViewportPicker.pickEntityAt(editorState.getActiveScene(), world.x, world.y));
     }
 
     private Vector2 toWorld(float localX, float localY, float panelWidth, float panelHeight) {

@@ -8,14 +8,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Disposable;
 import io.github.ldev22live.gdxunity.editor.audio.MusicDocument;
 import io.github.ldev22live.gdxunity.editor.audio.MusicSession;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.ScrollingBar;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.TabbedPanel;
 import io.github.ldev22live.gdxunity.engine.audio.SynthPatch;
+import io.github.ldev22live.gdxunity.engine.audio.FmPatch;
+import io.github.ldev22live.gdxunity.engine.audio.PluckPatch;
 import io.github.ldev22live.gdxunity.engine.audio.SfxrParams;
 import io.github.ldev22live.gdxunity.engine.audio.song.Channel;
 import io.github.ldev22live.gdxunity.engine.audio.song.InstrumentSpec;
@@ -40,8 +44,13 @@ public final class MusicStudioPanel extends Table implements Disposable {
     private static final int[] PATTERN_BARS = {1, 2, 4, 8, 16};
     private static final float CONTROL_HEIGHT = 24f;
     private static final float TRANSPORT_PAD = 4f;
+    /** Space after each button under the channel rack; the buttons have no edges, so a small gap reads as one line of text (TD-076). */
+    private static final float RACK_BUTTON_GAP = 18f;
     private static final String NO_SONG = "(no song)";
-    private static final int TAB_COUNT = 5;
+    private static final List<String> TAB_TITLES = List.of("Channel rack", "Piano roll", "Playlist", "Mixer", "Instrument");
+    private static final int TAB_COUNT = TAB_TITLES.size();
+    /** Testing aid (TD-076): names the tab to start on, or counts it from 0. */
+    private static final String MUSIC_TAB_VARIABLE = "GDXUNITY_EDITOR_MUSIC_TAB";
 
     private final Skin skin;
     private final MusicSession session;
@@ -77,10 +86,12 @@ public final class MusicStudioPanel extends Table implements Disposable {
         position = new Label("", skin);
         transport = new Table(skin);
         transport.left();
-        tabs = new TabbedPanel(skin, List.of("Channel rack", "Piano roll", "Playlist", "Mixer", "Instrument"),
+        tabs = new TabbedPanel(skin, TAB_TITLES,
             List.of(rackTab(), pianoRoll, playlist, mixer, instrument), initialTab(), index -> { });
 
-        add(transport).growX().pad(TRANSPORT_PAD).row();
+        // The transport is wider than a narrow window: it scrolls sideways instead of widening the editor (TD-077)
+        // A scroll pane has no minimum height, so without this a short window squeezed the transport's two rows under the tabs
+        add(ScrollingBar.around(transport, skin)).growX().minWidth(0).minHeight(Value.prefHeight).pad(TRANSPORT_PAD).row();
         add(tabs).grow().row();
         add(status).left().pad(TRANSPORT_PAD);
         addListener(new SpaceToPlay());
@@ -89,6 +100,16 @@ public final class MusicStudioPanel extends Table implements Disposable {
 
     /** Testing aid: {@code -Dgdxunity.musicTab=2} starts on the third tab (0 rack, 1 piano roll, 2 playlist, 3 mixer, 4 instrument). */
     private static int initialTab() {
+        // Testing aid (TD-076): the environment variable GDXUNITY_EDITOR_MUSIC_TAB names the tab (for example Instrument), or counts it from 0
+        String named = System.getenv(MUSIC_TAB_VARIABLE);
+        if (named != null && !named.isBlank()) {
+            for (int i = 0; i < TAB_COUNT; i++) {
+                if (TAB_TITLES.get(i).equalsIgnoreCase(named.trim())) {
+                    return i;
+                }
+            }
+            return Math.max(0, Math.min(Integer.parseInt(named.trim()), TAB_COUNT - 1));
+        }
         return Math.max(0, Math.min(Integer.getInteger("gdxunity.musicTab", 0), TAB_COUNT - 1));
     }
 
@@ -103,18 +124,23 @@ public final class MusicStudioPanel extends Table implements Disposable {
     /** The rack with the buttons that add and remove channels beneath it. */
     private Table rackTab() {
         Table table = new Table(skin);
-        table.add(rack).grow().row();
+        table.add(rack).grow().minWidth(0f).row();
         Table buttons = new Table(skin);
         buttons.left();
         buttons.add(actionButton("+ Synth", () -> addChannel("Synth", InstrumentSpec.synth(SynthPatch.preset("Saw Lead")))))
-            .height(CONTROL_HEIGHT).padRight(6f);
+            .height(CONTROL_HEIGHT).padRight(RACK_BUTTON_GAP);
         buttons.add(actionButton("+ Drums", () -> addChannel("Drum", InstrumentSpec.drums())))
-            .height(CONTROL_HEIGHT).padRight(6f);
+            .height(CONTROL_HEIGHT).padRight(RACK_BUTTON_GAP);
+        buttons.add(actionButton("+ FM", () -> addChannel("FM", InstrumentSpec.fm(FmPatch.preset("Bell")))))
+            .height(CONTROL_HEIGHT).padRight(RACK_BUTTON_GAP);
+        buttons.add(actionButton("+ String", () -> addChannel("String", InstrumentSpec.pluck(PluckPatch.preset("Nylon Guitar")))))
+            .height(CONTROL_HEIGHT).padRight(RACK_BUTTON_GAP);
         buttons.add(actionButton("+ Sound effect", () -> addChannel("Effect", InstrumentSpec.sfxr(SfxrParams.preset("Coin")))))
-            .height(CONTROL_HEIGHT).padRight(8f);
-        buttons.add(actionButton("Clear row", this::clearSelectedChannel)).height(CONTROL_HEIGHT).padRight(6f);
+            .height(CONTROL_HEIGHT).padRight(RACK_BUTTON_GAP);
+        buttons.add(actionButton("Clear row", this::clearSelectedChannel)).height(CONTROL_HEIGHT).padRight(RACK_BUTTON_GAP);
         buttons.add(actionButton("Remove channel", this::removeSelectedChannel)).height(CONTROL_HEIGHT);
-        table.add(buttons).left().pad(TRANSPORT_PAD);
+        // The row is wider than a small window; its minimum width made the whole tab that wide and cropped the rack's names (TD-078)
+        table.add(ScrollingBar.around(buttons, skin)).growX().minWidth(0f).minHeight(Value.prefHeight).pad(TRANSPORT_PAD);
         return table;
     }
 

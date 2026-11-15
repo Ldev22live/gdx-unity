@@ -1,0 +1,285 @@
+{
+  "description": "The template gallery (roadmap M1.4): each sample scene the New Game dialog offers, with its title, genre and a one-line summary. The dimension comes from the scene's own gameMode. 'web' marks the scenes whose every script has a web-player port (engine-babylon samples.test.ts, run headless, not in a browser). A preview is templates/previews/<scene name>.png when it exists; regenerate them with tools/make_template_previews.py.",
+  "templates": [
+    {
+      "scene": "samples/platformer-2d.json",
+      "title": "2D Platformer",
+      "genre": "Platformer",
+      "summary": "Run and jump across platforms, collect coins and reach the goal.",
+      "web": true
+    },
+    {
+      "scene": "samples/pixel-adventure-2d.json",
+      "title": "Pixel Adventure",
+      "genre": "Platformer",
+      "summary": "A pixel-art platformer on a tile map with animated sprites, coins and pits.",
+      "web": false
+    },
+    {
+      "scene": "samples/tilemap-platformer-2d.json",
+      "title": "Tilemap Level",
+      "genre": "Platformer",
+      "summary": "An auto-tiled level whose solid tiles collide; two sprite heroes fall onto it.",
+      "web": false
+    },
+    {
+      "scene": "samples/breakout-2d.json",
+      "title": "Breakout",
+      "genre": "Arcade",
+      "summary": "Bounce the ball off the paddle and break every brick.",
+      "web": true
+    },
+    {
+      "scene": "samples/shooter-2d.json",
+      "title": "Space Shooter",
+      "genre": "Shooter",
+      "summary": "Fly, fire and survive waves of enemies that get harder over time.",
+      "web": true
+    },
+    {
+      "scene": "samples/physics-sandbox-2d.json",
+      "title": "2D Physics Sandbox",
+      "genre": "Sandbox",
+      "summary": "Box2D crates, ramps and bouncy blocks with no scripts.",
+      "web": false
+    },
+    {
+      "scene": "samples/sprite-animation-2d.json",
+      "title": "Sprite Animation",
+      "genre": "Showcase",
+      "summary": "A pixel-art sprite playing its idle and walk animations.",
+      "web": false
+    },
+    {
+      "scene": "samples/sprite-25d.json",
+      "title": "Sprite 2.5D",
+      "genre": "Platformer",
+      "summary": "The pixel hero in a 3D world seen from the side.",
+      "web": false
+    },
+    {
+      "scene": "samples/ruins-runner-25d.json",
+      "title": "Ruins Runner",
+      "genre": "Platformer",
+      "summary": "Side-scroll through a 3D ruin with moving platforms, spikes and checkpoints.",
+      "web": true
+    },
+    {
+      "scene": "samples/three-heroes-25d.json",
+      "title": "Three Heroes",
+      "genre": "Puzzle platformer",
+      "summary": "Switch between three heroes with different abilities to get through the level.",
+      "web": true
+    },
+    {
+      "scene": "samples/grapple-gorge-25d.json",
+      "title": "Grapple Gorge",
+      "genre": "Platformer",
+      "summary": "Swing across chasms on a grappling rope; push a crate onto a plate to open a gate.",
+      "web": true
+    },
+    {
+      "scene": "samples/fighter-25d.json",
+      "title": "Fighter",
+      "genre": "Fighting",
+      "summary": "One-on-one fighting against the computer, best of three rounds.",
+      "web": false
+    },
+    {
+      "scene": "samples/collector-3d.json",
+      "title": "Gem Collector",
+      "genre": "Action",
+      "summary": "Roll around a course collecting gems against the clock.",
+      "web": true
+    },
+    {
+      "scene": "samples/runner-3d.json",
+      "title": "Lane Runner",
+      "genre": "Runner",
+      "summary": "An endless runner: change lanes and jump obstacles as the speed rises.",
+      "web": true
+    },
+    {
+      "scene": "samples/hopper-3d.json",
+      "title": "Platform Hopper",
+      "genre": "Platformer",
+      "summary": "Jump between floating platforms to reach the goal.",
+      "web": true
+    },
+    {
+      "scene": "samples/obby-3d.json",
+      "title": "Obby",
+      "genre": "Obstacle course",
+      "summary": "A six-stage obstacle course with checkpoints, lava, moving platforms and coins.",
+      "web": false
+    },
+    {
+      "scene": "samples/racing-3d.json",
+      "title": "Circuit Racer",
+      "genre": "Racing",
+      "summary": "A three-lap race against two rival cars, with engine sounds.",
+      "web": false
+    },
+    {
+      "scene": "samples/arena-fps-3d.json",
+      "title": "Arena Shooter",
+      "genre": "Shooter",
+      "summary": "A first-person shooter: survive three waves of drones.",
+      "web": false
+    },
+    {
+      "scene": "samples/puzzle-3d.json",
+      "title": "Crate Puzzle",
+      "genre": "Puzzle",
+      "summary": "Push every crate onto a target in four grid puzzles.",
+      "web": false
+    },
+    {
+      "scene": "samples/blockworld-3d.json",
+      "title": "Block World",
+      "genre": "Sandbox",
+      "summary": "Walk a world of blocks in first person, dig it out and build with it.",
+      "web": false
+    },
+    {
+      "scene": "samples/character-playground-3d.json",
+      "title": "Character Playground",
+      "genre": "Showcase",
+      "summary": "A walking character with steps, ramps, crates and a chase camera.",
+      "web": false
+    },
+    {
+      "scene": "samples/physics-sandbox-3d.json",
+      "title": "3D Physics Sandbox",
+      "genre": "Sandbox",
+      "summary": "Balls and a crate pyramid to kick, push and pop with the physics script API.",
+      "web": false
+    },
+    {
+      "scene": "samples/physics-joints-3d.json",
+      "title": "Physics Joints",
+      "genre": "Showcase",
+      "summary": "A hinged door, a pendulum, a chain and a slider driven by joints.",
+      "web": false
+    },
+    {
+      "scene": "samples/physics-mesh-3d.json",
+      "title": "Mesh Colliders",
+      "genre": "Showcase",
+      "summary": "Balls, boxes and rocks rolling over a terrain that collides as a mesh.",
+      "web": false
+    },
+    {
+      "scene": "samples/terrain-3d.json",
+      "title": "Terrain Valley",
+      "genre": "Landscape",
+      "summary": "A heightmap valley to reshape with terrain brushes.",
+      "web": false
+    },
+    {
+      "scene": "samples/landscape-3d.json",
+      "title": "Landscape Valley",
+      "genre": "Landscape",
+      "summary": "A valley of models: terrain, a lake, mountains, trees, rocks and a cabin.",
+      "web": false
+    },
+    {
+      "scene": "samples/landscape-desert-3d.json",
+      "title": "Desert Canyon",
+      "genre": "Landscape",
+      "summary": "Dunes, red rock mesas, an oasis and cacti under a warm sun.",
+      "web": false
+    },
+    {
+      "scene": "samples/landscape-alpine-3d.json",
+      "title": "Alpine Valley",
+      "genre": "Landscape",
+      "summary": "Snowy hills, a frozen lake, pines and snow-capped mountains.",
+      "web": false
+    },
+    {
+      "scene": "samples/landscape-island-3d.json",
+      "title": "Tropical Island",
+      "genre": "Landscape",
+      "summary": "A beach ring, palms, rocks and two huts in a sea.",
+      "web": false
+    },
+    {
+      "scene": "samples/landscape-autumn-3d.json",
+      "title": "Autumn Forest",
+      "genre": "Landscape",
+      "summary": "Rolling hills with red, orange and yellow oaks, a pond and a cabin.",
+      "web": false
+    },
+    {
+      "scene": "samples/materials-3d.json",
+      "title": "Material Showroom",
+      "genre": "Showcase",
+      "summary": "Shapes that share material files: rock, wood, water and more.",
+      "web": false
+    },
+    {
+      "scene": "samples/sculpted-rock-3d.json",
+      "title": "Sculpted Rock",
+      "genre": "Showcase",
+      "summary": "A rock made in sculpt mode.",
+      "web": false
+    },
+    {
+      "scene": "samples/character-creator-3d.json",
+      "title": "Character Creator",
+      "genre": "Showcase",
+      "summary": "Three characters made with the character creator, walking and standing.",
+      "web": false
+    },
+    {
+      "scene": "samples/humanoid-animations-3d.json",
+      "title": "Humanoid Animations",
+      "genre": "Showcase",
+      "summary": "The humanoid animation templates: idle, walk, run, jump and fall.",
+      "web": false
+    },
+    {
+      "scene": "samples/animation-samples-3d.json",
+      "title": "Animation Clips",
+      "genre": "Showcase",
+      "summary": "The general animation clips, each playing on one entity.",
+      "web": false
+    },
+    {
+      "scene": "samples/skeleton-wave-3d.json",
+      "title": "Skeleton: Wave",
+      "genre": "Showcase",
+      "summary": "A bone skeleton waving: parent bones carry their children.",
+      "web": false
+    },
+    {
+      "scene": "samples/skeleton-walk-3d.json",
+      "title": "Skeleton: Walk Cycle",
+      "genre": "Showcase",
+      "summary": "A looping walk cycle seen from the side.",
+      "web": false
+    },
+    {
+      "scene": "samples/skeleton-tentacle-3d.json",
+      "title": "Skeleton: Tentacle",
+      "genre": "Showcase",
+      "summary": "A six-segment chain with follow-through, for tails and ropes.",
+      "web": false
+    },
+    {
+      "scene": "samples/visual-scripting-3d.json",
+      "title": "Visual Scripting",
+      "genre": "Showcase",
+      "summary": "Objects that spin, hop and greet, driven by node graphs.",
+      "web": false
+    },
+    {
+      "scene": "samples/depth-compositing-3d.json",
+      "title": "Flat Shapes Among 3D",
+      "genre": "Showcase",
+      "summary": "Flat 2D shapes drawn at the right depth among 3D objects.",
+      "web": false
+    }
+  ]
+}

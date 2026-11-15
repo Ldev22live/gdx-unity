@@ -1,7 +1,7 @@
 import { registerJavaMethodNodes } from "./javaMethods";
 import { registerComponentNodes, type GraphComponent } from "./components";
 import { parseKeyNames } from "./keys";
-import { defaultValue, type Graph, type GraphNode, type ValueType, type Vec3 } from "./graph";
+import { defaultValue, type Graph, type GraphFunction, type GraphNode, type ValueType, type Vec3 } from "./graph";
 
 /** An entity as the graph nodes see it; the web player adapts its `GameEntity` to this. */
 export interface GraphEntity {
@@ -14,6 +14,8 @@ export interface GraphEntity {
   rotate(yaw: number, pitch: number, roll: number): void;
   /** Removes the entity from the scene. */
   destroy(): void;
+  /** Plays the audio sources of the scene that have this cue (TD-072); absent on hosts without sound. */
+  playCue?(cue: string): void;
 }
 
 export interface PinDef {
@@ -50,7 +52,17 @@ export interface NodeContext {
   log(message: string): void;
   /** Whether any of the keys (`KeyboardEvent.code` values) is held down. */
   isKeyDown(codes: string[]): boolean;
+  /** Whether any of the keys went down since the last frame (TD-072). */
+  isKeyJustPressed(codes: string[]): boolean;
   error(message: string): Error;
+  /** The graph this node is in: the graph itself, or a function body (TD-070). */
+  graph(): Graph;
+  /** Runs a function of the graph to its end and gives back its outputs by name (TD-070). */
+  callFunction(fn: GraphFunction, args: Record<string, unknown>): Record<string, unknown>;
+  /** Called by a Return node: hands back the function's outputs and ends the call (TD-070). */
+  returnFromFunction(values: Record<string, unknown>): void;
+  /** Runs the Custom Event nodes of a declared event with its parameters, before this returns (TD-070). */
+  fireEvent(name: string, args: Record<string, unknown>): void;
 }
 
 /** A kind of node offered in the editor, and what it does when it runs. */
@@ -96,9 +108,12 @@ export const NODE = {
   subtract: "math.subtract",
   multiply: "math.multiply",
   keyDown: "input.keyDown",
+  keyPressed: "input.keyPressed",
+  playCue: "action.playCue",
   axis: "input.axis",
   sine: "math.sin",
   cosine: "math.cos",
+  power: "math.power",
   divide: "math.divide",
   greater: "math.greater",
   less: "math.less",
@@ -112,7 +127,18 @@ export const NODE = {
   scaleVector: "vector.scale",
   append: "text.append",
   numberToText: "text.fromFloat",
+  functionEntry: "function.entry",
+  functionReturn: "function.return",
+  functionCall: "function.call",
+  fireEvent: "event.fire",
 } as const;
+
+/** Property of a Function Call node: the function's name. */
+export const PROPERTY_FUNCTION = "function";
+/** Function calls nested deeper than this are stopped; the same as the desktop's `FunctionNodes.MAX_CALL_DEPTH`. */
+export const MAX_CALL_DEPTH = 32;
+/** Custom events firing each other deeper than this are stopped; the same as the desktop's `FunctionNodes.MAX_EVENT_DEPTH`. */
+export const MAX_EVENT_DEPTH = 32;
 
 export const PIN_DELTA_TIME = "deltaTime";
 export const PIN_OTHER = "other";
@@ -218,14 +244,15 @@ function degreesFunction(id: string, title: string, fn: (radians: number) => num
 }
 
 /** Whether any of the comma separated libGDX key names is held down; an unknown name is an error that names the node. */
-function anyKeyDown(c: NodeContext, names: string): boolean {
+function anyKeyDown(c: NodeContext, names: string, justPressed = false): boolean {
   let keys;
   try {
     keys = parseKeyNames(names);
   } catch (error) {
     throw c.error(error instanceof Error ? error.message : String(error));
   }
-  return c.isKeyDown(keys.map((key) => key.code));
+  const codes = keys.map((key) => key.code);
+  return justPressed ? c.isKeyJustPressed(codes) : c.isKeyDown(codes);
 }
 
 function comparison(id: string, title: string, test: (a: number, b: number) => boolean): Spec {
@@ -255,7 +282,11 @@ export function createDefaultRegistry(): NodeRegistry {
     { id: NODE.tick, title: "Event Tick", category: "Events", kind: "event", pins: [dataOut(PIN_DELTA_TIME, "Delta Seconds", "FLOAT")] },
     { id: NODE.collision, title: "Event Collision", category: "Events", kind: "event", pins: [dataOut(PIN_OTHER, "Other", "ENTITY")] },
     { id: NODE.trigger, title: "Event Trigger Enter", category: "Events", kind: "event", pins: [dataOut(PIN_OTHER, "Other", "ENTITY")] },
-    { id: NODE.custom, title: "Custom Event", category: "Events", kind: "event", properties: [PROPERTY_NAME] },
+    {
+      id: NODE.custom, title: "Custom Event", category: "Events", kind: "event", properties: [PROPERTY_NAME],
+      // A declared event gives the node one output per parameter (TD-070); an undeclared name keeps working with none
+      dynamic: (node, graph) => [execOut(), ...(graph.eventNamed(node.properties[PROPERTY_NAME] ?? "")?.params ?? []).map((p) => dataOut(p.name, p.name, p.type))],
+    },
 
     // Flow control
     {
@@ -378,11 +409,32 @@ export function createDefaultRegistry(): NodeRegistry {
       run: (c) => c.output("pressed", anyKeyDown(c, c.property("key") ?? "")),
     },
     {
+      id: NODE.keyPressed, title: "Key Pressed", category: "Input", kind: "pure", properties: ["key"],
+      pins: [dataOut("pressed", "Pressed", "BOOLEAN")],
+      run: (c) => c.output("pressed", anyKeyDown(c, c.property("key") ?? "", true)),
+    },
+    {
+      id: NODE.playCue, title: "Play Sound", category: "Actions", kind: "action", properties: ["cue"],
+      run: (c) => {
+        const cue = c.property("cue") ?? "";
+        if (cue.trim() === "") throw c.error("No sound cue chosen");
+        const entity = c.self();
+        if (!entity.playCue) throw c.error("This host cannot play sounds");
+        entity.playCue(cue);
+        c.continueWith(EXEC_OUT);
+      },
+    },
+    {
       id: NODE.axis, title: "Input Axis", category: "Input", kind: "pure", properties: ["negative", "positive"],
       pins: [dataOut("value", "Value", "FLOAT")],
       run: (c) => c.output("value", (anyKeyDown(c, c.property("positive") ?? "") ? 1 : 0) - (anyKeyDown(c, c.property("negative") ?? "") ? 1 : 0)),
     },
     // Angles are in degrees, like Rotate By and the transforms
+    {
+      id: NODE.power, title: "Power", category: "Math", kind: "pure",
+      pins: [dataIn("base", "Base", "FLOAT"), dataIn("exponent", "Exponent", "FLOAT"), dataOut("result", "Result", "FLOAT")],
+      run: (c) => c.output("result", Math.pow(c.inputFloat("base"), c.inputFloat("exponent"))),
+    },
     degreesFunction(NODE.sine, "Sine", Math.sin),
     degreesFunction(NODE.cosine, "Cosine", Math.cos),
     {
@@ -460,10 +512,62 @@ export function createDefaultRegistry(): NodeRegistry {
       run: (c) => c.output("text", formatNumber(c.inputFloat("value"))),
     },
   ];
+  specs.push(...functionSpecs());
   for (const spec of specs) registry.register(define(spec));
   // The Java method nodes that have a web version (TD-065)
   registerJavaMethodNodes(registry);
   return registry;
+}
+
+/** Function Entry, Return, Call and Fire Custom Event (TD-070), the same ids and pins as the desktop's `FunctionNodes`. */
+function functionSpecs(): Spec[] {
+  return [
+    {
+      id: NODE.functionEntry, title: "Function Entry", category: "Functions", kind: "event",
+      dynamic: (_node, graph) => [execOut(), ...(graph.owner?.inputs ?? []).map((p) => dataOut(p.name, p.name, p.type))],
+    },
+    {
+      id: NODE.functionReturn, title: "Return", category: "Functions", kind: "action",
+      dynamic: (_node, graph) => [execIn(), ...(graph.owner?.outputs ?? []).map((p) => dataIn(p.name, p.name, p.type))],
+      run: (c) => {
+        const owner = c.graph().owner;
+        if (!owner) throw c.error("Return can only be used inside a function");
+        const values: Record<string, unknown> = {};
+        for (const output of owner.outputs) values[output.name] = c.input(output.name);
+        c.returnFromFunction(values);
+      },
+    },
+    {
+      id: NODE.functionCall, title: "Call Function", category: "Functions", kind: "action", properties: [PROPERTY_FUNCTION],
+      dynamic: (node, graph) => {
+        const fn = graph.functionNamed(node.properties[PROPERTY_FUNCTION] ?? "");
+        return [execIn(), execOut(), ...(fn?.inputs ?? []).map((p) => dataIn(p.name, p.name, p.type)), ...(fn?.outputs ?? []).map((p) => dataOut(p.name, p.name, p.type))];
+      },
+      run: (c) => {
+        const name = c.property(PROPERTY_FUNCTION) ?? "";
+        const fn = c.graph().functionNamed(name);
+        if (!fn) throw c.error(`Function ${name} does not exist`);
+        const args: Record<string, unknown> = {};
+        for (const input of fn.inputs) args[input.name] = c.input(input.name);
+        const results = c.callFunction(fn, args);
+        for (const output of fn.outputs) c.output(output.name, results[output.name]);
+        c.continueWith(EXEC_OUT);
+      },
+    },
+    {
+      id: NODE.fireEvent, title: "Fire Custom Event", category: "Events", kind: "action", properties: [PROPERTY_NAME],
+      dynamic: (node, graph) => [execIn(), execOut(), ...(graph.eventNamed(node.properties[PROPERTY_NAME] ?? "")?.params ?? []).map((p) => dataIn(p.name, p.name, p.type))],
+      run: (c) => {
+        const name = c.property(PROPERTY_NAME) ?? "";
+        const event = c.graph().eventNamed(name);
+        if (!event) throw c.error(`Custom event ${name} is not declared`);
+        const args: Record<string, unknown> = {};
+        for (const param of event.params) args[param.name] = c.input(param.name);
+        c.fireEvent(name, args);
+        c.continueWith(EXEC_OUT);
+      },
+    },
+  ];
 }
 
 /** A new node of {@code type} for the editor, with default settings. */

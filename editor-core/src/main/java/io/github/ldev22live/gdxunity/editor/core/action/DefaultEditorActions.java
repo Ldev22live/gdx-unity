@@ -7,6 +7,7 @@ import io.github.ldev22live.gdxunity.editor.core.ToolMode;
 import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
 import io.github.ldev22live.gdxunity.editor.core.command.CreateEntityCommand;
 import io.github.ldev22live.gdxunity.editor.core.component.ComponentCatalog;
+import io.github.ldev22live.gdxunity.editor.core.file.EditorDialogService;
 import io.github.ldev22live.gdxunity.editor.core.file.SceneFileController;
 import io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher;
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
@@ -50,6 +51,10 @@ public final class DefaultEditorActions {
     public static final String FILE_NEW_3D = "file.new-scene-3d";
     public static final String FILE_OPEN_SCENE = "file.open-scene";
     public static final String FILE_OPEN_SAMPLE = "file.open-sample";
+    /** File > Use Sample as Template...: makes a separate project from a sample (roadmap M1.3). */
+    public static final String FILE_USE_SAMPLE_AS_TEMPLATE = "file.use-sample-as-template";
+    /** File > Import Asset...: copies a file from outside the project into it (roadmap M1.5). */
+    public static final String FILE_IMPORT_ASSET = "file.import-asset";
     public static final String FILE_SAVE_SCENE = "file.save-scene";
     public static final String FILE_SAVE_SCENE_AS = "file.save-scene-as";
     public static final String FILE_EXIT = "file.exit";
@@ -162,6 +167,85 @@ public final class DefaultEditorActions {
             .menu(MENU_FILE, GROUP_FIRST)
             .enabledWhen(() -> !editorState.isPlayModeActive() && samplesDirectory.isDirectory())
             .build());
+    }
+
+    /**
+     * Registers File → Use Sample as Template..., which makes a separate, self-contained project from one of the project's samples so
+     * everything in it can be changed and the shipped sample stays as it was (roadmap M1.3, Appendix F1).
+     *
+     * @param sourceRoot       the project that holds the samples
+     * @param samplesDirectory folder of sample scenes inside the project
+     * @param projectsDir      where new projects are made
+     */
+    public static void registerTemplateAction(EditorActionRegistry registry, EditorState editorState, SceneFileController files,
+                                              File sourceRoot, File samplesDirectory, File projectsDir) {
+        Objects.requireNonNull(registry, "registry cannot be null");
+        Objects.requireNonNull(editorState, "editorState cannot be null");
+        Objects.requireNonNull(files, "files cannot be null");
+        Objects.requireNonNull(sourceRoot, "sourceRoot cannot be null");
+        Objects.requireNonNull(samplesDirectory, "samplesDirectory cannot be null");
+        Objects.requireNonNull(projectsDir, "projectsDir cannot be null");
+        registry.register(EditorAction.builder(FILE_USE_SAMPLE_AS_TEMPLATE, "Use Sample as Template...",
+                () -> files.useAsTemplate(sourceRoot, samplesDirectory, projectsDir))
+            .menu(MENU_FILE, GROUP_FIRST)
+            .enabledWhen(() -> !editorState.isPlayModeActive() && samplesDirectory.isDirectory())
+            .build());
+    }
+
+    /**
+     * Registers File > Import Asset..., which asks for a file anywhere on disk and copies it into the project folder for its type
+     * ({@link io.github.ldev22live.gdxunity.editor.core.asset.AssetImport}).
+     *
+     * @param projectRoot the project's asset folder
+     * @param onImported  told the project-relative path of the imported asset, to list and select it in the Content Browser
+     */
+    public static void registerImportAction(EditorActionRegistry registry, EditorState editorState, EditorDialogService dialogs,
+                                            File projectRoot, java.util.function.Consumer<String> onImported) {
+        Objects.requireNonNull(registry, "registry cannot be null");
+        Objects.requireNonNull(editorState, "editorState cannot be null");
+        Objects.requireNonNull(dialogs, "dialogs cannot be null");
+        Objects.requireNonNull(projectRoot, "projectRoot cannot be null");
+        Objects.requireNonNull(onImported, "onImported cannot be null");
+        registry.register(EditorAction.builder(FILE_IMPORT_ASSET, "Import Asset...",
+                () -> importAsset(editorState, dialogs, projectRoot, onImported))
+            .menu(MENU_FILE, GROUP_FIRST)
+            .enabledWhen(() -> !editorState.isPlayModeActive())
+            .build());
+    }
+
+    /**
+     * Asks for a file and imports it; the status bar says what happened and how the file is used.
+     *
+     * @return true if an asset is now in the project (imported, or found already inside it)
+     */
+    public static boolean importAsset(EditorState editorState, EditorDialogService dialogs, File projectRoot,
+                                      java.util.function.Consumer<String> onImported) {
+        java.util.Optional<File> chosen = dialogs.chooseOpenFile("Import Asset", null, "Forgeroom assets",
+            io.github.ldev22live.gdxunity.editor.core.asset.AssetImport.importableExtensions());
+        if (chosen.isEmpty()) {
+            return false;
+        }
+        try {
+            io.github.ldev22live.gdxunity.editor.core.asset.AssetImport.Result result =
+                io.github.ldev22live.gdxunity.editor.core.asset.AssetImport.importFile(projectRoot, chosen.get());
+            io.github.ldev22live.gdxunity.engine.core.asset.AssetType type =
+                io.github.ldev22live.gdxunity.engine.core.asset.AssetType.fromPath(result.asset());
+            String how = io.github.ldev22live.gdxunity.editor.core.asset.AssetOpening.guidance(type);
+            String what = result.alreadyInside()
+                ? chosen.get().getName() + " is already in the project as " + result.asset() + "; nothing was copied."
+                : "Imported " + chosen.get().getName() + " as " + result.asset()
+                    + (result.copied().size() > 1 ? " (with " + (result.copied().size() - 1) + " file(s) it needs)" : "") + ".";
+            String missing = result.unresolvedNames().isEmpty() ? ""
+                : " It names files this project does not have: " + String.join(", ", result.unresolvedNames()) + ".";
+            onImported.accept(result.asset());
+            editorState.setStatusMessage(what + missing + " " + how, !result.unresolvedNames().isEmpty());
+            return true;
+        } catch (java.io.IOException e) {
+            String message = "Could not import " + chosen.get().getName() + ": " + e.getMessage();
+            editorState.setStatusMessage(message, true);
+            dialogs.showError("Import failed", message);
+            return false;
+        }
     }
 
     /**

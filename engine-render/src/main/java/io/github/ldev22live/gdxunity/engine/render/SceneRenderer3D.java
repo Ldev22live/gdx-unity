@@ -25,10 +25,12 @@ import com.badlogic.gdx.utils.Disposable;
 import io.github.ldev22live.gdxunity.engine.core.EngineRenderer;
 import io.github.ldev22live.gdxunity.engine.core.resource.ResourceDisposalException;
 import io.github.ldev22live.gdxunity.engine.core.resource.ResourceManager;
+import io.github.ldev22live.gdxunity.engine.material.MaterialLibrary;
 import io.github.ldev22live.gdxunity.engine.render.camera.Camera;
 import io.github.ldev22live.gdxunity.engine.render.components.DynamicMeshComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.TerrainComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
@@ -36,6 +38,8 @@ import io.github.ldev22live.gdxunity.engine.scene.lighting.DirectionalLightCompo
 import io.github.ldev22live.gdxunity.engine.scene.lighting.PointLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.ToneMappingComponent;
+import io.github.ldev22live.gdxunity.engine.terrain.Terrain;
+import io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -111,6 +115,12 @@ public class SceneRenderer3D implements EngineRenderer {
     private final Color bakedGroundColor = new Color();
     private RenderQuality3D bakedQuality;
     private ModelAssets modelAssets;
+    /** Where a Mesh Primitive's {@code .material} file is read from (TD-081); null: materials are ignored. */
+    private MaterialLibrary materialLibrary;
+    /** The textures those materials name, read from the same project; owned by this renderer, null without a library. */
+    private MaterialTextures materialTextures;
+    /** Where a Terrain component's {@code .terrain} file is read from (TD-082); null: terrain is not drawn. */
+    private TerrainLibrary terrainLibrary;
     private Environment environment;
 
     private Color clearColor = new Color(0.12f, 0.14f, 0.18f, 1.0f);
@@ -148,11 +158,16 @@ public class SceneRenderer3D implements EngineRenderer {
 
     private final Map<MeshPrimitiveComponent.Shape, Model> unitModels = new EnumMap<>(MeshPrimitiveComponent.Shape.class);
     private final Map<MeshPrimitiveComponent, CachedInstance> instances = new IdentityHashMap<>();
+    private final Map<MeshPrimitiveComponent, AppliedMaterial> appliedMaterials = new IdentityHashMap<>();
     private final Map<ModelComponent, CachedModel> modelInstances = new IdentityHashMap<>();
+    private final Map<TerrainComponent, TerrainGpu> terrainMeshes = new IdentityHashMap<>();
     private final Map<DynamicMeshComponent, DynamicMeshGpu<GlChunkTarget>> dynamicMeshes = new IdentityHashMap<>();
     private final BoundingBox dynamicBounds = new BoundingBox();
     /** Finds the geometry of {@link DynamicMeshComponent}s; null (the default) skips them. */
     private DynamicMeshSource dynamicMeshSource;
+
+    /** A terrain to draw: its component and the entity's world transform. */
+    public record TerrainDraw(TerrainComponent component, Matrix4 transform) {}
 
     /** A primitive to draw: its component and final world transform (entity world matrix scaled by size). */
     public record PrimitiveDraw(MeshPrimitiveComponent component, Matrix4 transform) {}
@@ -164,6 +179,9 @@ public class SceneRenderer3D implements EngineRenderer {
     public record DynamicMeshDraw(DynamicMeshComponent component, Matrix4 transform) {}
 
     private record CachedInstance(MeshPrimitiveComponent.Shape shape, ModelInstance instance) {}
+
+    /** The material a primitive's instance was last shaped by, and its revision then, so it is reapplied only when either changed. */
+    private record AppliedMaterial(io.github.ldev22live.gdxunity.engine.material.Material material, int revision) {}
 
     private record CachedModel(Model model, ModelInstance instance, ModelPoser poser) {}
 
@@ -269,6 +287,26 @@ public class SceneRenderer3D implements EngineRenderer {
     }
 
     /**
+     * Collects the enabled terrains of active entities with their world transforms. Pure scene traversal, usable without a graphics
+     * context.
+     */
+    public static List<TerrainDraw> collectTerrains(Scene scene) {
+        List<TerrainDraw> draws = new ArrayList<>();
+        if (scene == null || !scene.isActive()) {
+            return draws;
+        }
+        for (Entity entity : scene.getAllEntities()) {
+            if (!entity.isActiveInHierarchy()) continue;
+            for (Component comp : entity.getAllComponents()) {
+                if (comp.isEnabled() && comp instanceof TerrainComponent terrain) {
+                    draws.add(new TerrainDraw(terrain, new Matrix4(entity.getTransform().getWorldMatrix())));
+                }
+            }
+        }
+        return draws;
+    }
+
+    /**
      * Collects the enabled dynamic meshes of active entities with their world transforms. Pure scene traversal,
      * usable without a graphics context.
      */
@@ -299,7 +337,8 @@ public class SceneRenderer3D implements EngineRenderer {
     /** Builds the shared unit-sized model for a shape (box/sphere of size 1, 1x1 plane facing +Y). */
     protected Model createUnitModel(MeshPrimitiveComponent.Shape shape) {
         ModelBuilder builder = new ModelBuilder();
-        long attributes = VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal;
+        // Texture coordinates let a material's textures be drawn (TD-081): each box face and the plane map to 0..1, the sphere wraps once
+        long attributes = VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates;
         Material material = new Material(
             PBRColorAttribute.createBaseColorFactor(Color.WHITE),
             PBRFloatAttribute.createMetallic(0f),
@@ -326,6 +365,7 @@ public class SceneRenderer3D implements EngineRenderer {
             Model model = unitModels.computeIfAbsent(component.getShape(), this::createUnitModel);
             cached = new CachedInstance(component.getShape(), new ModelInstance(model));
             instances.put(component, cached);
+            appliedMaterials.remove(component);
         }
         return cached.instance();
     }
@@ -558,9 +598,11 @@ public class SceneRenderer3D implements EngineRenderer {
         for (PrimitiveDraw draw : draws) {
             ModelInstance instance = instanceFor(draw.component());
             instance.transform.set(draw.transform());
-            PBRColorAttribute baseColor = (PBRColorAttribute) instance.materials.get(0).get(PBRColorAttribute.BaseColorFactor);
-            toLinear(draw.component().getColor(), 1f);
-            baseColor.color.set(linearColor.r, linearColor.g, linearColor.b, draw.component().getColor().a);
+            if (!applyMaterial(draw.component(), instance.materials.get(0))) {
+                PBRColorAttribute baseColor = (PBRColorAttribute) instance.materials.get(0).get(PBRColorAttribute.BaseColorFactor);
+                toLinear(draw.component().getColor(), 1f);
+                baseColor.color.set(linearColor.r, linearColor.g, linearColor.b, draw.component().getColor().a);
+            }
             drawList.add(instance);
         }
         for (ModelDraw draw : modelDraws) {
@@ -569,6 +611,10 @@ public class SceneRenderer3D implements EngineRenderer {
                 instance.transform.set(draw.transform());
                 drawList.add(instance);
             }
+        }
+        List<TerrainDraw> terrainDraws = terrainLibrary != null ? collectTerrains(activeScene) : List.of();
+        for (TerrainDraw draw : terrainDraws) {
+            addTerrain(draw);
         }
         List<DynamicMeshDraw> dynamicDraws = dynamicMeshSource != null ? collectDynamicMeshes(activeScene) : List.of();
         for (DynamicMeshDraw draw : dynamicDraws) {
@@ -609,12 +655,56 @@ public class SceneRenderer3D implements EngineRenderer {
             instances.keySet().removeIf(component -> !drawn.contains(component));
         }
         releaseUndrawnDynamicMeshes(dynamicDraws);
+        releaseUndrawnTerrains(terrainDraws);
         if (modelInstances.size() > modelDraws.size()) {
             List<ModelComponent> drawn = new ArrayList<>(modelDraws.size());
             for (ModelDraw draw : modelDraws) {
                 drawn.add(draw.component());
             }
             modelInstances.keySet().removeIf(component -> !drawn.contains(component));
+        }
+    }
+
+    /** Brings the graphics copy of a terrain up to date and adds its chunks to the draw list. A missing or unreadable file draws nothing. */
+    private void addTerrain(TerrainDraw draw) {
+        TerrainComponent component = draw.component();
+        Terrain terrain = component.getTerrainPath().isEmpty() ? null : terrainLibrary.get(component.getTerrainPath());
+        TerrainGpu gpu = terrainMeshes.get(component);
+        if (terrain == null) {
+            if (gpu != null) {
+                terrainMeshes.remove(component);
+                gpu.dispose();
+            }
+            return;
+        }
+        if (gpu == null || gpu.getTerrain() != terrain) {
+            if (gpu != null) {
+                gpu.dispose();
+            }
+            gpu = new TerrainGpu(terrain);
+            terrainMeshes.put(component, gpu);
+        }
+        for (ModelInstance chunk : gpu.sync()) {
+            chunk.transform.set(draw.transform());
+            drawList.add(chunk);
+        }
+    }
+
+    /** Frees the graphics copies of terrains whose component is no longer drawn. */
+    private void releaseUndrawnTerrains(List<TerrainDraw> draws) {
+        if (terrainMeshes.size() <= draws.size()) {
+            return;
+        }
+        List<TerrainComponent> drawn = new ArrayList<>(draws.size());
+        for (TerrainDraw draw : draws) {
+            drawn.add(draw.component());
+        }
+        for (Iterator<Map.Entry<TerrainComponent, TerrainGpu>> it = terrainMeshes.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<TerrainComponent, TerrainGpu> entry = it.next();
+            if (!drawn.contains(entry.getKey())) {
+                entry.getValue().dispose();
+                it.remove();
+            }
         }
     }
 
@@ -780,6 +870,68 @@ public class SceneRenderer3D implements EngineRenderer {
     }
 
     /**
+     * Where Mesh Primitives get their {@code .material} files from (TD-081); null (the default) ignores material paths. The library
+     * hands out one shared material per file, so a change made to it shows on the next frame everywhere it is used. The caller keeps
+     * ownership.
+     */
+    public void setMaterialLibrary(MaterialLibrary materialLibrary) {
+        this.materialLibrary = materialLibrary;
+        if (materialTextures != null) {
+            materialTextures.dispose();
+        }
+        materialTextures = materialLibrary == null ? null : new MaterialTextures(materialLibrary.getSource());
+        appliedMaterials.clear();
+        // Instances may still carry textures just disposed; fresh copies of the unit models do not
+        instances.clear();
+    }
+
+    /**
+     * Where Terrain components get their {@code .terrain} files from (TD-082); null (the default) draws no terrain. The library hands out
+     * one shared terrain per file, so a brush stroke shows on the next frame. The caller keeps ownership.
+     */
+    public void setTerrainLibrary(TerrainLibrary terrainLibrary) {
+        this.terrainLibrary = terrainLibrary;
+        terrainMeshes.values().forEach(TerrainGpu::dispose);
+        terrainMeshes.clear();
+    }
+
+    /**
+     * Why a texture a material names is not drawn (missing file, not an image), or null when it loaded or was never asked for. A
+     * texture is read when its material is applied, which is when the material changes, so a fixed file shows after the next edit.
+     */
+    public String getTextureError(String path) {
+        return materialTextures == null ? null : materialTextures.getError(path);
+    }
+
+    /**
+     * Shapes a primitive's instance by its material. A primitive with no material path, or whose file cannot be read, keeps the
+     * plain look (its own colour); the library records why a file could not be read, for the editor to show.
+     *
+     * @param surface the primitive instance's material, which the shading attributes are set on
+     * @return true when the material decided the look, false when the component's own colour should be used
+     */
+    boolean applyMaterial(MeshPrimitiveComponent component, Material surface) {
+        io.github.ldev22live.gdxunity.engine.material.Material material = null;
+        if (materialLibrary != null && !component.getMaterialPath().isEmpty()) {
+            material = materialLibrary.get(component.getMaterialPath());
+        }
+        AppliedMaterial applied = appliedMaterials.get(component);
+        boolean twoSided = component.getShape() == MeshPrimitiveComponent.Shape.PLANE;
+        if (material == null) {
+            if (applied != null) {
+                MaterialAttributes.reset(surface, PRIMITIVE_ROUGHNESS, twoSided);
+                appliedMaterials.remove(component);
+            }
+            return false;
+        }
+        if (applied == null || applied.material() != material || applied.revision() != material.getRevision()) {
+            MaterialAttributes.apply(material, surface, DISPLAY_GAMMA, twoSided, materialTextures);
+            appliedMaterials.put(component, new AppliedMaterial(material, material.getRevision()));
+        }
+        return true;
+    }
+
+    /**
      * Source of imported models; null (the default) skips {@link ModelComponent}s. The caller keeps ownership and
      * disposes it after this renderer.
      */
@@ -895,9 +1047,12 @@ public class SceneRenderer3D implements EngineRenderer {
         initialized = false;
 
         instances.clear();
+        appliedMaterials.clear();
         modelInstances.clear();
         drawList.clear();
         ResourceManager owned = new ResourceManager();
+        terrainMeshes.values().forEach(owned::register);
+        terrainMeshes.clear();
         for (DynamicMeshGpu<GlChunkTarget> gpu : dynamicMeshes.values()) {
             owned.register(gpu);
         }
@@ -910,6 +1065,8 @@ public class SceneRenderer3D implements EngineRenderer {
         registerIfPresent(owned, shadowBatch);
         registerIfPresent(owned, shadowLight);
         registerIfPresent(owned, skyLightMaps);
+        registerIfPresent(owned, materialTextures);
+        materialTextures = null;
         modelBatch = null;
         shadowBatch = null;
         shadowLight = null;

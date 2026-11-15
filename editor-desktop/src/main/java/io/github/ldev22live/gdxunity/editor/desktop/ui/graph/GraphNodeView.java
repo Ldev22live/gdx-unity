@@ -21,6 +21,9 @@ import com.badlogic.gdx.utils.Array;
 import io.github.ldev22live.gdxunity.editor.visualscript.GraphCommands;
 import io.github.ldev22live.gdxunity.editor.visualscript.GraphDocument;
 import io.github.ldev22live.gdxunity.engine.visualscript.BuiltInNodes;
+import io.github.ldev22live.gdxunity.engine.visualscript.FunctionNodes;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphEventDef;
+import io.github.ldev22live.gdxunity.engine.visualscript.GraphFunction;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphNode;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphVariable;
 import io.github.ldev22live.gdxunity.engine.visualscript.NodeType;
@@ -108,6 +111,7 @@ class GraphNodeView extends Table {
             return;
         }
         buildProperties(type);
+        buildTextProperties(type);
         buildPins(type);
     }
 
@@ -121,8 +125,11 @@ class GraphNodeView extends Table {
         String text = type == null ? node.getTypeId() : type.getTitle();
         Object variable = node.getProperty(BuiltInNodes.PROPERTY_VARIABLE);
         Object eventName = node.getProperty(BuiltInNodes.PROPERTY_NAME);
+        Object function = node.getProperty(FunctionNodes.PROPERTY_FUNCTION);
         if (variable != null) {
             text += "  " + variable;
+        } else if (function != null) {
+            text += "  " + function;
         } else if (eventName != null) {
             text += "  " + eventName;
         }
@@ -176,7 +183,7 @@ class GraphNodeView extends Table {
         if (type.getProperties().containsKey(BuiltInNodes.PROPERTY_VARIABLE)) {
             Array<String> names = new Array<>();
             names.add(NO_VARIABLE);
-            for (GraphVariable variable : document.getGraph().getVariables()) {
+            for (GraphVariable variable : document.getViewGraph().getVariables()) {
                 names.add(variable.name());
             }
             SelectBox<String> select = new SelectBox<>(skin);
@@ -187,24 +194,76 @@ class GraphNodeView extends Table {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     String chosen = NO_VARIABLE.equals(select.getSelected()) ? null : select.getSelected();
-                    document.execute(new GraphCommands.SetProperty(document.getGraph(), document.getRegistry(), node,
+                    document.execute(new GraphCommands.SetProperty(document.getViewGraph(), document.getRegistry(), node,
                         BuiltInNodes.PROPERTY_VARIABLE, chosen));
                 }
             });
             add(select).growX().height(FIELD_HEIGHT).pad(2, 6, 2, 6).row();
         }
-        if (type.getProperties().containsKey(BuiltInNodes.PROPERTY_NAME)) {
+        if (type.getProperties().containsKey(FunctionNodes.PROPERTY_FUNCTION)) {
+            Array<String> names = new Array<>();
+            names.add(NO_VARIABLE);
+            for (GraphFunction function : document.getGraph().getFunctions()) {
+                names.add(function.getName());
+            }
+            addChoice(names, FunctionNodes.PROPERTY_FUNCTION);
+        } else if (type.getId().equals(FunctionNodes.FIRE)) {
+            // Fire Custom Event can only name a declared event
+            Array<String> names = new Array<>();
+            names.add(NO_VARIABLE);
+            for (GraphEventDef event : document.getGraph().getEvents()) {
+                names.add(event.getName());
+            }
+            addChoice(names, BuiltInNodes.PROPERTY_NAME);
+        } else if (type.getProperties().containsKey(BuiltInNodes.PROPERTY_NAME)) {
             Object current = node.getProperty(BuiltInNodes.PROPERTY_NAME);
             TextField field = committingField(current instanceof String s ? s : "", text ->
-                document.execute(new GraphCommands.SetProperty(document.getGraph(), document.getRegistry(), node,
+                document.execute(new GraphCommands.SetProperty(document.getViewGraph(), document.getRegistry(), node,
                     BuiltInNodes.PROPERTY_NAME, text.isBlank() ? null : text.trim())));
             field.setMessageText("Event name");
             add(field).growX().height(FIELD_HEIGHT).pad(2, 6, 2, 6).row();
         }
     }
 
+    /** A drop-down of {@code names} (the first one means "nothing chosen") that sets the node's property {@code property}. */
+    private void addChoice(Array<String> names, String property) {
+        SelectBox<String> select = new SelectBox<>(skin);
+        select.setItems(names);
+        Object current = node.getProperty(property);
+        select.setSelected(current instanceof String s && names.contains(s, false) ? s : NO_VARIABLE);
+        select.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                String chosen = NO_VARIABLE.equals(select.getSelected()) ? null : select.getSelected();
+                document.execute(new GraphCommands.SetProperty(document.getViewGraph(), document.getRegistry(), node, property, chosen));
+            }
+        });
+        add(select).growX().height(FIELD_HEIGHT).pad(2, 6, 2, 6).row();
+    }
+
+    /** Text fields for the other string settings: the keys of Key Down, Key Pressed and Input Axis, the cue of Play Sound (TD-072). */
+    private void buildTextProperties(NodeType type) {
+        for (String name : type.getProperties().keySet()) {
+            if (name.equals(BuiltInNodes.PROPERTY_VARIABLE) || name.equals(BuiltInNodes.PROPERTY_NAME) || name.equals(FunctionNodes.PROPERTY_FUNCTION)) {
+                continue;
+            }
+            Object current = node.getProperty(name);
+            TextField field = committingField(current instanceof String s ? s : "", text ->
+                document.execute(new GraphCommands.SetProperty(document.getViewGraph(), document.getRegistry(), node, name,
+                    text.isBlank() ? null : text.trim())));
+            field.setMessageText(switch (name) {
+                case BuiltInNodes.PROPERTY_KEY -> "Keys, like A,LEFT";
+                case BuiltInNodes.PROPERTY_POSITIVE -> "Keys for +1, like D,RIGHT";
+                case BuiltInNodes.PROPERTY_NEGATIVE -> "Keys for -1, like A,LEFT";
+                case BuiltInNodes.PROPERTY_CUE -> "Sound cue, like jump";
+                default -> name;
+            });
+            add(field).growX().height(FIELD_HEIGHT).pad(2, 6, 2, 6).row();
+        }
+    }
+
     private void buildPins(NodeType type) {
-        List<PinDef> all = type.pinsFor(node, document.getGraph());
+        List<PinDef> all = type.pinsFor(node, document.getViewGraph());
         Table inputs = new Table(skin);
         inputs.top().left();
         Table outputs = new Table(skin);

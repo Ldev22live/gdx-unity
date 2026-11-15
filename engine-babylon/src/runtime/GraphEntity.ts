@@ -26,6 +26,9 @@ export function graphEntity(entity: GameEntity, game: GameScene): GraphEntity {
     setWorldPosition: (position) => entity.node.setAbsolutePosition(new Vector3(position.x, position.y, position.z)),
     rotate: (yaw, pitch, roll) => entity.rotate(yaw, pitch, roll),
     destroy: () => game.removeEntity(entity),
+    playCue: (cue) => {
+      game.playCue(cue);
+    },
   };
 }
 

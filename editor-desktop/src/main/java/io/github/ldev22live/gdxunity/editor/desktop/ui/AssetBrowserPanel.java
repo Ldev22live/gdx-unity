@@ -61,6 +61,8 @@ public class AssetBrowserPanel extends Table {
     private final DragAndDrop dragAndDrop;
     /** Called when a row is double-clicked; null when assets cannot be opened. */
     private Consumer<AssetReference> onOpen;
+    /** How many users of an asset the status bar names before "...". */
+    private static final int USED_BY_SHOWN = 4;
 
     /** Sets what double-clicking an asset does (for example opening a graph). */
     public void setOnOpen(Consumer<AssetReference> onOpen) {
@@ -260,7 +262,7 @@ public class AssetBrowserPanel extends Table {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     editorState.setSelectedAsset(ref);
-                    editorState.setStatusMessage("Selected asset: " + ref.getPath(), false);
+                    editorState.setStatusMessage("Selected asset: " + ref.getPath() + " (" + usedBy(ref) + ")", false);
                 }
             });
             itemBtn.addListener(new ClickListener() {
@@ -286,6 +288,20 @@ public class AssetBrowserPanel extends Table {
 
             row.add(itemBtn).growX().height(22).left();
             listTable.add(row).growX().padBottom(1).row();
+        }
+    }
+
+    /** "used by 2: scenes/a.json, prefabs/b.prefab", "used by nothing", or why it could not be found out (roadmap M1.5). */
+    private String usedBy(AssetReference ref) {
+        try {
+            java.util.List<String> users = io.github.ldev22live.gdxunity.editor.core.asset.AssetUsages.usersOf(catalog.getRootDir(), ref.getPath());
+            if (users.isEmpty()) {
+                return "used by nothing in this project";
+            }
+            int shown = Math.min(users.size(), USED_BY_SHOWN);
+            return "used by " + users.size() + ": " + String.join(", ", users.subList(0, shown)) + (users.size() > shown ? ", ..." : "");
+        } catch (java.io.IOException e) {
+            return "could not find what uses it: " + e.getMessage();
         }
     }
 

@@ -118,6 +118,20 @@ class ComponentCatalogTest {
     }
 
     @Test
+    void shouldAddAPerspectiveCameraTo3DAndTo2_5DScenesAndAnOrthographicOneTo2DScenes() {
+        for (io.github.ldev22live.gdxunity.engine.scene.GameMode mode : io.github.ldev22live.gdxunity.engine.scene.GameMode.values()) {
+            editorState.newScene("Camera " + mode, mode);
+            Entity entity = editorState.createEntity("Cam");
+
+            assertTrue(catalog.addTo(editorState, entity, entry("Camera")), editorState.getStatusMessage());
+
+            CameraComponent.Projection expected = mode == io.github.ldev22live.gdxunity.engine.scene.GameMode.MODE_2D
+                ? CameraComponent.Projection.ORTHOGRAPHIC : CameraComponent.Projection.PERSPECTIVE;
+            assertEquals(expected, entity.getComponent(CameraComponent.class).getProjection(), mode.getLabel());
+        }
+    }
+
+    @Test
     void shouldOfferAudioSourceUnderAudioAndCreateAPlayableDefault() {
         ComponentCatalog.Entry audio = entry("Audio Source");
 
@@ -125,7 +139,17 @@ class ComponentCatalogTest {
         assertEquals(io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent.class, audio.type());
         assertTrue(audio.factory().apply(null)
             instanceof io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent);
-        assertEquals(3, catalog.search("audio").size(), "Audio Source, Audio Listener and Music Source");
+        assertEquals(4, catalog.search("audio").size(), "Audio Source, Audio Listener, Engine Sound and Music Source");
+    }
+
+    @Test
+    void shouldOfferEngineSoundUnderAudio() {
+        ComponentCatalog.Entry engine = entry("Engine Sound");
+
+        assertEquals("Audio", engine.category());
+        assertTrue(engine.factory().apply(null)
+            instanceof io.github.ldev22live.gdxunity.engine.scene.audio.EngineSoundComponent);
+        assertTrue(engine.allowMultiple());
     }
 
     @Test

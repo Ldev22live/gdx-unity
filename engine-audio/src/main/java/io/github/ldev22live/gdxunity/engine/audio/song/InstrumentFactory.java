@@ -1,7 +1,9 @@
 package io.github.ldev22live.gdxunity.engine.audio.song;
 
 import io.github.ldev22live.gdxunity.engine.audio.DrumKit;
+import io.github.ldev22live.gdxunity.engine.audio.FmSynthesizer;
 import io.github.ldev22live.gdxunity.engine.audio.Instrument;
+import io.github.ldev22live.gdxunity.engine.audio.PluckedString;
 import io.github.ldev22live.gdxunity.engine.audio.SampleData;
 import io.github.ldev22live.gdxunity.engine.audio.SampleInstrument;
 import io.github.ldev22live.gdxunity.engine.audio.SfxrGenerator;
@@ -45,6 +47,10 @@ public final class InstrumentFactory {
                 return new Synthesizer(sampleRate, spec.patch);
             case DRUMS:
                 return new DrumKit(sampleRate);
+            case FM:
+                return new FmSynthesizer(sampleRate, spec.fm);
+            case PLUCK:
+                return new PluckedString(sampleRate, spec.pluck);
             case SAMPLE: {
                 SampleData data = samples.get(spec.path);
                 if (data == null) {

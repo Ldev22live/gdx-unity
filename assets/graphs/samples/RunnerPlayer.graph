@@ -1,190 +1,184 @@
 {
   "schemaVersion": 1,
   "kind": "graph",
-  "name": "Runner Player",
+  "name": "RunnerPlayer",
   "variables": [
     {
       "name": "lane",
       "type": "FLOAT",
+      "value": 1.0
+    },
+    {
+      "name": "x",
+      "type": "FLOAT",
       "value": 0.0
     },
     {
-      "name": "heldLeft",
-      "type": "BOOLEAN",
-      "value": false
+      "name": "y",
+      "type": "FLOAT",
+      "value": 0.0
     },
     {
-      "name": "heldRight",
-      "type": "BOOLEAN",
-      "value": false
+      "name": "z",
+      "type": "FLOAT",
+      "value": 0.0
+    },
+    {
+      "name": "groundY",
+      "type": "FLOAT",
+      "value": 0.0
+    },
+    {
+      "name": "velocityY",
+      "type": "FLOAT",
+      "value": 0.0
     }
   ],
   "nodes": [
     {
       "id": "n1",
-      "type": "event.tick",
-      "x": 0,
-      "y": 0,
+      "type": "event.beginPlay",
+      "x": 0.0,
+      "y": 2089.0,
       "literals": [],
       "properties": []
     },
     {
       "id": "n2",
-      "type": "flow.sequence",
-      "x": 270,
-      "y": 0,
+      "type": "data.getPosition",
+      "x": 0.0,
+      "y": 1955.0,
       "literals": [],
       "properties": []
     },
     {
       "id": "n3",
-      "type": "input.keyDown",
-      "x": 270,
-      "y": 300,
+      "type": "vector.break",
+      "x": 330.0,
+      "y": 1019.0,
       "literals": [],
-      "properties": [
-        {
-          "name": "key",
-          "type": "STRING",
-          "value": "A,LEFT"
-        }
-      ]
+      "properties": []
     },
     {
       "id": "n4",
-      "type": "input.keyDown",
-      "x": 270,
-      "y": 450,
+      "type": "variable.set",
+      "x": 660.0,
+      "y": 837.0,
       "literals": [],
       "properties": [
         {
-          "name": "key",
+          "name": "variable",
           "type": "STRING",
-          "value": "D,RIGHT"
+          "value": "groundY"
         }
       ]
     },
     {
       "id": "n5",
-      "type": "variable.get",
-      "x": 270,
-      "y": 600,
+      "type": "variable.set",
+      "x": 990.0,
+      "y": 320.0,
       "literals": [],
       "properties": [
         {
           "name": "variable",
           "type": "STRING",
-          "value": "heldLeft"
+          "value": "z"
         }
       ]
     },
     {
       "id": "n6",
-      "type": "variable.get",
-      "x": 270,
-      "y": 750,
-      "literals": [],
+      "type": "variable.set",
+      "x": 1320.0,
+      "y": 399.0,
+      "literals": [
+        {
+          "pin": "value",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
       "properties": [
         {
           "name": "variable",
           "type": "STRING",
-          "value": "heldRight"
+          "value": "x"
         }
       ]
     },
     {
       "id": "n7",
-      "type": "logic.not",
-      "x": 540,
-      "y": 600,
+      "type": "variable.set",
+      "x": 1650.0,
+      "y": 296.0,
       "literals": [],
-      "properties": []
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "y"
+        }
+      ]
     },
     {
       "id": "n8",
-      "type": "logic.not",
-      "x": 540,
-      "y": 750,
+      "type": "event.tick",
+      "x": 0.0,
+      "y": 1821.0,
       "literals": [],
       "properties": []
     },
     {
       "id": "n9",
-      "type": "logic.and",
-      "x": 810,
-      "y": 300,
+      "type": "input.keyPressed",
+      "x": 0.0,
+      "y": 1663.0,
       "literals": [],
-      "properties": []
+      "properties": [
+        {
+          "name": "key",
+          "type": "STRING",
+          "value": "R"
+        }
+      ]
     },
     {
       "id": "n10",
-      "type": "logic.and",
-      "x": 810,
-      "y": 450,
+      "type": "flow.branch",
+      "x": 330.0,
+      "y": 861.0,
       "literals": [],
       "properties": []
     },
     {
       "id": "n11",
-      "type": "variable.get",
-      "x": 810,
-      "y": 900,
+      "type": "flow.sequence",
+      "x": 2310.0,
+      "y": 47.0,
       "literals": [],
-      "properties": [
-        {
-          "name": "variable",
-          "type": "STRING",
-          "value": "lane"
-        }
-      ]
+      "properties": []
     },
     {
       "id": "n12",
-      "type": "flow.branch",
-      "x": 1080,
-      "y": 0,
+      "type": "flow.sequence",
+      "x": 660.0,
+      "y": 655.0,
       "literals": [],
       "properties": []
     },
     {
       "id": "n13",
-      "type": "math.subtract",
-      "x": 1080,
-      "y": 900,
-      "literals": [
-        {
-          "pin": "b",
-          "type": "FLOAT",
-          "value": 1.0
-        }
-      ],
-      "properties": []
-    },
-    {
-      "id": "n14",
-      "type": "java:com.badlogic.gdx.math.MathUtils#clamp(float,float,float)",
-      "x": 1350,
-      "y": 900,
-      "literals": [
-        {
-          "pin": "p1",
-          "type": "FLOAT",
-          "value": -1.0
-        },
-        {
-          "pin": "p2",
-          "type": "FLOAT",
-          "value": 1.0
-        }
-      ],
-      "properties": []
-    },
-    {
-      "id": "n15",
       "type": "variable.set",
-      "x": 1350,
-      "y": 0,
-      "literals": [],
+      "x": 990.0,
+      "y": 138.0,
+      "literals": [
+        {
+          "pin": "value",
+          "type": "FLOAT",
+          "value": 1.0
+        }
+      ],
       "properties": [
         {
           "name": "variable",
@@ -194,51 +188,92 @@
       ]
     },
     {
-      "id": "n16",
-      "type": "flow.branch",
-      "x": 1080,
-      "y": 150,
+      "id": "n14",
+      "type": "variable.set",
+      "x": 1320.0,
+      "y": 217.0,
+      "literals": [
+        {
+          "pin": "value",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "x"
+        }
+      ]
+    },
+    {
+      "id": "n15",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": 1505.0,
       "literals": [],
-      "properties": []
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "groundY"
+        }
+      ]
+    },
+    {
+      "id": "n16",
+      "type": "variable.set",
+      "x": 1650.0,
+      "y": 114.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "y"
+        }
+      ]
     },
     {
       "id": "n17",
-      "type": "math.add",
-      "x": 1080,
-      "y": 1050,
+      "type": "variable.set",
+      "x": 1980.0,
+      "y": 150.0,
+      "literals": [
+        {
+          "pin": "value",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "velocityY"
+        }
+      ]
+    },
+    {
+      "id": "n18",
+      "type": "math.greater",
+      "x": 330.0,
+      "y": 703.0,
       "literals": [
         {
           "pin": "b",
           "type": "FLOAT",
-          "value": 1.0
-        }
-      ],
-      "properties": []
-    },
-    {
-      "id": "n18",
-      "type": "java:com.badlogic.gdx.math.MathUtils#clamp(float,float,float)",
-      "x": 1350,
-      "y": 1050,
-      "literals": [
-        {
-          "pin": "p1",
-          "type": "FLOAT",
-          "value": -1.0
-        },
-        {
-          "pin": "p2",
-          "type": "FLOAT",
-          "value": 1.0
+          "value": 0.0
         }
       ],
       "properties": []
     },
     {
       "id": "n19",
-      "type": "variable.set",
-      "x": 1350,
-      "y": 150,
+      "type": "variable.get",
+      "x": 0.0,
+      "y": 1347.0,
       "literals": [],
       "properties": [
         {
@@ -250,53 +285,31 @@
     },
     {
       "id": "n20",
-      "type": "variable.set",
-      "x": 1080,
-      "y": 300,
+      "type": "input.keyPressed",
+      "x": 0.0,
+      "y": 1189.0,
       "literals": [],
       "properties": [
         {
-          "name": "variable",
+          "name": "key",
           "type": "STRING",
-          "value": "heldLeft"
+          "value": "A,LEFT"
         }
       ]
     },
     {
       "id": "n21",
-      "type": "variable.set",
-      "x": 1350,
-      "y": 300,
+      "type": "logic.and",
+      "x": 660.0,
+      "y": 521.0,
       "literals": [],
-      "properties": [
-        {
-          "name": "variable",
-          "type": "STRING",
-          "value": "heldRight"
-        }
-      ]
+      "properties": []
     },
     {
       "id": "n22",
-      "type": "data.getPosition",
-      "x": 270,
-      "y": 1200,
-      "literals": [],
-      "properties": []
-    },
-    {
-      "id": "n23",
-      "type": "vector.break",
-      "x": 540,
-      "y": 1200,
-      "literals": [],
-      "properties": []
-    },
-    {
-      "id": "n24",
       "type": "variable.get",
-      "x": 540,
-      "y": 1350,
+      "x": 0.0,
+      "y": 1031.0,
       "literals": [],
       "properties": [
         {
@@ -307,10 +320,330 @@
       ]
     },
     {
+      "id": "n23",
+      "type": "math.subtract",
+      "x": 330.0,
+      "y": 545.0,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 1.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n24",
+      "type": "flow.branch",
+      "x": 2640.0,
+      "y": 59.0,
+      "literals": [],
+      "properties": []
+    },
+    {
       "id": "n25",
+      "type": "flow.sequence",
+      "x": 3630.0,
+      "y": 47.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n26",
+      "type": "flow.sequence",
+      "x": 2970.0,
+      "y": 47.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n27",
+      "type": "variable.set",
+      "x": 3300.0,
+      "y": 71.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "lane"
+        }
+      ]
+    },
+    {
+      "id": "n28",
+      "type": "math.less",
+      "x": 330.0,
+      "y": 387.0,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 2.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n29",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": 873.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "lane"
+        }
+      ]
+    },
+    {
+      "id": "n30",
+      "type": "input.keyPressed",
+      "x": 0.0,
+      "y": 715.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "key",
+          "type": "STRING",
+          "value": "D,RIGHT"
+        }
+      ]
+    },
+    {
+      "id": "n31",
+      "type": "logic.and",
+      "x": 660.0,
+      "y": 363.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n32",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": 557.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "lane"
+        }
+      ]
+    },
+    {
+      "id": "n33",
+      "type": "math.add",
+      "x": 330.0,
+      "y": 229.0,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 1.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n34",
+      "type": "flow.branch",
+      "x": 3960.0,
+      "y": 59.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n35",
+      "type": "flow.sequence",
+      "x": 4950.0,
+      "y": 47.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n36",
+      "type": "flow.sequence",
+      "x": 4290.0,
+      "y": 47.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n37",
+      "type": "variable.set",
+      "x": 4620.0,
+      "y": 71.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "lane"
+        }
+      ]
+    },
+    {
+      "id": "n38",
+      "type": "math.greater",
+      "x": 330.0,
+      "y": 71.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n39",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": 399.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "y"
+        }
+      ]
+    },
+    {
+      "id": "n40",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": 241.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "groundY"
+        }
+      ]
+    },
+    {
+      "id": "n41",
+      "type": "logic.not",
+      "x": 660.0,
+      "y": 205.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n42",
+      "type": "action.playCue",
+      "x": 6270.0,
+      "y": 59.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "cue",
+          "type": "STRING",
+          "value": "jump"
+        }
+      ]
+    },
+    {
+      "id": "n43",
+      "type": "input.keyPressed",
+      "x": 0.0,
+      "y": 83.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "key",
+          "type": "STRING",
+          "value": "SPACE,W,UP"
+        }
+      ]
+    },
+    {
+      "id": "n44",
+      "type": "logic.and",
+      "x": 990.0,
+      "y": -44.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n45",
+      "type": "flow.branch",
+      "x": 5280.0,
+      "y": 59.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n46",
+      "type": "flow.sequence",
+      "x": 6600.0,
+      "y": 47.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n47",
+      "type": "flow.sequence",
+      "x": 5610.0,
+      "y": 47.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n48",
+      "type": "variable.set",
+      "x": 5940.0,
+      "y": 71.0,
+      "literals": [
+        {
+          "pin": "value",
+          "type": "FLOAT",
+          "value": 760.0
+        }
+      ],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "velocityY"
+        }
+      ]
+    },
+    {
+      "id": "n49",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -75.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "lane"
+        }
+      ]
+    },
+    {
+      "id": "n50",
+      "type": "math.subtract",
+      "x": 330.0,
+      "y": -87.0,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 1.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n51",
       "type": "math.multiply",
-      "x": 810,
-      "y": 1350,
+      "x": 660.0,
+      "y": 71.0,
       "literals": [
         {
           "pin": "b",
@@ -321,18 +654,10 @@
       "properties": []
     },
     {
-      "id": "n26",
-      "type": "math.subtract",
-      "x": 1080,
-      "y": 1350,
-      "literals": [],
-      "properties": []
-    },
-    {
-      "id": "n27",
+      "id": "n52",
       "type": "math.multiply",
-      "x": 1080,
-      "y": 1500,
+      "x": 330.0,
+      "y": -245.0,
       "literals": [
         {
           "pin": "b",
@@ -343,10 +668,40 @@
       "properties": []
     },
     {
-      "id": "n28",
+      "id": "n53",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -233.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "x"
+        }
+      ]
+    },
+    {
+      "id": "n54",
+      "type": "math.subtract",
+      "x": 990.0,
+      "y": -202.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n55",
+      "type": "math.greater",
+      "x": 1320.0,
+      "y": 35.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n56",
       "type": "math.multiply",
-      "x": 1350,
-      "y": 1500,
+      "x": 660.0,
+      "y": -87.0,
       "literals": [
         {
           "pin": "b",
@@ -357,250 +712,1165 @@
       "properties": []
     },
     {
-      "id": "n29",
-      "type": "java:com.badlogic.gdx.math.MathUtils#clamp(float,float,float)",
-      "x": 1620,
-      "y": 1350,
+      "id": "n57",
+      "type": "math.less",
+      "x": 1320.0,
+      "y": -123.0,
       "literals": [],
       "properties": []
     },
     {
-      "id": "n30",
-      "type": "action.moveBy",
-      "x": 1890,
-      "y": 300,
+      "id": "n58",
+      "type": "logic.not",
+      "x": 1650.0,
+      "y": -68.0,
       "literals": [],
       "properties": []
     },
     {
-      "id": "n31",
-      "type": "vector.make",
-      "x": 1890,
-      "y": 1350,
+      "id": "n59",
+      "type": "logic.not",
+      "x": 1650.0,
+      "y": -202.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n60",
+      "type": "logic.and",
+      "x": 1980.0,
+      "y": -32.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n61",
+      "type": "math.greater",
+      "x": 1320.0,
+      "y": -281.0,
       "literals": [
         {
-          "pin": "y",
-          "type": "FLOAT",
-          "value": 0.0
-        },
-        {
-          "pin": "z",
+          "pin": "b",
           "type": "FLOAT",
           "value": 0.0
         }
       ],
       "properties": []
+    },
+    {
+      "id": "n62",
+      "type": "flow.branch",
+      "x": 6930.0,
+      "y": 59.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n63",
+      "type": "flow.sequence",
+      "x": 8910.0,
+      "y": 47.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n64",
+      "type": "flow.sequence",
+      "x": 7260.0,
+      "y": 114.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n65",
+      "type": "variable.set",
+      "x": 7590.0,
+      "y": 150.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "x"
+        }
+      ]
+    },
+    {
+      "id": "n66",
+      "type": "flow.sequence",
+      "x": 7260.0,
+      "y": -20.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n67",
+      "type": "flow.branch",
+      "x": 7590.0,
+      "y": -32.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n68",
+      "type": "flow.sequence",
+      "x": 8580.0,
+      "y": 47.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n69",
+      "type": "flow.sequence",
+      "x": 7920.0,
+      "y": 114.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n70",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -391.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "x"
+        }
+      ]
+    },
+    {
+      "id": "n71",
+      "type": "math.add",
+      "x": 660.0,
+      "y": -245.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n72",
+      "type": "variable.set",
+      "x": 8250.0,
+      "y": 162.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "x"
+        }
+      ]
+    },
+    {
+      "id": "n73",
+      "type": "flow.sequence",
+      "x": 7920.0,
+      "y": -20.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n74",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -549.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "x"
+        }
+      ]
+    },
+    {
+      "id": "n75",
+      "type": "math.subtract",
+      "x": 660.0,
+      "y": -403.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n76",
+      "type": "variable.set",
+      "x": 8250.0,
+      "y": -20.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "x"
+        }
+      ]
+    },
+    {
+      "id": "n77",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -707.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "velocityY"
+        }
+      ]
+    },
+    {
+      "id": "n78",
+      "type": "math.multiply",
+      "x": 330.0,
+      "y": -403.0,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 2400.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n79",
+      "type": "math.subtract",
+      "x": 660.0,
+      "y": -561.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n80",
+      "type": "variable.set",
+      "x": 9240.0,
+      "y": 71.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "velocityY"
+        }
+      ]
+    },
+    {
+      "id": "n81",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -865.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "y"
+        }
+      ]
+    },
+    {
+      "id": "n82",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -1023.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "velocityY"
+        }
+      ]
+    },
+    {
+      "id": "n83",
+      "type": "math.multiply",
+      "x": 330.0,
+      "y": -561.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n84",
+      "type": "math.add",
+      "x": 660.0,
+      "y": -719.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n85",
+      "type": "variable.set",
+      "x": 9570.0,
+      "y": 71.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "y"
+        }
+      ]
+    },
+    {
+      "id": "n86",
+      "type": "math.less",
+      "x": 330.0,
+      "y": -719.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n87",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -1181.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "y"
+        }
+      ]
+    },
+    {
+      "id": "n88",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -1339.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "groundY"
+        }
+      ]
+    },
+    {
+      "id": "n89",
+      "type": "flow.branch",
+      "x": 9900.0,
+      "y": 59.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n90",
+      "type": "flow.sequence",
+      "x": 11220.0,
+      "y": 47.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n91",
+      "type": "flow.sequence",
+      "x": 10230.0,
+      "y": 47.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n92",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -1497.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "groundY"
+        }
+      ]
+    },
+    {
+      "id": "n93",
+      "type": "variable.set",
+      "x": 10560.0,
+      "y": 71.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "y"
+        }
+      ]
+    },
+    {
+      "id": "n94",
+      "type": "variable.set",
+      "x": 10890.0,
+      "y": 71.0,
+      "literals": [
+        {
+          "pin": "value",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "velocityY"
+        }
+      ]
+    },
+    {
+      "id": "n95",
+      "type": "vector.make",
+      "x": 330.0,
+      "y": -877.0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n96",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -1655.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "x"
+        }
+      ]
+    },
+    {
+      "id": "n97",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -1813.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "y"
+        }
+      ]
+    },
+    {
+      "id": "n98",
+      "type": "variable.get",
+      "x": 0.0,
+      "y": -1971.0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "z"
+        }
+      ]
+    },
+    {
+      "id": "n99",
+      "type": "action.setPosition",
+      "x": 11550.0,
+      "y": 59.0,
+      "literals": [],
+      "properties": []
     }
   ],
   "links": [
     {
+      "from": "n2",
+      "fromPin": "position",
+      "to": "n3",
+      "toPin": "vector"
+    },
+    {
+      "from": "n3",
+      "fromPin": "y",
+      "to": "n4",
+      "toPin": "value"
+    },
+    {
       "from": "n1",
       "fromPin": "then",
-      "to": "n2",
+      "to": "n4",
+      "toPin": "exec"
+    },
+    {
+      "from": "n3",
+      "fromPin": "z",
+      "to": "n5",
+      "toPin": "value"
+    },
+    {
+      "from": "n4",
+      "fromPin": "then",
+      "to": "n5",
       "toPin": "exec"
     },
     {
       "from": "n5",
-      "fromPin": "value",
+      "fromPin": "then",
+      "to": "n6",
+      "toPin": "exec"
+    },
+    {
+      "from": "n3",
+      "fromPin": "y",
       "to": "n7",
       "toPin": "value"
     },
     {
       "from": "n6",
-      "fromPin": "value",
-      "to": "n8",
-      "toPin": "value"
-    },
-    {
-      "from": "n3",
-      "fromPin": "pressed",
-      "to": "n9",
-      "toPin": "a"
-    },
-    {
-      "from": "n7",
-      "fromPin": "result",
-      "to": "n9",
-      "toPin": "b"
-    },
-    {
-      "from": "n4",
-      "fromPin": "pressed",
-      "to": "n10",
-      "toPin": "a"
-    },
-    {
-      "from": "n8",
-      "fromPin": "result",
-      "to": "n10",
-      "toPin": "b"
-    },
-    {
-      "from": "n2",
-      "fromPin": "then0",
-      "to": "n12",
+      "fromPin": "then",
+      "to": "n7",
       "toPin": "exec"
     },
     {
       "from": "n9",
-      "fromPin": "result",
-      "to": "n12",
+      "fromPin": "pressed",
+      "to": "n10",
       "toPin": "condition"
     },
     {
-      "from": "n11",
-      "fromPin": "value",
-      "to": "n13",
-      "toPin": "a"
-    },
-    {
-      "from": "n13",
-      "fromPin": "result",
-      "to": "n14",
-      "toPin": "p0"
-    },
-    {
-      "from": "n14",
-      "fromPin": "result",
-      "to": "n15",
-      "toPin": "value"
-    },
-    {
-      "from": "n12",
-      "fromPin": "true",
-      "to": "n15",
-      "toPin": "exec"
-    },
-    {
-      "from": "n2",
-      "fromPin": "then1",
-      "to": "n16",
+      "from": "n8",
+      "fromPin": "then",
+      "to": "n10",
       "toPin": "exec"
     },
     {
       "from": "n10",
-      "fromPin": "result",
-      "to": "n16",
-      "toPin": "condition"
+      "fromPin": "true",
+      "to": "n12",
+      "toPin": "exec"
     },
     {
-      "from": "n11",
+      "from": "n12",
+      "fromPin": "then0",
+      "to": "n13",
+      "toPin": "exec"
+    },
+    {
+      "from": "n13",
+      "fromPin": "then",
+      "to": "n14",
+      "toPin": "exec"
+    },
+    {
+      "from": "n15",
       "fromPin": "value",
+      "to": "n16",
+      "toPin": "value"
+    },
+    {
+      "from": "n14",
+      "fromPin": "then",
+      "to": "n16",
+      "toPin": "exec"
+    },
+    {
+      "from": "n16",
+      "fromPin": "then",
       "to": "n17",
-      "toPin": "a"
+      "toPin": "exec"
     },
     {
       "from": "n17",
-      "fromPin": "result",
+      "fromPin": "then",
+      "to": "n11",
+      "toPin": "exec"
+    },
+    {
+      "from": "n10",
+      "fromPin": "false",
+      "to": "n11",
+      "toPin": "exec"
+    },
+    {
+      "from": "n19",
+      "fromPin": "value",
       "to": "n18",
-      "toPin": "p0"
+      "toPin": "a"
+    },
+    {
+      "from": "n20",
+      "fromPin": "pressed",
+      "to": "n21",
+      "toPin": "a"
     },
     {
       "from": "n18",
       "fromPin": "result",
-      "to": "n19",
-      "toPin": "value"
-    },
-    {
-      "from": "n16",
-      "fromPin": "true",
-      "to": "n19",
-      "toPin": "exec"
-    },
-    {
-      "from": "n3",
-      "fromPin": "pressed",
-      "to": "n20",
-      "toPin": "value"
-    },
-    {
-      "from": "n4",
-      "fromPin": "pressed",
       "to": "n21",
-      "toPin": "value"
-    },
-    {
-      "from": "n22",
-      "fromPin": "position",
-      "to": "n23",
-      "toPin": "vector"
-    },
-    {
-      "from": "n24",
-      "fromPin": "value",
-      "to": "n25",
-      "toPin": "a"
-    },
-    {
-      "from": "n25",
-      "fromPin": "result",
-      "to": "n26",
-      "toPin": "a"
-    },
-    {
-      "from": "n23",
-      "fromPin": "x",
-      "to": "n26",
       "toPin": "b"
     },
     {
-      "from": "n1",
-      "fromPin": "deltaTime",
-      "to": "n27",
+      "from": "n22",
+      "fromPin": "value",
+      "to": "n23",
       "toPin": "a"
     },
     {
-      "from": "n27",
+      "from": "n21",
       "fromPin": "result",
+      "to": "n24",
+      "toPin": "condition"
+    },
+    {
+      "from": "n11",
+      "fromPin": "then0",
+      "to": "n24",
+      "toPin": "exec"
+    },
+    {
+      "from": "n24",
+      "fromPin": "true",
+      "to": "n26",
+      "toPin": "exec"
+    },
+    {
+      "from": "n23",
+      "fromPin": "result",
+      "to": "n27",
+      "toPin": "value"
+    },
+    {
+      "from": "n26",
+      "fromPin": "then0",
+      "to": "n27",
+      "toPin": "exec"
+    },
+    {
+      "from": "n27",
+      "fromPin": "then",
+      "to": "n25",
+      "toPin": "exec"
+    },
+    {
+      "from": "n24",
+      "fromPin": "false",
+      "to": "n25",
+      "toPin": "exec"
+    },
+    {
+      "from": "n29",
+      "fromPin": "value",
       "to": "n28",
       "toPin": "a"
     },
     {
-      "from": "n26",
-      "fromPin": "result",
-      "to": "n29",
-      "toPin": "p0"
+      "from": "n30",
+      "fromPin": "pressed",
+      "to": "n31",
+      "toPin": "a"
     },
     {
       "from": "n28",
       "fromPin": "result",
-      "to": "n29",
-      "toPin": "p1"
-    },
-    {
-      "from": "n27",
-      "fromPin": "result",
-      "to": "n29",
-      "toPin": "p2"
-    },
-    {
-      "from": "n29",
-      "fromPin": "result",
       "to": "n31",
-      "toPin": "x"
+      "toPin": "b"
+    },
+    {
+      "from": "n32",
+      "fromPin": "value",
+      "to": "n33",
+      "toPin": "a"
     },
     {
       "from": "n31",
+      "fromPin": "result",
+      "to": "n34",
+      "toPin": "condition"
+    },
+    {
+      "from": "n25",
+      "fromPin": "then0",
+      "to": "n34",
+      "toPin": "exec"
+    },
+    {
+      "from": "n34",
+      "fromPin": "true",
+      "to": "n36",
+      "toPin": "exec"
+    },
+    {
+      "from": "n33",
+      "fromPin": "result",
+      "to": "n37",
+      "toPin": "value"
+    },
+    {
+      "from": "n36",
+      "fromPin": "then0",
+      "to": "n37",
+      "toPin": "exec"
+    },
+    {
+      "from": "n37",
+      "fromPin": "then",
+      "to": "n35",
+      "toPin": "exec"
+    },
+    {
+      "from": "n34",
+      "fromPin": "false",
+      "to": "n35",
+      "toPin": "exec"
+    },
+    {
+      "from": "n39",
+      "fromPin": "value",
+      "to": "n38",
+      "toPin": "a"
+    },
+    {
+      "from": "n40",
+      "fromPin": "value",
+      "to": "n38",
+      "toPin": "b"
+    },
+    {
+      "from": "n38",
+      "fromPin": "result",
+      "to": "n41",
+      "toPin": "value"
+    },
+    {
+      "from": "n41",
+      "fromPin": "result",
+      "to": "n44",
+      "toPin": "a"
+    },
+    {
+      "from": "n43",
+      "fromPin": "pressed",
+      "to": "n44",
+      "toPin": "b"
+    },
+    {
+      "from": "n44",
+      "fromPin": "result",
+      "to": "n45",
+      "toPin": "condition"
+    },
+    {
+      "from": "n35",
+      "fromPin": "then0",
+      "to": "n45",
+      "toPin": "exec"
+    },
+    {
+      "from": "n45",
+      "fromPin": "true",
+      "to": "n47",
+      "toPin": "exec"
+    },
+    {
+      "from": "n47",
+      "fromPin": "then0",
+      "to": "n48",
+      "toPin": "exec"
+    },
+    {
+      "from": "n48",
+      "fromPin": "then",
+      "to": "n42",
+      "toPin": "exec"
+    },
+    {
+      "from": "n42",
+      "fromPin": "then",
+      "to": "n46",
+      "toPin": "exec"
+    },
+    {
+      "from": "n45",
+      "fromPin": "false",
+      "to": "n46",
+      "toPin": "exec"
+    },
+    {
+      "from": "n49",
+      "fromPin": "value",
+      "to": "n50",
+      "toPin": "a"
+    },
+    {
+      "from": "n50",
+      "fromPin": "result",
+      "to": "n51",
+      "toPin": "a"
+    },
+    {
+      "from": "n8",
+      "fromPin": "deltaTime",
+      "to": "n52",
+      "toPin": "a"
+    },
+    {
+      "from": "n51",
+      "fromPin": "result",
+      "to": "n54",
+      "toPin": "a"
+    },
+    {
+      "from": "n53",
+      "fromPin": "value",
+      "to": "n54",
+      "toPin": "b"
+    },
+    {
+      "from": "n54",
+      "fromPin": "result",
+      "to": "n55",
+      "toPin": "a"
+    },
+    {
+      "from": "n52",
+      "fromPin": "result",
+      "to": "n55",
+      "toPin": "b"
+    },
+    {
+      "from": "n52",
+      "fromPin": "result",
+      "to": "n56",
+      "toPin": "a"
+    },
+    {
+      "from": "n54",
+      "fromPin": "result",
+      "to": "n57",
+      "toPin": "a"
+    },
+    {
+      "from": "n56",
+      "fromPin": "result",
+      "to": "n57",
+      "toPin": "b"
+    },
+    {
+      "from": "n55",
+      "fromPin": "result",
+      "to": "n58",
+      "toPin": "value"
+    },
+    {
+      "from": "n57",
+      "fromPin": "result",
+      "to": "n59",
+      "toPin": "value"
+    },
+    {
+      "from": "n58",
+      "fromPin": "result",
+      "to": "n60",
+      "toPin": "a"
+    },
+    {
+      "from": "n59",
+      "fromPin": "result",
+      "to": "n60",
+      "toPin": "b"
+    },
+    {
+      "from": "n54",
+      "fromPin": "result",
+      "to": "n61",
+      "toPin": "a"
+    },
+    {
+      "from": "n60",
+      "fromPin": "result",
+      "to": "n62",
+      "toPin": "condition"
+    },
+    {
+      "from": "n46",
+      "fromPin": "then0",
+      "to": "n62",
+      "toPin": "exec"
+    },
+    {
+      "from": "n62",
+      "fromPin": "true",
+      "to": "n64",
+      "toPin": "exec"
+    },
+    {
+      "from": "n51",
+      "fromPin": "result",
+      "to": "n65",
+      "toPin": "value"
+    },
+    {
+      "from": "n64",
+      "fromPin": "then0",
+      "to": "n65",
+      "toPin": "exec"
+    },
+    {
+      "from": "n65",
+      "fromPin": "then",
+      "to": "n63",
+      "toPin": "exec"
+    },
+    {
+      "from": "n62",
+      "fromPin": "false",
+      "to": "n66",
+      "toPin": "exec"
+    },
+    {
+      "from": "n61",
+      "fromPin": "result",
+      "to": "n67",
+      "toPin": "condition"
+    },
+    {
+      "from": "n66",
+      "fromPin": "then0",
+      "to": "n67",
+      "toPin": "exec"
+    },
+    {
+      "from": "n67",
+      "fromPin": "true",
+      "to": "n69",
+      "toPin": "exec"
+    },
+    {
+      "from": "n70",
+      "fromPin": "value",
+      "to": "n71",
+      "toPin": "a"
+    },
+    {
+      "from": "n52",
+      "fromPin": "result",
+      "to": "n71",
+      "toPin": "b"
+    },
+    {
+      "from": "n71",
+      "fromPin": "result",
+      "to": "n72",
+      "toPin": "value"
+    },
+    {
+      "from": "n69",
+      "fromPin": "then0",
+      "to": "n72",
+      "toPin": "exec"
+    },
+    {
+      "from": "n72",
+      "fromPin": "then",
+      "to": "n68",
+      "toPin": "exec"
+    },
+    {
+      "from": "n67",
+      "fromPin": "false",
+      "to": "n73",
+      "toPin": "exec"
+    },
+    {
+      "from": "n74",
+      "fromPin": "value",
+      "to": "n75",
+      "toPin": "a"
+    },
+    {
+      "from": "n52",
+      "fromPin": "result",
+      "to": "n75",
+      "toPin": "b"
+    },
+    {
+      "from": "n75",
+      "fromPin": "result",
+      "to": "n76",
+      "toPin": "value"
+    },
+    {
+      "from": "n73",
+      "fromPin": "then0",
+      "to": "n76",
+      "toPin": "exec"
+    },
+    {
+      "from": "n76",
+      "fromPin": "then",
+      "to": "n68",
+      "toPin": "exec"
+    },
+    {
+      "from": "n68",
+      "fromPin": "then0",
+      "to": "n63",
+      "toPin": "exec"
+    },
+    {
+      "from": "n8",
+      "fromPin": "deltaTime",
+      "to": "n78",
+      "toPin": "a"
+    },
+    {
+      "from": "n77",
+      "fromPin": "value",
+      "to": "n79",
+      "toPin": "a"
+    },
+    {
+      "from": "n78",
+      "fromPin": "result",
+      "to": "n79",
+      "toPin": "b"
+    },
+    {
+      "from": "n79",
+      "fromPin": "result",
+      "to": "n80",
+      "toPin": "value"
+    },
+    {
+      "from": "n63",
+      "fromPin": "then0",
+      "to": "n80",
+      "toPin": "exec"
+    },
+    {
+      "from": "n82",
+      "fromPin": "value",
+      "to": "n83",
+      "toPin": "a"
+    },
+    {
+      "from": "n8",
+      "fromPin": "deltaTime",
+      "to": "n83",
+      "toPin": "b"
+    },
+    {
+      "from": "n81",
+      "fromPin": "value",
+      "to": "n84",
+      "toPin": "a"
+    },
+    {
+      "from": "n83",
+      "fromPin": "result",
+      "to": "n84",
+      "toPin": "b"
+    },
+    {
+      "from": "n84",
+      "fromPin": "result",
+      "to": "n85",
+      "toPin": "value"
+    },
+    {
+      "from": "n80",
+      "fromPin": "then",
+      "to": "n85",
+      "toPin": "exec"
+    },
+    {
+      "from": "n87",
+      "fromPin": "value",
+      "to": "n86",
+      "toPin": "a"
+    },
+    {
+      "from": "n88",
+      "fromPin": "value",
+      "to": "n86",
+      "toPin": "b"
+    },
+    {
+      "from": "n86",
+      "fromPin": "result",
+      "to": "n89",
+      "toPin": "condition"
+    },
+    {
+      "from": "n85",
+      "fromPin": "then",
+      "to": "n89",
+      "toPin": "exec"
+    },
+    {
+      "from": "n89",
+      "fromPin": "true",
+      "to": "n91",
+      "toPin": "exec"
+    },
+    {
+      "from": "n92",
+      "fromPin": "value",
+      "to": "n93",
+      "toPin": "value"
+    },
+    {
+      "from": "n91",
+      "fromPin": "then0",
+      "to": "n93",
+      "toPin": "exec"
+    },
+    {
+      "from": "n93",
+      "fromPin": "then",
+      "to": "n94",
+      "toPin": "exec"
+    },
+    {
+      "from": "n94",
+      "fromPin": "then",
+      "to": "n90",
+      "toPin": "exec"
+    },
+    {
+      "from": "n89",
+      "fromPin": "false",
+      "to": "n90",
+      "toPin": "exec"
+    },
+    {
+      "from": "n96",
+      "fromPin": "value",
+      "to": "n95",
+      "toPin": "x"
+    },
+    {
+      "from": "n97",
+      "fromPin": "value",
+      "to": "n95",
+      "toPin": "y"
+    },
+    {
+      "from": "n98",
+      "fromPin": "value",
+      "to": "n95",
+      "toPin": "z"
+    },
+    {
+      "from": "n95",
       "fromPin": "vector",
-      "to": "n30",
-      "toPin": "offset"
+      "to": "n99",
+      "toPin": "position"
     },
     {
-      "from": "n2",
-      "fromPin": "then2",
-      "to": "n20",
-      "toPin": "exec"
-    },
-    {
-      "from": "n20",
-      "fromPin": "then",
-      "to": "n21",
-      "toPin": "exec"
-    },
-    {
-      "from": "n21",
-      "fromPin": "then",
-      "to": "n30",
+      "from": "n90",
+      "fromPin": "then0",
+      "to": "n99",
       "toPin": "exec"
     }
   ]

@@ -1051,12 +1051,10 @@
           }
         },
         {
-          "type": "EntityScriptBindingComponent",
+          "type": "GraphScriptComponent",
           "enabled": true,
           "data": {
-            "scriptPath": "scripts/samples/runner/RunnerPlayer.java",
-            "scriptClassName": "samples.runner.RunnerPlayer",
-            "language": "JAVA"
+            "graph": "graphs/samples/RunnerPlayer.graph"
           }
         }
       ]

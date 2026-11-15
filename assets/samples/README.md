@@ -1,9 +1,11 @@
 # Sample games
 
-Small, complete games to play, read and use as starting points. Open one with **File → Open Sample...**,
-press **Play**, then click into the scene view so the game gets the keyboard. To start your own game from a
-sample, open it and use **File → Save Scene As...**. You can also copy its script folder under `scripts/` and
-rename the package.
+Small, complete games to play, read and use as starting points. Open one with **Project → New Game...** (the
+template gallery: **Play Sample**) or **Project → Open Sample...**, press **Play**, then click into the scene view so
+the game gets the keyboard. To start your own game from a sample, choose it in **Project → New Game...** and press
+**Use as Template**: that makes a separate project with copies of everything the sample needs, and the sample stays
+as it was. The gallery's list, genres and summaries are in `templates/gallery.json` and its previews in
+`templates/previews/` (remake them with `python tools/make_template_previews.py`); a new sample must be listed there.
 
 | Scene | Kind | Shows | Controls | Scripts |
 |---|---|---|---|---|
@@ -24,9 +26,12 @@ rename the package.
 | `collector-3d.json` | 3D | Rolling movement with inertia, pickups that spin and bob, a timer, a third-person follow camera, lights and shadows | WASD or arrows, R restart | `scripts/samples/collector/`, `scripts/samples/common/` |
 | `runner-3d.json` | 3D | An endless runner: lanes, jumping, pooled obstacles, speed that rises over time, a distance score | A/D or arrows change lane, Space jump, R restart | `scripts/samples/runner/` |
 | `hopper-3d.json` | 3D | 3D platforming: jump between floating platforms, box collision on three axes, respawn after falling, a goal | WASD or arrows, Space jump, R restart | `scripts/samples/hopper/`, `scripts/samples/common/` |
-| `racing-3d.json` | 3D | A three-lap race against two rival cars on a circuit built from road pieces: the race waits until you press W, then counts down; arcade steering, grass that slows you down, lap and race times, race position, a chase camera that turns with the car | W/S or Up/Down accelerate and brake, A/D or Left/Right steer, R restart | `scripts/samples/racing/` |
+| `racing-3d.json` | 3D | A three-lap race against two rival cars on a circuit built from road pieces: the race waits until you press W, then counts down; arcade steering, grass that slows you down, lap and race times, race position, a chase camera that turns with the car, engine sound that follows each car (Engine Sound components, `CarEngine` gearbox) | W/S or Up/Down accelerate and brake, A/D or Left/Right steer, R restart | `scripts/samples/racing/` |
 | `arena-fps-3d.json` | 3D | A first-person shooter: the camera is the player, with the gun as its children so it follows the view. Three waves of drones chase you; the gun fires pooled balls that fly from the muzzle to the crosshair and burst on impact; walls, crates and pillars block movement and balls | WASD move, arrows turn and look, Space start and fire, R restart | `scripts/samples/fps/` |
 | `puzzle-3d.json` | 3D | A grid puzzle: push every crate onto a target tile, in four levels written as text grids in the script. Undo, restart, a move counter, pieces built from pooled entities, and a camera fitted to each level | WASD or arrows move, U or Z undo, R restart puzzle, Space next puzzle | `scripts/samples/puzzle/` |
+| `blockworld-3d.json` | 3D | A sandbox in the style of a block-building game: a world of cubes you walk through in first person, dig out and build with. Only blocks with an open side are drawn (pooled entities), collision against the block grid, a sight line that finds the block in the crosshair, six block kinds, trees and hills | WASD walk, arrows look, Space jump, F break, G place, 1-6 choose block, R new world | `scripts/samples/blockworld/` |
+| `obby-3d.json` | 3D | An obstacle course in the style of a block-building online game: a blocky character with swinging limbs runs a six-stage course of bright parts over the void: checkpoints, lava, sliding and lifting platforms, tiles that drop away, spinning bars, bounce pads, coins and a finish; a camera that orbits the character and runs relative to it | WASD run, Space jump, Left/Right turn the camera, Up/Down tilt it, R restart | `scripts/samples/obby/` |
+| `terrain-3d.json` | 3D | A valley of heightmap terrain drawn in chunks and coloured by slope and height; select Valley and turn Paint on in Details to reshape it with brushes (raise, lower, smooth, flatten, noise), undo any stroke | Drag to paint, Ctrl inverts, Shift smooths, Alt-drag orbits | `terrains/Valley.terrain` |
 | `ruins-runner-25d.json` | 2.5D | Side-scrolling through a 3D ruin with background and foreground layers; moving platforms that carry you; spikes, checkpoints, orbs | A/D or arrows, Space/W jump, R restart | `scripts/samples/ruins/`, `scripts/samples/common/` |
 | `three-heroes-25d.json` | 2.5D | Three heroes who share one body: switch at any time. Mason conjures crates (E), Scout has a double jump, Brute pushes heavy blocks and smashes cracked walls (E). The cracked wall needs the Brute and the tower needs the Brute and Scout together; the Mason offers another way up the first cliff | 1/2/3 or Tab switch, A/D, Space, E ability, R restart | `scripts/samples/trio/`, `scripts/samples/common/` |
 | `fighter-25d.json` | 2.5D | One-on-one fighting against a computer opponent, best of three rounds: punches and kicks with wind-up, hit and recovery timing, blocking, knockback, hit stun, jumping over low attacks, health bars made of boxes, a round timer | A/D walk, W jump, S block, J punch, K kick, Space start, R restart | `scripts/samples/fighter/` |
@@ -51,12 +56,14 @@ rename the package.
   **Script** component, and it is compiled when you press Play.
   - Scripts find other entities by name, for example `getScene().findEntityByName("Player")`.
   - Scripts find groups of entities by name prefix. Entities whose name starts with `Platform`, `Coin`, `Brick`,
-    `Gem`, `Star`, `Marker`, `Mover`, `Orb`, `Spikes`, `Checkpoint`, `Cracked`, `Heavy`, `Anchor`, `Road `, `Rival`, `Wall`, `Crate`, `Pillar`, `Enemy` or `Spawn` are picked up
+    `Gem`, `Star`, `Marker`, `Mover`, `Fade`, `Kill`, `Pad`, `Spinner`, `Orb`, `Spikes`, `Checkpoint`, `Cracked`, `Heavy`, `Anchor`, `Road `, `Rival`, `Wall`, `Crate`, `Pillar`, `Enemy` or `Spawn` are picked up
     that way. Keep other entity names from starting with those words.
 - **2.5D:** the level is built from 3D boxes, but the player moves only in the side-view plane at depth z = 0.
   `SideBody` (`scripts/samples/common/`) handles movement, gravity, collision, riding moving platforms and pushing.
   `SideCamera25D` looks from the front, slightly from above. Scenery placed at other depths (names starting with
   `Decor`) shifts at different speeds as the camera moves, which gives the sense of depth.
+- **Block world:** the world is a grid of block kinds held by the script (`BlockWorld`), not entities. Only blocks with an open side get an entity, taken from a pool, so digging shows the blocks behind and a few hundred entities cover the whole world. The scene holds the camera, the selection frame, the HUD and the sounds; change the terrain in `terrainHeight`, the trees in `TREES` and the block colours in `Kind`.
+- **Obby course:** every part is an entity and its name says what it does: `Platform`, `Checkpoint n`, `Fade`, `Mover X`, `Mover Y`, `Mover Z`, `Kill`, `Spinner n`, `Pad`, `Coin` and `Finish` (see the `ObbyGame` comment). Move, resize or rename parts in the editor and the course changes. `tools/make_block_samples.py` laid the first course out and checks that every jump on it can be made; it is not needed to edit the scene.
 - **Racing circuit:** the track is the entities named `Road 1`, `Road 2`, ... in driving order, each a box
   turned around Y whose length (size Z) is the straight plus one road width, so neighbours overlap at the
   corners. `RaceTrack` reads them when the race starts: move, add or turn pieces and the rivals, the lap counter

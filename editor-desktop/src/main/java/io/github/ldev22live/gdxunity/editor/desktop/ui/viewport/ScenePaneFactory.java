@@ -19,6 +19,10 @@ import io.github.ldev22live.gdxunity.editor.desktop.ui.TransformGizmoRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.workspaces.SceneEditorWorkspace;
 import io.github.ldev22live.gdxunity.editor.sculpt.SculptSession;
 import io.github.ldev22live.gdxunity.editor.sculpt.SculptViewportInteraction;
+import io.github.ldev22live.gdxunity.editor.terrain.LevelSession;
+import io.github.ldev22live.gdxunity.editor.terrain.LevelViewportInteraction;
+import io.github.ldev22live.gdxunity.editor.terrain.TerrainSession;
+import io.github.ldev22live.gdxunity.editor.terrain.TerrainViewportInteraction;
 import io.github.ldev22live.gdxunity.engine.render.SceneRenderer3D;
 import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
 
@@ -47,6 +51,8 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
     private final EditorState editorState;
     private final GizmoInteractionController gizmoController;
     private final SculptSession sculptSession;
+    private final TerrainSession terrainSession;
+    private final LevelSession levelSession;
     private final SceneRenderer3D sceneRenderer3D;
     private final SceneEditorWorkspace workspace;
     private final BooleanSupplier showAllColliders;
@@ -58,12 +64,14 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
      * @param sceneCenter the point new views look at, and axis views start centred on
      */
     public ScenePaneFactory(EditorState editorState, GizmoInteractionController gizmoController,
-                            SculptSession sculptSession, SceneRenderer3D sceneRenderer3D,
+                            SculptSession sculptSession, TerrainSession terrainSession, LevelSession levelSession, SceneRenderer3D sceneRenderer3D,
                             SceneEditorWorkspace workspace, BooleanSupplier showAllColliders,
                             MainPerspective main, Vector3 sceneCenter) {
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.gizmoController = Objects.requireNonNull(gizmoController, "gizmoController cannot be null");
         this.sculptSession = Objects.requireNonNull(sculptSession, "sculptSession cannot be null");
+        this.terrainSession = Objects.requireNonNull(terrainSession, "terrainSession cannot be null");
+        this.levelSession = Objects.requireNonNull(levelSession, "levelSession cannot be null");
         this.sceneRenderer3D = Objects.requireNonNull(sceneRenderer3D, "sceneRenderer3D cannot be null");
         this.workspace = Objects.requireNonNull(workspace, "workspace cannot be null");
         this.showAllColliders = Objects.requireNonNull(showAllColliders, "showAllColliders cannot be null");
@@ -86,8 +94,10 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
         controller.setPanSensitivity(main.controller().getPanSensitivity());
         controller.setFlyMoveSpeed(main.controller().getFlyMoveSpeed());
         controller.setZoomSensitivity(main.controller().getZoomSensitivity());
-        ViewportInteraction interaction = new SculptViewportInteraction(editorState, sculptSession, camera,
-            new SceneViewportInteraction3D(editorState, camera, controller, gizmoController));
+        ViewportInteraction interaction = new LevelViewportInteraction(levelSession, camera,
+            new TerrainViewportInteraction(editorState, terrainSession, camera,
+                new SculptViewportInteraction(editorState, sculptSession, camera,
+                    new SceneViewportInteraction3D(editorState, camera, controller, gizmoController))));
         PerspectivePane pane = new PerspectivePane(camera, controller, interaction, null, false);
         pane.resetView();
         return pane;
@@ -219,7 +229,9 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
         AxisPane(ViewKind kind) {
             this.view = new OrthographicViewCamera(kind);
             this.axisInteraction = new OrthographicViewInteraction(editorState, view, gizmoController);
-            this.interaction = new SculptViewportInteraction(editorState, sculptSession, view.getCamera(), axisInteraction);
+            this.interaction = new LevelViewportInteraction(levelSession, view.getCamera(),
+                new TerrainViewportInteraction(editorState, terrainSession, view.getCamera(),
+                    new SculptViewportInteraction(editorState, sculptSession, view.getCamera(), axisInteraction)));
             this.widget = new SceneViewportWidget(interaction, view::resize);
             this.grid = new AxisGridRenderer(view);
             this.overlays = new Overlays(grid::render,

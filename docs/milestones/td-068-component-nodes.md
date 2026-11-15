@@ -1,7 +1,7 @@
 # TD-068 — Visual Scripting Reliability and Component Nodes
 
 Decision: [TD-068](../TECHNICAL_DECISIONS.md), explicitly approved 2026-11-10.
-Implementation evidence: [milestone report](../reports/td-068-component-nodes-report.md).
+Implementation evidence: the milestone report `../reports/td-068-component-nodes-report.md` **is missing from the repository** (checked 2026-11-14), so the results this page relies on cannot be checked.
 
 ## Scope
 

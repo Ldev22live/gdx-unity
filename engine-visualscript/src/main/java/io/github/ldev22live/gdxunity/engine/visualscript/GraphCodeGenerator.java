@@ -88,6 +88,7 @@ public final class GraphCodeGenerator {
     public String generate(Graph graph, Language language) {
         Objects.requireNonNull(graph, "graph cannot be null");
         Objects.requireNonNull(language, "language cannot be null");
+        FunctionNodes.refuseForGeneration(graph, language == Language.JAVA ? "Java" : "Kotlin");
         List<GraphValidator.Problem> problems = new GraphValidator(registry).validate(graph);
         if (!problems.isEmpty()) {
             throw new IllegalArgumentException("Graph " + graph.getName() + " has " + problems.size() + " problem(s), first: "
@@ -108,6 +109,8 @@ public final class GraphCodeGenerator {
         private boolean needsWorldPosition;
         private boolean needsFormatNumber;
         private boolean needsKeys;
+        private boolean needsKeyPressed;
+        private boolean needsAudio;
 
         Run(Graph graph, Language language) {
             this.graph = graph;
@@ -225,8 +228,11 @@ public final class GraphCodeGenerator {
             if (!raycastNodes.isEmpty() && !kotlin) {
                 imports.add("io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D");
             }
-            if (needsKeys) {
+            if (needsKeys || needsKeyPressed) {
                 imports.add("com.badlogic.gdx.Input");
+            }
+            if (needsAudio) {
+                imports.add("io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent");
             }
             if (needsFormatNumber) {
                 imports.add("java.util.Locale");
@@ -284,6 +290,22 @@ public final class GraphCodeGenerator {
                         .append(INDENT).append(INDENT).append(INDENT).append("return;\n")
                         .append(INDENT).append(INDENT).append("}\n")
                         .append(INDENT).append(INDENT).append("target.getTransform().setLocalPosition(new Vector3(world).mul(parent.getWorldMatrix().inv()));\n")
+                        .append(INDENT).append("}\n\n");
+                }
+            }
+            if (needsKeyPressed) {
+                if (kotlin) {
+                    body.append(INDENT).append("private fun keyPressed(vararg keys: Int): Boolean {\n")
+                        .append(INDENT).append(INDENT).append("return keys.any { Gdx.input.isKeyJustPressed(it) }\n")
+                        .append(INDENT).append("}\n\n");
+                } else {
+                    body.append(INDENT).append("private static boolean keyPressed(int... keys) {\n")
+                        .append(INDENT).append(INDENT).append("for (int key : keys) {\n")
+                        .append(INDENT).append(INDENT).append(INDENT).append("if (Gdx.input.isKeyJustPressed(key)) {\n")
+                        .append(INDENT).append(INDENT).append(INDENT).append(INDENT).append("return true;\n")
+                        .append(INDENT).append(INDENT).append(INDENT).append("}\n")
+                        .append(INDENT).append(INDENT).append("}\n")
+                        .append(INDENT).append(INDENT).append("return false;\n")
                         .append(INDENT).append("}\n\n");
                 }
             }
@@ -363,6 +385,12 @@ public final class GraphCodeGenerator {
                     String timer = delayField(nodeId);
                     out.append(pad).append("if (").append(timer).append(" < 0f) ").append(timer).append(" = ")
                         .append(input(node, "seconds")).append(end()).append('\n');
+                }
+                case BuiltInNodes.ACTION_PLAY_CUE -> {
+                    needsAudio = true;
+                    out.append(pad).append("AudioSourceComponent.play(getScene(), ")
+                        .append(quote((String) node.getProperty(BuiltInNodes.PROPERTY_CUE))).append(')').append(end()).append('\n');
+                    emitFrom(nodeId, PinDef.EXEC_OUT, depth, path, out);
                 }
                 case BuiltInNodes.ACTION_PRINT -> {
                     out.append(pad).append("Gdx.app.log(").append(quote(className)).append(", ").append(input(node, "message")).append(')')
@@ -514,6 +542,9 @@ public final class GraphCodeGenerator {
                     return "requirePhysics3D().getLinearVelocity(" + targetOf(node, depth) + ")";
                 case BuiltInNodes.DATA_IS_GROUNDED:
                     return "requirePhysics3D().isCharacterGrounded(" + targetOf(node, depth) + ")";
+                case BuiltInNodes.INPUT_KEY_PRESSED:
+                    needsKeyPressed = true;
+                    return "keyPressed(" + String.join(", ", KeyNames.constants((String) node.getProperty(BuiltInNodes.PROPERTY_KEY))) + ")";
                 case BuiltInNodes.INPUT_KEY_DOWN:
                     needsKeys = true;
                     return keyDownCall((String) node.getProperty(BuiltInNodes.PROPERTY_KEY));
@@ -547,6 +578,12 @@ public final class GraphCodeGenerator {
                     String degrees = input(node, "degrees", depth);
                     return kotlin ? "Math." + function + "(Math.toRadians((" + degrees + ").toDouble())).toFloat()"
                         : "(float) Math." + function + "(Math.toRadians(" + degrees + "))";
+                }
+                case BuiltInNodes.MATH_POWER: {
+                    String base = input(node, "base", depth);
+                    String exponent = input(node, "exponent", depth);
+                    return kotlin ? "Math.pow((" + base + ").toDouble(), (" + exponent + ").toDouble()).toFloat()"
+                        : "(float) Math.pow(" + base + ", " + exponent + ")";
                 }
                 case BuiltInNodes.LOGIC_NOT:
                     return "(!" + input(node, "value", depth) + ")";

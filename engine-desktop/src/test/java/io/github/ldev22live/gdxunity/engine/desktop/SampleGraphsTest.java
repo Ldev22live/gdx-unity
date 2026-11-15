@@ -52,4 +52,35 @@ class SampleGraphsTest {
         assertTrue(Files.isRegularFile(ASSETS.resolve(graph.getGraphPath())), "the graph file exists");
         assertNotNull(scene.findEntityByName("Game").getComponent(EntityScriptBindingComponent.class), "the game rules are still Java");
     }
+
+    @Test
+    void shouldRunTheCollectorBallFromItsGraphAndKeepTheGameRulesInJava() throws IOException {
+        Scene scene = load("collector-3d.json");
+
+        Entity player = scene.findEntityByName("Player");
+        assertNotNull(player, "the collector sample has a Player");
+        GraphScriptComponent graph = player.getComponent(GraphScriptComponent.class);
+        assertNotNull(graph);
+        assertEquals("graphs/samples/CollectorPlayer.graph", graph.getGraphPath());
+        assertNull(player.getComponent(EntityScriptBindingComponent.class), "no Java script on the ball any more");
+        assertTrue(Files.isRegularFile(ASSETS.resolve(graph.getGraphPath())), "the graph file exists");
+        assertTrue(Files.isRegularFile(ASSETS.resolve("scripts/samples/collector/CollectorPlayer.java")), "the Java script stays as the reference");
+        assertNotNull(scene.findEntityByName("Game").getComponent(EntityScriptBindingComponent.class), "the gems, timer and messages are still Java");
+    }
+
+    @Test
+    void shouldRunTheRunnerPlayerFromItsGraphAndKeepTheWorldInJava() throws IOException {
+        Scene scene = load("runner-3d.json");
+
+        Entity player = scene.findEntityByName("Player");
+        assertNotNull(player, "the runner sample has a Player");
+        GraphScriptComponent graph = player.getComponent(GraphScriptComponent.class);
+        assertNotNull(graph);
+        assertEquals("graphs/samples/RunnerPlayer.graph", graph.getGraphPath());
+        assertNull(player.getComponent(EntityScriptBindingComponent.class), "no Java script on the player any more");
+        assertTrue(Files.isRegularFile(ASSETS.resolve(graph.getGraphPath())), "the graph file exists");
+        assertTrue(Files.isRegularFile(ASSETS.resolve("scripts/samples/runner/RunnerPlayer.java")),
+            "the Java script stays as the reference, and RunnerGame reads its LANES");
+        assertNotNull(scene.findEntityByName("Game").getComponent(EntityScriptBindingComponent.class), "the blocks and rules are still Java");
+    }
 }

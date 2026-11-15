@@ -3,11 +3,14 @@ package samples.racing;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.audio.EngineSoundComponent;
 
 /**
  * One car in the race: where it is, which way it points, how fast it goes and how far round the circuit it has got.
  * The player's car is driven by the keys ({@link #drive}); rivals steer towards a point ahead of them on the
- * track ({@link #steerTowards}). Handling is arcade style: the car always goes where it points, with no sliding.
+ * track ({@link #steerTowards}). Handling is arcade style: the car always goes where it points, with no sliding. Each car
+ * also has a {@link CarEngine}, whose revs and throttle {@link #applySound} hands to the entity's Engine Sound component (if it
+ * has one), so the car sounds like it is being driven.
  *
  * <p>Not a script by itself: {@link RaceGame} creates one per car entity and moves the entity every frame.
  */
@@ -31,10 +34,15 @@ public final class RaceCar {
     /** Rival steering rate and acceleration. */
     static final float RIVAL_TURN_RATE = 150f;
     static final float RIVAL_ACCELERATION = 380f;
+    /** A rival this far below its target speed has its foot down; closer than that it is just holding speed. */
+    static final float RIVAL_CRUISE_MARGIN = 5f;
     /** How far past a piece's edge a car may be and still count as driving along it (cutting a corner a little). */
     static final float PROGRESS_MARGIN = 1.6f;
 
     public final Entity entity;
+    /** The engine and gearbox; its revs follow {@link #speed}. */
+    public final CarEngine engine = new CarEngine();
+    private final EngineSoundComponent sound;
     private final float startX;
     private final float startZ;
     private final float startHeading;
@@ -54,6 +62,7 @@ public final class RaceCar {
 
     public RaceCar(Entity entity) {
         this.entity = entity;
+        sound = entity.getComponent(EngineSoundComponent.class);
         startX = entity.getTransform().getWorldPosition().x;
         startZ = entity.getTransform().getWorldPosition().z;
         startHeading = entity.getTransform().getWorldRotation().getYaw();
@@ -69,6 +78,8 @@ public final class RaceCar {
         segment = 0;
         along = track.segment(0).along(x, z);
         finishPlace = 0;
+        engine.reset();
+        applySound();
         apply();
     }
 
@@ -91,6 +102,8 @@ public final class RaceCar {
             speed = Math.max(limit, speed - GRASS_DRAG * deltaTime);
         }
         speed = Math.max(speed, -MAX_REVERSE_SPEED);
+        // The pedal is down when accelerating forwards or, once rolling backwards, when reversing
+        updateEngine(throttle > 0f || (throttle < 0f && speed <= 0f) ? 1f : 0f, deltaTime);
         // Reversing turns the other way, like a real car
         heading += steer * TURN_RATE * deltaTime * MathUtils.clamp(speed / FULL_STEER_SPEED, -1f, 1f);
         move(deltaTime);
@@ -102,7 +115,20 @@ public final class RaceCar {
         float turn = wrapDegrees(desired - heading);
         heading += MathUtils.clamp(turn, -RIVAL_TURN_RATE * deltaTime, RIVAL_TURN_RATE * deltaTime);
         speed = approach(speed, targetSpeed, RIVAL_ACCELERATION * deltaTime);
+        updateEngine(speed < targetSpeed - RIVAL_CRUISE_MARGIN ? 1f : CarEngine.CRUISE_THROTTLE, deltaTime);
         move(deltaTime);
+    }
+
+    /** Runs the engine for a frame at the car's current speed; cars that are not driving yet (the grid) call it with their own pedal. */
+    public void updateEngine(float pedal, float deltaTime) {
+        engine.update(speed, pedal, deltaTime);
+    }
+
+    /** Hands the engine's revs and throttle to the car's Engine Sound component; does nothing for a car without one. */
+    public void applySound() {
+        if (sound != null) {
+            sound.setState(engine.getRevs(), engine.getThrottle());
+        }
     }
 
     /**

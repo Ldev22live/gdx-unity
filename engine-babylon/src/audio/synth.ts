@@ -35,9 +35,12 @@ export function defaultPatch(): SynthPatch {
   };
 }
 
-export const PRESET_NAMES = ["Saw Lead", "Square Chip", "Sub Bass", "Soft Pad", "Pluck"] as const;
+export const PRESET_NAMES = [
+  "Saw Lead", "Square Chip", "Sub Bass", "Soft Pad", "Pluck",
+  "Electric Piano", "Organ", "Strings", "Brass", "Flute", "Marimba", "Wobble Bass", "Arp Lead", "Choir",
+] as const;
 
-/** A named starting sound; the same five presets as the desktop studio. */
+/** A named starting sound; the same presets, with the same values, as the desktop studio (TD-074 checks them against each other). */
 export function presetPatch(name: string): SynthPatch {
   const p = defaultPatch();
   switch (name) {
@@ -55,6 +58,33 @@ export function presetPatch(name: string): SynthPatch {
       break;
     case "Pluck":
       Object.assign(p, { osc1: "TRIANGLE", osc2: "SAW", osc2Mix: 0.3, attack: 0.001, decay: 0.25, sustain: 0, release: 0.15, cutoff: 1200, filterEnvOctaves: 3, resonance: 2 });
+      break;
+    case "Electric Piano":
+      Object.assign(p, { osc1: "TRIANGLE", osc2: "SINE", osc2Octave: 1, osc2Detune: 3, osc2Mix: 0.35, attack: 0.003, decay: 0.9, sustain: 0.25, release: 0.35, cutoff: 4500, resonance: 0.9, filterEnvOctaves: 1.5 });
+      break;
+    case "Organ":
+      Object.assign(p, { osc1: "SQUARE", osc2: "SINE", osc2Octave: 1, osc2Detune: 0, osc2Mix: 0.5, attack: 0.01, decay: 0.05, sustain: 1, release: 0.08, cutoff: 3500, lfoTarget: "VOLUME", lfoRate: 6, lfoDepth: 0.08 });
+      break;
+    case "Strings":
+      Object.assign(p, { osc2Detune: 14, attack: 0.35, decay: 0.3, sustain: 0.85, release: 0.6, cutoff: 3200, lfoTarget: "PITCH", lfoRate: 5, lfoDepth: 0.08, volume: 0.5 });
+      break;
+    case "Brass":
+      Object.assign(p, { osc2Detune: 5, attack: 0.06, decay: 0.2, sustain: 0.75, release: 0.15, cutoff: 1500, resonance: 1.2, filterEnvOctaves: 2.5, volume: 0.55 });
+      break;
+    case "Flute":
+      Object.assign(p, { osc1: "SINE", osc2: "TRIANGLE", osc2Octave: 1, osc2Detune: 0, osc2Mix: 0.2, attack: 0.08, decay: 0.1, sustain: 0.8, release: 0.2, cutoff: 5000, lfoTarget: "PITCH", lfoRate: 5, lfoDepth: 0.1 });
+      break;
+    case "Marimba":
+      Object.assign(p, { osc1: "SINE", osc2: "TRIANGLE", osc2Octave: 2, osc2Detune: 0, osc2Mix: 0.25, attack: 0.001, decay: 0.35, sustain: 0, release: 0.2, cutoff: 3000, volume: 0.7 });
+      break;
+    case "Wobble Bass":
+      Object.assign(p, { osc2: "SQUARE", osc2Octave: -1, osc2Detune: 0, attack: 0.005, decay: 0.1, sustain: 0.9, release: 0.1, cutoff: 500, resonance: 4, lfoTarget: "CUTOFF", lfoRate: 3, lfoDepth: 1, volume: 0.7 });
+      break;
+    case "Arp Lead":
+      Object.assign(p, { osc1: "SQUARE", osc2Detune: 9, osc2Mix: 0.4, pulseWidth: 0.4, attack: 0.002, decay: 0.15, sustain: 0.3, release: 0.1, cutoff: 3000, resonance: 1.5, filterEnvOctaves: 2 });
+      break;
+    case "Choir":
+      Object.assign(p, { osc1: "TRIANGLE", osc2Detune: 10, osc2Mix: 0.3, attack: 0.5, decay: 0.4, sustain: 0.85, release: 1, cutoff: 1800, resonance: 1.5, lfoTarget: "PITCH", lfoRate: 4.5, lfoDepth: 0.1, volume: 0.5 });
       break;
     default:
       throw new Error(`Unknown synth preset: ${name}`);

@@ -47,13 +47,29 @@ class GraphExamplesTest {
     /** A host with a keyboard we press ourselves and a log of what the graph printed. */
     private static final class Keyboard implements GraphHost {
         final Set<Integer> down = new HashSet<>();
+        /** Keys that went down since the last frame: what Key Pressed nodes read (TD-072). */
+        final Set<Integer> fresh = new HashSet<>();
         final List<String> printed = new ArrayList<>();
 
         void press(String... names) {
+            Set<Integer> before = new HashSet<>(down);
             down.clear();
             for (String name : names) {
                 down.addAll(KeyNames.parse(name));
             }
+            fresh.clear();
+            fresh.addAll(down);
+            fresh.removeAll(before);
+        }
+
+        /** The frame is over: nothing is new any more. */
+        void endFrame() {
+            fresh.clear();
+        }
+
+        @Override
+        public boolean isKeyJustPressed(int keycode) {
+            return fresh.contains(keycode);
         }
 
         @Override
@@ -81,7 +97,11 @@ class GraphExamplesTest {
         return GraphSerializer.fromJson(Files.readString(new File(ASSETS, "graphs/" + graphPath).toPath()));
     }
 
+    /** The keyboard of the graph started last; {@link #run} ends its frames so a press counts once. */
+    private static Keyboard lastKeyboard;
+
     private static GraphInstance start(String graphPath, Entity entity, Keyboard keys) throws IOException {
+        lastKeyboard = keys;
         GraphInstance instance = new GraphInstance(load(graphPath), REGISTRY, entity, keys);
         instance.beginPlay();
         return instance;
@@ -90,6 +110,7 @@ class GraphExamplesTest {
     private static void run(GraphInstance instance, int frames) {
         for (int i = 0; i < frames; i++) {
             instance.tick(FRAME);
+            lastKeyboard.endFrame();
         }
     }
 

@@ -431,6 +431,30 @@ class PlayModeControllerTest {
     }
 
     @Test
+    void shouldStopPlayWithTheReasonInsteadOfThrowingWhenTheSceneFailsOnItsFirstStep() {
+        editorState.getSerializer().getRegistry().register(
+            new io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.Joint3DComponentSerializer());
+        Scene authored = editorState.getActiveScene();
+        Entity floor = authored.createEntity("Floor");
+        floor.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent(
+            new com.badlogic.gdx.math.Vector3(2000f, 100f, 2000f)));
+        // A joint with no collider on its entity is accepted when Play starts and fails when the bodies are first built
+        authored.createEntity("Loose Joint").addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.Joint3DComponent());
+        String before = editorState.getSerializer().toJson(authored);
+
+        assertTrue(controller.play(), editorState.getStatusMessage());
+        assertDoesNotThrow(() -> controller.update(1.0f / 60.0f), "a failing step must not escape and end the editor");
+
+        assertTrue(controller.isStopped(), "Play stops itself when the scene cannot run");
+        assertSame(authored, editorState.getActiveScene(), "the authored scene is back");
+        assertTrue(editorState.getStatusMessage().startsWith("Play stopped: "), editorState.getStatusMessage());
+        assertTrue(editorState.getStatusMessage().contains("Loose Joint") && editorState.getStatusMessage().contains("no solid 3D collider"),
+            "it names the entity and says what to add: " + editorState.getStatusMessage());
+        assertEquals(before, editorState.getSerializer().toJson(authored), "and nothing in it changed");
+        assertNull(controller.getPhysicsSystem3D());
+    }
+
+    @Test
     void shouldNotCreate3DPhysicsForAScene2DOnly() {
         Entity box = editorState.getActiveScene().createEntity("Box");
         box.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent(

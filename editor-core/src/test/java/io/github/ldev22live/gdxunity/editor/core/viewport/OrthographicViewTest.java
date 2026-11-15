@@ -99,6 +99,13 @@ class OrthographicViewTest {
     }
 
     @Test
+    void shouldReportTheEntityUnderThePointerForADrop() {
+        assertSame(box, interaction.entityAt(W / 2, H / 2, W, H).orElseThrow());
+        assertTrue(interaction.entityAt(10f, 10f, W, H).isEmpty());
+        assertNull(editorState.getSelectedEntity());
+    }
+
+    @Test
     void shouldSelectTheEntityClickedAndClearOnEmptySpace() {
         interaction.touchDown(W / 2, H / 2, W, H, Input.Buttons.LEFT, 0);
         interaction.touchUp(Input.Buttons.LEFT);

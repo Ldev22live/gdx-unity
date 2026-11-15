@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "Rock",
+  "rootId": "e7b19266-da80-5040-94f5-aca338c9dd12",
+  "entities": [
+    {
+      "id": "e7b19266-da80-5040-94f5-aca338c9dd12",
+      "parentId": null,
+      "name": "Rock",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "e19e1325-9488-5b93-805b-ebfa106dd635",
+      "parentId": "e7b19266-da80-5040-94f5-aca338c9dd12",
+      "name": "Main",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 28.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 110.0,
+            "sizeY": 70.0,
+            "sizeZ": 90.0,
+            "colorR": 0.5,
+            "colorG": 0.5,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "366f3bd4-e9ae-5031-ab83-7b03d1bf1ccf",
+      "parentId": "e7b19266-da80-5040-94f5-aca338c9dd12",
+      "name": "Chip",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 46.0,
+          "y": 14.0,
+          "z": 20.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 50.0,
+            "sizeY": 36.0,
+            "sizeZ": 44.0,
+            "colorR": 0.38,
+            "colorG": 0.38,
+            "colorB": 0.41,
+            "colorA": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}

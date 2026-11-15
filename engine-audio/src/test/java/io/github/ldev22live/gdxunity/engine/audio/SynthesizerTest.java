@@ -162,6 +162,38 @@ class SynthesizerTest {
     }
 
     @Test
+    void shouldOfferFourteenDistinctPresetsThatTheEditorSlidersCanShow() {
+        java.util.List<String> names = SynthPatch.presetNames();
+        assertEquals(14, names.size());
+        assertEquals(14, names.stream().distinct().count());
+        assertEquals(14, names.stream().map(n -> SynthPatch.preset(n).toJson()).distinct().count(), "two presets are the same sound");
+        // The editors' sliders stop here; a preset beyond them would be clamped the moment it is touched
+        for (String name : names) {
+            SynthPatch p = SynthPatch.preset(name);
+            assertTrue(p.osc2Octave >= -2 && p.osc2Octave <= 2, name + " osc2Octave");
+            assertTrue(p.osc2Detune >= -100f && p.osc2Detune <= 100f, name + " osc2Detune");
+            assertTrue(p.attack >= 0.001f && p.attack <= 2f, name + " attack");
+            assertTrue(p.decay >= 0.001f && p.decay <= 2f, name + " decay");
+            assertTrue(p.release >= 0.001f && p.release <= 3f, name + " release");
+            assertTrue(p.cutoff >= 20f && p.cutoff <= 16000f, name + " cutoff");
+            assertTrue(p.resonance >= 0.5f && p.resonance <= 20f, name + " resonance");
+            assertTrue(p.filterEnvOctaves >= 0f && p.filterEnvOctaves <= 6f, name + " filterEnvOctaves");
+            assertTrue(p.lfoRate >= 0.1f && p.lfoRate <= 20f, name + " lfoRate");
+            assertTrue(p.lfoDepth >= 0f && p.lfoDepth <= 1f, name + " lfoDepth");
+        }
+    }
+
+    @Test
+    void shouldSoundAtTheRightPitchOnTheSteadyPresets() {
+        // A sine-led flute at A4 should read close to 440 Hz on its steady part
+        Synthesizer synth = new Synthesizer(AudioTestSupport.RATE, SynthPatch.preset("Flute"));
+        synth.noteOn(69, 1f);
+        float[] data = AudioTestSupport.render(synth, 30000);
+        double hz = AudioTestSupport.frequency(data, 10000, 30000);
+        assertTrue(hz > 400.0 && hz < 900.0, "flute at A4 measured " + hz);
+    }
+
+    @Test
     void shouldRoundTripAPatchThroughJson() {
         SynthPatch patch = SynthPatch.preset("Soft Pad");
         patch.osc2Octave = -1;

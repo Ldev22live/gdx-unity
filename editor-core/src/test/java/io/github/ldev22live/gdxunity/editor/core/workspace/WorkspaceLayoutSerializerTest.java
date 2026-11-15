@@ -28,7 +28,7 @@ class WorkspaceLayoutSerializerTest {
 
         WorkspaceLayoutConfig loaded = serializer.deserialize(json);
         assertNotNull(loaded);
-        assertEquals(1, loaded.getVersion());
+        assertEquals(WorkspaceLayoutSerializer.CURRENT_VERSION, loaded.getVersion());
         assertEquals("vector-studio", loaded.getActiveWorkspaceId());
         assertEquals(0.75f, loaded.getSplitRatioMain(), 0.001f);
         assertEquals(0.3f, loaded.getSplitRatioLeft(), 0.001f);
@@ -57,7 +57,7 @@ class WorkspaceLayoutSerializerTest {
 
         WorkspaceLayoutConfig config = serializer.deserialize(futureVersionJson);
         assertNotNull(config);
-        assertEquals(1, config.getVersion());
+        assertEquals(WorkspaceLayoutSerializer.CURRENT_VERSION, config.getVersion());
         assertEquals("scene-editor", config.getActiveWorkspaceId());
     }
 

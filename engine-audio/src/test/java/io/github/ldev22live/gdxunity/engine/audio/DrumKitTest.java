@@ -76,6 +76,47 @@ class DrumKitTest {
     }
 
     @Test
+    void shouldKeepTheFirstSevenDrumsInOrderAndGiveEveryDrumItsOwnNote() {
+        assertEquals(java.util.List.of(36, 38, 39, 42, 46, 45, 49),
+            DrumKit.drums().subList(0, 7).stream().map(DrumKit.Drum::getNote).toList());
+        assertEquals(15, DrumKit.drums().size());
+        assertEquals(15, DrumKit.drums().stream().map(DrumKit.Drum::getNote).distinct().count());
+        assertEquals(15, DrumKit.drums().stream().map(DrumKit.Drum::getDisplayName).distinct().count());
+    }
+
+    @Test
+    void shouldTuneTheTomsFromFloorToHigh() {
+        double floor = lowestPitch(DrumKit.Drum.FLOOR_TOM);
+        double mid = lowestPitch(DrumKit.Drum.MID_TOM);
+        double high = lowestPitch(DrumKit.Drum.HIGH_TOM);
+        assertTrue(floor < mid && mid < high, "toms " + floor + " " + mid + " " + high);
+    }
+
+    /** The pitch a tom settles to after its drop, from the zero crossings of its tail. */
+    private static double lowestPitch(DrumKit.Drum drum) {
+        DrumKit kit = new DrumKit(AudioTestSupport.RATE);
+        kit.noteOn(drum.getNote(), 1f);
+        float[] data = AudioTestSupport.render(kit, 9000);
+        return AudioTestSupport.frequency(data, 4000, 9000);
+    }
+
+    @Test
+    void shouldSwellTheShakerInsteadOfHittingAtFullLevel() {
+        DrumKit kit = new DrumKit(AudioTestSupport.RATE);
+        kit.noteOn(DrumKit.Drum.SHAKER.getNote(), 1f);
+        float[] data = AudioTestSupport.render(kit, 3000);
+        assertTrue(AudioTestSupport.peak(data, 0, 50) < AudioTestSupport.peak(data, 500, 1500) / 4f);
+    }
+
+    @Test
+    void shouldMakeTheCowbellTwoTonesAboveTheKick() {
+        DrumKit kit = new DrumKit(AudioTestSupport.RATE);
+        kit.noteOn(DrumKit.Drum.COWBELL.getNote(), 1f);
+        float[] data = AudioTestSupport.render(kit, 4000);
+        assertTrue(AudioTestSupport.frequency(data, 0, 4000) > 400.0);
+    }
+
+    @Test
     void shouldFindDrumsByNote() {
         assertEquals(DrumKit.Drum.SNARE, DrumKit.drumForNote(38));
         assertNull(DrumKit.drumForNote(0));

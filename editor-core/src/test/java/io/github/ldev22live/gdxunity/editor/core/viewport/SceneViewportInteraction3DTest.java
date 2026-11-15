@@ -98,6 +98,22 @@ class SceneViewportInteraction3DTest {
     }
 
     @Test
+    void shouldReportTheEntityUnderThePointerForADropWithoutChangingTheSelection() {
+        Vector3 p = toPanel(0f, 0f, 0f);
+        Vector3 empty = toPanel(250f, 150f, 0f);
+
+        assertEquals(java.util.Optional.of(box), interaction.entityAt(p.x, p.y, PANEL_W, PANEL_H));
+        assertEquals(java.util.Optional.empty(), interaction.entityAt(empty.x, empty.y, PANEL_W, PANEL_H));
+        assertNull(editorState.getSelectedEntity(), "Asking what is under the pointer must not select it");
+
+        ModeSwitchingViewportInteraction switching = new ModeSwitchingViewportInteraction(editorState, new RecordingInteraction(), interaction);
+        editorState.setViewportMode(ViewportMode.VIEW_3D);
+        assertEquals(java.util.Optional.of(box), switching.entityAt(p.x, p.y, PANEL_W, PANEL_H), "The 3D view answers in 3D mode");
+        editorState.setViewportMode(ViewportMode.VIEW_2D);
+        assertEquals(java.util.Optional.empty(), switching.entityAt(p.x, p.y, PANEL_W, PANEL_H), "The 2D view answers in 2D mode");
+    }
+
+    @Test
     void shouldGrabGizmoHandleBeforePicking() {
         editorState.setSelectedEntity(box);
         editorState.setToolMode(ToolMode.MOVE);

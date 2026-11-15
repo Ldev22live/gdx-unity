@@ -73,7 +73,7 @@ describe("graph files", () => {
   it("shouldRejectFilesItCannotRead", () => {
     expect(() => parseGraph("")).toThrow(/empty/);
     expect(() => parseGraph("{")).toThrow(/Malformed/);
-    expect(() => parseGraph(JSON.stringify({ schemaVersion: 2, kind: "graph" }))).toThrow(/schemaVersion/);
+    expect(() => parseGraph(JSON.stringify({ schemaVersion: 3, kind: "graph" }))).toThrow(/schemaVersion/);
     expect(() => parseGraph(JSON.stringify({ schemaVersion: 1, kind: "scene" }))).toThrow(/Not a graph/);
     expect(() => parseGraph(JSON.stringify({ schemaVersion: 1, kind: "graph", variables: [{ name: "e", type: "ENTITY", value: null }] }))).toThrow(/entities/);
   });
@@ -88,8 +88,11 @@ describe("graph files", () => {
     const components = [...new Set([...componentJava.matchAll(/(?:RENDER|AUDIO) \+ "(\w+)#/g)].map((match) => `component.get:${match[1]}`))];
     const loopsJava = readFileSync(JAVA_NODES.replace("BuiltInNodes.java", "LoopNodes.java"), "utf8");
     const loops = [...loopsJava.matchAll(/public static final String \w+ = "(flow\.\w+)"/g)].map((match) => match[1]!);
+    const functionsJava = readFileSync(JAVA_NODES.replace("BuiltInNodes.java", "FunctionNodes.java"), "utf8");
+    const functions = [...functionsJava.matchAll(/public static final String (?:ENTRY|RETURN|CALL|FIRE) = "([\w.]+)";/g)].map((match) => match[1]!);
+    expect(functions).toHaveLength(4);
     // The Java method nodes (TD-065) are checked against the desktop by javaMethodNodes.test.ts
-    expect(REGISTRY.all().map((type) => type.id).filter((id) => !id.startsWith("java:")).sort()).toEqual([...shared, ...components, ...loops].sort());
+    expect(REGISTRY.all().map((type) => type.id).filter((id) => !id.startsWith("java:")).sort()).toEqual([...shared, ...components, ...loops, ...functions].sort());
     for (const id of DESKTOP_ONLY_NODE_TYPES) {
       expect(desktopIds).toContain(id);
     }

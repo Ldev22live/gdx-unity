@@ -3,7 +3,6 @@ package io.github.ldev22live.gdxunity.editor.desktop.ui.timeline;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Disposable;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.ScrollingBar;
 import io.github.ldev22live.gdxunity.editor.animation.TimelineDocument;
 import io.github.ldev22live.gdxunity.editor.animation.TimelineSession;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
@@ -33,7 +33,7 @@ import java.util.Objects;
  */
 public class TimelinePanel extends Table implements Disposable {
     /** Space between neighbouring toolbar buttons, so their labels do not run together. */
-    private static final float BUTTON_GAP = 4f;
+    private static final float BUTTON_GAP = 14f;
     private static final float BAR_HEIGHT = 30f;
     private static final float BUTTON_HEIGHT = 24f;
     private static final float NUMBER_FIELD_WIDTH = 46f;
@@ -122,11 +122,7 @@ public class TimelinePanel extends Table implements Disposable {
         bar.add(titleLabel).left().expandX().fillX().minWidth(0);
 
         // The toolbar is wider than a narrow window: it scrolls sideways instead of making the whole editor wider than the screen
-        ScrollPane barScroll = new ScrollPane(bar, skin);
-        barScroll.setScrollingDisabled(false, true);
-        barScroll.setFadeScrollBars(false);
-        barScroll.setOverscroll(false, false);
-        add(barScroll).growX().minWidth(0).height(BAR_HEIGHT).row();
+        add(ScrollingBar.around(bar, skin)).growX().minWidth(0).height(BAR_HEIGHT).row();
         add(canvas).grow();
         session.addListener(sessionListener);
         refresh();

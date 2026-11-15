@@ -291,6 +291,8 @@ export class MusicStudio {
       h("div", { class: "rack-head" },
         button("+ Synth", "Add a synthesizer channel", () => this.attempt(() => model.addChannel("SYNTH"))),
         button("+ Drums", "Add a drum channel", () => this.attempt(() => model.addChannel("DRUMS"))),
+        button("+ FM", "Add an FM synthesizer channel (bells, electric pianos)", () => this.attempt(() => model.addChannel("FM"))),
+        button("+ String", "Add a plucked-string channel (guitar, harp)", () => this.attempt(() => model.addChannel("PLUCK"))),
         button("Remove", "Remove the selected channel", () => this.attempt(() => model.removeChannel(model.channelId))),
       ),
     );

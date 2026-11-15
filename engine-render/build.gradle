@@ -7,6 +7,10 @@ dependencies {
   api project(':engine-core')
   api project(':engine-scene')
   api project(':engine-sprite')
+  // Surface looks the 3D renderer shades primitives with (TD-081)
+  api project(':engine-material')
+  // Heightmap ground the 3D renderer builds chunk meshes from (TD-082)
+  api project(':engine-terrain')
   // Imported glTF models (TD-030); its types stay inside engine-render
   implementation "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
 

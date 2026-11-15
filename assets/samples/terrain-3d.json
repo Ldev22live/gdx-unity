@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "name": "Terrain Valley",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "4816a558-c5d3-5da0-ae7e-1a5782781d0e",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "64db399f-7e0f-5709-ad5e-a6ac5200342a",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.76,
+            "skyB": 0.94,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "42e4d4f3-25ac-5b2b-acde-17bcf275e59e",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1700.0,
+          "z": 4300.0
+        },
+        "rotation": {
+          "x": -0.2164,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9763
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e9ce2f97-328a-574a-baaf-4b87ae599881",
+      "name": "Valley",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "Terrain",
+          "enabled": true,
+          "data": {
+            "terrainPath": "terrains/Valley.terrain"
+          }
+        }
+      ]
+    },
+    {
+      "id": "33b11580-fc86-5639-bc48-7c57d0bff191",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Select Valley and open Details: Paint turns on the terrain brush. Drag to reshape, Ctrl inverts, Shift smooths, Alt-drag orbits. Every stroke is undoable and saved.",
+            "colorR": 0.9,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 24.0
+          }
+        }
+      ]
+    }
+  ]
+}

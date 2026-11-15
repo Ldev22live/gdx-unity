@@ -1,5 +1,6 @@
 package io.github.ldev22live.gdxunity.editor.core.viewport;
 
+import java.util.Optional;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -131,5 +132,11 @@ public final class OrthographicViewInteraction implements ViewportInteraction {
     @Override
     public Vector3 worldPointAt(float x, float y, float width, float height) {
         return view.worldPointAt(x, y);
+    }
+
+    /** The entity a left click here would pick. */
+    @Override
+    public Optional<Entity> entityAt(float x, float y, float width, float height) {
+        return Optional.ofNullable(ViewportPicker.pickEntity3D(editorState.getActiveScene(), rayAt(x, y, width, height)));
     }
 }

@@ -28,6 +28,7 @@ dependencies {
   implementation project(':editor-character')
   // Sculpting (TD-038): sculpt mode, brushes, undoable strokes
   implementation project(':editor-sculpt')
+  implementation project(':editor-terrain')
   // Music editor (TD-040): song documents, undoable edits, export
   implementation project(':editor-audio')
   implementation project(':editor-sprite')
@@ -47,6 +48,7 @@ dependencies {
   testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
   testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+  testImplementation "org.mockito:mockito-core:$mockitoVersion"
   testRuntimeOnly "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
 }
 

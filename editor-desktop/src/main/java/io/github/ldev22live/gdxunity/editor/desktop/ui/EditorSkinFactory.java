@@ -47,6 +47,8 @@ public final class EditorSkinFactory implements Disposable {
     private static final int BASE_FONT_SIZE = 14;
     /** Space between a drop-down's edge and its text, in pixels. */
     private static final float SELECT_BOX_TEXT_INSET = 6f;
+    /** Thickness of a scroll bar, in pixels. */
+    private static final float SCROLL_BAR_SIZE = 10f;
     /** Icon edge length in logical pixels. */
     private static final int ICON_SIZE = 12;
     /** Size in UI units of the icons on the viewport tool strip. */
@@ -279,6 +281,11 @@ public final class EditorSkinFactory implements Disposable {
         // 7. ScrollPaneStyle
         ScrollPane.ScrollPaneStyle scrollStyle = new ScrollPane.ScrollPaneStyle();
         scrollStyle.background = panelBg;
+        // The style had no scroll bars, so content past the edge scrolled with nothing to show there was more (TD-076)
+        scrollStyle.vScroll = scrollBar(palette.getBackground(), true);
+        scrollStyle.vScrollKnob = scrollBar(palette.getTextMuted(), true);
+        scrollStyle.hScroll = scrollBar(palette.getBackground(), false);
+        scrollStyle.hScrollKnob = scrollBar(palette.getTextMuted(), false);
         skin.add("default", scrollStyle);
 
         // 8. ListStyle
@@ -543,6 +550,17 @@ public final class EditorSkinFactory implements Disposable {
         pixmap.dispose();
         ownedResources.add(texture);
         return new TextureRegionDrawable(new TextureRegion(texture));
+    }
+
+    /** A scroll bar track or knob of one colour, {@link #SCROLL_BAR_SIZE} thick (wide for a vertical bar, tall for a horizontal one). */
+    private Drawable scrollBar(Color color, boolean vertical) {
+        Drawable drawable = createColorDrawable(color);
+        if (vertical) {
+            drawable.setMinWidth(SCROLL_BAR_SIZE);
+        } else {
+            drawable.setMinHeight(SCROLL_BAR_SIZE);
+        }
+        return drawable;
     }
 
     /** A box of {@code fill} with a one pixel {@code border}, stretched to any size, with room around the text. */

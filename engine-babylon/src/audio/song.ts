@@ -1,4 +1,6 @@
 import { createEffect } from "./effects";
+import { defaultFmPatch, fmPreset, type FmPatch } from "./fm";
+import { defaultPluckPatch, pluckPreset, type PluckPatch } from "./pluck";
 import { DEFAULT_STRIPS, Mixer } from "./mixer";
 import { defaultPatch, presetPatch, type SynthPatch } from "./synth";
 
@@ -26,9 +28,9 @@ export const MAX_PITCH = 127;
 /** The file format version this code reads and writes. */
 export const SONG_VERSION = 1;
 
-export type InstrumentType = "SYNTH" | "DRUMS" | "SAMPLE" | "SFXR" | "SOUNDFONT";
+export type InstrumentType = "SYNTH" | "DRUMS" | "SAMPLE" | "SFXR" | "SOUNDFONT" | "FM" | "PLUCK";
 /** Instrument types this web version can play; the others are read, kept and saved, but sound silent. */
-export const PLAYABLE_INSTRUMENTS: readonly InstrumentType[] = ["SYNTH", "DRUMS"];
+export const PLAYABLE_INSTRUMENTS: readonly InstrumentType[] = ["SYNTH", "DRUMS", "FM", "PLUCK"];
 
 export interface InstrumentSpec {
   type: InstrumentType;
@@ -38,6 +40,10 @@ export interface InstrumentSpec {
   bank: number;
   program: number;
   patch: SynthPatch;
+  /** Settings of an FM instrument (TD-075); every channel carries them, as on the desktop, so a type change keeps them. */
+  fm: FmPatch;
+  /** Settings of a plucked-string instrument (TD-075). */
+  pluck: PluckPatch;
   /** sfxr settings: kept untouched so a desktop song round-trips; this version does not play them. */
   sfxr: unknown;
 }
@@ -105,7 +111,11 @@ function defaultSfxr(): unknown {
 }
 
 export function synthSpec(patch: SynthPatch = defaultPatch()): InstrumentSpec {
-  return { type: "SYNTH", path: "", rootNote: 60, oneShot: false, bank: 0, program: 0, patch, sfxr: defaultSfxr() };
+  return {
+    type: "SYNTH", path: "", rootNote: 60, oneShot: false, bank: 0, program: 0, patch, sfxr: defaultSfxr(),
+    // The desktop's defaults for the blocks a channel does not use
+    fm: fmPreset("Bell"), pluck: pluckPreset("Nylon Guitar"),
+  };
 }
 
 export function drumSpec(): InstrumentSpec {
@@ -284,7 +294,7 @@ export function checkNote(note: NoteTuple): NoteTuple {
 function readInstrument(value: unknown): InstrumentSpec {
   if (!isRecord(value)) throw new Error("A channel needs an instrument");
   const type = String(value["type"] ?? "SYNTH") as InstrumentType;
-  if (!["SYNTH", "DRUMS", "SAMPLE", "SFXR", "SOUNDFONT"].includes(type)) throw new Error(`Unknown instrument type ${type}`);
+  if (!["SYNTH", "DRUMS", "SAMPLE", "SFXR", "SOUNDFONT", "FM", "PLUCK"].includes(type)) throw new Error(`Unknown instrument type ${type}`);
   const spec = synthSpec();
   spec.type = type;
   spec.path = typeof value["path"] === "string" ? value["path"] : "";
@@ -294,6 +304,9 @@ function readInstrument(value: unknown): InstrumentSpec {
   spec.program = typeof value["program"] === "number" ? value["program"] : 0;
   if (isRecord(value["patch"])) spec.patch = { ...defaultPatch(), ...(value["patch"] as Partial<SynthPatch>) };
   if (value["sfxr"] !== undefined) spec.sfxr = value["sfxr"];
+  // Songs written before TD-075 have neither block; they keep the defaults
+  if (isRecord(value["fm"])) spec.fm = { ...defaultFmPatch(), ...(value["fm"] as Partial<FmPatch>) };
+  if (isRecord(value["pluck"])) spec.pluck = { ...defaultPluckPatch(), ...(value["pluck"] as Partial<PluckPatch>) };
   return spec;
 }
 

@@ -1,5 +1,6 @@
 package io.github.ldev22live.gdxunity.editor.sculpt;
 
+import java.util.Optional;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -185,5 +186,10 @@ public final class SculptViewportInteraction implements ViewportInteraction {
     @Override
     public Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight) {
         return delegate.worldPointAt(localX, localY, panelWidth, panelHeight);
+    }
+
+    @Override
+    public Optional<Entity> entityAt(float localX, float localY, float panelWidth, float panelHeight) {
+        return delegate.entityAt(localX, localY, panelWidth, panelHeight);
     }
 }

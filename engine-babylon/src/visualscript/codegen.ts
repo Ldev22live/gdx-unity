@@ -3,7 +3,7 @@ import { MAX_DATA_DEPTH } from "./interpreter";
 import type { Graph, GraphNode, Literal, ValueType, Vec3 } from "./graph";
 import { EXEC_OUT, NODE, PIN_DELTA_TIME, PIN_OTHER, PROPERTY_NAME, PROPERTY_VARIABLE, SEQUENCE_OUTPUTS, type NodeRegistry } from "./nodes";
 import { appendGraph } from "./sourceEmbed";
-import { validateGraph } from "./validator";
+import { refuseFunctionsForGeneration, validateGraph } from "./validator";
 
 /**
  * Turns a graph into the source of an equivalent web script (TD-044): a TypeScript class extending `ScriptComponent`.
@@ -68,6 +68,7 @@ function numberLiteral(value: number): string {
  * @throws Error when the graph has validation problems, or an execution loop that code cannot express
  */
 export function generateTypeScript(graph: Graph, registry: NodeRegistry): string {
+  refuseFunctionsForGeneration(graph, "TypeScript");
   const problems = validateGraph(graph, registry);
   if (problems.length > 0) throw new Error(`Graph ${graph.name} has ${problems.length} problem(s), first: ${problems[0]!.message}`);
   return appendGraph(new Generation(graph, registry).generate(), graph);
@@ -77,6 +78,11 @@ class Generation {
   private readonly name: string;
   private readonly delayNodes: string[] = [];
   private readonly methods = new Map<string, string>();
+  /** `this.input.isJustPressed("Space")` for the keys of a Key Pressed node: true only on the frame a key goes down. */
+  private keyPressed(names: string): string {
+    return `this.input.isJustPressed(${parseKeyNames(names).map((key) => JSON.stringify(key.code)).join(", ")})`;
+  }
+
   /** `this.input.isDown("KeyA", "ArrowLeft")` for the keys of a Key Down or Input Axis node (the script's input is the player's). */
   private keyDown(names: string): string {
     return `this.input.isDown(${parseKeyNames(names).map((key) => JSON.stringify(key.code)).join(", ")})`;
@@ -229,6 +235,10 @@ class Generation {
           out += `${pad}if (${timer} < 0) ${timer} = ${this.input(node, "seconds")};\n`;
           break;
         }
+        case NODE.playCue:
+          out += `${pad}this.scene.playCue(${JSON.stringify(node.properties["cue"] ?? "")});\n`;
+          emitFrom(id, EXEC_OUT, level, path);
+          break;
         case NODE.print:
           out += `${pad}console.log(${this.input(node, "message")});\n`;
           emitFrom(id, EXEC_OUT, level, path);
@@ -324,6 +334,8 @@ class Generation {
         return binary("&&");
       case NODE.or:
         return binary("||");
+      case NODE.keyPressed:
+        return this.keyPressed(node.properties["key"] ?? "");
       case NODE.keyDown:
         return this.keyDown(node.properties["key"] ?? "");
       case NODE.axis:
@@ -332,6 +344,8 @@ class Generation {
         return `Math.sin((${this.input(node, "degrees", depth)}) * Math.PI / 180)`;
       case NODE.cosine:
         return `Math.cos((${this.input(node, "degrees", depth)}) * Math.PI / 180)`;
+      case NODE.power:
+        return `Math.pow(${this.input(node, "base", depth)}, ${this.input(node, "exponent", depth)})`;
       case NODE.not:
         return `(!${this.input(node, "value", depth)})`;
       case NODE.makeVector:

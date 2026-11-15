@@ -4,6 +4,8 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Disposable;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetSource;
+import io.github.ldev22live.gdxunity.engine.audio.EngineProfile;
+import io.github.ldev22live.gdxunity.engine.audio.EngineSynth;
 import io.github.ldev22live.gdxunity.engine.audio.SampleData;
 import io.github.ldev22live.gdxunity.engine.audio.SfxPlayer;
 import io.github.ldev22live.gdxunity.engine.audio.WavIO;
@@ -17,6 +19,8 @@ import io.github.ldev22live.gdxunity.engine.scene.audio.MusicSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
+import io.github.ldev22live.gdxunity.engine.scene.audio.EngineSoundComponent;
+import io.github.ldev22live.gdxunity.engine.scene.audio.EngineVoice;
 import io.github.ldev22live.gdxunity.engine.scene.audio.SoundSink;
 
 import java.io.IOException;
@@ -30,8 +34,9 @@ import java.util.Objects;
 /**
  * Sound for one played scene (TD-043): checks every {@link AudioSourceComponent}'s sound, binds the sources to an
  * {@link SfxPlayer} and, when asked, to the speakers. Shared by the game runtime ({@link GameSession}) and editor Play.
- * Music Sources (TD-061) play their songs through the same output, mixed with the effects. A scene without audio or
- * music sources opens no sound device.
+ * Music Sources (TD-061) play their songs through the same output, mixed with the effects, and Engine Sounds (TD-080) run
+ * a synthesized engine each, sounding from {@link #bind()} until {@link #unbind()}. A scene without audio, music or engine
+ * sources opens no sound device.
  */
 public final class GameAudio implements SoundSink, MusicSink, Disposable {
     private final Scene scene;
@@ -43,6 +48,9 @@ public final class GameAudio implements SoundSink, MusicSink, Disposable {
     private final Map<MusicSourceComponent, SongVoice> songs = new LinkedHashMap<>();
     /** The songs that are sounding; the output thread reads it, so it is replaced, never changed. */
     private volatile List<SongVoice> activeSongs = List.of();
+    /** The bound engines; the output thread reads it, so it is replaced, never changed. */
+    private volatile List<EngineChannel> engines = List.of();
+    private float[] engineBlock = new float[0];
     private float[] songLeft = new float[0];
     private float[] songRight = new float[0];
     private SfxAudioOutput device;
@@ -90,6 +98,33 @@ public final class GameAudio implements SoundSink, MusicSink, Disposable {
     }
 
     /**
+     * One engine of the scene: the synth the output thread renders and the volume and pan the game thread last set. The game
+     * thread writes the volatile fields and the synth's own volatile setters; the output thread only reads them.
+     */
+    private static final class EngineChannel implements EngineVoice {
+        final EngineSoundComponent source;
+        final EngineSynth synth;
+        private volatile float gain;
+        private volatile float pan;
+        /** The gain the last block ended on, so a change ramps over the next block instead of clicking. */
+        private float renderedGain;
+
+        EngineChannel(EngineSoundComponent source, EngineSynth synth) {
+            this.source = source;
+            this.synth = synth;
+        }
+
+        @Override
+        public void update(float revs, float throttle, float gain, float pan) {
+            EngineProfile profile = synth.getProfile();
+            synth.setRpm(profile.idleRpm() + revs * (profile.redlineRpm() - profile.idleRpm()));
+            synth.setThrottle(throttle);
+            this.gain = gain;
+            this.pan = pan;
+        }
+    }
+
+    /**
      * Binds every enabled source of the scene. Nothing stays bound if a source names a sound that does not exist.
      *
      * @return what prevents the scene from playing; empty when bound
@@ -121,6 +156,21 @@ public final class GameAudio implements SoundSink, MusicSink, Disposable {
                 }
             }
         }
+        List<EngineChannel> channels = new ArrayList<>();
+        for (Entity entity : scene.getAllEntities()) {
+            for (EngineSoundComponent source : entity.getComponents(EngineSoundComponent.class)) {
+                if (!source.isEnabled()) {
+                    continue;
+                }
+                if (EngineProfile.isKnown(source.getProfile())) {
+                    channels.add(new EngineChannel(source,
+                        new EngineSynth(EngineProfile.byName(source.getProfile()), engineSeed(entity, channels.size()))));
+                } else {
+                    problems.add(entity.getName() + ": unknown engine '" + source.getProfile() + "'; use one of "
+                        + EngineProfile.names());
+                }
+            }
+        }
         Map<MusicSourceComponent, SongPlayer> players = new LinkedHashMap<>();
         for (Entity entity : scene.getAllEntities()) {
             for (MusicSourceComponent source : entity.getComponents(MusicSourceComponent.class)) {
@@ -147,6 +197,10 @@ public final class GameAudio implements SoundSink, MusicSink, Disposable {
             songs.put(entry.getKey(), new SongVoice(entry.getValue(), entry.getKey()));
             entry.getKey().bind(this);
         }
+        for (EngineChannel channel : channels) {
+            channel.source.bind(channel);
+        }
+        engines = List.copyOf(channels);
         clips.forEach(player::addClip);
         for (AudioSourceComponent source : sources) {
             if (!source.isClip()) {
@@ -155,7 +209,7 @@ public final class GameAudio implements SoundSink, MusicSink, Disposable {
             source.bind(this);
             bound.add(source);
         }
-        if (output && (!bound.isEmpty() || !songs.isEmpty())) {
+        if (output && (!bound.isEmpty() || !songs.isEmpty() || !engines.isEmpty())) {
             device = new SfxAudioOutput(this::render);
             device.start();
         }
@@ -184,6 +238,11 @@ public final class GameAudio implements SoundSink, MusicSink, Disposable {
     /** Number of sound effect sources bound by {@link #bind()}. */
     public int getBoundCount() {
         return bound.size();
+    }
+
+    /** Number of Engine Sounds bound by {@link #bind()}. */
+    public int getBoundEngineCount() {
+        return engines.size();
     }
 
     /** Number of Music Sources bound by {@link #bind()}. */
@@ -241,6 +300,11 @@ public final class GameAudio implements SoundSink, MusicSink, Disposable {
      */
     public void render(float[] left, float[] right, int frames) {
         player.render(left, right, frames);
+        renderSongs(left, right, frames);
+        renderEngines(left, right, frames);
+    }
+
+    private void renderSongs(float[] left, float[] right, int frames) {
         List<SongVoice> voices = activeSongs;
         if (voices.isEmpty()) {
             return;
@@ -257,6 +321,36 @@ public final class GameAudio implements SoundSink, MusicSink, Disposable {
                 right[i] += songRight[i] * volume;
             }
         }
+    }
+
+    /** Adds every engine, each at its last set gain (ramped over the block) and pan (equal power between the speakers). */
+    private void renderEngines(float[] left, float[] right, int frames) {
+        List<EngineChannel> running = engines;
+        if (running.isEmpty() || frames == 0) {
+            return;
+        }
+        if (engineBlock.length < frames) {
+            engineBlock = new float[frames];
+        }
+        for (EngineChannel engine : running) {
+            engine.synth.render(engineBlock, frames);
+            float targetGain = engine.gain;
+            float angle = (Math.min(Math.max(engine.pan, -1f), 1f) + 1f) * (float) (Math.PI / 4.0);
+            float leftShare = (float) Math.cos(angle);
+            float rightShare = (float) Math.sin(angle);
+            float start = engine.renderedGain;
+            for (int i = 0; i < frames; i++) {
+                float gain = start + (targetGain - start) * (i + 1) / frames;
+                left[i] += engineBlock[i] * gain * leftShare;
+                right[i] += engineBlock[i] * gain * rightShare;
+            }
+            engine.renderedGain = targetGain;
+        }
+    }
+
+    /** Different engines of one scene get different seeds, so two V8s do not fire in lockstep. */
+    private static long engineSeed(Entity entity, int index) {
+        return entity.getName().hashCode() * 31L + index;
     }
 
     /** The mixer the bound sources play into; tests render it to hear what was played. */
@@ -281,6 +375,10 @@ public final class GameAudio implements SoundSink, MusicSink, Disposable {
         }
         bound.clear();
         activeSongs = List.of();
+        for (EngineChannel engine : engines) {
+            engine.source.unbind();
+        }
+        engines = List.of();
         for (Map.Entry<MusicSourceComponent, SongVoice> entry : songs.entrySet()) {
             entry.getKey().unbind();
             entry.getValue().player.dispose();

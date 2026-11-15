@@ -18,12 +18,23 @@ public enum AssetType {
     /** Recorded sound clips an Audio Source can play (Phase 20-C). */
     SOUND("wav", "ogg"),
     SPRITE("sprite"),
+    /** Songs edited in the Music tab; listed in the Content Browser and opened there on double-click. */
+    SONG("song"),
+    /** Surface looks: PBR parameters shared by everything that names the file (TD-081). */
+    MATERIAL("material"),
+    /** Heightmap ground edited with brushes in the 3D view (TD-082). */
+    TERRAIN("terrain"),
     UNKNOWN;
 
     private final String[] extensions;
 
     AssetType(String... extensions) {
         this.extensions = extensions;
+    }
+
+    /** The file extensions of this type, lower case, without the dot; empty for {@link #UNKNOWN}. */
+    public java.util.List<String> getExtensions() {
+        return java.util.List.of(extensions);
     }
 
     public static AssetType fromExtension(String ext) {

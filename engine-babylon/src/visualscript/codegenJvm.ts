@@ -4,7 +4,7 @@ import { appendGraph } from "./sourceEmbed";
 import { defaultValue, type Graph, type GraphNode, type Literal, type ValueType, type Vec3 } from "./graph";
 import { MAX_DATA_DEPTH } from "./interpreter";
 import { EXEC_OUT, NODE, PIN_DELTA_TIME, PIN_OTHER, PROPERTY_NAME, PROPERTY_VARIABLE, SEQUENCE_OUTPUTS, type NodeRegistry } from "./nodes";
-import { validateGraph } from "./validator";
+import { refuseFunctionsForGeneration, validateGraph } from "./validator";
 
 /**
  * Turns a graph into the source of a desktop `ScriptComponent` in Java or Kotlin (TD-045), so the web editor can hand a
@@ -54,6 +54,7 @@ function floatLiteral(value: number): string {
  * @throws Error when the graph has validation problems, or an execution loop that code cannot express
  */
 export function generateJvm(graph: Graph, registry: NodeRegistry, language: JvmLanguage): string {
+  refuseFunctionsForGeneration(graph, language === "kotlin" ? "Kotlin" : "Java");
   const problems = validateGraph(graph, registry);
   if (problems.length > 0) throw new Error(`Graph ${graph.name} has ${problems.length} problem(s), first: ${problems[0]!.message}`);
   return appendGraph(new Generation(graph, registry, language === "kotlin").generate(), graph);
@@ -66,6 +67,14 @@ class Generation {
   private needsWorldPosition = false;
   private needsFormatNumber = false;
   private needsKeys = false;
+  private needsKeyPressed = false;
+  private needsAudio = false;
+
+  /** `keyPressed(Input.Keys.SPACE)`: true only on the frame a key goes down (Key Pressed node). */
+  private keyPressed(names: string): string {
+    this.needsKeyPressed = true;
+    return `keyPressed(${parseKeyNames(names).map((key) => `Input.Keys.${key.name}`).join(", ")})`;
+  }
 
   /** `keyDown(Input.Keys.A, Input.Keys.LEFT)`: the keys of a Key Down or Input Axis node as constants. */
   private keyDown(names: string): string {
@@ -160,7 +169,8 @@ class Generation {
       "io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent",
     ];
     if (this.needsWorldPosition && !this.kotlin) imports.push("io.github.ldev22live.gdxunity.engine.scene.Transform");
-    if (this.needsKeys) imports.push("com.badlogic.gdx.Input");
+    if (this.needsKeys || this.needsKeyPressed) imports.push("com.badlogic.gdx.Input");
+    if (this.needsAudio) imports.push("io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent");
     if (this.needsFormatNumber) imports.push("java.util.Locale");
     return `${imports.map((name) => `import ${name}${this.kotlin ? "" : ";"}\n`).join("")}\n`;
   }
@@ -214,6 +224,27 @@ class Generation {
           "        return;",
           "    }",
           "    target.getTransform().setLocalPosition(new Vector3(world).mul(parent.getWorldMatrix().inv()));",
+          "}",
+        );
+      }
+      lines.push("");
+    }
+    if (this.needsKeyPressed) {
+      if (this.kotlin) {
+        lines.push(
+          "private fun keyPressed(vararg keys: Int): Boolean {",
+          "    return keys.any { Gdx.input.isKeyJustPressed(it) }",
+          "}",
+        );
+      } else {
+        lines.push(
+          "private static boolean keyPressed(int... keys) {",
+          "    for (int key : keys) {",
+          "        if (Gdx.input.isKeyJustPressed(key)) {",
+          "            return true;",
+          "        }",
+          "    }",
+          "    return false;",
           "}",
         );
       }
@@ -297,6 +328,11 @@ class Generation {
           out += `${pad}if (${timer} < 0f) ${timer} = ${this.input(node, "seconds")}${end}\n`;
           break;
         }
+        case NODE.playCue:
+          this.needsAudio = true;
+          out += `${pad}AudioSourceComponent.play(getScene(), ${this.quote(node.properties["cue"] ?? "")})${end}\n`;
+          emitFrom(id, EXEC_OUT, level, path);
+          break;
         case NODE.print:
           out += `${pad}Gdx.app.log(${this.quote(this.name)}, ${this.input(node, "message")})${end}\n`;
           emitFrom(id, EXEC_OUT, level, path);
@@ -393,6 +429,8 @@ class Generation {
         return binary("&&");
       case NODE.or:
         return binary("||");
+      case NODE.keyPressed:
+        return this.keyPressed(node.properties["key"] ?? "");
       case NODE.keyDown:
         return this.keyDown(node.properties["key"] ?? "");
       case NODE.axis:
@@ -402,6 +440,11 @@ class Generation {
         const fn = node.type === NODE.sine ? "sin" : "cos";
         const degrees = this.input(node, "degrees", depth);
         return this.kotlin ? `Math.${fn}(Math.toRadians((${degrees}).toDouble())).toFloat()` : `(float) Math.${fn}(Math.toRadians(${degrees}))`;
+      }
+      case NODE.power: {
+        const base = this.input(node, "base", depth);
+        const exponent = this.input(node, "exponent", depth);
+        return this.kotlin ? `Math.pow((${base}).toDouble(), (${exponent}).toDouble()).toFloat()` : `(float) Math.pow(${base}, ${exponent})`;
       }
       case NODE.not:
         return `(!${this.input(node, "value", depth)})`;

@@ -34,6 +34,13 @@ public class EditorToolbar extends Table {
     private final ImageTextButton pauseBtn;
     private final ImageTextButton stopBtn;
     private final Label playStateBadge;
+    /** Play, Pause, Stop and the state badge; in this toolbar, or in the footer (roadmap M1b.3) through {@link #getPlayControls()}. */
+    private final Table playControls = new Table();
+
+    /** Play, Pause, Stop and the state badge, kept up to date by this toolbar wherever they are placed. */
+    public Table getPlayControls() {
+        return playControls;
+    }
 
     /**
      * @param onToggleAssistant toggles the AI Assistant panel; may be null to hide the button
@@ -57,6 +64,14 @@ public class EditorToolbar extends Table {
      */
     public EditorToolbar(EditorState editorState, PlayModeController playModeController, EditorLog editorLog,
                          Skin skin, Runnable onToggleAssistant, Actor leadingTools, Actor modeSelector) {
+        this(editorState, playModeController, editorLog, skin, onToggleAssistant, leadingTools, modeSelector, true);
+    }
+
+    /**
+     * @param playControlsHere false when the caller places {@link #getPlayControls()} elsewhere (the footer, roadmap M1b.3)
+     */
+    public EditorToolbar(EditorState editorState, PlayModeController playModeController, EditorLog editorLog,
+                         Skin skin, Runnable onToggleAssistant, Actor leadingTools, Actor modeSelector, boolean playControlsHere) {
         super(skin);
         this.editorLog = Objects.requireNonNull(editorLog, "editorLog cannot be null");
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
@@ -113,7 +128,7 @@ public class EditorToolbar extends Table {
 
         playStateBadge = new Label("Stopped", skin, "muted");
 
-        Table center = new Table();
+        Table center = playControls;
         center.add(playBtn).height(BUTTON_HEIGHT).pad(2);
         center.add(pauseBtn).height(BUTTON_HEIGHT).pad(2);
         center.add(stopBtn).height(BUTTON_HEIGHT).pad(2);
@@ -142,8 +157,10 @@ public class EditorToolbar extends Table {
             add(new Label("|", skin, "muted")).padLeft(6).padRight(2);
         }
         add(left).left();
-        add(new Label("|", skin, "muted")).padLeft(2).padRight(2);
-        add(center).left();
+        if (playControlsHere) {
+            add(new Label("|", skin, "muted")).padLeft(2).padRight(2);
+            add(center).left();
+        }
         add().expandX().fillX();
         add(right).right();
 

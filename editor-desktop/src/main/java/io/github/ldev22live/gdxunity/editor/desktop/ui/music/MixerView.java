@@ -26,6 +26,8 @@ import java.util.Objects;
  */
 final class MixerView extends Table {
     private static final float STRIP_WIDTH = 84f;
+    /** Room left of the first strip: a strip's pan text is wider than the strip and was cut by the scroll pane's edge (TD-079). */
+    private static final float STRIPS_EDGE_PAD = 6f;
     private static final float DETAIL_WIDTH = 220f;
     private static final float PAD = 4f;
     private static final float METER_WIDTH = 8f;
@@ -62,14 +64,16 @@ final class MixerView extends Table {
         }
         Mixer mixer = session.getDocument().getSong().getMixer();
         Table strips = new Table(skin);
-        strips.top().left();
+        strips.top().left().padLeft(STRIPS_EDGE_PAD);
         for (int i = 0; i < mixer.getStripCount(); i++) {
             strips.add(buildStrip(i)).width(STRIP_WIDTH).top().pad(PAD);
         }
         strips.add(buildStrip(MASTER)).width(STRIP_WIDTH).top().pad(PAD);
         ScrollPane scroll = new ScrollPane(strips, skin);
         scroll.setScrollingDisabled(false, true);
-        add(scroll).grow();
+        // Always show the bar: with seven strips and a small window most are out of sight, and a hidden bar gave no hint of that (TD-079)
+        scroll.setFadeScrollBars(false);
+        add(scroll).grow().minWidth(0f);
         add(buildDetail()).width(DETAIL_WIDTH).top().pad(PAD);
     }
 

@@ -1,5 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.sprite;
 
+import java.util.Optional;
+import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportInteraction;
@@ -110,5 +112,10 @@ public final class TilePaintInteraction implements ViewportInteraction {
     @Override
     public Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight) {
         return inner.worldPointAt(localX, localY, panelWidth, panelHeight);
+    }
+
+    @Override
+    public Optional<Entity> entityAt(float localX, float localY, float panelWidth, float panelHeight) {
+        return inner.entityAt(localX, localY, panelWidth, panelHeight);
     }
 }

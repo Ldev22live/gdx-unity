@@ -39,8 +39,14 @@ public final class GraphValidator {
                     problems.add(new Problem(node.getId(), type.getTitle() + " needs a " + property.getKey()));
                 } else if (BuiltInNodes.PROPERTY_VARIABLE.equals(property.getKey()) && graph.getVariable(s) == null) {
                     problems.add(new Problem(node.getId(), "Variable " + s + " does not exist"));
+                } else if (FunctionNodes.PROPERTY_FUNCTION.equals(property.getKey()) && graph.getFunction(s) == null) {
+                    problems.add(new Problem(node.getId(), "Function " + s + " does not exist"));
+                } else if (FunctionNodes.FIRE.equals(node.getTypeId()) && BuiltInNodes.PROPERTY_NAME.equals(property.getKey())
+                    && graph.getEvent(s) == null) {
+                    problems.add(new Problem(node.getId(), "Custom event " + s + " is not declared; declare it with its parameters first"));
                 }
             }
+            problems.addAll(placementProblems(graph, node, type));
             for (Map.Entry<String, Object> literal : node.getLiterals().entrySet()) {
                 PinDef pin = type.pin(node, graph, literal.getKey());
                 if (pin != null && !pin.isExec() && pin.isInput() && !pin.type().accepts(literal.getValue())) {
@@ -74,7 +80,84 @@ public final class GraphValidator {
         if (loopNode != null) {
             problems.add(new Problem(loopNode, "Data wires form a loop: a value cannot depend on itself"));
         }
+        if (graph.getOwner() != null) {
+            long entries = graph.getNodes().stream().filter(n -> FunctionNodes.ENTRY.equals(n.getTypeId())).count();
+            if (entries != 1) {
+                problems.add(new Problem(null, "Function " + graph.getOwner().getName() + " needs exactly one Function Entry node, has " + entries));
+            }
+        } else {
+            for (GraphFunction function : graph.getFunctions()) {
+                for (Problem inner : validate(function.getBody())) {
+                    problems.add(new Problem(null, "Function " + function.getName() + ": " + inner.message()));
+                }
+            }
+            String cycle = findCallCycle(graph);
+            if (cycle != null) {
+                problems.add(new Problem(null, "Functions call each other in a circle (" + cycle + "); a function cannot call itself, directly or through others"));
+            }
+        }
         return problems;
+    }
+
+    /** Nodes that only make sense in a function body, or only outside one, and what a body may not hold. */
+    private List<Problem> placementProblems(Graph graph, GraphNode node, NodeType type) {
+        List<Problem> problems = new ArrayList<>();
+        boolean inBody = graph.getOwner() != null;
+        String id = node.getTypeId();
+        if (!inBody && (FunctionNodes.ENTRY.equals(id) || FunctionNodes.RETURN.equals(id))) {
+            problems.add(new Problem(node.getId(), type.getTitle() + " can only be used inside a function"));
+        }
+        if (inBody && type.getKind() == NodeType.Kind.EVENT && !FunctionNodes.ENTRY.equals(id)) {
+            problems.add(new Problem(node.getId(), "A function cannot hold " + type.getTitle() + "; events belong to the graph"));
+        }
+        if (inBody && BuiltInNodes.FLOW_DELAY.equals(id)) {
+            problems.add(new Problem(node.getId(), "A function cannot hold a Delay: it runs to its end in one go"));
+        }
+        return problems;
+    }
+
+    /** A path like {@code a -> b -> a} when functions call each other in a circle, else null. */
+    private static String findCallCycle(Graph graph) {
+        Map<String, List<String>> calls = new HashMap<>();
+        for (GraphFunction function : graph.getFunctions()) {
+            List<String> called = new ArrayList<>();
+            for (GraphNode node : function.getBody().getNodes()) {
+                if (FunctionNodes.CALL.equals(node.getTypeId()) && node.getProperty(FunctionNodes.PROPERTY_FUNCTION) instanceof String name) {
+                    called.add(name);
+                }
+            }
+            calls.put(function.getName(), called);
+        }
+        Set<String> done = new HashSet<>();
+        for (String start : calls.keySet()) {
+            String path = callPath(start, calls, new java.util.ArrayDeque<>(), done);
+            if (path != null) {
+                return path;
+            }
+        }
+        return null;
+    }
+
+    private static String callPath(String name, Map<String, List<String>> calls, java.util.Deque<String> path, Set<String> done) {
+        if (done.contains(name) || !calls.containsKey(name)) {
+            return null;
+        }
+        if (path.contains(name)) {
+            List<String> loop = new ArrayList<>(path);
+            java.util.Collections.reverse(loop);
+            loop.add(name);
+            return String.join(" -> ", loop.subList(loop.indexOf(name), loop.size()));
+        }
+        path.push(name);
+        for (String next : calls.get(name)) {
+            String found = callPath(next, calls, path, done);
+            if (found != null) {
+                return found;
+            }
+        }
+        path.pop();
+        done.add(name);
+        return null;
     }
 
     /**

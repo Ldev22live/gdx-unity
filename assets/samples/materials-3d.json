@@ -1,0 +1,624 @@
+{
+  "schemaVersion": 1,
+  "name": "Material Showroom",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "576365ae-2137-5c69-b8aa-84d5e9117eec",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "7c08c77b-5be9-5fc8-af23-530fef3fd172",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.74,
+            "skyB": 0.92,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0a9cf305-cc03-5e55-97af-421cb94d54cf",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 520.0,
+          "z": 1500.0
+        },
+        "rotation": {
+          "x": -0.1305,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9914
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 55.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "63569bf1-fb25-54e8-90a3-8f176a88559d",
+      "name": "Ground",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 4000.0,
+            "sizeY": 1.0,
+            "sizeZ": 2600.0,
+            "colorR": 0.8,
+            "colorG": 0.8,
+            "colorB": 0.8,
+            "colorA": 1.0,
+            "materialPath": "materials/Rock.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fef0814e-7286-586c-922c-562c73dd026d",
+      "name": "Pond",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4.0,
+          "z": 750.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 2600.0,
+            "sizeY": 1.0,
+            "sizeZ": 700.0,
+            "colorR": 0.8,
+            "colorG": 0.8,
+            "colorB": 0.8,
+            "colorA": 1.0,
+            "materialPath": "materials/Water.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "5d835cd0-79de-5153-99f6-bdaf1ce4e527",
+      "name": "Gold Ball",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1000.0,
+          "y": 150.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 300.0,
+            "sizeY": 300.0,
+            "sizeZ": 300.0,
+            "colorR": 0.8,
+            "colorG": 0.8,
+            "colorB": 0.8,
+            "colorA": 1.0,
+            "materialPath": "materials/Gold.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f4367225-fea1-5d26-a276-3d7928cc18c5",
+      "name": "Lava Ball",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -500.0,
+          "y": 150.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 300.0,
+            "sizeY": 300.0,
+            "sizeZ": 300.0,
+            "colorR": 0.8,
+            "colorG": 0.8,
+            "colorB": 0.8,
+            "colorA": 1.0,
+            "materialPath": "materials/Lava.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b249d938-59ce-524a-8b46-d3e2fe2ae64f",
+      "name": "Glass Ball",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 150.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 300.0,
+            "sizeY": 300.0,
+            "sizeZ": 300.0,
+            "colorR": 0.8,
+            "colorG": 0.8,
+            "colorB": 0.8,
+            "colorA": 1.0,
+            "materialPath": "materials/Glass.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ae161035-d79c-535d-9cae-46426551a665",
+      "name": "Rock Block",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 500.0,
+          "y": 150.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 300.0,
+            "sizeY": 300.0,
+            "sizeZ": 300.0,
+            "colorR": 0.8,
+            "colorG": 0.8,
+            "colorB": 0.8,
+            "colorA": 1.0,
+            "materialPath": "materials/Rock.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cccd8024-2043-5fea-802d-9f6ffe00de9e",
+      "name": "Wood Block",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1000.0,
+          "y": 150.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 300.0,
+            "sizeY": 300.0,
+            "sizeZ": 300.0,
+            "colorR": 0.8,
+            "colorG": 0.8,
+            "colorB": 0.8,
+            "colorA": 1.0,
+            "materialPath": "materials/Wood.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b8ee2315-3a50-56d3-ba22-2d3760ba1796",
+      "name": "Brick Block",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -500.0,
+          "y": 150.0,
+          "z": -700.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 300.0,
+            "sizeY": 300.0,
+            "sizeZ": 300.0,
+            "colorR": 0.8,
+            "colorG": 0.8,
+            "colorB": 0.8,
+            "colorA": 1.0,
+            "materialPath": "materials/Brick.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e7ed3bf3-9eea-5464-9192-1074910051da",
+      "name": "Checker Ball",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 150.0,
+          "z": -700.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 300.0,
+            "sizeY": 300.0,
+            "sizeZ": 300.0,
+            "colorR": 0.8,
+            "colorG": 0.8,
+            "colorB": 0.8,
+            "colorA": 1.0,
+            "materialPath": "materials/Checker.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "22c2f921-b6b5-5319-93c0-06d5e82f1dc6",
+      "name": "Neon Block",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 500.0,
+          "y": 150.0,
+          "z": -700.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 300.0,
+            "sizeY": 300.0,
+            "sizeZ": 300.0,
+            "colorR": 0.8,
+            "colorG": 0.8,
+            "colorB": 0.8,
+            "colorA": 1.0,
+            "materialPath": "materials/Neon.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "48af23db-bc0e-54f7-86bc-67f513e2e403",
+      "name": "Plain Ball",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 100.0,
+          "z": 200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 200.0,
+            "sizeY": 200.0,
+            "sizeZ": 200.0,
+            "colorR": 0.9,
+            "colorG": 0.2,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "19bbbf0a-3e3c-5d31-9896-4556f415734e",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Select a ball or block and open Details: Material shows its .material file, whose values and textures you can change. The red ball has no material.",
+            "colorR": 0.85,
+            "colorG": 0.9,
+            "colorB": 1.0,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 24.0
+          }
+        }
+      ]
+    }
+  ]
+}

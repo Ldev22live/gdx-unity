@@ -13,6 +13,8 @@ import io.github.ldev22live.gdxunity.editor.audio.MusicDocument;
 import io.github.ldev22live.gdxunity.editor.audio.MusicSession;
 import io.github.ldev22live.gdxunity.engine.audio.BiquadFilter;
 import io.github.ldev22live.gdxunity.engine.audio.DrumKit;
+import io.github.ldev22live.gdxunity.engine.audio.FmPatch;
+import io.github.ldev22live.gdxunity.engine.audio.PluckPatch;
 import io.github.ldev22live.gdxunity.engine.audio.SfxrParams;
 import io.github.ldev22live.gdxunity.engine.audio.SoundFont;
 import io.github.ldev22live.gdxunity.engine.audio.SynthPatch;
@@ -41,7 +43,7 @@ import java.util.stream.Stream;
  * undo history too.
  */
 final class InstrumentPanel extends Table {
-    private static final List<String> KINDS = List.of("Synth", "Drums", "Sample", "Sound effect", "SoundFont");
+    private static final List<String> KINDS = List.of("Synth", "Drums", "Sample", "Sound effect", "SoundFont", "FM Synth", "Plucked String");
     private static final float BAR_HEIGHT = 22f;
     private static final float LABEL_WIDTH = 110f;
     private static final float MUTATE_AMOUNT = 0.3f;
@@ -107,6 +109,8 @@ final class InstrumentPanel extends Table {
             case SAMPLE -> buildSample(content, channel, spec);
             case SFXR -> buildSfxr(content, channel, spec);
             case SOUNDFONT -> buildSoundFont(content, channel, spec);
+            case FM -> buildFm(content, channel, spec);
+            case PLUCK -> buildPluck(content, channel, spec);
             default -> throw new IllegalStateException("Unknown instrument " + spec.type);
         }
         ScrollPane scroll = new ScrollPane(content, skin);
@@ -121,6 +125,8 @@ final class InstrumentPanel extends Table {
             case SAMPLE -> 2;
             case SFXR -> 3;
             case SOUNDFONT -> 4;
+            case FM -> 5;
+            case PLUCK -> 6;
         };
     }
 
@@ -151,10 +157,12 @@ final class InstrumentPanel extends Table {
                 yield InstrumentSpec.sample(files.isEmpty() ? "" : files.get(0));
             }
             case 3 -> InstrumentSpec.sfxr(SfxrParams.preset("Coin"));
-            default -> {
+            case 4 -> {
                 List<String> files = projectFiles(".sf2");
                 yield InstrumentSpec.soundFont(files.isEmpty() ? "" : files.get(0), 0, 0);
             }
+            case 5 -> InstrumentSpec.fm(FmPatch.preset(FmPatch.presetNames().get(0)));
+            default -> InstrumentSpec.pluck(PluckPatch.preset(PluckPatch.presetNames().get(0)));
         };
         session.getDocument().setInstrument(channel, replacement);
     }
@@ -168,6 +176,7 @@ final class InstrumentPanel extends Table {
         presets.add(0, "Custom");
         SelectBox<String> preset = new SelectBox<>(skin);
         preset.setItems(presets.toArray(new String[0]));
+        preset.setSelectedIndex(matchingPresetIndex(SynthPatch.presetNames(), name -> SynthPatch.preset(name).toJson(), patch.toJson()));
         preset.addListener(onChange(() -> {
             if (preset.getSelectedIndex() > 0) {
                 doc.setInstrument(channel, InstrumentSpec.synth(SynthPatch.preset(preset.getSelected())));
@@ -231,6 +240,67 @@ final class InstrumentPanel extends Table {
             (before, after) -> doc.recordChange("Change " + label.toLowerCase(Locale.ROOT), before, after, set));
         table.add(new Label("", skin)).width(LABEL_WIDTH);
         table.add(bar).growX().height(BAR_HEIGHT).padBottom(3f).row();
+    }
+
+    // ---- FM synth and plucked string (TD-075) ----
+
+    private void buildFm(Table content, Channel channel, InstrumentSpec spec) {
+        FmPatch patch = spec.fm;
+        presetBox(content, channel, FmPatch.presetNames(), name -> InstrumentSpec.fm(FmPatch.preset(name)),
+            matchingPresetIndex(FmPatch.presetNames(), name -> FmPatch.preset(name).toJson(), patch.toJson()));
+        content.add(new Label("Operators", skin, "section")).left().colspan(2).padTop(8f).padBottom(4f).row();
+        patchBar(content, "Modulator ratio", 0.25f, 16f, 2f, true, "%.2f x", () -> patch.ratio, v -> patch.ratio = v);
+        patchBar(content, "Modulation", 0f, 12f, 2f, false, "%.2f", () -> patch.index, v -> patch.index = v);
+        patchBar(content, "Modulation kept", 0f, 1f, 0.2f, false, "%.2f", () -> patch.indexSustain, v -> patch.indexSustain = v);
+        patchBar(content, "Modulation fall", 0.01f, 5f, 0.5f, true, "%.2f s", () -> patch.indexDecay, v -> patch.indexDecay = v);
+        content.add(new Label("Envelope", skin, "section")).left().colspan(2).padTop(8f).padBottom(4f).row();
+        patchBar(content, "Attack", 0.001f, 5f, 0.005f, true, "%.3f s", () -> patch.attack, v -> patch.attack = v);
+        patchBar(content, "Decay", 0.001f, 5f, 0.6f, true, "%.3f s", () -> patch.decay, v -> patch.decay = v);
+        patchBar(content, "Sustain", 0f, 1f, 0.3f, false, "%.2f", () -> patch.sustain, v -> patch.sustain = v);
+        patchBar(content, "Release", 0.001f, 5f, 0.4f, true, "%.3f s", () -> patch.release, v -> patch.release = v);
+        content.add(new Label("Output", skin, "section")).left().colspan(2).padTop(8f).padBottom(4f).row();
+        patchBar(content, "Volume", 0f, 1f, 0.6f, false, "%.2f", () -> patch.volume, v -> patch.volume = v);
+    }
+
+    private void buildPluck(Table content, Channel channel, InstrumentSpec spec) {
+        PluckPatch patch = spec.pluck;
+        presetBox(content, channel, PluckPatch.presetNames(), name -> InstrumentSpec.pluck(PluckPatch.preset(name)),
+            matchingPresetIndex(PluckPatch.presetNames(), name -> PluckPatch.preset(name).toJson(), patch.toJson()));
+        content.add(new Label("String", skin, "section")).left().colspan(2).padTop(8f).padBottom(4f).row();
+        patchBar(content, "Brightness", 0f, 1f, 0.7f, false, "%.2f", () -> patch.brightness, v -> patch.brightness = v);
+        patchBar(content, "Damping", 0f, 1f, 0.5f, false, "%.2f", () -> patch.damping, v -> patch.damping = v);
+        patchBar(content, "Ring time", 0.1f, 10f, 2f, true, "%.2f s", () -> patch.decay, v -> patch.decay = v);
+        patchBar(content, "Release", 0.01f, 2f, 0.15f, true, "%.2f s", () -> patch.release, v -> patch.release = v);
+        content.add(new Label("Output", skin, "section")).left().colspan(2).padTop(8f).padBottom(4f).row();
+        patchBar(content, "Volume", 0f, 1f, 0.6f, false, "%.2f", () -> patch.volume, v -> patch.volume = v);
+    }
+
+    /**
+     * The menu index to show for a patch: that of the preset whose settings are exactly the patch's, or 0 ("Custom") when none is.
+     * The menu used to say "Custom" for a channel that was exactly a factory preset (found in a frame, TD-076).
+     */
+    static int matchingPresetIndex(List<String> names, Function<String, String> presetJson, String patchJson) {
+        for (int i = 0; i < names.size(); i++) {
+            if (presetJson.apply(names.get(i)).equals(patchJson)) {
+                return i + 1;
+            }
+        }
+        return 0;
+    }
+
+    /** A "Custom" or preset-name menu; picking a preset replaces the instrument (one undo step). */
+    private void presetBox(Table content, Channel channel, List<String> names, Function<String, InstrumentSpec> make, int selectedIndex) {
+        List<String> items = new ArrayList<>(names);
+        items.add(0, "Custom");
+        SelectBox<String> preset = new SelectBox<>(skin);
+        preset.setItems(items.toArray(new String[0]));
+        preset.setSelectedIndex(selectedIndex);
+        preset.addListener(onChange(() -> {
+            if (preset.getSelectedIndex() > 0) {
+                session.getDocument().setInstrument(channel, make.apply(preset.getSelected()));
+            }
+        }));
+        row(content, "Preset", preset);
     }
 
     // ---- drums ----

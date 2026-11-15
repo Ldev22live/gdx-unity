@@ -2,6 +2,8 @@ package io.github.ldev22live.gdxunity.editor.audio;
 
 import io.github.ldev22live.gdxunity.engine.audio.DelayEffect;
 import io.github.ldev22live.gdxunity.engine.audio.Effect;
+import io.github.ldev22live.gdxunity.engine.audio.FmPatch;
+import io.github.ldev22live.gdxunity.engine.audio.PluckPatch;
 import io.github.ldev22live.gdxunity.engine.audio.SynthPatch;
 import io.github.ldev22live.gdxunity.engine.audio.song.Channel;
 import io.github.ldev22live.gdxunity.engine.audio.song.InstrumentSpec;
@@ -161,6 +163,29 @@ class MusicDocumentTest {
         assertSame(replacement, lead.getInstrument());
         doc.undo();
         assertSame(old, lead.getInstrument());
+    }
+
+    @Test
+    void shouldSwapInAnFmOrPluckedStringInstrumentEditItsKnobsAndUndoEachStep() {
+        String before = snapshot();
+        InstrumentSpec fm = InstrumentSpec.fm(FmPatch.preset("Bell"));
+        assertTrue(doc.setInstrument(lead, fm));
+        assertEquals(InstrumentSpec.Type.FM, lead.getInstrument().type);
+        // A knob drag ends as one recorded change, as the instrument panel does it
+        FmPatch patch = lead.getInstrument().fm;
+        FmPatch knobBefore = patch.copy();
+        patch.index = 9f;
+        doc.recordChange("Change modulation", knobBefore, patch.copy(), patch::copyFrom);
+        assertEquals(9f, lead.getInstrument().fm.index);
+        doc.undo();
+        assertEquals(FmPatch.preset("Bell").index, lead.getInstrument().fm.index);
+
+        assertTrue(doc.setInstrument(lead, InstrumentSpec.pluck(PluckPatch.preset("Harp"))));
+        assertEquals(InstrumentSpec.Type.PLUCK, lead.getInstrument().type);
+        assertEquals(PluckPatch.preset("Harp").decay, lead.getInstrument().pluck.decay);
+        doc.undo();
+        doc.undo();
+        assertEquals(before, snapshot(), "back to the synth the song started with");
     }
 
     @Test

@@ -43,6 +43,7 @@ public final class GraphTypeScriptGenerator {
      */
     public String generate(Graph graph) {
         Objects.requireNonNull(graph, "graph cannot be null");
+        FunctionNodes.refuseForGeneration(graph, "TypeScript");
         List<GraphValidator.Problem> problems = new GraphValidator(registry).validate(graph);
         for (GraphNode node : graph.getNodes()) {
             if (JavaMethodNodes.isMethodNode(node.getTypeId())) {
@@ -249,6 +250,10 @@ public final class GraphTypeScriptGenerator {
                     out.append(pad).append("if (").append(timer).append(" < 0) ").append(timer).append(" = ")
                         .append(input(node, "seconds", 0)).append(";\n");
                 }
+                case BuiltInNodes.ACTION_PLAY_CUE -> {
+                    out.append(pad).append("this.scene.playCue(").append(quote((String) node.getProperty(BuiltInNodes.PROPERTY_CUE))).append(");\n");
+                    emitFrom(nodeId, PinDef.EXEC_OUT, depth, path, out);
+                }
                 case BuiltInNodes.ACTION_PRINT -> {
                     out.append(pad).append("console.log(").append(input(node, "message", 0)).append(");\n");
                     emitFrom(nodeId, PinDef.EXEC_OUT, depth, path, out);
@@ -348,6 +353,8 @@ public final class GraphTypeScriptGenerator {
                     return "Math.sin((" + input(node, "degrees", depth) + ") * Math.PI / 180)";
                 case BuiltInNodes.MATH_COS:
                     return "Math.cos((" + input(node, "degrees", depth) + ") * Math.PI / 180)";
+                case BuiltInNodes.MATH_POWER:
+                    return "Math.pow(" + input(node, "base", depth) + ", " + input(node, "exponent", depth) + ")";
                 case BuiltInNodes.LOGIC_NOT:
                     return "(!" + input(node, "value", depth) + ")";
                 case BuiltInNodes.VECTOR_MAKE:
@@ -366,6 +373,8 @@ public final class GraphTypeScriptGenerator {
                 case BuiltInNodes.DATA_IS_GROUNDED:
                 case BuiltInNodes.ACTION_RAYCAST_3D:
                     throw desktopOnly(node);
+                case BuiltInNodes.INPUT_KEY_PRESSED:
+                    return keyDown((String) node.getProperty(BuiltInNodes.PROPERTY_KEY)).replace("this.input.isDown(", "this.input.isJustPressed(");
                 case BuiltInNodes.INPUT_KEY_DOWN:
                     return keyDown((String) node.getProperty(BuiltInNodes.PROPERTY_KEY));
                 case BuiltInNodes.INPUT_AXIS:

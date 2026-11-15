@@ -6,25 +6,25 @@
       "graph": "samples/ShooterShip.graph",
       "mirrors": "shooter/ShooterShip.java",
       "covers": "All of it: WASD or arrows fly the ship at 340 units a second inside the same box (x 30 to 610, y 40 to 260).",
-      "notCovered": "Nothing left out. The script moves the local position, the graph the world position; they are the same for a ship with no parent."
+      "notCovered": "Nothing left out; a test compiles and runs ShooterShip.java and this graph with the same keys and compares the positions every frame (ShooterParityTest). The script moves the local position, the graph the world position; they are the same for a ship with no parent."
     },
     {
       "graph": "samples/BreakoutPaddle.graph",
       "mirrors": "breakout/BreakoutPaddle.java",
       "covers": "A/D or arrows slide the paddle at 520 units a second between the walls.",
-      "notCovered": "Nothing left out of the paddle script: Begin Play reads and caches half the Shape Renderer's width, and Tick applies the same speed and bounds. Paddle has no parent, so local and world positions agree. The ball and bricks remain on their Java script."
+      "notCovered": "Nothing left out of the paddle script: Begin Play reads and caches half the Shape Renderer's width, and Tick applies the same speed and bounds. Paddle has no parent, so local and world positions agree. A test plays the breakout scene with this graph and with BreakoutPaddle.java at two paddle widths and uneven frame times and compares the paddle every frame. The ball and bricks remain on their Java script."
     },
     {
       "graph": "samples/WalkerPlayer.graph",
       "mirrors": "walker/WalkerPlayer.java",
-      "covers": "WASD or arrows walk a Character Controller 3D at 300 units a second (W goes into the screen); Space jumps at 450 while on the ground.",
-      "notCovered": "Walking diagonally is faster (the script normalises the direction). Space jumps whenever it is held on the ground, not only on the press. The help text that says whether the character stands on the ground is not covered."
+      "covers": "All of it: WASD or arrows walk a Character Controller 3D at 300 units a second in any direction, diagonals included (the direction is normalised with Vector3.nor); Space jumps at 450 once per press while on the ground; the Help Text says whether the character stands on the ground.",
+      "notCovered": "Nothing left out of the player script; a test plays the character playground with WalkerPlayer.java and with this graph under real 3D physics and compares the hero's position and the Help Text every frame. The script skips the Help Text when the scene has none; the graph expects it. The scene still runs the Java script, because the web player plays this sample and cannot run the character nodes in a graph yet."
     },
     {
       "graph": "samples/CollectorPlayer.graph",
       "mirrors": "collector/CollectorPlayer.java",
-      "covers": "WASD or arrows accelerate the ball (1500 a second squared), it slows down on its own and stays inside the arena (plus or minus 740).",
-      "notCovered": "Rolling friction is a straight-line approximation (the script uses a power of the frame time). The speed limit is 460 on each axis, not on the whole speed. The ball stops at the walls instead of bouncing, and R does not restart."
+      "covers": "All of it: WASD or arrows accelerate the ball (1500 a second squared), rolling friction keeps 0.15 of the speed per second (a Power node), the speed is limited to 460 (Vector3.limit), the ball bounces off the arena edge at plus or minus 740 keeping 0.6 of its speed, and R puts it back at the start, once per press. The collector-3d scene runs the ball from this graph.",
+      "notCovered": "Nothing left out of the player script; a test compiles and runs CollectorPlayer.java and this graph with the same keys and compares the positions every frame. The script moves the local position, the graph the world position; they are the same for a ball with no parent. The gems, timer and messages stay on the Java script CollectorGame."
     },
     {
       "graph": "samples/HopperPlayer.graph",
@@ -35,8 +35,8 @@
     {
       "graph": "samples/RunnerPlayer.graph",
       "mirrors": "runner/RunnerPlayer.java",
-      "covers": "A/D or arrows change lane on the press (three lanes 130 apart) and the player slides across at 1100 units a second.",
-      "notCovered": "Space and the jump (gravity, 760 take-off) are left out, and so is the world that moves towards the player (RunnerGame)."
+      "covers": "All of it: A/D or the arrows change lane once per press (three lanes 130 apart) and the player slides across at 1100 units a second; Space, W or Up jump once per press while on the ground (take-off 760, gravity 2400) and play the \"jump\" sound; R starts over. The runner-3d scene runs the player from this graph.",
+      "notCovered": "Nothing left out of the player script; a test compiles and runs RunnerPlayer.java and this graph with the same keys and compares the positions every frame, and the web test replays the recorded positions and counts the sounds. The script moves the local position, the graph the world position; they are the same for a player with no parent. The blocks, speed-up, distance and crash messages stay on the Java script RunnerGame, which also reads RunnerPlayer.LANES, so the Java class stays."
     },
     {
       "graph": "samples/RaceCar.graph",

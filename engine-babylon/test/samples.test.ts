@@ -6,7 +6,7 @@ import type { ScriptComponent } from "../src/runtime/ScriptComponent";
 import { createDefaultRegistry } from "../src/scripts/registry";
 import { JavaRandom } from "../src/scripts/util";
 import { str } from "../src/scene/types";
-import { createHeadlessEngine, loadSample, SAMPLES_DIR } from "./support";
+import { createHeadlessEngine, loadSample, SAMPLES_DIR, startGraphs } from "./support";
 
 const registry = createDefaultRegistry();
 const sampleFiles = readdirSync(SAMPLES_DIR).filter((name) => name.endsWith(".json"));
@@ -36,12 +36,14 @@ function play(file: string) {
     scripts.push(script);
   }
   scripts.forEach((script) => script.onStart());
+  const graphs = startGraphs(built, input);
   return {
     built,
     input,
     scripts,
     frame(dt = 1 / 60) {
       for (const script of [...scripts]) script.onUpdate(dt);
+      graphs.forEach((graph) => graph.tick(dt));
       input.endFrame();
     },
     dispose() {

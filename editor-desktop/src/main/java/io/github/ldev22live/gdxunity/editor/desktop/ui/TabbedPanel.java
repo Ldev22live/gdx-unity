@@ -21,6 +21,8 @@ public class TabbedPanel extends Table {
     private static final float TAB_HEIGHT = 26f;
     /** Space after each tab when the tabs sit in the top bar, where they would otherwise touch. */
     private static final float HEADER_TAB_GAP = 8f;
+    /** Space after each tab of a tab row inside a panel, so the titles do not run together (TD-076). */
+    private static final float TAB_GAP = 6f;
 
     private final Skin skin;
     private final List<TextButton> tabButtons = new ArrayList<>();
@@ -28,6 +30,8 @@ public class TabbedPanel extends Table {
     private final Container<Actor> contentArea = new Container<>();
     private final IntConsumer onSelected;
     private final Table tabRow;
+    /** The tab shown now, whether the user clicked it or {@link #select(int)} was called. */
+    private int selectedIndex;
 
     /**
      * @param selectedIndex initially selected tab
@@ -70,10 +74,13 @@ public class TabbedPanel extends Table {
                 }
             });
             tabButtons.add(tab);
-            tabRow.add(tab).height(TAB_HEIGHT).padLeft(2).padRight(showTabRow ? 0 : HEADER_TAB_GAP);
+            tabRow.add(tab).height(TAB_HEIGHT).padLeft(2).padRight(showTabRow ? TAB_GAP : HEADER_TAB_GAP);
         }
 
         contentArea.fill();
+        // A tab's content never sets the editor's minimum size: a panel that needs more room than the window has must not make the whole
+        // editor larger than the window (the Viewport, Sprites and Tiles tabs did, TD-077)
+        contentArea.minSize(0f);
         if (showTabRow) {
             add(tabRow).growX().row();
         }
@@ -86,8 +93,14 @@ public class TabbedPanel extends Table {
         return tabRow;
     }
 
+    /** The index of the tab shown now. */
+    public int getSelectedIndex() {
+        return selectedIndex;
+    }
+
     public void select(int index) {
         contentArea.setActor(contents.get(index));
+        selectedIndex = index;
         for (int i = 0; i < tabButtons.size(); i++) {
             TextButton tab = tabButtons.get(i);
             tab.setProgrammaticChangeEvents(false);

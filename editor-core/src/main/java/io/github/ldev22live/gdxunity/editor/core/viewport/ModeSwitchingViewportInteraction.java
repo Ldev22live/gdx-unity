@@ -1,5 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.core.viewport;
 
+import java.util.Optional;
+import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import com.badlogic.gdx.math.Vector3;
 
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
@@ -72,5 +74,10 @@ public class ModeSwitchingViewportInteraction implements ViewportInteraction {
     @Override
     public Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight) {
         return active().worldPointAt(localX, localY, panelWidth, panelHeight);
+    }
+
+    @Override
+    public Optional<Entity> entityAt(float localX, float localY, float panelWidth, float panelHeight) {
+        return active().entityAt(localX, localY, panelWidth, panelHeight);
     }
 }
