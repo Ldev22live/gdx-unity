@@ -17,6 +17,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SceneViewportInteraction2DTest {
@@ -77,8 +79,8 @@ class SceneViewportInteraction2DTest {
 
     @Test
     void shouldReportTheEntityUnderThePointerForADropWithoutChangingTheSelection() {
-        assertEquals(java.util.Optional.of(box), interaction.entityAt(localX(100f), localY(50f), PANEL_W, PANEL_H));
-        assertEquals(java.util.Optional.empty(), interaction.entityAt(localX(-300f), localY(-200f), PANEL_W, PANEL_H));
+        assertEquals(Optional.of(box), interaction.entityAt(localX(100f), localY(50f), PANEL_W, PANEL_H));
+        assertEquals(Optional.empty(), interaction.entityAt(localX(-300f), localY(-200f), PANEL_W, PANEL_H));
         assertNull(editorState.getSelectedEntity());
     }
 
