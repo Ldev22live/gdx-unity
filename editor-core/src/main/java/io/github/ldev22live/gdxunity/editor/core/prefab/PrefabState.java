@@ -292,8 +292,9 @@ public final class PrefabState {
                 }
             }
             case stringValue -> result = new JsonValue(value.asString());
-            case doubleValue -> result = new JsonValue(value.asDouble());
-            case longValue -> result = new JsonValue(value.asLong());
+            // Numbers keep the text they were read with, so a copied 1.0 is written as 1.0 again (M9.3)
+            case doubleValue -> result = new JsonValue(value.asDouble(), value.asString());
+            case longValue -> result = new JsonValue(value.asLong(), value.asString());
             case booleanValue -> result = new JsonValue(value.asBoolean());
             default -> result = new JsonValue(JsonValue.ValueType.nullValue);
         }

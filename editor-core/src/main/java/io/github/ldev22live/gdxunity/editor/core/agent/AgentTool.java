@@ -36,6 +36,16 @@ public interface AgentTool {
     }
 
     /**
+     * Whether this tool changes the editor without changing the scene's undo history: starting or stopping Play, or a scene setting
+     * such as the game genre, which the editor itself does not record as an undo step either (TD-067, TD-088). Such a tool returns
+     * null from {@link #createCommand}; the plan executor calls {@link #execute} instead and keeps its outputs, and a rollback of
+     * the plan's other steps does not undo it. Defaults to false.
+     */
+    default boolean actsOutsideUndoHistory() {
+        return false;
+    }
+
+    /**
      * Validates that the supplied parameters conform to the tool's required schema and value ranges.
      *
      * @param parameters parameter key-value pairs (untrusted input)

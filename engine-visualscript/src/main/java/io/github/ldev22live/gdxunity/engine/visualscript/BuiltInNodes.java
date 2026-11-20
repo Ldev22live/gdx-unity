@@ -2,6 +2,7 @@ package io.github.ldev22live.gdxunity.engine.visualscript;
 
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import io.github.ldev22live.gdxunity.engine.scene.navigation.NavAgent3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
@@ -53,6 +54,15 @@ public final class BuiltInNodes {
     public static final String ACTION_MOVE_CHARACTER = "action.moveCharacter";
     public static final String ACTION_JUMP_CHARACTER = "action.jumpCharacter";
     public static final String DATA_IS_GROUNDED = "data.isGrounded";
+    /** Navigation nodes (roadmap M6.4, TD-092); they need a Nav Agent, and the web player does not run them. */
+    public static final String ACTION_MOVE_TO = "action.navMoveTo";
+    public static final String ACTION_STOP_MOVING = "action.navStop";
+    public static final String DATA_HAS_ARRIVED = "data.navHasArrived";
+    /** Execution outputs of Move To: a path was found and the walk started, or there is no way there. */
+    public static final String PIN_MOVING = "moving";
+    public static final String PIN_UNREACHABLE = "unreachable";
+    /** Fully qualified name of the agent class, as generated scripts call it. */
+    static final String NAV_AGENT_CLASS = "io.github.ldev22live.gdxunity.engine.scene.navigation.NavAgent3DComponent";
     public static final String VARIABLE_GET = "variable.get";
     public static final String VARIABLE_SET = "variable.set";
     public static final String DATA_SELF = "data.self";
@@ -268,6 +278,33 @@ public final class BuiltInNodes {
                 c.output("grounded", grounded[0]);
             }).build());
 
+        // Navigation (roadmap M6.4): the Target's Nav Agent finds its way round obstacles inside a Nav Mesh Bounds
+        registry.register(NodeType.builder(ACTION_MOVE_TO, "Move To", "Navigation", ACTION)
+            .execOutputs(PinDef.execOut(PIN_MOVING, "Moving"), PinDef.execOut(PIN_UNREACHABLE, "Unreachable"))
+            .pin(in("target", "Target", ENTITY)).pin(in("destination", "Destination", VECTOR3))
+            .behaviour(c -> {
+                Vector3 destination = c.inputVector("destination");
+                Entity target = target(c);
+                boolean[] moving = new boolean[1];
+                agent(c, () -> moving[0] = NavAgent3DComponent.moveTo(target, destination));
+                c.continueWith(moving[0] ? PIN_MOVING : PIN_UNREACHABLE);
+            }).build());
+        registry.register(NodeType.builder(ACTION_STOP_MOVING, "Stop Moving", "Navigation", ACTION)
+            .pin(in("target", "Target", ENTITY))
+            .behaviour(c -> {
+                Entity target = target(c);
+                agent(c, () -> NavAgent3DComponent.stop(target));
+                c.continueWith(PinDef.EXEC_OUT);
+            }).build());
+        registry.register(NodeType.builder(DATA_HAS_ARRIVED, "Has Arrived", "Navigation", PURE)
+            .pin(in("target", "Target", ENTITY)).pin(out("arrived", "Arrived", BOOLEAN))
+            .behaviour(c -> {
+                Entity target = target(c);
+                boolean[] arrived = new boolean[1];
+                agent(c, () -> arrived[0] = NavAgent3DComponent.hasArrived(target));
+                c.output("arrived", arrived[0]);
+            }).build());
+
         // Keyboard (TD-060 C): key names are libGDX's (A, LEFT, SPACE, SHIFT_LEFT, ...); several keys are separated by commas
         registry.register(NodeType.builder(INPUT_KEY_DOWN, "Key Down", "Input", PURE)
             .property(PROPERTY_KEY, STRING).pin(out("pressed", "Pressed", BOOLEAN))
@@ -454,6 +491,15 @@ public final class BuiltInNodes {
         try {
             call.accept(physics);
         } catch (IllegalStateException | IllegalArgumentException e) {
+            throw c.error(e.getMessage());
+        }
+    }
+
+    /** A call on a Nav Agent; an entity without one becomes an error tied to the node. */
+    private static void agent(NodeContext c, Runnable call) {
+        try {
+            call.run();
+        } catch (IllegalStateException e) {
             throw c.error(e.getMessage());
         }
     }

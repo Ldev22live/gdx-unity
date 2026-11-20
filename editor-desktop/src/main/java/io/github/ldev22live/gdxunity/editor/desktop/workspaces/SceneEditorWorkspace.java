@@ -9,6 +9,7 @@ import io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.TransformGizmoRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.ViewportGridRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ViewportGridRenderer3D;
+import io.github.ldev22live.gdxunity.engine.core.profile.FrameProfiler;
 import io.github.ldev22live.gdxunity.engine.render.HudRenderer;
 import io.github.ldev22live.gdxunity.engine.render.SceneRenderer2D;
 import io.github.ldev22live.gdxunity.engine.render.SceneRenderer3D;
@@ -40,6 +41,8 @@ public class SceneEditorWorkspace implements StudioWorkspace {
     private PerspectiveCamera3D camera3D;
     private TransformGizmoRenderer gizmoRenderer3D;
     private ViewportGridRenderer3D gridRenderer3D;
+    /** Draws the 3D grid over a Sky and Weather's sky (roadmap M3.9); made once, so a frame does not allocate it. */
+    private final Runnable gridOverSky = this::renderGridOverSky;
 
     private SceneRenderer3D sceneRenderer3D;
     private SelectionOutlineRenderer selectionOutline2D;
@@ -51,6 +54,10 @@ public class SceneEditorWorkspace implements StudioWorkspace {
     private final GameCameraRig gameCameras = new GameCameraRig();
     /** Screen-space text, drawn over the scene in every view. */
     private final HudRenderer hudRenderer = new HudRenderer();
+    /** Times the 3D and 2D scene passes for the Profiler (roadmap M9.6); null when not profiled. */
+    private FrameProfiler profiler;
+    private int scene3DSection;
+    private int scene2DSection;
     private int viewWidth;
     private int viewHeight;
 
@@ -155,11 +162,49 @@ public class SceneEditorWorkspace implements StudioWorkspace {
         }
         if (sceneRenderer3D != null) {
             sceneRenderer3D.setCamera(camera);
-            sceneRenderer3D.render(deltaTime);
+            renderScene3D(deltaTime);
         }
-        sceneRenderer.render(deltaTime);
+        renderScene2D(deltaTime);
         if (sceneRenderer.getShapeRenderer() != null) {
             overlays.renderOverlays(sceneRenderer.getShapeRenderer());
+        }
+    }
+
+    /**
+     * Times the scene passes in {@code profiler} under {@code parentSection} (roadmap M9.6): {@value #PROFILE_SCENE_3D} (models,
+     * terrain, sky) and {@value #PROFILE_SCENE_2D} (sprites, shapes, tilemaps). Grid, gizmos and overlays are the parent's remainder.
+     * {@code null} stops profiling.
+     */
+    public void setProfiler(FrameProfiler profiler, int parentSection) {
+        this.profiler = profiler;
+        if (profiler != null) {
+            scene3DSection = profiler.section(PROFILE_SCENE_3D, parentSection);
+            scene2DSection = profiler.section(PROFILE_SCENE_2D, parentSection);
+        }
+    }
+
+    /** The Profiler's section for the 3D scene pass. */
+    public static final String PROFILE_SCENE_3D = "3D scene";
+    /** The Profiler's section for the 2D scene pass. */
+    public static final String PROFILE_SCENE_2D = "2D scene";
+
+    private void renderScene3D(float deltaTime) {
+        if (profiler != null) {
+            profiler.begin(scene3DSection);
+        }
+        sceneRenderer3D.render(deltaTime);
+        if (profiler != null) {
+            profiler.end(scene3DSection);
+        }
+    }
+
+    private void renderScene2D(float deltaTime) {
+        if (profiler != null) {
+            profiler.begin(scene2DSection);
+        }
+        sceneRenderer.render(deltaTime);
+        if (profiler != null) {
+            profiler.end(scene2DSection);
         }
     }
 
@@ -195,10 +240,10 @@ public class SceneEditorWorkspace implements StudioWorkspace {
         Camera camera = gameCameras.apply(gameCamera);
         if (sceneRenderer3D != null) {
             sceneRenderer3D.setCamera(camera);
-            sceneRenderer3D.render(deltaTime);
+            renderScene3D(deltaTime);
         }
         sceneRenderer.setCamera(camera);
-        sceneRenderer.render(deltaTime);
+        renderScene2D(deltaTime);
     }
 
     private void render2D(float deltaTime) {
@@ -213,9 +258,9 @@ public class SceneEditorWorkspace implements StudioWorkspace {
             // 2. Render 3D primitives (orthographic) and then 2D entities and components
             if (sceneRenderer3D != null) {
                 sceneRenderer3D.setCamera(sceneCamera);
-                sceneRenderer3D.render(deltaTime);
+                renderScene3D(deltaTime);
             }
-            sceneRenderer.render(deltaTime);
+            renderScene2D(deltaTime);
 
             // 3. Render physics debug visualization (Box2D or authored colliders)
             if (sceneRenderer.getShapeRenderer() != null && physicsDebugRenderer != null) {
@@ -239,17 +284,25 @@ public class SceneEditorWorkspace implements StudioWorkspace {
      * 3D collider wireframes, the selection outline and gizmos.
      * The Box2D debug overlay is 2D-only; in 3D the physics debug toggle shows every 3D collider instead.
      */
+    private void renderGridOverSky() {
+        gridRenderer3D.render(sceneRenderer.getShapeRenderer());
+    }
+
     private void render3D(float deltaTime) {
         camera3D.update();
         sceneRenderer.setCamera(camera3D);
-        if (sceneRenderer.getShapeRenderer() != null && gridRenderer.isEnabled()) {
+        boolean grid = sceneRenderer.getShapeRenderer() != null && gridRenderer.isEnabled();
+        // A Sky and Weather draws its sky over the background (roadmap M3.9); the grid then goes on the sky instead
+        boolean gridOnSky = grid && sceneRenderer3D != null && sceneRenderer3D.getAtmosphere() != null;
+        if (grid && !gridOnSky) {
             gridRenderer3D.render(sceneRenderer.getShapeRenderer());
         }
         if (sceneRenderer3D != null) {
+            sceneRenderer3D.setSkyOverlay(grid ? gridOverSky : null);
             sceneRenderer3D.setCamera(camera3D);
-            sceneRenderer3D.render(deltaTime);
+            renderScene3D(deltaTime);
         }
-        sceneRenderer.render(deltaTime);
+        renderScene2D(deltaTime);
         if (sceneRenderer.getShapeRenderer() != null) {
             if (colliderRenderer3D != null) {
                 colliderRenderer3D.render(sceneRenderer.getShapeRenderer());

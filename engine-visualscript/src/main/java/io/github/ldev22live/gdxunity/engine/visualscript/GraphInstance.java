@@ -44,7 +44,12 @@ public final class GraphInstance {
     /** Set by a Return node: the function frame's outputs; the frame stops running. */
     private Map<String, Object> returned;
 
-    private record Continuation(String nodeId, String pinId, Integer index) { }
+    /** Where execution continues; a loop body carries its index and, for For Each Entity, its entity. */
+    private record Continuation(String nodeId, String pinId, Integer index, Entity item) {
+        Continuation(String nodeId, String pinId, Integer index) {
+            this(nodeId, pinId, index, null);
+        }
+    }
 
     private static final class PendingDelay {
         final String nodeId;
@@ -290,6 +295,9 @@ public final class GraphInstance {
                 if (next.index() != null) {
                     lastOutputs.computeIfAbsent(next.nodeId(), k -> new HashMap<>()).put("index", next.index());
                 }
+                if (next.item() != null) {
+                    lastOutputs.computeIfAbsent(next.nodeId(), k -> new HashMap<>()).put("entity", next.item());
+                }
                 for (GraphLink link : graph.linksFrom(next.nodeId(), next.pinId())) {
                     GraphNode target = graph.getNode(link.toNode());
                     current = target.getId();
@@ -408,6 +416,18 @@ public final class GraphInstance {
             output("index", 0);
             for (int index = 0; index < count; index++) {
                 continuations.add(new Continuation(node.getId(), "body", index));
+            }
+            continuations.add(new Continuation(node.getId(), "completed", null));
+        }
+
+        @Override
+        public void forEachEntity(List<Entity> entities) {
+            if (!LoopNodes.FOR_EACH_ENTITY.equals(node.getTypeId())) {
+                throw error("For Each Entity runs only from its own node");
+            }
+            output("index", 0);
+            for (int index = 0; index < entities.size(); index++) {
+                continuations.add(new Continuation(node.getId(), "body", index, entities.get(index)));
             }
             continuations.add(new Continuation(node.getId(), "completed", null));
         }

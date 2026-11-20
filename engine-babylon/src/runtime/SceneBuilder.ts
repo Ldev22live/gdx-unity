@@ -43,6 +43,8 @@ export const SUPPORTED_COMPONENTS: ReadonlySet<string> = new Set([
   "CapsuleCollider3DComponent",
   "ConvexHullCollider3DComponent",
   "MeshCollider3DComponent",
+  // A terrain's ground as a static triangle mesh once its file has loaded (roadmap M3.11)
+  "TerrainCollider3DComponent",
   "Joint3DComponent",
   "CharacterController3DComponent",
   // Played by the ScenePlayer: it moves and turns the entity after physics (TD-050, TD-064)
@@ -61,6 +63,8 @@ export const SUPPORTED_COMPONENTS: ReadonlySet<string> = new Set([
   // Pixel-art sprites and tile maps (TD-066): drawn from `.sprite` files that load after the scene is built; tile maps also collide (Physics2D)
   "SpriteAnimatorComponent",
   "TilemapComponent",
+  // Heightmap ground from a `.terrain` file (roadmap M3.11), drawn once the file has loaded (TerrainLoader)
+  "Terrain",
 ]);
 
 /** Distance an orthographic game camera is pulled back along its view axis, so the z = 0 plane is in front of it. */
@@ -154,6 +158,21 @@ export interface PendingTilemap {
   order: number;
 }
 
+/** A Mesh Primitive's `.material` waiting to load (roadmap M2.5); {@link loadPendingMaterials} puts it on the mesh. */
+export interface PendingMaterial {
+  entity: GameEntity;
+  mesh: Mesh;
+  path: string;
+  /** A plane is drawn from both sides whatever its material says, as on the desktop. */
+  twoSided: boolean;
+}
+
+/** A Terrain component waiting for its `.terrain` file (roadmap M3.11); {@link loadPendingTerrains} builds its mesh. */
+export interface PendingTerrain {
+  entity: GameEntity;
+  path: string;
+}
+
 export interface BuiltScene {
   scene: Scene;
   game: GameScene;
@@ -173,6 +192,16 @@ export interface BuiltScene {
   pendingTilemaps: PendingTilemap[];
   /** Sprite files that failed to load, filled in by {@link loadPendingSprites}. */
   spriteFailures: { entityName: string; path: string; message: string }[];
+  /** Mesh Primitives whose `.material` files are loading; until then they show their own colour. */
+  pendingMaterials: PendingMaterial[];
+  /** Material files that failed to load, filled in by {@link loadPendingMaterials}. */
+  materialFailures: { entityName: string; path: string; message: string }[];
+  /** Terrain components waiting for their `.terrain` files (loaded asynchronously, like models). */
+  pendingTerrains: PendingTerrain[];
+  /** Terrain files that failed to load, filled in by {@link loadPendingTerrains}. */
+  terrainFailures: { entityName: string; path: string; message: string }[];
+  /** The scene's shadow generators, so meshes that arrive later (terrains) cast and receive shadows too. */
+  shadowGenerators: ShadowGenerator[];
   /** The scene's Sprite Animators; the player advances them while the game runs. */
   sprites: SpriteBinding[];
   /** Component types in the file that the player does not support, with how many components have each. */
@@ -213,6 +242,8 @@ export function buildScene(engine: AbstractEngine, file: SceneFile): BuiltScene 
   const pendingModels: PendingModel[] = [];
   const pendingSprites: PendingSprite[] = [];
   const pendingTilemaps: PendingTilemap[] = [];
+  const pendingTerrains: PendingTerrain[] = [];
+  const pendingMaterials: PendingMaterial[] = [];
   const sprites: SpriteBinding[] = [];
   const unsupported = new Map<string, number>();
   const shadowLights: DirectionalLight[] = [];
@@ -228,9 +259,16 @@ export function buildScene(engine: AbstractEngine, file: SceneFile): BuiltScene 
         continue;
       }
       switch (component.type) {
-        case "MeshPrimitiveComponent":
-          builtMeshes.push(createPrimitive(scene, entity, component));
+        case "MeshPrimitiveComponent": {
+          const mesh = createPrimitive(scene, entity, component);
+          builtMeshes.push(mesh);
+          // A material file (TD-081) replaces the colour once it has loaded (roadmap M2.5)
+          const materialPath = str(component.data, "materialPath", "");
+          if (materialPath !== "") {
+            pendingMaterials.push({ entity, mesh, path: materialPath, twoSided: str(component.data, "shape") === "PLANE" });
+          }
           break;
+        }
         case "SculptMeshComponent": {
           const binding = createSculpt(scene, entity, component);
           sculpts.set(entity.id, binding);
@@ -260,6 +298,11 @@ export function buildScene(engine: AbstractEngine, file: SceneFile): BuiltScene 
         case "TilemapComponent": {
           const pending = createTilemap(entity, component, index);
           if (pending) pendingTilemaps.push(pending);
+          break;
+        }
+        case "Terrain": {
+          const path = str(component.data, "terrainPath", "");
+          if (path !== "") pendingTerrains.push({ entity, path });
           break;
         }
         case "TextComponent":
@@ -328,6 +371,11 @@ export function buildScene(engine: AbstractEngine, file: SceneFile): BuiltScene 
     pendingSprites,
     pendingTilemaps,
     spriteFailures: [],
+    pendingMaterials,
+    materialFailures: [],
+    pendingTerrains,
+    terrainFailures: [],
+    shadowGenerators: generators,
     sprites,
     unsupported,
   };

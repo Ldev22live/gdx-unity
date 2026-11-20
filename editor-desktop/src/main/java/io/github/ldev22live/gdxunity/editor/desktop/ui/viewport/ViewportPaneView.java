@@ -20,4 +20,22 @@ public interface ViewportPaneView extends Disposable {
 
     /** Puts the pane's camera back where it starts. */
     void resetView();
+
+    /** Whether the pane's view can be turned round in quarter turns (the isometric view, UI M2). */
+    default boolean canTurn() {
+        return false;
+    }
+
+    /**
+     * Turns the view by quarter turns, positive to the left.
+     *
+     * @throws IllegalStateException when the view cannot turn
+     */
+    default void turn(int quarterTurns) {
+        throw new IllegalStateException("This view cannot turn");
+    }
+
+    /** Fits the whole scene into the pane, for a full-map view; other views keep their camera. */
+    default void frameWorld() {
+    }
 }

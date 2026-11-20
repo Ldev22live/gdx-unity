@@ -14,7 +14,13 @@ public enum ViewKind {
     /** Looks along the Y axis (from above, +Y towards -Y): the screen shows X across and Z down the screen. */
     Y_AXIS("Y axis", new Vector3(0f, -1f, 0f), new Vector3(0f, 0f, -1f)),
     /** Looks along the Z axis (from +Z towards -Z): the screen shows X across and Y up. */
-    Z_AXIS("Z axis", new Vector3(0f, 0f, -1f), new Vector3(0f, 1f, 0f));
+    Z_AXIS("Z axis", new Vector3(0f, 0f, -1f), new Vector3(0f, 1f, 0f)),
+    /**
+     * The full-map view: orthographic, looking down the diagonal (from +X, +Y, +Z towards the origin), which is true isometric:
+     * 45 degrees round and about 35.26 degrees down, so the three scene axes are equally foreshortened. Its camera can turn it
+     * round in quarter turns ({@link OrthographicViewCamera#turn}).
+     */
+    ISOMETRIC("Isometric", new Vector3(-1f, -1f, -1f).nor(), new Vector3(-1f, 2f, -1f).nor());
 
     private final String displayName;
     private final Vector3 direction;
@@ -61,7 +67,12 @@ public enum ViewKind {
         return value;
     }
 
-    /** The next view in the order Perspective, X, Y, Z, for a header that cycles through the views. */
+    /** True for a view that looks at the scene from above and can be turned round (only {@link #ISOMETRIC}). */
+    public boolean canTurn() {
+        return this == ISOMETRIC;
+    }
+
+    /** The next view in the order Perspective, X, Y, Z, Isometric, for a header that cycles through the views. */
     public ViewKind next() {
         ViewKind[] all = values();
         return all[(ordinal() + 1) % all.length];

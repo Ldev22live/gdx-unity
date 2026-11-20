@@ -40,7 +40,12 @@ class TerrainSurfaceTest {
         assertEquals(3, Surface.SNOW.code());
         assertEquals(4, Surface.GRAVEL.code());
         assertEquals(Surface.GRAVEL, Surface.fromCode(4));
-        assertThrows(IllegalArgumentException.class, () -> Surface.fromCode(5));
+        assertEquals(5, Surface.ROCK.code(), "new layers go at the end (TD-089)");
+        assertEquals(6, Surface.DIRT.code());
+        assertEquals(6, Surface.LAYER_COUNT, "every surface but Auto is a paint layer");
+        assertEquals(Surface.GRASS, Surface.ofLayer(0));
+        assertThrows(IllegalStateException.class, Surface.AUTO::layer);
+        assertThrows(IllegalArgumentException.class, () -> Surface.fromCode(7));
         assertThrows(IllegalArgumentException.class, () -> Surface.fromCode(-1));
     }
 
@@ -72,22 +77,29 @@ class TerrainSurfaceTest {
         stroke.begin(brush, 0f, 0f);
         TerrainDelta delta = stroke.end();
 
-        assertEquals(Surface.SNOW, terrain.getSurface(20, 20), "the centre");
-        assertEquals(Surface.GRASS, terrain.getSurface(0, 0), "far away");
-        assertEquals(Surface.GRASS, terrain.getSurface(20 + 6, 20), "at the radius the edge is not painted");
+        // TD-089: paint is a layer weight over the base, full at the centre and fading out to the edge (a soft edge)
+        assertEquals(Terrain.FULL_WEIGHT, terrain.getLayerWeight(20, 20, Surface.SNOW), "the centre is all snow");
+        assertEquals(Surface.SNOW, terrain.dominantSurface(20, 20));
+        int between = terrain.getLayerWeight(20 + 4, 20, Surface.SNOW);
+        assertTrue(between > 0 && between < Terrain.FULL_WEIGHT, "part snow, part grass between the centre and the edge: " + between);
+        assertEquals(0, terrain.getLayerWeight(20 + 6, 20, Surface.SNOW), "at the radius the edge is not painted");
+        assertEquals(Surface.GRASS, terrain.dominantSurface(0, 0), "far away");
+        assertEquals(Surface.GRASS, terrain.getSurface(20, 20), "the base ground stays under the paint");
         assertArrayEquals(heights, terrain.copyHeights());
         assertEquals(0, delta.size(), "no heights changed");
-        assertTrue(delta.surfaceIndices().length > 5 && delta.surfaceIndices().length < 200, "a round patch: " + delta.surfaceIndices().length);
+        assertEquals(0, delta.surfaceIndices().length, "no base ground changed");
+        assertTrue(delta.weightIndices().length > 5 && delta.weightIndices().length < 200, "a round patch: " + delta.weightIndices().length);
         assertFalse(delta.isEmpty());
 
         terrain.apply(delta, false);
-        assertEquals(Surface.GRASS, terrain.getSurface(20, 20), "undo");
+        assertEquals(0, terrain.getLayerWeight(20, 20, Surface.SNOW), "undo");
+        assertFalse(terrain.hasWeights());
         terrain.apply(delta, true);
-        assertEquals(Surface.SNOW, terrain.getSurface(20, 20), "redo");
+        assertEquals(Terrain.FULL_WEIGHT, terrain.getLayerWeight(20, 20, Surface.SNOW), "redo");
     }
 
     @Test
-    void shouldLayAutoWhenThePaintBrushIsInvertedAndRememberTheFirstSurfaceOfAPoint() {
+    void shouldWipeThePaintWhenThePaintBrushIsInvertedAndRememberTheFirstWeightOfAPoint() {
         Terrain terrain = new Terrain(21, 21, 10f);
         terrain.fillSurface(Surface.SAND);
         TerrainBrush brush = new TerrainBrush();
@@ -101,14 +113,17 @@ class TerrainSurfaceTest {
         stroke.move(20f, 0f);
         TerrainDelta delta = stroke.end();
 
-        for (int i = 0; i < delta.surfaceIndices().length; i++) {
-            assertEquals(Surface.SAND.code(), delta.surfaceBefore()[i], "before is what the point was before the whole stroke");
-            assertEquals(Surface.GRAVEL.code(), delta.surfaceAfter()[i]);
+        assertTrue(delta.weightIndices().length > 0);
+        for (int i = 0; i < delta.weightIndices().length; i++) {
+            assertEquals(0, delta.weightBefore()[i], "before is what the weight was before the whole stroke, not after a dab");
+            assertTrue((delta.weightAfter()[i] & 0xFF) > 0);
         }
+        assertEquals(Surface.GRAVEL, terrain.dominantSurface(10, 10));
         brush.setInverted(true);
         stroke.begin(brush, 0f, 0f);
         stroke.end();
-        assertEquals(Surface.AUTO, terrain.getSurface(10, 10), "Ctrl lays no chosen surface");
+        assertEquals(0, terrain.getLayerWeight(10, 10, Surface.GRAVEL), "Ctrl wipes the paint at the centre");
+        assertEquals(Surface.SAND, terrain.dominantSurface(10, 10), "and the base ground shows again");
     }
 
     @Test

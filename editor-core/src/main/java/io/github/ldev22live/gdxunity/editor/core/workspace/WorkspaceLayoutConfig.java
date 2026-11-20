@@ -9,8 +9,13 @@ public class WorkspaceLayoutConfig {
     private float splitRatioMain = 0.72f;
     private float splitRatioLeft = 0.20f;
     private float splitRatioRight = 0.25f;
-    /** The World layout (roadmap M1b.2, TD-085) starts with the Content Browser and Output Log closed. */
+    /** The World layout (roadmap M1b.2, TD-085) starts with the Asset Library (the Content Browser) closed. */
     private boolean bottomPanelCollapsed = true;
+    /**
+     * The Console drawer (Output Log and Profiler; UI M3) is open. A file from before UI M3 has no such field and reads as closed: the
+     * Output Log used to share the bottom panel with the Content Browser, whose open state stays in {@code bottomPanelCollapsed}.
+     */
+    private boolean consoleShown = false;
     /** The World layout starts with the Outliner closed (TD-085). */
     private boolean outlinerShown = false;
     /** A {@link PanelLayout.DetailsMode} name; the World layout shows Details while something is selected (TD-085). */
@@ -38,6 +43,9 @@ public class WorkspaceLayoutConfig {
 
     public float getSplitRatioRight() { return splitRatioRight; }
     public void setSplitRatioRight(float splitRatioRight) { this.splitRatioRight = splitRatioRight; }
+
+    public boolean isConsoleShown() { return consoleShown; }
+    public void setConsoleShown(boolean consoleShown) { this.consoleShown = consoleShown; }
 
     public boolean isBottomPanelCollapsed() { return bottomPanelCollapsed; }
     public void setBottomPanelCollapsed(boolean bottomPanelCollapsed) { this.bottomPanelCollapsed = bottomPanelCollapsed; }

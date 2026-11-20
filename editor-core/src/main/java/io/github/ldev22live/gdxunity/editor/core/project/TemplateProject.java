@@ -3,12 +3,17 @@ package io.github.ldev22live.gdxunity.editor.core.project;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
+import io.github.ldev22live.gdxunity.engine.core.asset.ThirdPartyManifest;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,6 +46,12 @@ public final class TemplateProject {
     private static final Pattern SAMPLE_IMPORT = Pattern.compile("^\\s*import\\s+samples\\.([\\w.]+)\\.(\\w+)\\s*;", Pattern.MULTILINE);
     /** A string literal in source code; the ones that name an existing file are files the script opens. */
     private static final Pattern STRING_LITERAL = Pattern.compile("\"([^\"\\\\\\n]+)\"");
+    /** A binary glTF's magic number ("glTF"), little-endian. */
+    private static final int GLB_MAGIC = 0x46546C67;
+    /** The chunk type of a binary glTF's JSON chunk ("JSON"). */
+    private static final int GLB_JSON_CHUNK = 0x4E4F534A;
+    /** The largest JSON chunk read from a binary glTF; a real one is a few hundred kilobytes at most. */
+    private static final int GLB_JSON_LIMIT = 16 * 1024 * 1024;
     /** Files whose text is searched for the names of other files. */
     private static final List<String> TEXT_EXTENSIONS = List.of("json", "graph", "material", "anim", "prefab", "song", "terrain",
         "sprite", "sculpt", "gltf", "project");
@@ -119,6 +130,7 @@ public final class TemplateProject {
 
         TreeSet<String> needed = findDependencies(root, scenePath.replace('\\', '/'));
         needed.remove(scenePath.replace('\\', '/'));
+        boolean licences = false;
 
         Files.createDirectories(projectsDir.toPath());
         Path folder = uniqueFolder(projectsDir.toPath(), name == null || name.isBlank() ? base : name);
@@ -133,6 +145,10 @@ public final class TemplateProject {
             }
             Files.writeString(folder.resolve(EditorProject.MARKER_FILE),
                 "format=1\nname=" + folder.getFileName() + "\nstartScene=" + startScene + "\n", StandardCharsets.UTF_8);
+            // Downloaded files keep their licence records (TD-094, M2b.2)
+            if (ProjectLicences.carry(root.toFile(), folder.toFile(), needed)) {
+                licences = true;
+            }
         } catch (IOException | RuntimeException e) {
             IOException cleanup = deleteTree(folder);
             if (cleanup != null) {
@@ -142,6 +158,9 @@ public final class TemplateProject {
         }
         List<String> files = new ArrayList<>(needed);
         files.add(startScene);
+        if (licences) {
+            files.add(ThirdPartyManifest.PATH);
+        }
         java.util.Collections.sort(files);
         return new Result(folder.toFile(), startScene, files);
     }
@@ -163,6 +182,9 @@ public final class TemplateProject {
             } else if (TEXT_EXTENSIONS.contains(extension)) {
                 String text = Files.readString(file, StandardCharsets.UTF_8);
                 collectStrings(parse(current, text), root, current, references);
+            } else if (extension.equals("glb")) {
+                // A binary glTF can name outside files too (Kenney's Building Kit names Textures/colormap.png), in its JSON chunk
+                collectStrings(parse(current, glbJson(file, current)), root, current, references);
             }
             for (String reference : references) {
                 if (found.add(reference)) {
@@ -171,6 +193,25 @@ public final class TemplateProject {
             }
         }
         return found;
+    }
+
+    /** The JSON chunk of a binary glTF, which names its images and buffers. */
+    static String glbJson(Path file, String name) throws IOException {
+        try (InputStream in = Files.newInputStream(file)) {
+            ByteBuffer header = ByteBuffer.wrap(in.readNBytes(20)).order(ByteOrder.LITTLE_ENDIAN);
+            if (header.limit() < 20 || header.getInt(0) != GLB_MAGIC || header.getInt(16) != GLB_JSON_CHUNK) {
+                throw new IOException("Cannot read " + name + " to find the files it needs: not a binary glTF");
+            }
+            int length = header.getInt(12);
+            if (length < 0 || length > GLB_JSON_LIMIT) {
+                throw new IOException("Cannot read " + name + " to find the files it needs: a JSON chunk of " + length + " bytes");
+            }
+            byte[] json = in.readNBytes(length);
+            if (json.length != length) {
+                throw new IOException("Cannot read " + name + " to find the files it needs: it ends inside its JSON chunk");
+            }
+            return new String(json, StandardCharsets.UTF_8);
+        }
     }
 
     /** @throws IOException if the text is not JSON: a file that cannot be read cannot be followed, and guessing would hide a missing file */

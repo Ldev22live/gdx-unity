@@ -284,7 +284,8 @@ public final class GraphTypeScriptGenerator {
                     emitFrom(nodeId, PinDef.EXEC_OUT, depth, path, out);
                 }
                 case BuiltInNodes.ACTION_ADD_FORCE, BuiltInNodes.ACTION_ADD_IMPULSE, BuiltInNodes.ACTION_SET_VELOCITY,
-                     BuiltInNodes.ACTION_RAYCAST_3D, BuiltInNodes.ACTION_MOVE_CHARACTER, BuiltInNodes.ACTION_JUMP_CHARACTER ->
+                     BuiltInNodes.ACTION_RAYCAST_3D, BuiltInNodes.ACTION_MOVE_CHARACTER, BuiltInNodes.ACTION_JUMP_CHARACTER,
+                     BuiltInNodes.ACTION_MOVE_TO, BuiltInNodes.ACTION_STOP_MOVING ->
                     throw desktopOnly(node);
                 default -> throw new IllegalArgumentException("Cannot generate code for node type " + node.getTypeId());
             }
@@ -371,6 +372,7 @@ public final class GraphTypeScriptGenerator {
                     return name + ".formatNumber(" + input(node, "value", depth) + ")";
                 case BuiltInNodes.DATA_GET_VELOCITY:
                 case BuiltInNodes.DATA_IS_GROUNDED:
+                case BuiltInNodes.DATA_HAS_ARRIVED:
                 case BuiltInNodes.ACTION_RAYCAST_3D:
                     throw desktopOnly(node);
                 case BuiltInNodes.INPUT_KEY_PRESSED:
@@ -396,7 +398,11 @@ public final class GraphTypeScriptGenerator {
 
         /** The web player does not simulate 3D physics (TD-048), so code for these nodes would silently do nothing. */
         private IllegalArgumentException desktopOnly(GraphNode node) {
-            String reason = "needs 3D physics, which the web player does not simulate yet";
+            String type = node.getTypeId();
+            String reason = type.equals(BuiltInNodes.ACTION_MOVE_TO) || type.equals(BuiltInNodes.ACTION_STOP_MOVING)
+                || type.equals(BuiltInNodes.DATA_HAS_ARRIVED)
+                ? "needs navigation, which the web player does not run yet"
+                : "needs 3D physics, which the web player does not simulate yet";
             return new IllegalArgumentException("Node " + node.getId() + " (" + node.getTypeId() + ") " + reason
                 + ", so TypeScript cannot be generated for this graph. Use Generate Java or Generate Kotlin.");
         }

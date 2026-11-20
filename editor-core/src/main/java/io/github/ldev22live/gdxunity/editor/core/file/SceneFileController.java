@@ -2,6 +2,8 @@ package io.github.ldev22live.gdxunity.editor.core.file;
 
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.project.TemplateProject;
+import io.github.ldev22live.gdxunity.editor.core.project.StarterPalette;
+import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 
 import java.io.File;
@@ -212,7 +214,10 @@ public class SceneFileController {
             return false;
         }
         try {
-            TemplateProject.Result result = TemplateProject.create(sourceRoot, relative.get(), projectsDir, null);
+            TemplateProject.Result made = TemplateProject.create(sourceRoot, relative.get(), projectsDir, null);
+            // Objects and Characters have something to place in the new project (roadmap M3c.5)
+            Optional<GameMode> mode = StarterPalette.modeNamedBy(new File(made.folder(), made.startScene()));
+            TemplateProject.Result result = mode.isPresent() ? StarterPalette.addTo(sourceRoot, made, mode.get()) : made;
             editorState.setStatusMessage("Created the project '" + result.folder().getName() + "' from " + chosen.get().getName() + " ("
                 + result.files().size() + " files) in " + result.folder().getParent() + ". Open it by starting the editor with --project \""
                 + result.folder().getAbsolutePath() + "\". The sample is unchanged.", false);

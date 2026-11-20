@@ -30,6 +30,8 @@ const SPHERE_COLLIDER = "SphereCollider3DComponent";
 const CAPSULE_COLLIDER = "CapsuleCollider3DComponent";
 const HULL_COLLIDER = "ConvexHullCollider3DComponent";
 const MESH_COLLIDER = "MeshCollider3DComponent";
+/** A terrain's ground as a static triangle mesh (roadmap M3.11); the desktop builds a height field from the same grid (TD-087). */
+const TERRAIN_COLLIDER = "TerrainCollider3DComponent";
 const RIGID_BODY = "RigidBody3DComponent";
 const JOINT = "Joint3DComponent";
 const CHARACTER = "CharacterController3DComponent";
@@ -38,7 +40,7 @@ const CEILING_HIT_FRACTION = 0.25;
 /** Hinge limits must lie within this many degrees either way, as on the desktop (`Joint3DComponent.MAX_HINGE_DEGREES`). */
 const MAX_HINGE_DEGREES = 180;
 /** The collider component types this player simulates (TD-059, TD-064). Joints and characters are not built yet. */
-export const COLLIDER_TYPES: readonly string[] = [BOX_COLLIDER, SPHERE_COLLIDER, CAPSULE_COLLIDER, HULL_COLLIDER, MESH_COLLIDER];
+export const COLLIDER_TYPES: readonly string[] = [BOX_COLLIDER, SPHERE_COLLIDER, CAPSULE_COLLIDER, HULL_COLLIDER, MESH_COLLIDER, TERRAIN_COLLIDER];
 
 const NO_BODY = -1;
 /** A mesh collider with more triangles than this adds a warning, as on the desktop. */
@@ -674,7 +676,7 @@ export class Physics3D {
     const triggers: ShapeDescriptor[] = [];
     for (const collider of enabledColliders(entity)) {
       let shape: ShapeDescriptor | null;
-      if (collider.type === HULL_COLLIDER || collider.type === MESH_COLLIDER) {
+      if (collider.type === HULL_COLLIDER || collider.type === MESH_COLLIDER || collider.type === TERRAIN_COLLIDER) {
         shape = this.meshShape(entity, collider, motion, scale);
         // Still loading: no body yet, and nothing is said; the next update tries again
         if (shape === null) return;
@@ -714,19 +716,26 @@ export class Physics3D {
     if (collider.type === MESH_COLLIDER && motion !== "STATIC") {
       return refuse("a triangle mesh can only be on a static body; give the entity no Rigid Body 3D, or use a convex hull");
     }
+    if (collider.type === TERRAIN_COLLIDER && motion !== "STATIC") {
+      return refuse("a terrain is static ground; give the entity no Rigid Body 3D");
+    }
+    if (collider.type === TERRAIN_COLLIDER && !entity.getComponent("Terrain")) {
+      return refuse("it has no Terrain to take the ground from");
+    }
     if (!this.geometry) return refuse("this scene cannot read meshes");
     const result = this.geometry.geometryOf(entity);
     if (result.state === "pending") return null;
     if (result.state === "failed") return refuse(result.reason);
     const { points, indices } = result.geometry;
-    if (collider.type === MESH_COLLIDER && indices.length < 3) return refuse("the mesh has no triangles");
+    const triangleMesh = collider.type === MESH_COLLIDER || collider.type === TERRAIN_COLLIDER;
+    if (triangleMesh && indices.length < 3) return refuse(collider.type === TERRAIN_COLLIDER ? "the terrain has no ground" : "the mesh has no triangles");
     const d = collider.data;
     // The points are in meters with the entity's scale applied already (see MeshColliderGeometry); the offset is scaled like the others
     const offsetX = num(d, "offsetX", 0) * scale.x * METERS_PER_UNIT;
     const offsetY = num(d, "offsetY", 0) * scale.y * METERS_PER_UNIT;
     const offsetZ = num(d, "offsetZ", 0) * scale.z * METERS_PER_UNIT;
-    if (collider.type === MESH_COLLIDER) {
-      if (indices.length / 3 > MAX_MESH_TRIANGLES_WARNING) {
+    if (triangleMesh) {
+      if (collider.type === MESH_COLLIDER && indices.length / 3 > MAX_MESH_TRIANGLES_WARNING) {
         this.warnings.push(`${entity.name}: the mesh collider has ${indices.length / 3} triangles; above ${MAX_MESH_TRIANGLES_WARNING} it is slow to build`);
       }
       return { kind: "MESH", points, indices, offsetX, offsetY, offsetZ };

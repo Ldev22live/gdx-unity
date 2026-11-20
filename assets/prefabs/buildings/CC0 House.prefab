@@ -1,0 +1,937 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "CC0 House",
+  "rootId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+  "entities": [
+    {
+      "id": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "parentId": null,
+      "name": "CC0 House",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "0180d6e8-f539-5ea9-83df-38df2df372e2",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Floor",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100.0,
+          "y": 0.0,
+          "z": -100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/floor.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 5.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 200.0,
+            "sizeY": 10.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1c35953f-c36c-526d-87d7-b2b7ff161c2e",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Floor",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100.0,
+          "y": 0.0,
+          "z": 100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/floor.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 5.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 200.0,
+            "sizeY": 10.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "22fa87a5-b09d-54e0-b5c3-f9099096e547",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Floor",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 0.0,
+          "z": -100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/floor.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 5.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 200.0,
+            "sizeY": 10.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "051cc15e-347e-570c-a415-0ddd6a8e6538",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Floor",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 0.0,
+          "z": 100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/floor.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 5.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 200.0,
+            "sizeY": 10.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "baef2a04-18d7-5ea8-bf35-b5a6f1f1a826",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Wall East North",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 200.0,
+          "y": 0.0,
+          "z": -100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall-window-square.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 120.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 20.0,
+            "sizeY": 240.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2b98ab8e-fa0f-5d10-b472-551ead4cbb3f",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Wall East South",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 200.0,
+          "y": 0.0,
+          "z": 100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 120.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 10.0,
+            "sizeY": 240.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f220d0b0-a6cf-599b-8174-b652b48b0d75",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Wall West North",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -200.0,
+          "y": 0.0,
+          "z": -100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 120.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 10.0,
+            "sizeY": 240.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4cbe99b4-a1a8-5629-88b8-f8b0ae932037",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Wall West South",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -200.0,
+          "y": 0.0,
+          "z": 100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall-window-square.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 120.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 20.0,
+            "sizeY": 240.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "58262d0d-5bdf-5ee3-aac6-f4968cd7c86a",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Wall North West",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100.0,
+          "y": 0.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7071068,
+          "z": 0.0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 120.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 10.0,
+            "sizeY": 240.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9cc8966b-ab3f-543f-91a5-85a323dba65e",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Wall North East",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 0.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7071068,
+          "z": 0.0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 120.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 10.0,
+            "sizeY": 240.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ecc4afdd-cd1c-5ce4-939b-e82d5240462c",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Wall Front Door",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100.0,
+          "y": 0.0,
+          "z": 200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": -0.7071068,
+          "z": 0.0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall-doorway-square.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7b3bf385-1e6e-54fa-95ea-a0075d9d67f7",
+      "parentId": "ecc4afdd-cd1c-5ce4-939b-e82d5240462c",
+      "name": "Collision Jamb Left",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 120.0,
+            "offsetZ": -75.0,
+            "trigger": false,
+            "sizeX": 20.0,
+            "sizeY": 240.0,
+            "sizeZ": 50.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1d5998db-c666-5d84-9a5c-7c244a340e33",
+      "parentId": "ecc4afdd-cd1c-5ce4-939b-e82d5240462c",
+      "name": "Collision Jamb Right",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 120.0,
+            "offsetZ": 75.0,
+            "trigger": false,
+            "sizeX": 20.0,
+            "sizeY": 240.0,
+            "sizeZ": 50.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "657f7b28-6eba-5a80-805e-d7dbe6bafff7",
+      "parentId": "ecc4afdd-cd1c-5ce4-939b-e82d5240462c",
+      "name": "Collision Lintel",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 225.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 20.0,
+            "sizeY": 30.0,
+            "sizeZ": 100.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "82c14357-fd71-5187-a032-2091227cef05",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Wall Front Window",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 0.0,
+          "z": 200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": -0.7071068,
+          "z": 0.0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall-window-square.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 120.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 20.0,
+            "sizeY": 240.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9440ff4b-efad-5441-9cb7-3caac5f2520e",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Roof NE",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 240.0,
+          "z": 100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 10.0,
+            "offsetY": 20.0,
+            "offsetZ": 10.0,
+            "trigger": false,
+            "sizeX": 220.0,
+            "sizeY": 40.0,
+            "sizeZ": 220.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "030b02ee-a981-5c16-9304-667c594b725f",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Roof SE",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 240.0,
+          "z": -100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7071068,
+          "z": 0.0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 10.0,
+            "offsetY": 20.0,
+            "offsetZ": 10.0,
+            "trigger": false,
+            "sizeX": 220.0,
+            "sizeY": 40.0,
+            "sizeZ": 220.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "bed785f6-8f0b-517d-81eb-b35104c15806",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Roof SW",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100.0,
+          "y": 240.0,
+          "z": -100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 10.0,
+            "offsetY": 20.0,
+            "offsetZ": 10.0,
+            "trigger": false,
+            "sizeX": 220.0,
+            "sizeY": 40.0,
+            "sizeZ": 220.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9c8e5053-fbec-593d-9633-efeec604db85",
+      "parentId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+      "name": "Roof NW",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100.0,
+          "y": 240.0,
+          "z": 100.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": -0.7071068,
+          "z": 0.0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 10.0,
+            "offsetY": 20.0,
+            "offsetZ": 10.0,
+            "trigger": false,
+            "sizeX": 220.0,
+            "sizeY": 40.0,
+            "sizeZ": 220.0
+          }
+        }
+      ]
+    }
+  ]
+}

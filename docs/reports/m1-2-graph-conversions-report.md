@@ -100,3 +100,92 @@ Several of these are whole games rather than player scripts. Converting them ful
 5. Matrix and INDEX updated: done.
 6. Limits and next steps: above.
 7. **No commit, push or other destructive Git operation was performed.**
+
+
+---
+
+# Stage 2 (2026-11-18): SandboxKick, and the For Each Entity node
+
+**HEAD at start and end:** `0469ceb` (nothing committed). **Result: 6 of 15 graphs match their scripts** (5 before). The done-when ("parity tests pass for all 15") is still **not met**.
+
+## Why this graph
+
+After MC.7, M1.2 was the only unblocked milestone that needs neither a person nor an approval. Of the ten partial graphs, SandboxKick was the closest to its script (`SandboxLauncher.java`, 83 lines). Its gaps came down to two things a graph could not express:
+- going through the list that `PhysicsSystem3D.overlapSphere` returns (the E key's pop);
+- asking whether something a ray hit is a dynamic body, which may have no rigid body at all (the floor), without an error.
+
+The others need box collision, game rules or AI (stage 1's "Next"), which is a bigger design question.
+
+## What was built
+
+- **For Each Entity** (`flow.forEachEntity`, in `LoopNodes` beside Repeat, TD-068).
+  - **Behaviour:** it runs Body once per entity of a `java.util.List` that a Java method node returns, with Entity and Index set, then Completed. The list is copied first, so the body may change the scene.
+  - **Errors, never skips:** a missing list, a non-entity element, or more than 1,000 items.
+  - **Desktop:** `GraphInstance`; `NodeContext.forEachEntity`.
+  - **Web:** `nodes.ts` and `interpreter.ts`. The web parity test reads every `flow.*` id in `LoopNodes.java`, so the web player must offer it. On the web its list can come only from a Java method node, and those exist there just for MathUtils and Vector3.
+  - **Code generation:** `GraphCodeGenerator` writes it as a `for` loop over a copy of the list, in Java and Kotlin, with fields for the current entity and index. Every example graph is turned into Java that compiles (`GraphExamplesTest`), and that now includes this loop.
+- **`PhysicsSystem3D.isDynamic(Entity)` and `getMass(Entity)`:** questions a graph can ask of whatever a ray hit. `isDynamic` is false, not an error, for an entity without a rigid body. `getMass` fails loudly on one.
+- **`RigidBody3DComponent.isDynamic()`:** switched on and of the dynamic type.
+- **`SandboxKick.graph`**, rewritten by the new `tools/make_sandbox_graph.py`: 96 nodes and 111 wires, the whole script. Every frame:
+  - it aims along its entity's view (`Vector3.mul` by the world rotation, then `nor`) and casts a 6000-unit ray;
+  - it names what the ray hits on the Help Text, or "nothing";
+  - aiming at a dynamic body: Space kicks it (900 × mass), held F pushes it (1500 × mass), T stops it;
+  - E pops every dynamic body within 260 units of the aim point (700 × mass upwards), through For Each Entity.
+- **`examples.json`:** SandboxKick is now "Nothing left out". It differs from the script in one way: when the scene has no 3D physics or no Help Text, the graph reports an error, where the script does nothing.
+
+## The parity test
+
+`SampleGamesTest.shouldAimKickPushPopAndStopLikeTheReferenceSandboxScriptFrameForFrame`:
+
+- **Setup:** two game sessions on real Jolt, one running `SandboxLauncher.java` on the camera and one running the graph. Both cameras are turned at the crate stack.
+- **Keys:** Space at frame 60, F held for frames 100 to 139, T at 170 and E at 240. Then both cameras turn to the sky, and E is pressed at frame 360.
+- **Checks, on every one of the 420 frames:** all 8 balls' and 10 crates' positions within 0.001, and the Help Text exactly.
+- **At the end:** the crates were aimed at, the sky gave "nothing", and the keys moved a crate more than 100 units.
+
+**Each pushing branch is proved exercised.** Graphs made with a kick of 899, a push of 1499 and a pop of 699 each failed at the frame their key acts (61, 114 and 241). My first key schedule popped the stack before the kick, so the kick never hit a body, and the kick mutant passed; the schedule was reordered and all three mutants failed. The T (stop) branch is covered by parity only; its mutant was not run.
+
+## Commands and results
+
+| Command | Exit | Result |
+|---|---|---|
+| `./gradlew :engine-visualscript:test --tests "*LoopNodesTest"` | 0 | 8 of 8 (+2: the loop in order; a missing list is an error) |
+| `npx vitest run` (engine-babylon), after `sync-samples` | 0 | **508 of 508** (506 + 2 For Each tests); the node-parity test agrees with `LoopNodes.java` |
+| `./gradlew :engine-scene:test --tests "*PhysicsSystem3DTest" --tests "*RigidBody3DComponentTest"` | 0 | 10 and 1 |
+| `./gradlew :editor-desktop:test --tests "*SampleGamesTest.shouldAimKick*"` | 1, then 0 | First, my own end-of-run distance check (the stopped crate had come to rest); changed to the largest distance; then it passes |
+| The three graph mutants (kick, push, pop) | 1 each | Restored afterwards (`cmp` identical) |
+| `./gradlew :engine-visualscript:test :engine-scene:test :editor-visualscript:test :engine-desktop:test :editor-core:test :editor-desktop:test --continue` | 1, then 0 | First: `GraphExamplesTest` 2 failures, "Cannot generate code for node type flow.forEachEntity". Fixed by the code generation above; then all pass |
+
+| Module | Before | After |
+|---|---|---|
+| engine-visualscript | 91 | **93** |
+| engine-scene | 226 | **228** |
+| editor-visualscript | 94 | 94 |
+| engine-desktop | 147 | 147 |
+| editor-core | 539 (1 skipped) | 539 (1 skipped) |
+| editor-desktop | 180 | **181** (the parity test) |
+| engine-babylon (vitest) | 506 | **508** |
+
+`TemplateAuditTest` (MT.8) pinned "exactly five graphs match their scripts". It now says six, and the audit's tables were regenerated.
+
+## Limits
+
+- **10 of 15 graphs are still partial.** They are: Hopper and Platformer (box collision written in Java), RaceCar, Arena, Puzzle, Fighter, Grapple, Ruins and Trio. Most are whole games rather than player scripts. Converting them needs either a family of collision and game-rule nodes, or the samples moved onto the engine's physics. Both are design decisions for the owner (stage 1 "Next").
+- **`physics-sandbox-3d` still runs the Java script.** Switching a shipped sample to its graph is the open decision 4 of the MT.8 audit, and MC.7 keeps originals as they are. So the sample's M1.1 Logic cell is still FAIL. The graph is ready for an opt-in copy, or for the switch once decided.
+- **Manually Not Verified:** the graph was not opened in the graph editor's canvas or played in a window. Its layout comes from `graph_layout.py`.
+- **On the web,** the graph's PhysicsSystem3D method nodes are desktop-only, like every 3D physics node.
+
+## Files
+
+- **New:**
+  - `tools/make_sandbox_graph.py`
+  - `engine-scene/src/test/.../physics3d/RigidBody3DComponentTest.java`
+- **Changed (engine):** `LoopNodes.java`, `NodeContext.java`, `GraphInstance.java`, `GraphCodeGenerator.java` (engine-visualscript); `PhysicsSystem3D.java`, `RigidBody3DComponent.java` (engine-scene)
+- **Changed (web):** `engine-babylon/src/visualscript/nodes.ts` and `interpreter.ts`
+- **Changed (assets):** `assets/graphs/samples/SandboxKick.graph` (rewritten) and `examples.json`
+- **Changed (tests):**
+  - `LoopNodesTest`, `PhysicsSystem3DTest`, `SampleGamesTest` and `TemplateAuditTest`
+  - `engine-babylon/test/loopNodes.test.ts`
+- **Changed (docs):**
+  - the regenerated tables of `fully-editable-template-audit.md`
+  - this report, the chart, the matrix and the index
+- **Git:** no commit, push or other Git operation was performed.

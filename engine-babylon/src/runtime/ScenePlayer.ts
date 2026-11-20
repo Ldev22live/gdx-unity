@@ -15,6 +15,8 @@ import { MeshColliderGeometry } from "./physics3d/ColliderGeometry";
 import { Physics3D, type Contact } from "./physics3d/Physics3D";
 import { loadPendingModels, type ModelFailure } from "./ModelLoader";
 import { loadPendingSprites } from "./SpriteLoader";
+import { loadPendingTerrains } from "./TerrainLoader";
+import { loadPendingMaterials } from "./MaterialLoader";
 import { buildScene, type BuiltScene } from "./SceneBuilder";
 import { ScriptRegistry, type ScriptComponent } from "./ScriptComponent";
 import { bool, num, str, type SceneFile } from "../scene/types";
@@ -111,6 +113,12 @@ export class ScenePlayer {
   modelsReady: Promise<void> = Promise.resolve();
   /** Resolves when the sprites and tile sets of the scene built last have loaded (or failed). */
   spritesReady: Promise<void> = Promise.resolve();
+  /** Resolves when the materials of the scene built last have loaded (or failed). */
+  materialsReady: Promise<void> = Promise.resolve();
+  /** True from Play until the scene's terrain files have loaded: the game does not step meanwhile. */
+  private waitingForGround = false;
+  /** Resolves when the terrains of the scene built last have loaded (or failed). */
+  terrainsReady: Promise<void> = Promise.resolve();
   /** Called when the current scene's models have loaded, with the ones that failed. */
   onModelsLoaded: (built: BuiltScene, failures: ModelFailure[]) => void = () => undefined;
 
@@ -142,6 +150,16 @@ export class ScenePlayer {
       if (this.built !== built) return;
       for (const failure of failures) this.onAssetProblem(`${failure.entityName}: cannot load ${failure.path}: ${failure.message}`);
     });
+    // Terrains (roadmap M3.11) arrive after the scene is built too; a file that fails is reported and the rest still shows
+    this.terrainsReady = loadPendingTerrains(built).then((failures) => {
+      if (this.built !== built) return;
+      for (const failure of failures) this.onAssetProblem(`${failure.entityName}: cannot load ${failure.path}: ${failure.message}`);
+    });
+    // Materials (roadmap M2.5) replace their primitives' colours once loaded; one that fails leaves the colour and is reported
+    this.materialsReady = loadPendingMaterials(built).then((failures) => {
+      if (this.built !== built) return;
+      for (const failure of failures) this.onAssetProblem(`${failure.entityName}: cannot load ${failure.path}: ${failure.message}`);
+    });
     this.hud = new Hud(this.hudContainer, this.built.texts);
     this.selectCamera();
     this.onSceneBuilt(this.built);
@@ -168,12 +186,20 @@ export class ScenePlayer {
     // Start from the file's state every time, even if a previous Play moved things
     this.load(this.file);
     const built = this.built!;
+    // The game takes its first step only once the terrains are in, so nothing falls before the ground it stands on exists (roadmap M3.11)
+    this.waitingForGround = built.pendingTerrains.length > 0;
+    if (this.waitingForGround) {
+      void this.terrainsReady.then(() => {
+        if (this.built === built) this.waitingForGround = false;
+      });
+    }
     this.physics = new Physics2D(built.game);
     this.physics.addContactListener((contact) => this.deliverContact2D(contact));
     const jolt = joltIfLoaded();
     this.reportedPhysicsWarnings = 0;
     // Hull and mesh colliders read the triangles of the entity's meshes; models arrive after the scene is built, so the system waits for them
-    const geometry = new MeshColliderGeometry((entity) => built.modelFailures.some((failure) => failure.entityName === entity.name));
+    const geometry = new MeshColliderGeometry((entity) => built.modelFailures.some((failure) => failure.entityName === entity.name)
+      || built.terrainFailures.some((failure) => failure.entityName === entity.name));
     this.physics3d = jolt && Physics3D.isUsedBy(built.game) ? new Physics3D(built.game, new JoltPhysicsBackend3D(jolt), geometry) : null;
     this.physics3d?.addContactListener((contact) => this.deliverContact(contact));
     this.scripts = [];
@@ -490,7 +516,7 @@ export class ScenePlayer {
     const built = this.built;
     if (!built) return;
     const delta = this.engine.getDeltaTime() / 1000;
-    if (this.playing) {
+    if (this.playing && !this.waitingForGround) {
       this.physics?.update(delta);
       this.guardPhysics3D(() => this.physics3d?.update(delta));
       this.reportPhysicsWarnings();

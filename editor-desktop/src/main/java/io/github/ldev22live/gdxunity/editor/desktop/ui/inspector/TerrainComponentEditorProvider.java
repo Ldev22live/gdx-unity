@@ -8,9 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
-import io.github.ldev22live.gdxunity.editor.core.command.ModifyComponentPropertyCommand;
 import io.github.ldev22live.gdxunity.editor.core.inspector.ComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.terrain.TerrainAssets;
+import io.github.ldev22live.gdxunity.editor.terrain.TerrainCollision;
 import io.github.ldev22live.gdxunity.editor.terrain.TerrainSession;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
@@ -149,11 +149,8 @@ public class TerrainComponentEditorProvider implements ComponentEditorProvider<T
         return button;
     }
 
+    /** A new terrain is walkable at once: the Terrain Collider 3D comes in the same undo step (TD-087). */
     private void assign(Entity entity, TerrainComponent component, EditorState editorState, String path) {
-        if (path.equals(component.getTerrainPath())) {
-            return;
-        }
-        editorState.executeCommand(new ModifyComponentPropertyCommand<TerrainComponent, String>(
-            editorState, entity.getId(), component, component.getTerrainPath(), path, component::setTerrainPath, "Change Terrain"));
+        TerrainCollision.assignTerrain(editorState, entity, component, path);
     }
 }

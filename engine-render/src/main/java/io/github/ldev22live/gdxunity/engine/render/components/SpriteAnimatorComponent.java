@@ -202,6 +202,16 @@ public class SpriteAnimatorComponent extends BaseComponent implements Renderable
         }
     }
 
+    /**
+     * Forgets the loaded sprite, so the next draw reads its file again: the file was changed, for example saved from 2D Studio
+     * (roadmap M3c.8). Playback starts over. A sprite that failed to load is tried again.
+     */
+    public void requestReload() {
+        release();
+        state = null;
+        loadError = null;
+    }
+
     /** Uses an already read sprite (tests, and sprites built in code). */
     public void setDocument(SpriteDocument doc) {
         Objects.requireNonNull(doc, "doc cannot be null");

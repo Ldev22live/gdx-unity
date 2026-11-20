@@ -9,6 +9,13 @@
       "web": true
     },
     {
+      "scene": "samples/platformer-tiles-2d.json",
+      "title": "2D Platformer (Tiles)",
+      "genre": "Platformer",
+      "summary": "The 2D Platformer with its platforms painted as tiles: reshape the level in 2D Studio: Tiles. Plays exactly like the original.",
+      "web": false
+    },
+    {
       "scene": "samples/pixel-adventure-2d.json",
       "title": "Pixel Adventure",
       "genre": "Platformer",
@@ -63,6 +70,27 @@
       "genre": "Platformer",
       "summary": "Side-scroll through a 3D ruin with moving platforms, spikes and checkpoints.",
       "web": true
+    },
+    {
+      "scene": "samples/platformer-profile-25d.json",
+      "title": "Platformer Profile",
+      "genre": "Platformer",
+      "summary": "A 2.5D level with no scripts: its genre and game mode supply the side camera, running and jumping.",
+      "web": false
+    },
+    {
+      "scene": "samples/platformer-profile-terrain-25d.json",
+      "title": "Platformer Profile (Terrain)",
+      "genre": "Platformer",
+      "summary": "The Platformer Profile on a terrain ground you can sculpt into slopes in World: Terrain. Plays like the original.",
+      "web": false
+    },
+    {
+      "scene": "samples/platformer-profile-3d.json",
+      "title": "Platformer Profile 3D",
+      "genre": "Platformer",
+      "summary": "Floating stones in 3D with no scripts: its genre and game mode supply the chase camera, running, jumping and the restart after a fall.",
+      "web": false
     },
     {
       "scene": "samples/three-heroes-25d.json",
@@ -174,6 +202,34 @@
       "title": "Terrain Valley",
       "genre": "Landscape",
       "summary": "A heightmap valley to reshape with terrain brushes.",
+      "web": false
+    },
+    {
+      "scene": "samples/polyhaven-showcase-3d.json",
+      "title": "Poly Haven Showcase",
+      "genre": "Showcase",
+      "summary": "Downloaded CC0 assets: wood, brick and rock PBR materials and two glTF models (a rollershutter door and a stone fire pit).",
+      "web": false
+    },
+    {
+      "scene": "samples/first-person-range-3d.json",
+      "title": "First-person Range",
+      "genre": "Shooter",
+      "summary": "A firing range with no scripts: its genre and game mode supply the view from the eyes, walking, strafing and a shot that knocks crates off the shelf.",
+      "web": false
+    },
+    {
+      "scene": "samples/action-rpg-valley-3d.json",
+      "title": "Action RPG Valley",
+      "genre": "Action RPG",
+      "summary": "A 3D valley with no scripts: its genre and game mode supply the camera behind the hero, walking and jumping.",
+      "web": false
+    },
+    {
+      "scene": "samples/action-rpg-iso-25d.json",
+      "title": "Action RPG Courtyard",
+      "genre": "Action RPG",
+      "summary": "A 2.5D courtyard with no scripts: an isometric camera, walking and jumping; the hero starts at the spawn point.",
       "web": false
     },
     {

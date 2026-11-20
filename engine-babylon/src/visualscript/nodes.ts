@@ -46,6 +46,8 @@ export interface NodeContext {
   continueAfter(seconds: number, pinId: string): void;
   /** Synchronous Repeat body iterations, then Completed. Delays inside the body are not awaited. */
   repeat(count: number): void;
+  /** Runs Body once per entity with Entity and Index set, then Completed (For Each Entity, roadmap M1.2). */
+  forEachEntity(entities: GraphEntity[]): void;
   self(): GraphEntity;
   getVariable(name: string): unknown;
   setVariable(name: string, value: unknown): void;
@@ -274,6 +276,24 @@ export function createDefaultRegistry(): NodeRegistry {
       const count = c.inputFloat("count");
       if (!Number.isInteger(count) || count < 0 || count > MAX_LOOP_ITERATIONS) throw c.error(`Repeat count must be within 0..${MAX_LOOP_ITERATIONS}: ${count}`);
       c.repeat(count);
+    },
+  }));
+  // The desktop's For Each Entity (LoopNodes.FOR_EACH_ENTITY). Its list comes from a Java method node, which on the web exists only for
+  // MathUtils and Vector3; the node is here so a graph that has one loads and validates the same on both
+  registry.register(define({ id: "flow.forEachEntity", title: "For Each Entity", category: "Flow", kind: "action",
+    execOutputs: [execOut("body", "Body"), execOut("completed", "Completed")],
+    pins: [{ id: "list", label: "List", type: "OBJECT", objectClass: "java.util.List", input: true, exec: false },
+      dataOut("entity", "Entity", "ENTITY"), dataOut("index", "Index", "INTEGER")],
+    run: (c) => {
+      const list = c.input("list");
+      if (!Array.isArray(list)) throw c.error(`For Each Entity needs a list, got ${list === undefined || list === null ? "nothing" : typeof list}`);
+      if (list.length > MAX_LOOP_ITERATIONS) throw c.error(`For Each Entity runs at most ${MAX_LOOP_ITERATIONS} times: the list has ${list.length}`);
+      for (const item of list) {
+        if (item === null || typeof item !== "object" || typeof (item as GraphEntity).getWorldPosition !== "function") {
+          throw c.error("For Each Entity found something in its list that is not an entity");
+        }
+      }
+      c.forEachEntity(list as GraphEntity[]);
     },
   }));
   const specs: Spec[] = [

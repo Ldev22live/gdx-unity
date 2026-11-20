@@ -57,8 +57,8 @@ class CustomizeGatewayTest {
 
     @Test
     void shouldMapEveryCentreTabToItsWorkspaceAndBack() {
-        assertEquals(Workspace.WORLD, Workspace.forCenterTab(Workspace.TAB_VIEWPORT, false));
-        assertEquals(Workspace.MODELING_3D, Workspace.forCenterTab(Workspace.TAB_VIEWPORT, true));
+        assertEquals(Workspace.WORLD, Workspace.forCenterTab(Workspace.TAB_WORLD, false));
+        assertEquals(Workspace.MODELING_3D, Workspace.forCenterTab(Workspace.TAB_WORLD, true));
         assertEquals(Workspace.WORLD, Workspace.forCenterTab(Workspace.TAB_SCENE, false), "the game view during Play is the World");
         assertEquals(Workspace.STUDIO_2D, Workspace.forCenterTab(Workspace.TAB_TILES, false));
         assertThrows(IllegalArgumentException.class, () -> Workspace.forCenterTab("Inspector", false));
@@ -74,11 +74,22 @@ class CustomizeGatewayTest {
     }
 
     @Test
+    void shouldCallTheWorldsTabWorldAndShowItsToolsOnlyInWorldAnd3DModeling() {
+        // Owner decision 11 (2026-11-15): the view that was called Viewport is World
+        assertEquals("World", Workspace.TAB_WORLD);
+        assertEquals(Workspace.TAB_WORLD, Workspace.WORLD.centerTab());
+        for (Workspace workspace : Workspace.values()) {
+            boolean expected = workspace == Workspace.WORLD || workspace == Workspace.MODELING_3D;
+            assertEquals(expected, workspace.showsWorldTools(), workspace.toString());
+        }
+    }
+
+    @Test
     void shouldReachEveryCentreTabButTheGameViewThroughADestination() {
         List<String> tabs = Workspace.destinations().stream().map(Workspace.Destination::tab).filter(Objects::nonNull)
             .distinct().toList();
 
-        assertEquals(List.of(Workspace.TAB_VIEWPORT, Workspace.TAB_SPRITES, Workspace.TAB_TILES, Workspace.TAB_ANIMATIONS,
+        assertEquals(List.of(Workspace.TAB_WORLD, Workspace.TAB_SPRITES, Workspace.TAB_TILES, Workspace.TAB_ANIMATIONS,
             Workspace.TAB_MUSIC, Workspace.TAB_VISUAL_SCRIPTING), tabs,
             "with the tabs gone from the header (M1b.2) every editing tab needs a Customize entry; the Scene tab is the game during Play");
         assertEquals(8, Workspace.destinations().size(), "seven workspaces, 2D Studio twice");
@@ -125,12 +136,15 @@ class CustomizeGatewayTest {
 
         assertEquals(List.of(new EditOffer("Edit Rock in 3D", Workspace.MODELING_3D, Kind.RUN_ACTION, null,
             CustomizeGateway.SCULPT_ENTER_ACTION, null), transform("Rock")), rockOffers, "the sculpt file needs no second entry");
-        assertEquals("Edit House in 3D (sculpt a copy)", houseOffers.get(0).label());
-        assertEquals(CustomizeGateway.SCULPT_FROM_SELECTED_ACTION, houseOffers.get(0).actionId());
+        assertEquals(new EditOffer("Edit 3D Model of House (opens 3D Modeling; mesh editing is planned)", Workspace.MODELING_3D,
+            Kind.OPEN_MODELING, null, null, null), houseOffers.get(0), "Edit 3D Model comes first and says its limit (M3c.4)");
+        assertEquals("Edit House in 3D (sculpt a copy)", houseOffers.get(1).label());
+        assertEquals(CustomizeGateway.SCULPT_FROM_SELECTED_ACTION, houseOffers.get(1).actionId());
         assertEquals(new EditOffer("Edit Mesh Geometry of house.glb", Workspace.MODELING_3D, Kind.UNAVAILABLE, "models/house.glb", null,
-            CustomizeGateway.MESH_GEOMETRY_REASON), houseOffers.get(2), "the model's own geometry has no editor yet (R7a)");
+            CustomizeGateway.MESH_GEOMETRY_REASON), houseOffers.get(3), "the model's own geometry has no editor yet (R7a)");
+        assertEquals(Kind.OPEN_MODELING, boxOffers.get(0).kind(), "a shape is handed to 3D Modeling too");
         assertEquals(new EditOffer("Edit Material brick.material in Details (shared by every surface that uses it)", Workspace.WORLD,
-            Kind.SHOW_DETAILS, "materials/brick.material", null, null), boxOffers.get(1), "a material is edited in Details");
+            Kind.SHOW_DETAILS, "materials/brick.material", null, null), boxOffers.get(2), "a material is edited in Details");
     }
 
     @Test
@@ -173,14 +187,17 @@ class CustomizeGatewayTest {
             "Move, Rotate or Scale Ground (transform only, the mesh is unchanged)"), labels(CustomizeGateway.editSelected(ground, serializers())));
         assertEquals(Kind.OPEN_TERRAIN_TOOLS, CustomizeGateway.editSelected(ground, serializers()).get(0).kind());
 
-        assertEquals(List.of("Edit Tree in 3D (sculpt a copy)", "Move, Rotate or Scale Tree (transform only, the mesh is unchanged)",
-            "Edit Shared Prefab oak.prefab [unavailable]"), labels(CustomizeGateway.editSelected(tree, serializers())));
-        assertEquals(CustomizeGateway.SHARED_PREFAB_REASON, CustomizeGateway.editSelected(tree, serializers()).get(2).unavailableReason());
+        assertEquals(List.of("Edit 3D Model of Tree (opens 3D Modeling; mesh editing is planned)", "Edit Tree in 3D (sculpt a copy)",
+            "Move, Rotate or Scale Tree (transform only, the mesh is unchanged)", "Edit Shared Prefab oak.prefab [unavailable]"),
+            labels(CustomizeGateway.editSelected(tree, serializers())));
+        assertEquals(CustomizeGateway.SHARED_PREFAB_REASON, CustomizeGateway.editSelected(tree, serializers()).get(3).unavailableReason());
 
-        assertEquals(List.of("Edit House in 3D (sculpt a copy)", "Move, Rotate or Scale House (transform only, the mesh is unchanged)",
-            "Edit Mesh Geometry of house.glb [unavailable]"), labels(CustomizeGateway.editSelected(house, serializers())));
-        assertEquals(List.of("Edit Hero in 3D (sculpt a copy)", "Move, Rotate or Scale Hero (transform only, the mesh is unchanged)",
-            "Edit Mesh Geometry of hero.glb [unavailable]"), labels(CustomizeGateway.editSelected(hero, serializers())));
+        assertEquals(List.of("Edit 3D Model of House (opens 3D Modeling; mesh editing is planned)", "Edit House in 3D (sculpt a copy)",
+            "Move, Rotate or Scale House (transform only, the mesh is unchanged)", "Edit Mesh Geometry of house.glb [unavailable]"),
+            labels(CustomizeGateway.editSelected(house, serializers())));
+        assertEquals(List.of("Edit 3D Model of Hero (opens 3D Modeling; mesh editing is planned)", "Edit Hero in 3D (sculpt a copy)",
+            "Move, Rotate or Scale Hero (transform only, the mesh is unchanged)", "Edit Mesh Geometry of hero.glb [unavailable]"),
+            labels(CustomizeGateway.editSelected(hero, serializers())));
         assertEquals(List.of("Edit Sprite coin.sprite", "Move, Rotate or Scale Coin (transform only, the mesh is unchanged)"),
             labels(CustomizeGateway.editSelected(coin, serializers())));
         assertEquals(List.of("Move, Rotate or Scale Door (transform only, the mesh is unchanged)", "Edit Sound door.wav [unavailable]"),

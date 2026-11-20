@@ -1,5 +1,10 @@
 package io.github.ldev22live.gdxunity.editor.desktop.ui.viewport;
 
+import java.util.Locale;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorSkinFactory;
+import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -23,13 +28,18 @@ import java.util.Optional;
  */
 public class WorldStripBar extends Table {
     private static final float BUTTON_HEIGHT = 26f;
+    /** Height of a tab in the reference layout's tab row, and the gap between tabs (UI M3b). */
+    public static final float TAB_HEIGHT = 34f;
+    public static final float TAB_GAP = 6f;
 
     private final EditorState editorState;
     private final LevelSession level;
     private final Skin skin;
     private final Runnable toggleLevel;
     private final Map<WorldStrip.Section, Runnable> openers;
-    private final Map<WorldStrip.Section, TextButton> buttons = new EnumMap<>(WorldStrip.Section.class);
+    private final Map<WorldStrip.Section, Button> buttons = new EnumMap<>(WorldStrip.Section.class);
+    /** Drawn as the tab row's icon tabs (UI M3b) rather than the strip's flat buttons; lit tabs are checked. */
+    private final boolean tabs;
     private GameMode shownMode;
 
     /**
@@ -38,14 +48,25 @@ public class WorldStripBar extends Table {
      */
     public WorldStripBar(Skin skin, EditorState editorState, LevelSession level, Runnable toggleLevel,
                          Map<WorldStrip.Section, Runnable> openers) {
+        this(skin, editorState, level, toggleLevel, openers, false);
+    }
+
+    /**
+     * @param tabs true to draw the sections as the reference layout's icon tabs (UI M3b), the open one checked
+     */
+    public WorldStripBar(Skin skin, EditorState editorState, LevelSession level, Runnable toggleLevel,
+                         Map<WorldStrip.Section, Runnable> openers, boolean tabs) {
         super(skin);
+        this.tabs = tabs;
         this.skin = Objects.requireNonNull(skin, "skin cannot be null");
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.level = Objects.requireNonNull(level, "level cannot be null");
         this.toggleLevel = Objects.requireNonNull(toggleLevel, "toggleLevel cannot be null");
         this.openers = Map.copyOf(Objects.requireNonNull(openers, "openers cannot be null"));
-        setBackground("elevated-bg");
-        pad(3f);
+        if (!tabs) {
+            setBackground("elevated-bg");
+            pad(3f);
+        }
     }
 
     private void build(GameMode mode) {
@@ -53,7 +74,10 @@ public class WorldStripBar extends Table {
         buttons.clear();
         for (WorldStrip.Section section : WorldStrip.sectionsFor(mode)) {
             Optional<String> reason = WorldStrip.unavailableReason(section, mode);
-            TextButton button = new TextButton(section.getLabel(), skin, "flat");
+            Button button = tabs
+                ? new ImageTextButton(section.getLabel(), skin, EditorSkinFactory.DRAWER_STYLE_PREFIX + section.name().toLowerCase(Locale.ROOT))
+                : new TextButton(section.getLabel(), skin, "flat");
+            reason.ifPresent(text -> button.addListener(new TextTooltip(text, skin)));
             button.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
@@ -61,7 +85,7 @@ public class WorldStripBar extends Table {
                 }
             });
             buttons.put(section, button);
-            add(button).height(BUTTON_HEIGHT).padLeft(4).padRight(4);
+            add(button).height(tabs ? TAB_HEIGHT : BUTTON_HEIGHT).padLeft(tabs ? 0 : 4).padRight(tabs ? TAB_GAP : 4);
         }
         shownMode = mode;
         pack();
@@ -75,6 +99,8 @@ public class WorldStripBar extends Table {
         switch (section) {
             case TERRAIN -> focus(LevelSession.Focus.TERRAIN);
             case OBJECTS -> focus(LevelSession.Focus.OBJECTS);
+            case CHARACTERS -> focus(LevelSession.Focus.CHARACTERS);
+            case BUILDINGS -> focus(LevelSession.Focus.BUILDINGS);
             default -> {
                 Runnable opener = openers.get(section);
                 if (opener != null) {
@@ -104,10 +130,17 @@ public class WorldStripBar extends Table {
         if (mode != shownMode) {
             build(mode);
         }
-        for (Map.Entry<WorldStrip.Section, TextButton> entry : buttons.entrySet()) {
+        for (Map.Entry<WorldStrip.Section, Button> entry : buttons.entrySet()) {
             boolean lit = level.isActive() && (entry.getKey() == WorldStrip.Section.TERRAIN && level.getFocus() == LevelSession.Focus.TERRAIN
-                || entry.getKey() == WorldStrip.Section.OBJECTS && level.getFocus() == LevelSession.Focus.OBJECTS);
-            entry.getValue().setColor(skin.getColor(lit ? "accent" : "text-primary"));
+                || entry.getKey() == WorldStrip.Section.OBJECTS && level.getFocus() == LevelSession.Focus.OBJECTS
+                || entry.getKey() == WorldStrip.Section.CHARACTERS && level.getFocus() == LevelSession.Focus.CHARACTERS
+                || entry.getKey() == WorldStrip.Section.BUILDINGS && level.getFocus() == LevelSession.Focus.BUILDINGS);
+            if (tabs) {
+                entry.getValue().setProgrammaticChangeEvents(false);
+                entry.getValue().setChecked(lit);
+            } else {
+                entry.getValue().setColor(skin.getColor(lit ? "accent" : "text-primary"));
+            }
         }
         super.act(delta);
     }

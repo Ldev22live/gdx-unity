@@ -2,8 +2,8 @@ package io.github.ldev22live.gdxunity.editor.core.prefab;
 
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.JsonWriter;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializationException;
+import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneTextFormat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,9 +26,6 @@ import java.util.UUID;
 public final class PrefabDocument {
     public static final int SCHEMA_VERSION = 1;
     public static final String KIND = "prefab";
-
-    /** Width at which the pretty printer puts small objects on one line. */
-    private static final int PRETTY_PRINT_LINE_WIDTH = 100;
 
     private final String name;
     private final UUID rootId;
@@ -134,7 +131,8 @@ public final class PrefabDocument {
             array.addChild(entity);
         }
         root.addChild("entities", array);
-        return root.prettyPrint(JsonWriter.OutputType.json, PRETTY_PRINT_LINE_WIDTH);
+        // The scene file layout, so a small prefab edit gives a small diff (M9.3, TD-093)
+        return SceneTextFormat.format(root);
     }
 
     /**

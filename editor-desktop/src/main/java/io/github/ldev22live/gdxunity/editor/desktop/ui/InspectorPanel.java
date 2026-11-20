@@ -23,6 +23,9 @@ import io.github.ldev22live.gdxunity.editor.core.inspector.EntityInspectorModel;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.BoxCollider2DComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.CircleCollider2DComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.Physics3DComponentEditorProviders;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.PlayerComponentEditorProvider;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.SpawnPointComponentEditorProvider;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.TerrainPathComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.RigidBody2DComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.ScriptBindingComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.SpriteRendererComponentEditorProvider;
@@ -140,6 +143,12 @@ public class InspectorPanel extends Table {
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Point());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Sky());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.ToneMapping());
+        // Sky, weather and water presets (roadmap M3.9, TD-090)
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.EnvironmentComponentEditorProviders.Sky());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.EnvironmentComponentEditorProviders.Water());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.EnvironmentComponentEditorProviders.PostProcess());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.NavigationComponentEditorProviders.Bounds());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.NavigationComponentEditorProviders.Agent());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.GameComponentEditorProviders.Camera());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.CameraRigComponentEditorProvider());
         reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.Joint3DComponentEditorProvider());
@@ -155,6 +164,10 @@ public class InspectorPanel extends Table {
         reg.register(new Physics3DComponentEditorProviders.Capsule());
         reg.register(new Physics3DComponentEditorProviders.ConvexHull());
         reg.register(new Physics3DComponentEditorProviders.Mesh());
+        reg.register(new Physics3DComponentEditorProviders.TerrainCollider());
+        reg.register(new PlayerComponentEditorProvider());
+        reg.register(new SpawnPointComponentEditorProvider());
+        reg.register(new TerrainPathComponentEditorProvider());
         reg.register(new Physics3DComponentEditorProviders.CharacterController());
         return reg;
     }

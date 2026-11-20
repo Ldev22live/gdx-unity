@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.GdxNativesLoader;
 import io.github.ldev22live.gdxunity.editor.core.workspace.CustomizeGateway;
 import io.github.ldev22live.gdxunity.editor.core.workspace.CustomizeGateway.EditOffer;
 import io.github.ldev22live.gdxunity.editor.core.workspace.CustomizeGateway.Kind;
+import io.github.ldev22live.gdxunity.editor.core.workspace.ModelingHandOff;
 import io.github.ldev22live.gdxunity.editor.core.workspace.Workspace;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.ContextMenu;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.CustomizeMenu;
@@ -54,6 +55,7 @@ class CustomizeGatewaySamplesTest {
 
         List<String> problems = new ArrayList<>();
         Map<Workspace, Integer> opened = new EnumMap<>(Workspace.class);
+        int handedTo3DModeling = 0;
         for (Path file : scenes) {
             Scene scene = serializer.fromJson(Files.readString(file));
             for (Entity entity : scene.getAllEntities()) {
@@ -66,6 +68,18 @@ class CustomizeGatewaySamplesTest {
                             problems.add(where + ": offers " + offer.assetPath() + ", which does not exist");
                         }
                     }
+                }
+                // Roadmap M3c.4: every model or shape is handed to 3D Modeling first, and its notice never claims mesh editing
+                if (ModelingHandOff.offersEdit3DModel(entity)) {
+                    handedTo3DModeling++;
+                    if (offers.isEmpty() || offers.get(0).kind() != Kind.OPEN_MODELING) {
+                        problems.add(where + ": Edit 3D Model is not the first entry");
+                    }
+                    if (ModelingHandOff.noticeFor(entity).meshEditing()) {
+                        problems.add(where + ": its notice claims mesh editing, which is R7a");
+                    }
+                } else if (offers.stream().anyMatch(o -> o.kind() == Kind.OPEN_MODELING)) {
+                    problems.add(where + ": offers Edit 3D Model with no model or shape");
                 }
                 GraphScriptComponent graph = entity.getComponent(GraphScriptComponent.class);
                 if (graph != null && !graph.getGraphPath().isBlank() && offers.stream().noneMatch(o -> o.workspace() == Workspace.LOGIC
@@ -82,6 +96,7 @@ class CustomizeGatewaySamplesTest {
         assertEquals(List.of(), problems);
         assertTrue(opened.getOrDefault(Workspace.LOGIC, 0) > 0 && opened.getOrDefault(Workspace.ANIMATION, 0) > 0
             && opened.getOrDefault(Workspace.AUDIO_MUSIC, 0) > 0, "the samples exercise graphs, clips and songs: " + opened);
+        assertTrue(handedTo3DModeling > 0, "the samples have models and shapes to hand to 3D Modeling");
     }
 
     @Test
@@ -104,7 +119,7 @@ class CustomizeGatewaySamplesTest {
         assertEquals(List.of(Workspace.WORLD, Workspace.STUDIO_2D), visited.stream().map(Workspace.Destination::workspace).toList());
         assertEquals(Workspace.TAB_TILES, visited.get(1).tab(), "the Tiles tab has its own entry now the tabs are not in the header");
 
-        List<ContextMenu.Item> nothing = CustomizeMenu.items(null, List.of(), Workspace.WORLD, Workspace.TAB_VIEWPORT, chosen::add, visited::add);
+        List<ContextMenu.Item> nothing = CustomizeMenu.items(null, List.of(), Workspace.WORLD, Workspace.TAB_WORLD, chosen::add, visited::add);
         assertFalse(nothing.get(0).enabled(), "with no selection the first row says how to get an Edit Selected entry");
         assertEquals("World" + CustomizeMenu.CURRENT_SUFFIX, nothing.get(2).label());
         List<ContextMenu.Item> tiles = CustomizeMenu.items(null, List.of(), Workspace.STUDIO_2D, Workspace.TAB_TILES, chosen::add, visited::add);

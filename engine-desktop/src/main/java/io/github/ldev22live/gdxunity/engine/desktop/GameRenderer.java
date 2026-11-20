@@ -126,8 +126,15 @@ public final class GameRenderer implements EngineRenderer {
 
     @Override
     public void initialize() {
+        initializeNanos = System.nanoTime();
         renderer3D.initialize();
         renderer2D.initialize();
+        if (renderStats) {
+            frameTimes = new FrameTimeStats(framesToRender > 0 ? framesToRender : UNBOUNDED_STATS_CAPACITY);
+            gpuName = Gdx.gl != null ? Gdx.gl.glGetString(GL20.GL_RENDERER) : "";
+        }
+        // The session started before the window existed, so before there was an audio backend to open a device on
+        session.startAudioOutput();
     }
 
     @Override
@@ -141,8 +148,121 @@ public final class GameRenderer implements EngineRenderer {
         cameras.resize(width, height);
     }
 
+    /** Frames left out of the render statistics: the first frames load files and build every terrain chunk. */
+    static final int STATS_WARMUP_FRAMES = 30;
+    /** Frame times kept for the percentiles when the game runs until closed rather than for a set number of frames. */
+    static final int UNBOUNDED_STATS_CAPACITY = 36_000;
+    private boolean renderStats;
+    private FrameTimeStats frameTimes;
+    private long statsTriangles;
+    private long initializeNanos;
+    private long firstFrameNanos = -1;
+    private long peakHeapBytes;
+    private long retainedHeapBytes = -1;
+    private String gpuName = "";
+    private AudioOutputStats audioStats;
+
+    /**
+     * Measures each frame's cost (roadmap M3.8): the time from the start of a frame until the GPU has finished it ({@code glFinish}, so
+     * vsync does not hide the cost), and the terrain triangles drawn, after {@value #STATS_WARMUP_FRAMES} warm-up frames. Off by default:
+     * waiting for the GPU every frame slows the game. Roadmap M9.5 adds the frame-time percentiles, the Java heap's peak while
+     * measuring and what stays after a garbage collection on the last frame, and the sound output's latency and cost.
+     * Call before the application starts.
+     */
+    public void setRenderStats(boolean enabled) {
+        this.renderStats = enabled;
+    }
+
+    /** Draws far terrain chunks with fewer triangles (on by default); off draws every chunk at full detail (roadmap M3.8). */
+    public void setTerrainLod(boolean enabled) {
+        renderer3D.setTerrainLod(enabled);
+    }
+
+    /** The measured frames' average cost in milliseconds, or NaN when none were measured. */
+    public double getAverageFrameMillis() {
+        return frameTimes == null ? Double.NaN : frameTimes.meanMillis();
+    }
+
+    /** The measured frames' average terrain triangles, or 0 when none were measured. */
+    public long getAverageTerrainTriangles() {
+        return getMeasuredFrames() == 0 ? 0 : statsTriangles / getMeasuredFrames();
+    }
+
+    /** Frames that went into the statistics. */
+    public int getMeasuredFrames() {
+        return frameTimes == null ? 0 : frameTimes.count();
+    }
+
+    /** The measured frames' times, or null when statistics are off. */
+    public FrameTimeStats getFrameTimes() {
+        return frameTimes;
+    }
+
+    /**
+     * Milliseconds from {@link #initialize()} until the first frame was drawn: creating the renderers plus the first frame, which
+     * loads the models, textures and terrain the scene shows. NaN before the first frame.
+     */
+    public double getFirstFrameMillis() {
+        return firstFrameNanos < 0 ? Double.NaN : firstFrameNanos / 1e6;
+    }
+
+    /** The largest Java heap use seen at the end of a measured frame, in bytes; 0 when statistics are off. */
+    public long getPeakHeapBytes() {
+        return peakHeapBytes;
+    }
+
+    /** Java heap still in use after a garbage collection on the last frame of a counted run, in bytes; -1 if not measured. */
+    public long getRetainedHeapBytes() {
+        return retainedHeapBytes;
+    }
+
+    /** The OpenGL renderer string (the GPU and driver), or empty when statistics are off. */
+    public String getGpuName() {
+        return gpuName;
+    }
+
+    /** The sound output's latency and cost on the last frame of a counted run, or null when no device was open then. */
+    public AudioOutputStats getAudioStats() {
+        return audioStats;
+    }
+
     @Override
     public void render(float deltaTime) {
+        boolean measure = frameTimes != null && framesRendered >= STATS_WARMUP_FRAMES && Gdx.gl != null;
+        long start = measure ? System.nanoTime() : 0L;
+        renderFrame(deltaTime);
+        if (measure) {
+            Gdx.gl.glFinish();
+            frameTimes.add(System.nanoTime() - start);
+            statsTriangles += renderer3D.getTerrainTriangles();
+            Runtime runtime = Runtime.getRuntime();
+            peakHeapBytes = Math.max(peakHeapBytes, runtime.totalMemory() - runtime.freeMemory());
+        }
+        if (framesRendered == 0) {
+            firstFrameNanos = System.nanoTime() - initializeNanos;
+        }
+        framesRendered++;
+        if (frameTimes != null && framesToRender > 0 && framesRendered == framesToRender) {
+            recordEndOfRun();
+        }
+        if (framesToRender > 0 && framesRendered == framesToRender && Gdx.app != null) {
+            if (screenshotFile != null) {
+                saveScreenshot();
+            }
+            Gdx.app.exit();
+        }
+    }
+
+    /** The last frame of a counted run: what the sound output did, and the heap that stays once garbage is collected. */
+    private void recordEndOfRun() {
+        GameAudio audio = session.getAudio();
+        audioStats = audio == null ? null : audio.getOutputStats();
+        System.gc();
+        Runtime runtime = Runtime.getRuntime();
+        retainedHeapBytes = runtime.totalMemory() - runtime.freeMemory();
+    }
+
+    private void renderFrame(float deltaTime) {
         if (width == 0 && Gdx.graphics != null) {
             resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         }
@@ -161,13 +281,6 @@ public final class GameRenderer implements EngineRenderer {
         }
         hud.render(session.getScene(), width, height);
         reportModelsThatFailedToLoad();
-        framesRendered++;
-        if (framesToRender > 0 && framesRendered == framesToRender && Gdx.app != null) {
-            if (screenshotFile != null) {
-                saveScreenshot();
-            }
-            Gdx.app.exit();
-        }
     }
 
     /**

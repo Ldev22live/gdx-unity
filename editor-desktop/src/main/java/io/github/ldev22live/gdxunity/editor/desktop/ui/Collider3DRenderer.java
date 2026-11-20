@@ -5,11 +5,14 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.ldev22live.gdxunity.engine.render.components.CameraRigComponent;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.engine.render.camera.Camera;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.TerrainComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.TerrainPathComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.Transform;
@@ -18,13 +21,21 @@ import io.github.ldev22live.gdxunity.engine.scene.physics3d.ColliderGeometrySour
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.MeshGeometry3D;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.Collider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.ConvexHullCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.HeightField3D;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.HeightFieldSource;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.Joint3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.MeshCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.TerrainCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsUnits3D;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.ShapeDescriptor3D;
+import io.github.ldev22live.gdxunity.engine.scene.play.SpawnPointComponent;
+import io.github.ldev22live.gdxunity.engine.scene.navigation.NavMeshBaker;
+import io.github.ldev22live.gdxunity.engine.scene.navigation.NavMeshBoundsComponent;
+import io.github.ldev22live.gdxunity.engine.terrain.TerrainPath;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -42,6 +53,14 @@ public class Collider3DRenderer {
     private static final Color CHARACTER_COLOR = new Color(1f, 0.65f, 0.2f, 1f);
     private static final Color RIG_COLOR = new Color(0.9f, 0.8f, 0.3f, 1f);
     private static final Color JOINT_COLOR = new Color(0.95f, 0.45f, 0.85f, 1f);
+    private static final Color SPAWN_COLOR = new Color(0.35f, 0.75f, 1f, 1f);
+    /** The spawn marker's ring, arrow and post, in scene units: about a character's width and height. */
+    private static final float SPAWN_RING_RADIUS = 45f;
+    private static final float SPAWN_ARROW_LENGTH = 90f;
+    private static final float SPAWN_ARROW_HEAD = 18f;
+    private static final float SPAWN_POST_HEIGHT = 140f;
+    /** The marker is drawn this far above the spawn point, so the ground does not hide it. */
+    private static final float SPAWN_LIFT = 3f;
     /** Length of the drawn joint axis and the radius of the hinge's limit arc, in scene units. */
     private static final float JOINT_GIZMO_SIZE = 60f;
     /** Half the edge of the cross drawn at a joint's anchor. */
@@ -66,6 +85,34 @@ public class Collider3DRenderer {
     /** @param signature what the mesh was read from; @param geometry the mesh, or null if it could not be read */
     private record CachedMesh(String signature, MeshGeometry3D geometry) {}
 
+    /** Colours of a Terrain Path's curve by kind (roadmap M3.7). */
+    private static final Color PATH_ROAD_COLOR = new Color(0.85f, 0.6f, 0.3f, 1f);
+    private static final Color PATH_RIVER_COLOR = new Color(0.35f, 0.6f, 1f, 1f);
+    private static final Color PATH_CLIFF_COLOR = new Color(0.75f, 0.75f, 0.75f, 1f);
+    /** Half the size of the cross at a path's control point, in scene units. */
+    private static final float PATH_POINT_CROSS = 14f;
+    /** A path's curve is drawn this far above the ground, so the ground does not hide it. */
+    private static final float PATH_LIFT = 4f;
+    /** Each path's curve in world space, kept while its points and the ground stay the same. */
+    private final Map<UUID, CachedPath> paths = new HashMap<>();
+
+    /** A path's curve and control points as x, y, z triples, for the points and ground revision they were made from. */
+    private record CachedPath(List<Vector2> points, long revision, float[] line, float[] marks) {}
+
+    private record CachedLine(float[] line, float[] marks) {}
+
+    /** Colours of a selected Nav Mesh Bounds: its box, and the outline of where agents can walk (roadmap M6.4). */
+    private static final Color NAV_BOUNDS_COLOR = new Color(0.35f, 0.55f, 1f, 1f);
+    private static final Color NAV_WALKABLE_COLOR = new Color(0.3f, 1f, 0.45f, 1f);
+    /** The walkable outline is drawn this far above the floor, so the floor does not hide it. */
+    private static final float NAV_LIFT = 3f;
+    /** How often, at most, a selected Nav Mesh Bounds is baked again for drawing. */
+    static final long NAV_REFRESH_MILLIS = 1000L;
+    /** The last walkable outline drawn for each selected Nav Mesh Bounds, and when it was baked. */
+    private final Map<UUID, CachedNavigation> navigation = new HashMap<>();
+
+    private record CachedNavigation(long bakedAt, float[] lines) {}
+
     /** @param showAll true when every collider should be drawn, not only the selection's */
     public Collider3DRenderer(EditorState editorState, Camera camera, BooleanSupplier showAll) {
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
@@ -79,15 +126,23 @@ public class Collider3DRenderer {
             return;
         }
         boolean all = showAll.getAsBoolean();
-        if (!all && editorState.getSelectedEntityIds().isEmpty()) {
-            return;
-        }
+        boolean selection = !editorState.getSelectedEntityIds().isEmpty();
         Matrix4 previousTransform = new Matrix4(shapeRenderer.getTransformMatrix());
         shapeRenderer.setTransformMatrix(identity);
         shapeRenderer.setProjectionMatrix(camera.getCombinedMatrix());
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         for (Entity entity : scene.getAllEntities()) {
-            if (!all && !editorState.isSelected(entity.getId())) {
+            // A spawn point has no shape of its own, so it is always marked, or it could not be found in the view (roadmap M3c.2)
+            SpawnPointComponent spawn = entity.getComponent(SpawnPointComponent.class);
+            if (spawn != null && spawn.isEnabled() && entity.isActiveInHierarchy()) {
+                drawSpawnPoint(shapeRenderer, entity.getTransform());
+            }
+            // A Terrain Path is a curve on the ground with nothing drawn of its own until applied, so it is always marked (roadmap M3.7)
+            TerrainPathComponent path = entity.getComponent(TerrainPathComponent.class);
+            if (path != null && path.isEnabled()) {
+                drawPath(shapeRenderer, scene, entity, path);
+            }
+            if (!all && (!selection || !editorState.isSelected(entity.getId()))) {
                 continue;
             }
             for (Collider3DComponent collider : entity.getComponents(Collider3DComponent.class)) {
@@ -107,12 +162,142 @@ public class Collider3DRenderer {
             if (joint != null && joint.isEnabled()) {
                 drawJoint(shapeRenderer, scene, entity, joint);
             }
+            NavMeshBoundsComponent navBounds = entity.getComponent(NavMeshBoundsComponent.class);
+            if (navBounds != null && navBounds.isEnabled()) {
+                drawNavigation(shapeRenderer, scene, entity, navBounds);
+            }
         }
         shapeRenderer.end();
         shapeRenderer.setTransformMatrix(previousTransform);
     }
 
+    /**
+     * A selected Nav Mesh Bounds (roadmap M6.4): its box in blue and the outline of the walkable area it bakes in green, a little above
+     * the floor, so a person sees where agents can go and where obstacles cut it. Baked again at most every
+     * {@link #NAV_REFRESH_MILLIS}, so moving an obstacle shows within a second without baking every frame.
+     */
+    private void drawNavigation(ShapeRenderer sr, Scene scene, Entity entity, NavMeshBoundsComponent bounds) {
+        Matrix4 world = entity.getTransform().getWorldMatrix();
+        Vector3 center = world.getTranslation(new Vector3());
+        Vector3 scale = world.getScale(new Vector3());
+        Vector3 half = bounds.getSize().scl(Math.abs(scale.x) / 2f, Math.abs(scale.y) / 2f, Math.abs(scale.z) / 2f);
+        sr.setColor(NAV_BOUNDS_COLOR);
+        sr.box(center.x - half.x, center.y - half.y, center.z + half.z, half.x * 2f, half.y * 2f, half.z * 2f);
+        long now = System.currentTimeMillis();
+        CachedNavigation cached = navigation.get(entity.getId());
+        if (cached == null || now - cached.bakedAt() > NAV_REFRESH_MILLIS) {
+            float[] lines;
+            try {
+                lines = NavMeshBaker.bake(scene, entity, bounds).grid().outline(NAV_LIFT);
+            } catch (IllegalArgumentException e) {
+                lines = new float[0]; // too many cells: the box alone is drawn, and Play reports why
+            }
+            cached = new CachedNavigation(now, lines);
+            navigation.put(entity.getId(), cached);
+        }
+        sr.setColor(NAV_WALKABLE_COLOR);
+        float[] lines = cached.lines();
+        for (int i = 0; i + 5 < lines.length; i += 6) {
+            sr.line(lines[i], lines[i + 1], lines[i + 2], lines[i + 3], lines[i + 4], lines[i + 5]);
+        }
+    }
+
+    /**
+     * The path's curve on the level ground (the first entity with a Terrain), and a cross at each control point: brown for a road,
+     * blue for a river, grey for a cliff; brighter while selected. The curve is sampled again only when its points or the ground change.
+     */
+    private void drawPath(ShapeRenderer sr, Scene scene, Entity entity, TerrainPathComponent path) {
+        Entity ground = null;
+        for (Entity candidate : scene.getAllEntities()) {
+            if (candidate.getComponent(TerrainComponent.class) != null) {
+                ground = candidate;
+                break;
+            }
+        }
+        HeightFieldSource heights = scene.getHeightFields();
+        if (ground == null || heights == null) {
+            return;
+        }
+        long revision = heights.revisionOf(ground);
+        List<Vector2> points = path.getPoints();
+        CachedPath cached = paths.get(entity.getId());
+        if (cached == null || cached.revision() != revision || !cached.points().equals(points)) {
+            CachedLine vertices = pathVertices(heights, ground, points);
+            cached = new CachedPath(points, revision, vertices.line(), vertices.marks());
+            paths.put(entity.getId(), cached);
+        }
+        Color color = switch (path.getKind()) {
+            case ROAD -> PATH_ROAD_COLOR;
+            case RIVER -> PATH_RIVER_COLOR;
+            case CLIFF -> PATH_CLIFF_COLOR;
+        };
+        sr.setColor(editorState.isSelected(entity.getId()) ? Color.WHITE : color);
+        float[] line = cached.line();
+        for (int i = 3; i < line.length; i += 3) {
+            sr.line(line[i - 3], line[i - 2], line[i - 1], line[i], line[i + 1], line[i + 2]);
+        }
+        sr.setColor(color);
+        float[] marks = cached.marks();
+        for (int i = 0; i < marks.length; i += 3) {
+            sr.line(marks[i] - PATH_POINT_CROSS, marks[i + 1], marks[i + 2], marks[i] + PATH_POINT_CROSS, marks[i + 1], marks[i + 2]);
+            sr.line(marks[i], marks[i + 1], marks[i + 2] - PATH_POINT_CROSS, marks[i], marks[i + 1], marks[i + 2] + PATH_POINT_CROSS);
+            sr.line(marks[i], marks[i + 1], marks[i + 2], marks[i], marks[i + 1] + PATH_POINT_CROSS * 2f, marks[i + 2]);
+        }
+    }
+
+    /** The curve and the control points in world space, lifted a little above the ground, as x, y, z triples. */
+    private static CachedLine pathVertices(HeightFieldSource heights, Entity ground, List<Vector2> points) {
+        HeightField3D field;
+        try {
+            field = heights.heightFieldOf(ground);
+        } catch (IllegalStateException e) {
+            return new CachedLine(new float[0], new float[0]); // the ground's terrain cannot be read: nothing to draw on
+        }
+        Matrix4 world = ground.getTransform().getWorldMatrix();
+        float[] marks = new float[points.size() * 3];
+        Vector3 v = new Vector3();
+        for (int i = 0; i < points.size(); i++) {
+            v.set(points.get(i).x, groundHeight(field, points.get(i).x, points.get(i).y) + PATH_LIFT, points.get(i).y).mul(world);
+            marks[i * 3] = v.x;
+            marks[i * 3 + 1] = v.y;
+            marks[i * 3 + 2] = v.z;
+        }
+        if (points.size() < 2) {
+            return new CachedLine(new float[0], marks);
+        }
+        float[] xs = new float[points.size()];
+        float[] zs = new float[points.size()];
+        for (int i = 0; i < points.size(); i++) {
+            xs[i] = points.get(i).x;
+            zs[i] = points.get(i).y;
+        }
+        TerrainPath.Samples samples = TerrainPath.sample(xs, zs, field.cellSizeX());
+        float[] line = new float[samples.size() * 3];
+        for (int i = 0; i < samples.size(); i++) {
+            v.set(samples.x()[i], groundHeight(field, samples.x()[i], samples.z()[i]) + PATH_LIFT, samples.z()[i]).mul(world);
+            line[i * 3] = v.x;
+            line[i * 3 + 1] = v.y;
+            line[i * 3 + 2] = v.z;
+        }
+        return new CachedLine(line, marks);
+    }
+
+    /** The height field's height at the grid point nearest (x, z); 0 off the field or in a hole. */
+    private static float groundHeight(HeightField3D field, float x, float z) {
+        int column = Math.round((x - field.originX()) / field.cellSizeX());
+        int row = Math.round((z - field.originZ()) / field.cellSizeZ());
+        if (column < 0 || column >= field.columns() || row < 0 || row >= field.rows()) {
+            return 0f;
+        }
+        float h = field.heightAt(column, row);
+        return HeightField3D.isHole(h) ? 0f : h;
+    }
+
     private void drawCollider(ShapeRenderer sr, Scene scene, Entity entity, Collider3DComponent collider) {
+        if (collider instanceof TerrainCollider3DComponent) {
+            // The terrain that is drawn is the ground that collides; an outline over every cell would only hide it
+            return;
+        }
         Transform transform = entity.getTransform();
         MeshGeometry3D geometry = null;
         if (collider instanceof ConvexHullCollider3DComponent || collider instanceof MeshCollider3DComponent) {
@@ -283,6 +468,25 @@ public class Collider3DRenderer {
         bodyMatrix.idt().translate(transform.getWorldPosition());
         sr.setColor(CHARACTER_COLOR);
         drawCapsule(sr, character.getRadius(), character.getHeight() * 0.5f);
+    }
+
+    /**
+     * A spawn point: a ring on the ground and an arrow the way the player will face (yaw only, as the player is turned), drawn in the
+     * editor only; the game shows nothing there.
+     */
+    private void drawSpawnPoint(ShapeRenderer sr, Transform transform) {
+        Vector3 facing = transform.getWorldRotation().transform(new Vector3(0f, 0f, -1f));
+        float yaw = facing.x * facing.x + facing.z * facing.z > 1e-6f ? CameraRigComponent.yawOf(facing) : 0f;
+        bodyMatrix.idt().translate(transform.getWorldPosition()).rotate(Vector3.Y, yaw);
+        sr.setColor(SPAWN_COLOR);
+        drawCircle(sr, SPAWN_RING_RADIUS, SPAWN_LIFT, Axis.XZ);
+        drawCircle(sr, SPAWN_RING_RADIUS * 0.6f, SPAWN_LIFT, Axis.XZ);
+        Vector3 tip = point(0f, SPAWN_LIFT, -SPAWN_ARROW_LENGTH);
+        sr.line(point(0f, SPAWN_LIFT, 0f), tip);
+        sr.line(tip, point(-SPAWN_ARROW_HEAD, SPAWN_LIFT, -SPAWN_ARROW_LENGTH + SPAWN_ARROW_HEAD));
+        sr.line(tip, point(SPAWN_ARROW_HEAD, SPAWN_LIFT, -SPAWN_ARROW_LENGTH + SPAWN_ARROW_HEAD));
+        // An upright post, so the spawn shows above grass and from far away
+        sr.line(point(0f, 0f, 0f), point(0f, SPAWN_POST_HEIGHT, 0f));
     }
 
     private void drawBox(ShapeRenderer sr, Vector3 half) {

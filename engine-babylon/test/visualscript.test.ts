@@ -153,6 +153,22 @@ describe("validateGraph", () => {
     }
   });
 
+  it("shouldExplainThatNavigationNodesCannotRunOnTheWeb", () => {
+    const graph = new Graph("Patrol");
+    graph.addNode({ id: "m", type: "action.navMoveTo", x: 0, y: 0, literals: {}, properties: {} });
+    graph.addNode({ id: "s", type: "action.navStop", x: 0, y: 0, literals: {}, properties: {} });
+    graph.addNode({ id: "a", type: "data.navHasArrived", x: 0, y: 0, literals: {}, properties: {} });
+
+    const problems = validateGraph(graph, REGISTRY);
+
+    expect(problems).toHaveLength(3);
+    for (const problem of problems) {
+      expect(problem.message).toContain("needs navigation");
+      expect(problem.message).toContain("desktop");
+      expect(problem.message).not.toContain("3D physics");
+    }
+  });
+
   it("shouldRefuseToRunAGraphWithProblems", () => {
     const graph = new Graph("Broken");
     new Builder(graph).node(NODE.getVariable);

@@ -3,6 +3,8 @@ package io.github.ldev22live.gdxunity.engine.visualscript;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 
+import java.util.List;
+
 /**
  * What a node sees while it runs: its inputs (evaluated on demand through incoming wires, else the typed literal,
  * else the type default), its outputs, and the ways to continue execution.
@@ -44,6 +46,9 @@ public interface NodeContext {
 
     /** Schedules Repeat's synchronous Body chains in index order, then Completed; delayed work is not awaited. */
     void repeat(int count);
+
+    /** Schedules For Each Entity's Body chain once per entity, with Entity and Index set, then Completed. */
+    void forEachEntity(List<Entity> entities);
 
     /** Whether the key with this libGDX key code is held down. */
     default boolean isKeyDown(int keycode) {

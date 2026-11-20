@@ -47,7 +47,7 @@ class EditabilityAuditTest {
      */
     private static final Set<String> LOGIC_GAPS = Set.of("arena-fps-3d.json", "blockworld-3d.json", "breakout-2d.json",
         "character-playground-3d.json", "collector-3d.json", "fighter-25d.json", "grapple-gorge-25d.json", "hopper-3d.json",
-        "obby-3d.json", "physics-sandbox-3d.json", "pixel-adventure-2d.json", "platformer-2d.json", "puzzle-3d.json",
+        "obby-3d.json", "physics-sandbox-3d.json", "pixel-adventure-2d.json", "platformer-2d.json", "platformer-tiles-2d.json", "puzzle-3d.json",
         "racing-3d.json", "ruins-runner-25d.json", "runner-3d.json", "shooter-2d.json", "sprite-25d.json", "three-heroes-25d.json");
     /**
      * Asset types the samples use that no editor opens: glTF models have a Details editor on their component but no viewer of their own,

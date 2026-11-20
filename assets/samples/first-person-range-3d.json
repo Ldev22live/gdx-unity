@@ -1,0 +1,799 @@
+{
+  "schemaVersion": 1,
+  "name": "First-person Range 3D",
+  "gameMode": "3d",
+  "gameGenre": "first-person-shooter",
+  "active": true,
+  "entities": [
+    {
+      "id": "e649cea5-ce79-5925-949d-436123fc903b",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "4afa2969-a12e-51ea-828b-7adda126cf09",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.6,
+            "skyG": 0.72,
+            "skyB": 0.9,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0c803073-f463-5c42-8a4c-21d9409a0b61",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 500.0,
+          "z": 1300.0
+        },
+        "rotation": {
+          "x": -0.13052619222005157,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9914448613738104
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "124788ba-049c-5ebc-bbab-872d20d4f092",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 2400.0,
+            "sizeY": 100.0,
+            "sizeZ": 2600.0,
+            "colorR": 0.42,
+            "colorG": 0.5,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 2400.0,
+            "sizeY": 100.0,
+            "sizeZ": 2600.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9da68a87-f773-522c-9d1f-3a8605af3ac8",
+      "name": "North Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 150.0,
+          "z": -1300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 2400.0,
+            "sizeY": 300.0,
+            "sizeZ": 100.0,
+            "colorR": 0.55,
+            "colorG": 0.52,
+            "colorB": 0.48,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 2400.0,
+            "sizeY": 300.0,
+            "sizeZ": 100.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9d2c897e-d3f2-5681-b68d-e3411125f458",
+      "name": "South Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 150.0,
+          "z": 1300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 2400.0,
+            "sizeY": 300.0,
+            "sizeZ": 100.0,
+            "colorR": 0.55,
+            "colorG": 0.52,
+            "colorB": 0.48,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 2400.0,
+            "sizeY": 300.0,
+            "sizeZ": 100.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ac6f07c0-d569-5147-a78e-9c58085c079f",
+      "name": "East Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1200.0,
+          "y": 150.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 100.0,
+            "sizeY": 300.0,
+            "sizeZ": 2500.0,
+            "colorR": 0.55,
+            "colorG": 0.52,
+            "colorB": 0.48,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 100.0,
+            "sizeY": 300.0,
+            "sizeZ": 2500.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b9d78924-acf3-5ba8-bf23-1d0fce110ba3",
+      "name": "West Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1200.0,
+          "y": 150.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 100.0,
+            "sizeY": 300.0,
+            "sizeZ": 2500.0,
+            "colorR": 0.55,
+            "colorG": 0.52,
+            "colorB": 0.48,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 100.0,
+            "sizeY": 300.0,
+            "sizeZ": 2500.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e6e09513-bbdf-5c9e-8e6d-122318b7aea7",
+      "name": "Shelf",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 50.0,
+          "z": -900.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1000.0,
+            "sizeY": 100.0,
+            "sizeZ": 120.0,
+            "colorR": 0.45,
+            "colorG": 0.36,
+            "colorB": 0.28,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 1000.0,
+            "sizeY": 100.0,
+            "sizeZ": 120.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "096e0a63-bd84-5ff0-8b0b-bd005d384ba1",
+      "name": "Crate Left",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -300.0,
+          "y": 141.0,
+          "z": -900.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.8,
+            "colorG": 0.58,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 5.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.2,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "caa64aea-c130-58b6-8167-85d21a82ba51",
+      "name": "Crate Middle",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 141.0,
+          "z": -900.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.8,
+            "colorG": 0.58,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 5.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.2,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "81df5a0f-fdc6-5a89-9eab-1e10b497d636",
+      "name": "Crate Right",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 141.0,
+          "z": -900.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.8,
+            "colorG": 0.58,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 5.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.2,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "4cf26ecf-42cc-50ba-a172-3d1b2afa7e33",
+      "name": "Shooter",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 71.0,
+          "z": 600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 140.0,
+            "sizeZ": 60.0,
+            "colorR": 0.35,
+            "colorG": 0.4,
+            "colorB": 0.48,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "CharacterController3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 30.0,
+            "height": 80.0,
+            "slopeLimitDegrees": 45.0,
+            "stepHeight": 30.0,
+            "mass": 70.0,
+            "gravityScale": 1.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "PlayerComponent",
+          "enabled": true,
+          "data": {
+            "useProfileMovement": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "935f9686-4209-5db9-8c01-39ac45402fc4",
+      "name": "Crosshair",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "+",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0,
+            "colorA": 1,
+            "scale": 1.6,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3f516081-6e2f-5112-92b8-9b181a194e0d",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "W and S walk, A and D step sideways, Q and E turn, Space jumps, F or Ctrl shoots. No scripts: the First-person Shooter genre and 3D mode supply it all.",
+            "colorR": 0.9,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 24.0
+          }
+        }
+      ]
+    }
+  ]
+}

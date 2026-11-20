@@ -14,6 +14,7 @@ import io.github.ldev22live.gdxunity.engine.scene.physics3d.CharacterController3
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.Collider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.ConvexHullCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.MeshCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.TerrainCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.SphereCollider3DComponent;
 
@@ -175,6 +176,32 @@ public final class Physics3DComponentEditorProviders {
             container.left();
             note(container, skin, "Built from this entity's mesh. Static bodies only.");
             colliderRows(container, skin, entity, mesh, editorState);
+        }
+    }
+
+    /**
+     * Offset of a {@link TerrainCollider3DComponent}; its ground is the entity's terrain (TD-087). No trigger row: the ground is never
+     * a sensor.
+     */
+    public static class TerrainCollider implements ComponentEditorProvider<TerrainCollider3DComponent, Table> {
+        @Override
+        public Class<TerrainCollider3DComponent> getComponentClass() {
+            return TerrainCollider3DComponent.class;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Terrain Collider 3D";
+        }
+
+        @Override
+        public void buildEditor(Table container, Entity entity, TerrainCollider3DComponent ground, EditorState editorState,
+                                Object skinObj) {
+            Skin skin = (Skin) skinObj;
+            container.left();
+            note(container, skin, "Characters and bodies stand on this entity's terrain. Read when Play starts, and again when it changes.");
+            InspectorFieldRows.vector3Row(container, skin, "Offset", ground.getOffset(),
+                value -> change(editorState, entity, ground, ground.getOffset(), value, ground::setOffset, "Move Collider"));
         }
     }
 

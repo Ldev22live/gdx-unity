@@ -22,11 +22,8 @@ export function connectionProblem(from: PinDef, to: PinDef): string | null {
   return null;
 }
 
-/**
- * Node types the desktop editor has that the web player cannot run: they need 3D physics, which the web player does not
- * simulate (TD-048). A graph using one is reported with that reason instead of a bare "unknown node type".
- */
-export const DESKTOP_ONLY_NODE_TYPES: readonly string[] = [
+/** Desktop node types that need the desktop's 3D physics API (TD-048), which graphs on the web player cannot reach yet. */
+const PHYSICS_NODE_TYPES: readonly string[] = [
   "action.addForce",
   "action.addImpulse",
   "action.setVelocity",
@@ -36,6 +33,23 @@ export const DESKTOP_ONLY_NODE_TYPES: readonly string[] = [
   "action.jumpCharacter",
   "data.isGrounded",
 ];
+
+/** Desktop node types that need navigation (Nav Mesh Bounds and Nav Agent, roadmap M6.4, TD-092), which the web player does not run. */
+const NAVIGATION_NODE_TYPES: readonly string[] = ["action.navMoveTo", "action.navStop", "data.navHasArrived"];
+
+/**
+ * Node types the desktop editor has that the web player cannot run. A graph using one is reported with the reason instead of a
+ * bare "unknown node type".
+ */
+export const DESKTOP_ONLY_NODE_TYPES: readonly string[] = [...PHYSICS_NODE_TYPES, ...NAVIGATION_NODE_TYPES];
+
+/** Why a desktop-only node type does not run on the web player. */
+function desktopOnlyReason(type: string): string {
+  const needs = NAVIGATION_NODE_TYPES.includes(type)
+    ? "navigation, which the web player does not run yet"
+    : "3D physics, which the web player does not simulate yet";
+  return `Node type ${type} needs ${needs}; it runs only in the desktop editor and game`;
+}
 
 /**
  * Checks a graph before it runs or is saved: known node types, wires between existing pins of matching kind and type,
@@ -50,7 +64,7 @@ export function validateGraph(graph: Graph, registry: NodeRegistry): GraphProble
       problems.push({
         nodeId: node.id,
         message: DESKTOP_ONLY_NODE_TYPES.includes(node.type)
-          ? `Node type ${node.type} needs 3D physics, which the web player does not simulate yet; it runs only in the desktop editor and game`
+          ? desktopOnlyReason(node.type)
           : node.type.startsWith("java:")
             ? `Java method node ${node.type} has no web version yet; it runs only in the desktop editor and game (the web player runs the MathUtils and Vector3 methods of its table)`
             : `Unknown node type ${node.type}`,

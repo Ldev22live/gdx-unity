@@ -133,6 +133,16 @@ public class TilemapComponent extends BaseComponent implements Renderable, Stati
         }
     }
 
+    /**
+     * Forgets the loaded tile set, so the next draw reads its file again: the file was changed, for example saved from 2D Studio
+     * (roadmap M3c.8). A tile set that failed to load is tried again.
+     */
+    public void requestReload() {
+        releaseAtlas();
+        tileSet = null;
+        loadError = null;
+    }
+
     /** Uses an already read tile set (tests, and tile sets built in code). */
     public void setTileSet(SpriteDocument doc) {
         releaseAtlas();

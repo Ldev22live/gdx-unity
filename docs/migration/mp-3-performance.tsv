@@ -1,0 +1,9 @@
+# Roadmap MC.7: the MP.3 slices against their originals, measured 2026-11-18 with ./gradlew :engine-desktop:perfBaseline -PperfScenes=... (same machine and settings as docs/performance/baseline-windows.tsv)
+# Forgeroom performance baseline (roadmap M9.5); medians of 3 run(s) per scene, 330 frames each, the first 30 not measured
+# Machine: Windows 11 10.0 amd64, 8 processors; Java 21.0.11; the GPU is in each row
+# Frame times wait for the GPU to finish (glFinish), so vsync does not hide them; heap is the Java heap only, not native memory
+scene	frames	parseMs	startMs	firstFrameMs	frameMeanMs	frameP50Ms	frameP95Ms	frameMaxMs	terrainTriangles	heapPeakMb	heapRetainedMb	audioLatencyMs	audioBlockMs	audioBlockMaxMs	gpu
+samples/platformer-2d.json	300	107.72	161.31	141.95	1.27	1.22	1.85	2.81	0	15.85	4.88	37.73	0.16	3.80	Intel(R) Iris(R) Xe Graphics
+samples/platformer-tiles-2d.json	300	117.21	235.49	330.90	1.27	1.18	1.74	7.72	0	19.04	5.03	37.73	0.18	4.55	Intel(R) Iris(R) Xe Graphics
+samples/platformer-profile-25d.json	300	102.28	243.68	206.10	2.35	2.26	3.08	4.44	0	111.51	4.94	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/platformer-profile-terrain-25d.json	300	103.01	247.99	234.19	2.49	2.24	3.23	20.94	2816	114.27	5.98	-	-	-	Intel(R) Iris(R) Xe Graphics

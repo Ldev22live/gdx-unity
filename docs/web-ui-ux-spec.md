@@ -39,9 +39,9 @@ Both editions start with New Game, Open Game and Samples, then open the **World*
 | Region | Desktop | Web |
 |---|---|---|
 | **Header** (thin) | Product name, the context indicator **World / <scene name>** with a dot for unsaved changes; **Save**, **Undo**, **Redo**, the **Project** and **Settings** dropdowns, **Create** (section 11) | The same idea: the context indicator, Save, Undo and Redo, and a minimal project menu. No workspace tabs |
-| **Viewport** | The interactive scene from the scene renderer, with the tools (Select, Move, Rotate, Scale, Frame) in a slim row | A simplified browser viewport, never a static picture standing in for the scene. Select, place and transform |
+| **World view** (named Viewport until owner decision 11, 2026-11-15) | The interactive scene from the scene renderer, with the tools (Select, Move, Rotate, Scale, Frame) in a slim row | A simplified browser viewport, never a static picture standing in for the scene. Select, place and transform |
 | **World strip** | 2D: Tiles, Sprites, Objects, Characters. 2.5D and 3D: Terrain, Objects, Buildings, Characters. Unbuilt sections say why (section 11) | **Terrain, Objects, Buildings, Characters**, and for 2D, tile or sprite placement once WEB4 adds it. A section is offered only if it works on the web, or shown as **Planned** with its reason. The desktop's planned messages point at desktop tools, so the web writes its own |
-| **Footer** | **Game Genre**, **Game Mode** (2D, 2.5D, 3D: the scene's own), then **Customize** and **Play** side by side, with Pause and Stop while playing. Game Genre reads "none yet (planned)" until a genre system exists | The same order, with Genre and Mode as separate selectors. Only **browser-verified** genre and mode profiles can be played; the others are shown with their label (section 6), never hidden or faked |
+| **Footer** | **Game Genre**, **Game Mode** (2D, 2.5D, 3D: the scene's own), then **Customize** and **Play** side by side, with Pause and Stop while playing. Game Genre is a drop-down of None and every registered genre, each marked "(planned)" or "(not offered)" in the scene's mode, then a short line after Game Mode saying whether Play uses the pair (M3b.4) | The same order, with Genre and Mode as separate selectors. Only **browser-verified** genre and mode profiles can be played; the others are shown with their label (section 6), never hidden or faked |
 | **Panels** | Outliner, Details, Content Browser: collapsible, closed by default in World, remembered per person | An asset browser and a properties panel for the selection, kept small |
 
 On a narrow window both keep Customize and Play visible; the genre and mode selectors may scroll or shrink, Customize and Play may not. The desktop's minimum is 1024 by 640 and every desktop region fits there. A web UI should support the same minimum; below it, it may stack its panels over the viewport but keeps the header actions, the context indicator, Customize and Play reachable without a menu.
@@ -77,7 +77,7 @@ Customize sits **immediately beside Play** in both editions, and in both it open
 
 - Show only actions that work. Never present a button that does nothing.
 - On the web, every capability carries one evidence-backed label: **Editable on Web**, **Preview/Play on Web**, **Desktop-only**, **Planned** or **Unsupported in this project**. The roadmap's capability matrix (G2) is the starting list; each entry moves to "Editable on Web" or "Preview/Play on Web" only when it is implemented and validated in a browser.
-- When something is planned, say what it needs (the World strip's reasons, Customize's unavailable entries, "none yet (planned)" for Game Genre).
+- When something is planned, say what it needs (the World strip's reasons, Customize's unavailable entries, "(planned)" on a Game Genre choice, with the reason in the status bar).
 - Errors say what happened and what to do, in plain words, where the person is looking: in the status line and in the place the action was taken (the gallery shows its own errors). A blocked web save says which desktop data it would have lost.
 - Never present a mock-up, screenshot or video as the working UI.
 
@@ -158,14 +158,20 @@ The section names are shared; the messages point at desktop tools, so the web wr
 
 | Game mode | Sections, left to right | Planned sections and the message shown |
 |---|---|---|
-| 2D | Tiles, Sprites, Objects, Characters | **Objects**: Objects for 2D scenes are planned. Drag a sprite or a prefab from the Content Browser into the World for now.<br>**Characters**: Characters are planned for the World strip. For now make one in Customize > Animation (character creator) or drag a character model from the Content Browser. |
-| 2.5D | Terrain, Objects, Buildings, Characters | **Buildings**: Buildings are planned: placing and reshaping a building needs mesh editing (roadmap R7a). Drag a model from the Content Browser into the World for now.<br>**Characters**: Characters are planned for the World strip. For now make one in Customize > Animation (character creator) or drag a character model from the Content Browser. |
-| 3D | Terrain, Objects, Buildings, Characters | **Buildings**: Buildings are planned: placing and reshaping a building needs mesh editing (roadmap R7a). Drag a model from the Content Browser into the World for now.<br>**Characters**: Characters are planned for the World strip. For now make one in Customize > Animation (character creator) or drag a character model from the Content Browser. |
+| 2D | Tiles, Sprites, Objects, Characters | **Objects**: Objects for 2D scenes are planned. Drag a sprite or a prefab from the Content Browser into the World for now.<br>**Characters**: Characters for 2D scenes are planned: they need a 2D character controller. Drag a sprite from the Content Browser into the World for now. |
+| 2.5D | Terrain, Objects, Buildings, Characters | none |
+| 3D | Terrain, Objects, Buildings, Characters | none |
 
 ### Footer
 
-- Game Genre, while there is no genre system: "none yet (planned)"
 - Game Mode choices: 2D, 2.5D, 3D
+- Game Genre choices, as the desktop marks them in each game mode (the desktop registry; the web plays none of them yet):
+
+| Game mode | Choices |
+|---|---|
+| 2D | None, Platformer / Side-scroller (planned), Action RPG (planned), Adventure (planned), First-person Shooter (not offered), Third-person Shooter (not offered), Real-time Strategy (planned), Turn-based Strategy (planned), Racing (planned), Puzzle (planned), Simulation (planned), Sandbox (planned) |
+| 2.5D | None, Platformer / Side-scroller, Action RPG, Adventure (planned), First-person Shooter (not offered), Third-person Shooter (not offered), Real-time Strategy (planned), Turn-based Strategy (planned), Racing (planned), Puzzle (planned), Simulation (planned), Sandbox (planned) |
+| 3D | None, Platformer / Side-scroller, Action RPG, Adventure (planned), First-person Shooter, Third-person Shooter (planned), Real-time Strategy (planned), Turn-based Strategy (planned), Racing (planned), Puzzle (planned), Simulation (planned), Sandbox (planned) |
 
 ### Desktop template labels (Appendix F5), from the most to the least editable
 

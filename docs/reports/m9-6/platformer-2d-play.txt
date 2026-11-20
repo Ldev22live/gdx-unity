@@ -1,0 +1,23 @@
+[Editor] Profiler:
+Frame 1 back (of 300): 3.67 ms work, 14.52 ms to the next frame (69 fps), 10.85 ms waiting; average 2.97 ms, slowest 113.70 ms; Entities 25
+  Editor UI 1.647 ms (44.9%, average 1.719 ms, Draw calls 83, Vertices 9210, Texture binds 81, Shader switches 4, GL errors 0)
+  Scene view 1.517 ms (41.4%, average 0.927 ms, Draw calls 20, Vertices 606, Texture binds 1, Shader switches 20, GL errors 0)
+    2D scene 0.644 ms (17.6%, average 0.440 ms, Draw calls 19, Vertices 114, Texture binds 0, Shader switches 19, GL errors 0)
+    3D scene 0.200 ms (5.5%, average 0.127 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+    Other 0.673 ms (18.4%, average 0.000 ms)
+  Play 0.378 ms (10.3%, average 0.228 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+    Scene update 0.237 ms (6.5%, average 0.143 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      Script FollowCamera2D 0.044 ms (1.2%, average 0.019 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      Script PlatformerPlayer 0.043 ms (1.2%, average 0.036 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      ShapeRendererComponent 0.005 ms (0.1%, average 0.003 ms, 19 calls, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      AudioSourceComponent 0.000 ms (0.0%, average 0.001 ms, 4 calls, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      MusicSourceComponent 0.000 ms (0.0%, average 0.000 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      CameraComponent 0.000 ms (0.0%, average 0.000 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      TextComponent 0.000 ms (0.0%, average 0.001 ms, 3 calls, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      Other 0.146 ms (4.0%, average 0.000 ms)
+    2D physics 0.124 ms (3.4%, average 0.065 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+    Other 0.017 ms (0.5%, average 0.000 ms)
+  Editor update 0.038 ms (1.0%, average 0.024 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+  Untimed 0.086 ms (2.4%, average 0.000 ms)
+
+[Editor] Smoke test rendered 300 frames, 0 error(s) in the Output Log

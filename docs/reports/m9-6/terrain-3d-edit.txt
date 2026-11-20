@@ -1,0 +1,11 @@
+[Editor] Profiler:
+Frame 1 back (of 300): 3.59 ms work, 14.78 ms to the next frame (68 fps), 11.19 ms waiting; average 4.16 ms, slowest 297.97 ms; Entities 6
+  Editor UI 1.972 ms (55.0%, average 2.232 ms, Draw calls 87, Vertices 10188, Texture binds 85, Shader switches 4, GL errors 0)
+  Scene view 1.545 ms (43.1%, average 1.837 ms, Draw calls 32, Vertices 194230, Texture binds 3, Shader switches 5, GL errors 0)
+    3D scene 0.891 ms (24.8%, average 1.076 ms, Draw calls 30, Vertices 193608, Texture binds 3, Shader switches 3, GL errors 0)
+    2D scene 0.033 ms (0.9%, average 0.036 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+    Other 0.622 ms (17.3%, average 0.000 ms)
+  Editor update 0.024 ms (0.7%, average 0.035 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+  Untimed 0.046 ms (1.3%, average 0.000 ms)
+
+[Editor] Smoke test rendered 300 frames, 0 error(s) in the Output Log

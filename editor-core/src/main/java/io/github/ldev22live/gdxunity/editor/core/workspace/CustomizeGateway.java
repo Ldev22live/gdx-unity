@@ -57,6 +57,8 @@ public final class CustomizeGateway {
         SHOW_DETAILS,
         /** Open the World strip's Terrain tools on the selected terrain. */
         OPEN_TERRAIN_TOOLS,
+        /** Hand the selected model or shape to 3D Modeling in context, with its capability notice (M3c.4, {@link ModelingHandOff}). */
+        OPEN_MODELING,
         /** Nothing: the reason is in {@link EditOffer#unavailableReason()}. */
         UNAVAILABLE
     }
@@ -112,6 +114,9 @@ public final class CustomizeGateway {
         if (isSculpt) {
             available.add(new EditOffer("Edit " + name + " in 3D", Workspace.MODELING_3D, Kind.RUN_ACTION, null, SCULPT_ENTER_ACTION, null));
         } else if (entity.getComponent(ModelComponent.class) != null || entity.getComponent(MeshPrimitiveComponent.class) != null) {
+            // Edit 3D Model first (roadmap M3c.4): it opens 3D Modeling on this object and says what can and cannot be done there
+            available.add(new EditOffer(ModelingHandOff.edit3DModelLabel(entity), Workspace.MODELING_3D, Kind.OPEN_MODELING, null, null,
+                null));
             available.add(new EditOffer("Edit " + name + " in 3D (sculpt a copy)", Workspace.MODELING_3D, Kind.RUN_ACTION, null,
                 SCULPT_FROM_SELECTED_ACTION, null));
         }

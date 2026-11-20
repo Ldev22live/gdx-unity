@@ -245,6 +245,12 @@ public final class Transform {
         return new Vector3(worldPosition);
     }
 
+    /** Writes the world position into {@code out} and returns it; for per-frame use without allocating. */
+    public Vector3 getWorldPosition(Vector3 out) {
+        validateWorldTransform();
+        return out.set(worldPosition);
+    }
+
     public Quaternion getWorldRotation() {
         validateWorldTransform();
         return new Quaternion(worldRotation);

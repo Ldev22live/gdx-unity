@@ -3,6 +3,7 @@ package io.github.ldev22live.gdxunity.engine.terrain;
 import com.badlogic.gdx.utils.IntFloatMap;
 import com.badlogic.gdx.utils.IntIntMap;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -20,8 +21,32 @@ public final class TerrainStroke {
     static final float NOISE_CELLS = 4f;
 
     private final Terrain terrain;
-    /** Only points this far into the brush (its weight) get the painted surface, so the edge of a patch is round. */
-    static final float PAINT_THRESHOLD = 0.25f;
+    /** Only points this far into the brush (its weight) are cut or filled as holes, so the edge of a hole is round. */
+    static final float HOLE_THRESHOLD = 0.25f;
+    /**
+     * How fast paint builds up: a dab adds {@code strength * falloff * PAINT_RATE} of the way to a full layer, so the default strength
+     * (0.5) covers the centre in one dab while the falloff leaves a soft edge (TD-089).
+     */
+    static final float PAINT_RATE = 2f;
+    /** Weights changed this stroke, by index into the weight array, with their first value. */
+    private final IntIntMap originalWeights = new IntIntMap();
+    /** Hole flags changed this stroke, by point, with their first value. */
+    private final IntIntMap originalHoles = new IntIntMap();
+    private final int[] pointWeights = new int[Surface.LAYER_COUNT];
+    /** Steepest drop, as height per unit of distance, that erosion leaves alone (about 35 degrees). */
+    static final float TALUS_SLOPE = 0.7f;
+    /** Share of the excess drop a full-strength erosion dab moves down in one pass. */
+    static final float EROSION_RATE = 0.5f;
+    /** Passes of erosion in one dab, so a single click visibly softens a cliff. */
+    static final int EROSION_PASSES = 4;
+    /** Share of the ramp's half width, from its edge inwards, over which it blends into the ground beside it. */
+    static final float RAMP_EDGE = 0.4f;
+    /** Where a ramp stroke began and where the cursor is now. */
+    private float rampStartX;
+    private float rampStartZ;
+    private float rampEndX;
+    private float rampEndZ;
+    private float rampStartHeight;
 
     private final IntFloatMap originals = new IntFloatMap();
     private final IntIntMap originalSurfaces = new IntIntMap();
@@ -60,9 +85,20 @@ public final class TerrainStroke {
         this.flattenHeight = height;
         this.originals.clear();
         this.originalSurfaces.clear();
+        this.originalWeights.clear();
+        this.originalHoles.clear();
         this.active = true;
         this.lastX = x;
         this.lastZ = z;
+        if (this.brush.getType() == TerrainBrush.Type.RAMP) {
+            // A ramp is laid when the stroke ends, from here to where it ends
+            rampStartX = x;
+            rampStartZ = z;
+            rampEndX = x;
+            rampEndZ = z;
+            rampStartHeight = height;
+            return;
+        }
         dab(x, z);
     }
 
@@ -74,6 +110,13 @@ public final class TerrainStroke {
     public void move(float x, float z) {
         if (!active) {
             throw new IllegalStateException("No stroke is in progress");
+        }
+        if (brush.getType() == TerrainBrush.Type.RAMP) {
+            if (!Float.isNaN(terrain.heightAt(x, z))) {
+                rampEndX = x;
+                rampEndZ = z;
+            }
+            return;
         }
         float dx = x - lastX;
         float dz = z - lastZ;
@@ -102,6 +145,9 @@ public final class TerrainStroke {
             throw new IllegalStateException("No stroke is in progress");
         }
         active = false;
+        if (brush.getType() == TerrainBrush.Type.RAMP) {
+            ramp();
+        }
         int[] indices = new int[originals.size];
         float[] before = new float[originals.size];
         float[] after = new float[originals.size];
@@ -130,9 +176,39 @@ public final class TerrainStroke {
             }
         }
         originalSurfaces.clear();
-        return new TerrainDelta(java.util.Arrays.copyOf(indices, count), java.util.Arrays.copyOf(before, count),
-            java.util.Arrays.copyOf(after, count), java.util.Arrays.copyOf(surfaceIndices, surfaceCount),
-            java.util.Arrays.copyOf(surfaceBefore, surfaceCount), java.util.Arrays.copyOf(surfaceAfter, surfaceCount));
+        byte[] currentWeights = terrain.copyWeights();
+        int[] weightIndices = new int[originalWeights.size];
+        byte[] weightBefore = new byte[originalWeights.size];
+        byte[] weightAfter = new byte[originalWeights.size];
+        int weightCount = 0;
+        for (IntIntMap.Entry entry : originalWeights) {
+            if (currentWeights[entry.key] != (byte) entry.value) {
+                weightIndices[weightCount] = entry.key;
+                weightBefore[weightCount] = (byte) entry.value;
+                weightAfter[weightCount] = currentWeights[entry.key];
+                weightCount++;
+            }
+        }
+        originalWeights.clear();
+        byte[] currentHoles = terrain.copyHoles();
+        int[] holeIndices = new int[originalHoles.size];
+        byte[] holeBefore = new byte[originalHoles.size];
+        byte[] holeAfter = new byte[originalHoles.size];
+        int holeCount = 0;
+        for (IntIntMap.Entry entry : originalHoles) {
+            if (currentHoles[entry.key] != (byte) entry.value) {
+                holeIndices[holeCount] = entry.key;
+                holeBefore[holeCount] = (byte) entry.value;
+                holeAfter[holeCount] = currentHoles[entry.key];
+                holeCount++;
+            }
+        }
+        originalHoles.clear();
+        return new TerrainDelta(Arrays.copyOf(indices, count), Arrays.copyOf(before, count), Arrays.copyOf(after, count),
+            Arrays.copyOf(surfaceIndices, surfaceCount), Arrays.copyOf(surfaceBefore, surfaceCount),
+            Arrays.copyOf(surfaceAfter, surfaceCount), Arrays.copyOf(weightIndices, weightCount), Arrays.copyOf(weightBefore, weightCount),
+            Arrays.copyOf(weightAfter, weightCount), Arrays.copyOf(holeIndices, holeCount), Arrays.copyOf(holeBefore, holeCount),
+            Arrays.copyOf(holeAfter, holeCount));
     }
 
     private void dab(float x, float z) {
@@ -149,6 +225,16 @@ public final class TerrainStroke {
         }
         if (brush.getType() == TerrainBrush.Type.PAINT) {
             paintDab(x, z, ixMin, ixMax, izMin, izMax);
+            return;
+        }
+        if (brush.getType() == TerrainBrush.Type.HOLE) {
+            holeDab(x, z, ixMin, ixMax, izMin, izMax);
+            return;
+        }
+        if (brush.getType() == TerrainBrush.Type.ERODE) {
+            for (int pass = 0; pass < EROSION_PASSES; pass++) {
+                erodeDab(x, z, ixMin, ixMax, izMin, izMax);
+            }
             return;
         }
         if (brush.getType() == TerrainBrush.Type.SMOOTH) {
@@ -177,19 +263,185 @@ public final class TerrainStroke {
         }
     }
 
-    /** Lays the brush's surface on the points inside the brush; the inverted brush (Ctrl) lays {@link Surface#AUTO} instead. */
+    /**
+     * Adds the brush's surface as a layer weight, most at the centre and fading to nothing at the edge, and makes room for it by
+     * scaling the point's other layers down so the weights never sum past full (TD-089). The inverted brush (Ctrl), or painting
+     * {@link Surface#AUTO}, wipes every layer towards the base ground instead.
+     */
     private void paintDab(float x, float z, int ixMin, int ixMax, int izMin, int izMax) {
-        Surface surface = brush.isInverted() ? Surface.AUTO : brush.getSurface();
+        boolean wipe = brush.isInverted() || brush.getSurface() == Surface.AUTO;
+        int target = wipe ? -1 : brush.getSurface().layer();
         float radius = brush.getRadius();
         for (int iz = izMin; iz <= izMax; iz++) {
             for (int ix = ixMin; ix <= ixMax; ix++) {
-                if (weight(terrain.xAt(ix) - x, terrain.zAt(iz) - z, radius) >= PAINT_THRESHOLD) {
-                    int index = terrain.index(ix, iz);
-                    if (!originalSurfaces.containsKey(index)) {
-                        originalSurfaces.put(index, terrain.getSurface(ix, iz).code());
-                    }
-                    terrain.setSurface(ix, iz, surface);
+                float falloff = weight(terrain.xAt(ix) - x, terrain.zAt(iz) - z, radius);
+                if (falloff <= 0f) {
+                    continue;
                 }
+                float amount = Math.min(1f, brush.getStrength() * falloff * PAINT_RATE);
+                for (int layer = 0; layer < Surface.LAYER_COUNT; layer++) {
+                    pointWeights[layer] = terrain.getLayerWeight(ix, iz, Surface.ofLayer(layer));
+                }
+                if (wipe) {
+                    for (int layer = 0; layer < Surface.LAYER_COUNT; layer++) {
+                        pointWeights[layer] = Math.round(pointWeights[layer] * (1f - amount));
+                    }
+                } else {
+                    int painted = Math.round(pointWeights[target] + (Terrain.FULL_WEIGHT - pointWeights[target]) * amount);
+                    pointWeights[target] = painted;
+                    int others = 0;
+                    for (int layer = 0; layer < Surface.LAYER_COUNT; layer++) {
+                        if (layer != target) {
+                            others += pointWeights[layer];
+                        }
+                    }
+                    int room = Terrain.FULL_WEIGHT - painted;
+                    if (others > room) {
+                        for (int layer = 0; layer < Surface.LAYER_COUNT; layer++) {
+                            if (layer != target) {
+                                pointWeights[layer] = pointWeights[layer] * room / others; // rounds down, so the sum stays within full
+                            }
+                        }
+                    }
+                }
+                int point = terrain.index(ix, iz);
+                for (int layer = 0; layer < Surface.LAYER_COUNT; layer++) {
+                    Surface surface = Surface.ofLayer(layer);
+                    int old = terrain.getLayerWeight(ix, iz, surface);
+                    if (old != pointWeights[layer]) {
+                        int index = Terrain.weightIndex(point, layer);
+                        if (!originalWeights.containsKey(index)) {
+                            originalWeights.put(index, old);
+                        }
+                        terrain.setLayerWeight(ix, iz, surface, pointWeights[layer]);
+                    }
+                }
+            }
+        }
+    }
+
+    /** Cuts holes at the points well inside the brush, or fills them when the brush is inverted (Ctrl). */
+    private void holeDab(float x, float z, int ixMin, int ixMax, int izMin, int izMax) {
+        boolean cut = !brush.isInverted();
+        float radius = brush.getRadius();
+        for (int iz = izMin; iz <= izMax; iz++) {
+            for (int ix = ixMin; ix <= ixMax; ix++) {
+                if (weight(terrain.xAt(ix) - x, terrain.zAt(iz) - z, radius) >= HOLE_THRESHOLD && terrain.isHole(ix, iz) != cut) {
+                    int index = terrain.index(ix, iz);
+                    if (!originalHoles.containsKey(index)) {
+                        originalHoles.put(index, terrain.isHole(ix, iz) ? 1 : 0);
+                    }
+                    terrain.setHole(ix, iz, cut);
+                }
+            }
+        }
+    }
+
+    /**
+     * One pass of thermal erosion over the brush's area, read from a snapshot so the order of the points does not matter: each point
+     * steeper than {@link #TALUS_SLOPE} towards its lowest neighbour gives that neighbour part of the excess, weighted by the brush.
+     * What one point loses its neighbour gains, so the ground is moved, not lost.
+     */
+    private void erodeDab(float x, float z, int ixMin, int ixMax, int izMin, int izMax) {
+        int x0 = Math.max(0, ixMin - 1);
+        int x1 = Math.min(terrain.getResolutionX() - 1, ixMax + 1);
+        int z0 = Math.max(0, izMin - 1);
+        int z1 = Math.min(terrain.getResolutionZ() - 1, izMax + 1);
+        int width = x1 - x0 + 1;
+        int depth = z1 - z0 + 1;
+        if (scratch.length < width * depth) {
+            scratch = new float[width * depth];
+        }
+        Arrays.fill(scratch, 0, width * depth, 0f);
+        float radius = brush.getRadius();
+        float cell = terrain.getCellSize();
+        float rate = EROSION_RATE * brush.getStrength();
+        for (int iz = izMin; iz <= izMax; iz++) {
+            for (int ix = ixMin; ix <= ixMax; ix++) {
+                float weight = weight(terrain.xAt(ix) - x, terrain.zAt(iz) - z, radius);
+                if (weight <= 0f) {
+                    continue;
+                }
+                float height = terrain.getHeight(ix, iz);
+                int lowX = -1;
+                int lowZ = -1;
+                float steepest = 0f;
+                float drop = 0f;
+                for (int dz = -1; dz <= 1; dz++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        int nx = ix + dx;
+                        int nz = iz + dz;
+                        if ((dx == 0 && dz == 0) || nx < x0 || nx > x1 || nz < z0 || nz > z1) {
+                            continue;
+                        }
+                        float distance = cell * (float) Math.sqrt(dx * dx + dz * dz);
+                        float slope = (height - terrain.getHeight(nx, nz)) / distance;
+                        if (slope > steepest) {
+                            steepest = slope;
+                            lowX = nx;
+                            lowZ = nz;
+                            drop = distance;
+                        }
+                    }
+                }
+                if (lowX < 0 || steepest <= TALUS_SLOPE) {
+                    continue;
+                }
+                // Moving m from here to there lowers the drop by 2m; take part of the excess, never more than levels the pair
+                float excess = (steepest - TALUS_SLOPE) * drop;
+                float moved = excess * 0.5f * Math.min(1f, rate * weight);
+                scratch[(iz - z0) * width + (ix - x0)] -= moved;
+                scratch[(lowZ - z0) * width + (lowX - x0)] += moved;
+            }
+        }
+        for (int iz = z0; iz <= z1; iz++) {
+            for (int ix = x0; ix <= x1; ix++) {
+                float change = scratch[(iz - z0) * width + (ix - x0)];
+                if (change != 0f) {
+                    write(ix, iz, terrain.getHeight(ix, iz) + change);
+                }
+            }
+        }
+    }
+
+    /**
+     * Lays the ramp from the stroke's start to its end: every point within half the brush width of the line, between its two ends,
+     * moves to the height the line has there, rising evenly from the start's height to the end's, fully in the middle and blending to
+     * nothing over the outer {@link #RAMP_EDGE} of each side.
+     */
+    private void ramp() {
+        float dx = rampEndX - rampStartX;
+        float dz = rampEndZ - rampStartZ;
+        float lengthSquared = dx * dx + dz * dz;
+        float cell = terrain.getCellSize();
+        if (lengthSquared < cell * cell) {
+            return; // a click, not a drag: there is no line to lay a ramp along
+        }
+        float endHeight = terrain.heightAt(rampEndX, rampEndZ);
+        float half = brush.getRadius();
+        float halfX = terrain.getSizeX() / 2f;
+        float halfZ = terrain.getSizeZ() / 2f;
+        int ixMin = Math.max(0, (int) Math.ceil((Math.min(rampStartX, rampEndX) - half + halfX) / cell));
+        int ixMax = Math.min(terrain.getResolutionX() - 1, (int) Math.floor((Math.max(rampStartX, rampEndX) + half + halfX) / cell));
+        int izMin = Math.max(0, (int) Math.ceil((Math.min(rampStartZ, rampEndZ) - half + halfZ) / cell));
+        int izMax = Math.min(terrain.getResolutionZ() - 1, (int) Math.floor((Math.max(rampStartZ, rampEndZ) + half + halfZ) / cell));
+        float inner = half * (1f - RAMP_EDGE);
+        for (int iz = izMin; iz <= izMax; iz++) {
+            for (int ix = ixMin; ix <= ixMax; ix++) {
+                float px = terrain.xAt(ix) - rampStartX;
+                float pz = terrain.zAt(iz) - rampStartZ;
+                float t = (px * dx + pz * dz) / lengthSquared;
+                if (t < 0f || t > 1f) {
+                    continue;
+                }
+                float side = (float) Math.sqrt(Math.max(0f, px * px + pz * pz - t * t * lengthSquared));
+                if (side >= half) {
+                    continue;
+                }
+                float blend = side <= inner ? 1f : smooth(1f - (side - inner) / (half - inner));
+                float target = rampStartHeight + (endHeight - rampStartHeight) * t;
+                float height = terrain.getHeight(ix, iz);
+                write(ix, iz, height + (target - height) * blend);
             }
         }
     }

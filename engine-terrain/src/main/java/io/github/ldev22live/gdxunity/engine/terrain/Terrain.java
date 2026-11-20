@@ -44,8 +44,17 @@ public final class Terrain {
     private final int resolutionZ;
     private final float cellSize;
     private final float[] heights;
-    /** The {@link Surface} code of every grid point, laid out like the heights. */
+    /** The {@link Surface} code of every grid point, laid out like the heights: the base ground. */
     private final byte[] surfaces;
+    /**
+     * Paint layer weights (roadmap M3.4, TD-089): {@link Surface#LAYER_COUNT} unsigned bytes per grid point, 0 to {@value #FULL_WEIGHT},
+     * point after point. Their sum never exceeds {@value #FULL_WEIGHT}; what is left over is the base ground.
+     */
+    private final byte[] weights;
+    /** 1 where a grid point is a hole (TD-089): nothing is drawn or collides in the cells around it. */
+    private final byte[] holes;
+    /** Height of the water surface, or NaN for no water (TD-089). */
+    private float waterLevel = Float.NaN;
     private final int chunksX;
     private final int chunksZ;
     private final int[] chunkRevisions;
@@ -68,6 +77,8 @@ public final class Terrain {
         this.cellSize = cellSize;
         this.heights = new float[resolutionX * resolutionZ];
         this.surfaces = new byte[resolutionX * resolutionZ];
+        this.weights = new byte[resolutionX * resolutionZ * Surface.LAYER_COUNT];
+        this.holes = new byte[resolutionX * resolutionZ];
         this.chunksX = chunkCount(resolutionX);
         this.chunksZ = chunkCount(resolutionZ);
         this.chunkRevisions = new int[chunksX * chunksZ];
@@ -188,6 +199,148 @@ public final class Terrain {
             }
         }
         return false;
+    }
+
+    // ---- paint layers, holes and water (roadmap M3.4, TD-089) ---------------------------------------------------------
+
+    /** A layer weight meaning "all this layer". */
+    public static final int FULL_WEIGHT = 255;
+
+    /** Index into the weight array of layer {@code layer} at grid point {@code pointIndex}. */
+    public static int weightIndex(int pointIndex, int layer) {
+        return pointIndex * Surface.LAYER_COUNT + layer;
+    }
+
+    /** The weight of {@code layer}'s surface at a grid point, 0 to {@value #FULL_WEIGHT}. */
+    public int getLayerWeight(int ix, int iz, Surface layer) {
+        return weights[weightIndex(index(ix, iz), layer.layer())] & 0xFF;
+    }
+
+    /**
+     * Sets the weight of one paint layer at a grid point, 0 to {@value #FULL_WEIGHT}. The caller keeps the point's weights summing to
+     * at most {@value #FULL_WEIGHT}; {@link TerrainStroke} does.
+     *
+     * @throws IllegalArgumentException if the weight is outside 0 to {@value #FULL_WEIGHT}
+     */
+    public void setLayerWeight(int ix, int iz, Surface layer, int weight) {
+        if (weight < 0 || weight > FULL_WEIGHT) {
+            throw new IllegalArgumentException("A layer weight is 0 to " + FULL_WEIGHT + ": " + weight);
+        }
+        int i = weightIndex(index(ix, iz), layer.layer());
+        if ((weights[i] & 0xFF) != weight) {
+            weights[i] = (byte) weight;
+            touch(ix, iz);
+        }
+    }
+
+    /** How much of the base ground still shows at a grid point, 0 to {@value #FULL_WEIGHT}. */
+    public int getBaseWeight(int ix, int iz) {
+        int point = index(ix, iz);
+        int sum = 0;
+        for (int layer = 0; layer < Surface.LAYER_COUNT; layer++) {
+            sum += weights[weightIndex(point, layer)] & 0xFF;
+        }
+        return Math.max(0, FULL_WEIGHT - sum);
+    }
+
+    /** The ground that shows most at a grid point: the base or the heaviest paint layer (the base wins a tie). */
+    public Surface dominantSurface(int ix, int iz) {
+        int point = index(ix, iz);
+        Surface best = Surface.fromCode(surfaces[point]);
+        int bestWeight = getBaseWeight(ix, iz);
+        for (int layer = 0; layer < Surface.LAYER_COUNT; layer++) {
+            int weight = weights[weightIndex(point, layer)] & 0xFF;
+            if (weight > bestWeight) {
+                bestWeight = weight;
+                best = Surface.ofLayer(layer);
+            }
+        }
+        return best;
+    }
+
+    /** The layer weights, point after point, as a copy. */
+    public byte[] copyWeights() {
+        return weights.clone();
+    }
+
+    /** True when any layer is painted anywhere, so a file needs to store the weights. */
+    public boolean hasWeights() {
+        for (byte weight : weights) {
+            if (weight != 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Whether a grid point is a hole. */
+    public boolean isHole(int ix, int iz) {
+        return holes[index(ix, iz)] != 0;
+    }
+
+    /** Cuts a hole at a grid point, or fills one. */
+    public void setHole(int ix, int iz, boolean hole) {
+        int i = index(ix, iz);
+        byte value = (byte) (hole ? 1 : 0);
+        if (holes[i] != value) {
+            holes[i] = value;
+            touch(ix, iz);
+        }
+    }
+
+    /** Whether the cell whose lowest corner is (ix, iz) is open: any of its four corners is a hole, as the collision sees it. */
+    public boolean isCellOpen(int ix, int iz) {
+        return isHole(ix, iz) || isHole(ix + 1, iz) || isHole(ix, iz + 1) || isHole(ix + 1, iz + 1);
+    }
+
+    /** Whether a point of the terrain's own space lies in an open cell, so there is no ground there; false off the terrain. */
+    public boolean isHoleAt(float x, float z) {
+        float fx = (x + getSizeX() / 2f) / cellSize;
+        float fz = (z + getSizeZ() / 2f) / cellSize;
+        if (!(fx >= 0f && fx <= resolutionX - 1 && fz >= 0f && fz <= resolutionZ - 1)) {
+            return false;
+        }
+        return isCellOpen(Math.min((int) fx, resolutionX - 2), Math.min((int) fz, resolutionZ - 2));
+    }
+
+    /** The hole flags, one byte per point, as a copy. */
+    public byte[] copyHoles() {
+        return holes.clone();
+    }
+
+    /** True when any point is a hole. */
+    public boolean hasHoles() {
+        for (byte hole : holes) {
+            if (hole != 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Height of the water surface in the terrain's own space, or NaN when there is no water. */
+    public float getWaterLevel() {
+        return waterLevel;
+    }
+
+    /** Whether the terrain has water. */
+    public boolean hasWater() {
+        return !Float.isNaN(waterLevel);
+    }
+
+    /**
+     * Sets the water surface's height, or removes the water with NaN.
+     *
+     * @throws IllegalArgumentException if the level is infinite or beyond {@link #MAX_ABS_HEIGHT}
+     */
+    public void setWaterLevel(float level) {
+        if (!Float.isNaN(level) && !(Math.abs(level) <= MAX_ABS_HEIGHT)) {
+            throw new IllegalArgumentException("Water level must be within plus or minus " + MAX_ABS_HEIGHT + ", or NaN for none: " + level);
+        }
+        if (Float.compare(waterLevel, level) != 0) {
+            waterLevel = level;
+            revision++;
+        }
     }
 
     /** Index of a grid point in the height array, row by row along x. */
@@ -416,9 +569,34 @@ public final class Terrain {
                 touch(index % resolutionX, index / resolutionX);
             }
         }
+        byte[] weightValues = forward ? delta.weightAfter() : delta.weightBefore();
+        int[] weightIndices = delta.weightIndices();
+        for (int i = 0; i < weightIndices.length; i++) {
+            int index = weightIndices[i];
+            if (index < 0 || index >= weights.length) {
+                throw new IndexOutOfBoundsException("The change names weight " + index + " but the grid has " + weights.length);
+            }
+            if (weights[index] != weightValues[i]) {
+                weights[index] = weightValues[i];
+                int point = index / Surface.LAYER_COUNT;
+                touch(point % resolutionX, point / resolutionX);
+            }
+        }
+        byte[] holeValues = forward ? delta.holeAfter() : delta.holeBefore();
+        int[] holeIndices = delta.holeIndices();
+        for (int i = 0; i < holeIndices.length; i++) {
+            int index = holeIndices[i];
+            if (index < 0 || index >= holes.length) {
+                throw new IndexOutOfBoundsException("The change names hole " + index + " but the grid has " + holes.length);
+            }
+            if (holes[index] != holeValues[i]) {
+                holes[index] = holeValues[i];
+                touch(index % resolutionX, index / resolutionX);
+            }
+        }
     }
 
-    /** Takes over the heights and name of {@code other}, which must have the same grid, so a shared instance can be reloaded in place. */
+    /** Takes over the heights, ground, paint, holes, water and name of {@code other}, which must have the same grid, so a shared instance can be reloaded in place. */
     public void copyFrom(Terrain other) {
         Objects.requireNonNull(other, "other cannot be null");
         if (other.resolutionX != resolutionX || other.resolutionZ != resolutionZ || other.cellSize != cellSize) {
@@ -428,6 +606,9 @@ public final class Terrain {
         name = other.name;
         System.arraycopy(other.heights, 0, heights, 0, heights.length);
         System.arraycopy(other.surfaces, 0, surfaces, 0, surfaces.length);
+        System.arraycopy(other.weights, 0, weights, 0, weights.length);
+        System.arraycopy(other.holes, 0, holes, 0, holes.length);
+        waterLevel = other.waterLevel;
         Arrays.fill(chunkRevisions, 0);
         for (int i = 0; i < chunkRevisions.length; i++) {
             chunkRevisions[i] = ++revision;

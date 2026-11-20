@@ -12,7 +12,10 @@ import java.util.Objects;
 
 /**
  * Reads and writes the {@code .terrain} file: one {@link Terrain} as JSON, version {@value #VERSION} (TD-082). A file may also carry "surfaces" (TD-083): one byte per grid point, the code of its
- * {@link Surface}; a file without it is all {@link Surface#AUTO}. The heights are every
+ * {@link Surface}; a file without it is all {@link Surface#AUTO}. Since TD-089 (roadmap M3.4) it may also carry, each only when used:
+ * "layerCount" and "layers" (that many paint layer weights per grid point, 0 to 255, point after point, in surface order from Grass;
+ * an older file with fewer layers reads, the missing ones empty), "holes" (one byte per point, 1 for a hole) and "waterLevel" (a
+ * number). A file without them reads as before, so every existing terrain is unchanged. The heights are every
  * grid point's height as a 32-bit float, little endian, row by row along x, in one Base64 string, so a map is a few hundred kilobytes
  * and round-trips exactly. Reading is strict: a newer version, a wrong type, a grid out of range or heights of the wrong length is an
  * error that names the problem.
@@ -31,13 +34,20 @@ public final class TerrainIO {
         bytes.asFloatBuffer().put(heights);
         String surfaces = terrain.hasSurfaces()
             ? ",\n  \"surfaces\": \"" + Base64.getEncoder().encodeToString(terrain.copySurfaces()) + "\"" : "";
+        String layers = terrain.hasWeights()
+            ? ",\n  \"layerCount\": " + Surface.LAYER_COUNT + ",\n  \"layers\": \""
+                + Base64.getEncoder().encodeToString(terrain.copyWeights()) + "\"" : "";
+        String holes = terrain.hasHoles()
+            ? ",\n  \"holes\": \"" + Base64.getEncoder().encodeToString(terrain.copyHoles()) + "\"" : "";
+        String water = terrain.hasWater()
+            ? ",\n  \"waterLevel\": " + String.format(Locale.ROOT, "%s", terrain.getWaterLevel()) : "";
         return "{\n"
             + "  \"version\": " + VERSION + ",\n"
             + "  \"name\": \"" + escape(terrain.getName()) + "\",\n"
             + "  \"resolutionX\": " + terrain.getResolutionX() + ",\n"
             + "  \"resolutionZ\": " + terrain.getResolutionZ() + ",\n"
             + "  \"cellSize\": " + String.format(Locale.ROOT, "%s", terrain.getCellSize()) + ",\n"
-            + "  \"heights\": \"" + Base64.getEncoder().encodeToString(bytes.array()) + "\"" + surfaces + "\n"
+            + "  \"heights\": \"" + Base64.getEncoder().encodeToString(bytes.array()) + "\"" + surfaces + layers + holes + water + "\n"
             + "}\n";
     }
 
@@ -104,9 +114,75 @@ public final class TerrainIO {
                     }
                 }
             }
+            readLayers(root, terrain);
+            readHoles(root, terrain);
+            if (root.has("waterLevel")) {
+                terrain.setWaterLevel(number(root, "waterLevel"));
+            }
             return terrain;
         } catch (IllegalArgumentException | UnsupportedOperationException | IllegalStateException e) {
             throw new TerrainFormatException("Bad terrain: " + e.getMessage(), e);
+        }
+    }
+
+    /** The paint layer weights (TD-089): {@code layerCount} bytes per point, never summing past full at a point. */
+    private static void readLayers(JsonValue root, Terrain terrain) {
+        JsonValue data = root.get("layers");
+        if (data == null) {
+            if (root.has("layerCount")) {
+                throw new IllegalArgumentException("layerCount is given but layers is missing");
+            }
+            return;
+        }
+        if (!data.isString()) {
+            throw new IllegalArgumentException("layers must be a Base64 string");
+        }
+        int count = integer(root, "layerCount");
+        if (count < 1 || count > Surface.LAYER_COUNT) {
+            throw new IllegalArgumentException("layerCount must be 1 to " + Surface.LAYER_COUNT + " (this editor's layers): " + count);
+        }
+        byte[] weights = Base64.getDecoder().decode(data.asString());
+        int points = terrain.getResolutionX() * terrain.getResolutionZ();
+        if (weights.length != points * count) {
+            throw new IllegalArgumentException("layers hold " + weights.length + " bytes but " + points + " points with " + count
+                + " layers need " + points * count);
+        }
+        for (int point = 0; point < points; point++) {
+            int sum = 0;
+            for (int layer = 0; layer < count; layer++) {
+                sum += weights[point * count + layer] & 0xFF;
+            }
+            if (sum > Terrain.FULL_WEIGHT) {
+                throw new IllegalArgumentException("the layer weights of point " + point + " sum to " + sum + ", more than "
+                    + Terrain.FULL_WEIGHT);
+            }
+            int ix = point % terrain.getResolutionX();
+            int iz = point / terrain.getResolutionX();
+            for (int layer = 0; layer < count; layer++) {
+                terrain.setLayerWeight(ix, iz, Surface.ofLayer(layer), weights[point * count + layer] & 0xFF);
+            }
+        }
+    }
+
+    /** The hole flags (TD-089): one byte per point, 0 or 1. */
+    private static void readHoles(JsonValue root, Terrain terrain) {
+        JsonValue data = root.get("holes");
+        if (data == null) {
+            return;
+        }
+        if (!data.isString()) {
+            throw new IllegalArgumentException("holes must be a Base64 string");
+        }
+        byte[] flags = Base64.getDecoder().decode(data.asString());
+        int points = terrain.getResolutionX() * terrain.getResolutionZ();
+        if (flags.length != points) {
+            throw new IllegalArgumentException("holes hold " + flags.length + " bytes but the grid has " + points + " points");
+        }
+        for (int point = 0; point < points; point++) {
+            if (flags[point] != 0 && flags[point] != 1) {
+                throw new IllegalArgumentException("holes must be 0 or 1 per point; point " + point + " is " + flags[point]);
+            }
+            terrain.setHole(point % terrain.getResolutionX(), point / terrain.getResolutionX(), flags[point] == 1);
         }
     }
 

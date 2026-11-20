@@ -70,6 +70,8 @@ public class PhysicsSystem3D implements Disposable {
     public record RaycastHit(Entity entity, Vector3 point, Vector3 normal, float distance) {}
 
     private static final int NO_BODY = -1;
+    /** {@link EntityBodies#terrainRevision} of an entity without a Terrain Collider 3D. */
+    private static final long NO_TERRAIN = Long.MIN_VALUE;
     /** A convex hull collider keeps at most this many points (TD-052); Jolt works best with small hulls. */
     public static final int MAX_HULL_POINTS = 64;
     /** A collider mesh with more triangles than this is reported in {@link #getWarnings()}. */
@@ -111,6 +113,8 @@ public class PhysicsSystem3D implements Disposable {
         float desiredZ;
         float verticalSpeed;
         boolean grounded;
+        /** The depth (z, meters) the character is held at (TD-088, 2.5D play plane), or NaN when it is free. */
+        float lockedDepth = Float.NaN;
         final Vector3 position = new Vector3();
         final Vector3 velocity = new Vector3();
 
@@ -147,6 +151,8 @@ public class PhysicsSystem3D implements Disposable {
         final RigidBody3DComponent.MotionType motionType;
         int solid = NO_BODY;
         int sensor = NO_BODY;
+        /** The terrain revision the body was built from, or {@link #NO_TERRAIN} when the entity has no Terrain Collider 3D. */
+        long terrainRevision = NO_TERRAIN;
 
         EntityBodies(Entity entity, RigidBody3DComponent.MotionType motionType) {
             this.entity = entity;
@@ -196,6 +202,29 @@ public class PhysicsSystem3D implements Disposable {
     }
 
     /**
+     * Whether forces, impulses and velocities move this entity: it has a switched-on {@link RigidBody3DComponent} of the
+     * {@link RigidBody3DComponent.MotionType#DYNAMIC} type ({@link RigidBody3DComponent#isDynamic()}). False for anything else, such as
+     * a floor with only a collider, so a graph can ask it of whatever a ray hit (roadmap M1.2).
+     */
+    public boolean isDynamic(Entity entity) {
+        RigidBody3DComponent body = entity == null ? null : entity.getComponent(RigidBody3DComponent.class);
+        return body != null && body.isDynamic();
+    }
+
+    /**
+     * The mass of this entity's {@link RigidBody3DComponent}, in kilograms, so a graph can scale a push by it (roadmap M1.2).
+     *
+     * @throws IllegalArgumentException when the entity has no rigid body; ask {@link #isDynamic(Entity)} first
+     */
+    public float getMass(Entity entity) {
+        RigidBody3DComponent body = entity == null ? null : entity.getComponent(RigidBody3DComponent.class);
+        if (body == null) {
+            throw new IllegalArgumentException((entity == null ? "No entity" : entity.getName()) + " has no Rigid Body 3D");
+        }
+        return body.getMass();
+    }
+
+    /**
      * Advances the simulation by {@code deltaTime} seconds in {@link #FIXED_TIMESTEP} steps (at most
      * {@link #MAX_SUB_STEPS} per call), then syncs transforms and reports contacts.
      */
@@ -227,6 +256,21 @@ public class PhysicsSystem3D implements Disposable {
         pullDynamicPoses();
         pullCharacterPoses();
         dispatchContacts();
+    }
+
+    /**
+     * Builds the bodies and characters of the scene's colliders now, as the first {@link #update} would, without stepping, so a ray
+     * cast before the first frame sees the world (the Play step's ground check, TD-088). Calling it again changes nothing for
+     * entities that already have bodies.
+     *
+     * @throws IllegalStateException as {@link #update} does when a collider cannot be built yet, for example a Terrain Collider 3D in
+     *                               a scene with no height field source
+     */
+    public void prepareBodies() {
+        if (disposed) {
+            throw new IllegalStateException("PhysicsSystem3D is disposed");
+        }
+        syncBodies();
     }
 
     /**
@@ -364,7 +408,7 @@ public class PhysicsSystem3D implements Disposable {
         CharacterState state = characterOf(entity, "moveCharacter");
         Vector3 meters = finiteScaled(velocity, "velocity", PhysicsUnits3D.METERS_PER_UNIT);
         state.desiredX = meters.x;
-        state.desiredZ = meters.z;
+        state.desiredZ = Float.isNaN(state.lockedDepth) ? meters.z : 0f;
     }
 
     /**
@@ -406,6 +450,39 @@ public class PhysicsSystem3D implements Disposable {
         state.grounded = false;
         state.velocity.setZero();
         setWorldPose(state.entity.getTransform(), tmpPosition.set(position), tmpRotation.set(state.entity.getTransform().getWorldRotation()));
+    }
+
+    /**
+     * Holds a character at depth {@code z} (scene units): its movement stays in the XY plane, as a 2.5D game's play plane needs
+     * (TD-088). The character is put on the plane at once, and after every fixed step it is put back on it if a slanted surface
+     * pushed it off; unlike {@link #teleportCharacter}, its walking and fall speeds are kept, so jumps and falls go on. The z part
+     * of {@link #moveCharacter} is ignored while the lock holds.
+     *
+     * @throws IllegalStateException    when the entity is not a character (yet)
+     * @throws IllegalArgumentException when {@code z} is not finite
+     */
+    public void lockCharacterDepth(Entity entity, float z) {
+        CharacterState state = characterOf(entity, "lockCharacterDepth");
+        if (!Float.isFinite(z)) {
+            throw new IllegalArgumentException("Depth must be finite: " + z);
+        }
+        state.lockedDepth = PhysicsUnits3D.toMeters(z);
+        state.desiredZ = 0f;
+        holdDepth(state);
+        backend.getCharacterPosition(state.handle, tmpPosition);
+        tmpPosition.scl(PhysicsUnits3D.UNITS_PER_METER);
+        setWorldPose(state.entity.getTransform(), tmpPosition, tmpRotation.set(state.entity.getTransform().getWorldRotation()));
+    }
+
+    /** Lets a character move in depth again after {@link #lockCharacterDepth}. */
+    public void unlockCharacterDepth(Entity entity) {
+        characterOf(entity, "unlockCharacterDepth").lockedDepth = Float.NaN;
+    }
+
+    /** The depth a character is held at in scene units, or NaN when it is free. */
+    public float getLockedCharacterDepth(Entity entity) {
+        float meters = characterOf(entity, "getLockedCharacterDepth").lockedDepth;
+        return Float.isNaN(meters) ? Float.NaN : meters * PhysicsUnits3D.UNITS_PER_METER;
     }
 
     /** Whether a character stands on ground it can walk on. False in the air and on slopes above its limit. */
@@ -511,6 +588,7 @@ public class PhysicsSystem3D implements Disposable {
             float y = tmpPosition.y;
             float z = tmpPosition.z;
             backend.moveCharacter(state.handle, tmpVelocity.set(state.desiredX, moveY, state.desiredZ), FIXED_TIMESTEP);
+            holdDepth(state);
             backend.getCharacterPosition(state.handle, tmpPosition);
             state.grounded = backend.isCharacterGrounded(state.handle);
             state.velocity.set(tmpPosition.x - x, tmpPosition.y - y, tmpPosition.z - z).scl(1f / FIXED_TIMESTEP);
@@ -519,6 +597,17 @@ public class PhysicsSystem3D implements Disposable {
             } else {
                 state.verticalSpeed += speedChange;
             }
+        }
+    }
+
+    /** Puts a depth-locked character back on its plane, keeping its speeds (see {@link #lockCharacterDepth}). */
+    private void holdDepth(CharacterState state) {
+        if (Float.isNaN(state.lockedDepth)) {
+            return;
+        }
+        backend.getCharacterPosition(state.handle, tmpPosition);
+        if (tmpPosition.z != state.lockedDepth) {
+            backend.setCharacterPosition(state.handle, tmpPosition.set(tmpPosition.x, tmpPosition.y, state.lockedDepth));
         }
     }
 
@@ -641,7 +730,12 @@ public class PhysicsSystem3D implements Disposable {
                 continue;
             }
             wanted.add(entity.getId());
-            if (!bodiesByEntity.containsKey(entity.getId())) {
+            EntityBodies existing = bodiesByEntity.get(entity.getId());
+            if (existing == null) {
+                createBodies(entity);
+            } else if (existing.terrainRevision != NO_TERRAIN && existing.terrainRevision != terrainRevisionOf(entity)) {
+                // The ground was reshaped while physics runs: rebuild only this body (TD-087)
+                removeBodies(existing);
                 createBodies(entity);
             }
         }
@@ -832,11 +926,18 @@ public class PhysicsSystem3D implements Disposable {
         Vector3 scale = transform.getWorldScale();
         List<ShapeDescriptor3D> solid = new ArrayList<>();
         List<ShapeDescriptor3D> triggers = new ArrayList<>();
+        long terrainRevision = NO_TERRAIN;
         for (Collider3DComponent collider : colliders(entity)) {
+            if (collider instanceof TerrainCollider3DComponent terrain) {
+                terrainRevision = terrainRevisionOf(entity);
+                solid.add(describeTerrain(terrain, scale, heightFieldFor(entity, motion)));
+                continue;
+            }
             (collider.isTrigger() ? triggers : solid).add(describe(collider, scale, geometryFor(entity, collider, motion)));
         }
 
         EntityBodies bodies = new EntityBodies(entity, motion);
+        bodies.terrainRevision = terrainRevision;
         Vector3 position = transform.getWorldPosition().scl(PhysicsUnits3D.METERS_PER_UNIT);
         Quaternion rotation = transform.getWorldRotation();
         if (!solid.isEmpty()) {
@@ -897,6 +998,41 @@ public class PhysicsSystem3D implements Disposable {
         return geometry;
     }
 
+    /**
+     * The heights a Terrain Collider 3D is built from (TD-087). Like a triangle mesh, a height field needs a static body.
+     */
+    private HeightField3D heightFieldFor(Entity entity, RigidBody3DComponent.MotionType motion) {
+        if (motion != RigidBody3DComponent.MotionType.STATIC) {
+            throw new IllegalStateException(entity.getName() + " has a Terrain Collider 3D on a " + motion + " body. The ground does not "
+                + "move: remove the Rigid Body 3D or make it static.");
+        }
+        HeightFieldSource source = scene.getHeightFields();
+        if (source == null) {
+            throw new IllegalStateException(entity.getName() + " has a Terrain Collider 3D, but this scene cannot read terrain here (no "
+                + "height field source is registered).");
+        }
+        return source.heightFieldOf(entity);
+    }
+
+    private long terrainRevisionOf(Entity entity) {
+        HeightFieldSource source = scene.getHeightFields();
+        return source == null ? NO_TERRAIN : source.revisionOf(entity);
+    }
+
+    /**
+     * The ground of a Terrain Collider 3D in meters, with the entity's world scale applied (TD-087). The heights are in the
+     * entity's local space; the body takes its position and rotation.
+     *
+     * @throws IllegalArgumentException when a scale factor is zero
+     */
+    public static ShapeDescriptor3D describeTerrain(TerrainCollider3DComponent collider, Vector3 worldScale, HeightField3D heights) {
+        Objects.requireNonNull(collider, "collider cannot be null");
+        Objects.requireNonNull(heights, "heights cannot be null");
+        float m = PhysicsUnits3D.METERS_PER_UNIT;
+        HeightField3D meters = heights.scaled(Math.abs(worldScale.x) * m, Math.abs(worldScale.y) * m, Math.abs(worldScale.z) * m);
+        return ShapeDescriptor3D.heightField(meters, collider.getOffset().scl(worldScale).scl(m));
+    }
+
     /** Shape in meters with the entity's world scale applied; also used to draw colliders in the editor. */
     public static ShapeDescriptor3D describe(Collider3DComponent collider, Vector3 worldScale) {
         return describe(collider, worldScale, null);
@@ -932,6 +1068,9 @@ public class PhysicsSystem3D implements Disposable {
             return collider instanceof MeshCollider3DComponent
                 ? ShapeDescriptor3D.mesh(points, geometry.indices(), offset)
                 : ShapeDescriptor3D.hull(ColliderPoints3D.reduce(points, MAX_HULL_POINTS), offset);
+        }
+        if (collider instanceof TerrainCollider3DComponent) {
+            throw new IllegalArgumentException("A Terrain Collider 3D is built from its terrain: use describeTerrain");
         }
         throw new IllegalArgumentException("Unsupported 3D collider: " + collider.getClass().getName());
     }

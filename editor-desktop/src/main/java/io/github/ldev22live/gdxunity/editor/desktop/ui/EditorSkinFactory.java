@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.SplitPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
@@ -55,6 +56,20 @@ public final class EditorSkinFactory implements Disposable {
     private static final int TOOL_ICON_SIZE = 16;
     /** Prefix of the tool icon {@link ImageButton.ImageButtonStyle} names; the suffix is the lowercase {@link EditorIcon} name. */
     public static final String TOOL_STYLE_PREFIX = "tool-";
+    /**
+     * Prefix of the drawer tab {@link ImageTextButton.ImageTextButtonStyle} names (UI M3b): a rounded tab with an icon before its
+     * label; the suffix is the lowercase {@link EditorIcon} name.
+     */
+    public static final String DRAWER_STYLE_PREFIX = "drawer-";
+    /** Name of a one-pixel white drawable, tinted with {@code Skin.newDrawable} for colour swatches. */
+    public static final String WHITE_PIXEL = "white-pixel";
+    /** Corner radius of the rounded tabs and cards, in UI units. */
+    private static final int ROUNDED_RADIUS = 6;
+    /** Size of a drawer tab's icon, in UI units. */
+    private static final int DRAWER_ICON_SIZE = 16;
+    /** Room around a drawer tab's icon and label. */
+    private static final float DRAWER_TAB_PAD_X = 12f;
+    private static final float DRAWER_TAB_PAD_Y = 5f;
 
     /** Border, hover and selected fills of the top-bar buttons: the web editor's #3A3F4E, #343949 and #3B5B8F. */
     private static final Color BAR_BUTTON_BORDER = new Color(0.227f, 0.247f, 0.306f, 1f);
@@ -268,6 +283,34 @@ public final class EditorSkinFactory implements Disposable {
             }
         }
 
+        // The reference layout (UI M3b): rounded drawer tabs with an icon before the label, lit (the accent) while open, and
+        // rounded cards for the panels around the map
+        Drawable tabUp = createRoundedDrawable(palette.getSurfaceVariant(), ROUNDED_RADIUS, DRAWER_TAB_PAD_X, DRAWER_TAB_PAD_Y);
+        Drawable tabOver = createRoundedDrawable(BAR_BUTTON_HOVER, ROUNDED_RADIUS, DRAWER_TAB_PAD_X, DRAWER_TAB_PAD_Y);
+        Drawable tabOn = createRoundedDrawable(palette.getPrimary(), ROUNDED_RADIUS, DRAWER_TAB_PAD_X, DRAWER_TAB_PAD_Y);
+        for (EditorIcon icon : EditorIcon.values()) {
+            if (icon.tool) {
+                ImageTextButton.ImageTextButtonStyle drawerStyle = new ImageTextButton.ImageTextButtonStyle();
+                drawerStyle.font = font;
+                drawerStyle.fontColor = palette.getTextPrimary();
+                drawerStyle.checkedFontColor = palette.getTextOnAccent();
+                drawerStyle.up = tabUp;
+                drawerStyle.over = tabOver;
+                drawerStyle.down = tabOn;
+                drawerStyle.checked = tabOn;
+                drawerStyle.imageUp = createIconDrawable(icon, palette.getTextPrimary(), DRAWER_ICON_SIZE);
+                drawerStyle.imageChecked = createIconDrawable(icon, palette.getTextOnAccent(), DRAWER_ICON_SIZE);
+                skin.add(DRAWER_STYLE_PREFIX + icon.name().toLowerCase(java.util.Locale.ROOT), drawerStyle);
+            }
+        }
+        skin.add("card-bg", createRoundedDrawable(palette.getSurface(), ROUNDED_RADIUS, 6f, 6f), Drawable.class);
+        // A white pixel to tint: the ground swatches of the Properties panel
+        skin.add(WHITE_PIXEL, createColorDrawable(Color.WHITE), Drawable.class);
+        // Tool tips for the icon buttons of the rail and the header
+        Label.LabelStyle tipLabel = new Label.LabelStyle(font, palette.getTextPrimary());
+        skin.add("default", new TextTooltip.TextTooltipStyle(tipLabel,
+            createRoundedDrawable(palette.getSurfaceElevated(), ROUNDED_RADIUS / 2, 8f, 4f)));
+
         // 6. TextFieldStyle
         TextField.TextFieldStyle txtStyle = new TextField.TextFieldStyle();
         txtStyle.font = font;
@@ -345,7 +388,10 @@ public final class EditorSkinFactory implements Disposable {
     enum EditorIcon {
         PLAY(false), PAUSE(false), STOP(false),
         SELECT(true), MOVE(true), ROTATE(true), SCALE(true), VIEW_MODE(true), FOCUS(true), GRID(true),
-        PHYSICS(true), RESET_VIEW(true), SCULPT(true);
+        PHYSICS(true), RESET_VIEW(true), SCULPT(true),
+        // The reference layout (UI M3b): drawer tabs, the tool rail and the header; drawn here, original to ForgeRoom
+        TERRAIN(true), OBJECTS(true), BUILDINGS(true), CHARACTERS(true), TILES(true), SPRITES(true), ASSETS(true), LAYERS(true),
+        SCRIPTS(true), ASSISTANT(true), SAVE(true), SETTINGS(true), UNDO(true), REDO(true), LEVEL(true);
 
         /** True for the icons of the viewport tool strip. */
         final boolean tool;
@@ -428,6 +474,122 @@ public final class EditorSkinFactory implements Disposable {
                 // A blob of clay on a tool handle
                 pixmap.fillCircle(Math.round(max * 0.34f), Math.round(max * 0.66f), Math.max(2, Math.round(size * 0.26f)));
                 thickLine(pixmap, max, 0.45f, 0.55f, 0.92f, 0.08f, w + 1);
+            }
+            case TERRAIN -> {
+                // Two peaks on a ground line
+                triangle(pixmap, max, 0.04f, 0.86f, 0.38f, 0.2f, 0.7f, 0.86f);
+                triangle(pixmap, max, 0.42f, 0.86f, 0.68f, 0.42f, 0.96f, 0.86f);
+                thickLine(pixmap, max, 0.02f, 0.9f, 0.98f, 0.9f, w);
+            }
+            case OBJECTS -> {
+                // A box seen from a corner, as the view-mode cube but solid on top
+                thickLine(pixmap, max, 0.5f, 0.08f, 0.88f, 0.28f, w);
+                thickLine(pixmap, max, 0.88f, 0.28f, 0.88f, 0.72f, w);
+                thickLine(pixmap, max, 0.88f, 0.72f, 0.5f, 0.92f, w);
+                thickLine(pixmap, max, 0.5f, 0.92f, 0.12f, 0.72f, w);
+                thickLine(pixmap, max, 0.12f, 0.72f, 0.12f, 0.28f, w);
+                thickLine(pixmap, max, 0.12f, 0.28f, 0.5f, 0.08f, w);
+                thickLine(pixmap, max, 0.5f, 0.5f, 0.5f, 0.92f, w);
+                triangle(pixmap, max, 0.12f, 0.28f, 0.5f, 0.08f, 0.5f, 0.5f);
+                triangle(pixmap, max, 0.5f, 0.08f, 0.88f, 0.28f, 0.5f, 0.5f);
+            }
+            case BUILDINGS -> {
+                // A house with a door
+                triangle(pixmap, max, 0.5f, 0.06f, 0.04f, 0.46f, 0.96f, 0.46f);
+                box(pixmap, max, 0.16f, 0.46f, 0.84f, 0.94f, w);
+                pixmap.fillRectangle(Math.round(max * 0.42f), Math.round(max * 0.64f), Math.max(1, Math.round(max * 0.16f)),
+                    Math.max(1, Math.round(max * 0.3f)));
+            }
+            case CHARACTERS -> {
+                // Two people, head and shoulders
+                pixmap.fillCircle(Math.round(max * 0.34f), Math.round(max * 0.3f), Math.max(2, Math.round(size * 0.14f)));
+                pixmap.fillCircle(Math.round(max * 0.7f), Math.round(max * 0.36f), Math.max(2, Math.round(size * 0.11f)));
+                triangle(pixmap, max, 0.34f, 0.5f, 0.06f, 0.94f, 0.62f, 0.94f);
+                triangle(pixmap, max, 0.7f, 0.54f, 0.5f, 0.94f, 0.96f, 0.94f);
+            }
+            case TILES -> {
+                box(pixmap, max, 0.08f, 0.08f, 0.46f, 0.46f, w);
+                box(pixmap, max, 0.54f, 0.08f, 0.92f, 0.46f, w);
+                box(pixmap, max, 0.08f, 0.54f, 0.46f, 0.92f, w);
+                pixmap.fillRectangle(Math.round(max * 0.54f), Math.round(max * 0.54f), Math.round(max * 0.38f), Math.round(max * 0.38f));
+            }
+            case SPRITES -> {
+                // A framed picture with a sun and a hill
+                box(pixmap, max, 0.06f, 0.12f, 0.94f, 0.88f, w);
+                pixmap.fillCircle(Math.round(max * 0.32f), Math.round(max * 0.36f), Math.max(1, Math.round(size * 0.08f)));
+                triangle(pixmap, max, 0.12f, 0.84f, 0.58f, 0.44f, 0.9f, 0.84f);
+            }
+            case ASSETS -> {
+                // Three stacked tiles
+                for (float y : new float[] {0.2f, 0.44f, 0.68f}) {
+                    thickLine(pixmap, max, 0.08f, y + 0.08f, 0.5f, y - 0.1f, w);
+                    thickLine(pixmap, max, 0.5f, y - 0.1f, 0.92f, y + 0.08f, w);
+                    thickLine(pixmap, max, 0.92f, y + 0.08f, 0.5f, y + 0.26f, w);
+                    thickLine(pixmap, max, 0.5f, y + 0.26f, 0.08f, y + 0.08f, w);
+                }
+            }
+            case LAYERS -> {
+                // A hierarchy: a parent and two indented children
+                pixmap.fillRectangle(Math.round(max * 0.06f), Math.round(max * 0.1f), Math.round(max * 0.6f), Math.max(2, w + 1));
+                pixmap.fillRectangle(Math.round(max * 0.3f), Math.round(max * 0.44f), Math.round(max * 0.64f), Math.max(2, w + 1));
+                pixmap.fillRectangle(Math.round(max * 0.3f), Math.round(max * 0.78f), Math.round(max * 0.64f), Math.max(2, w + 1));
+                thickLine(pixmap, max, 0.16f, 0.16f, 0.16f, 0.82f, w);
+                thickLine(pixmap, max, 0.16f, 0.48f, 0.28f, 0.48f, w);
+                thickLine(pixmap, max, 0.16f, 0.82f, 0.28f, 0.82f, w);
+            }
+            case SCRIPTS -> {
+                // Angle brackets and a slash
+                thickLine(pixmap, max, 0.3f, 0.22f, 0.06f, 0.5f, w);
+                thickLine(pixmap, max, 0.06f, 0.5f, 0.3f, 0.78f, w);
+                thickLine(pixmap, max, 0.7f, 0.22f, 0.94f, 0.5f, w);
+                thickLine(pixmap, max, 0.94f, 0.5f, 0.7f, 0.78f, w);
+                thickLine(pixmap, max, 0.58f, 0.12f, 0.42f, 0.88f, w);
+            }
+            case ASSISTANT -> {
+                // A four-pointed spark and a small one
+                triangle(pixmap, max, 0.42f, 0.08f, 0.32f, 0.5f, 0.52f, 0.5f);
+                triangle(pixmap, max, 0.42f, 0.92f, 0.32f, 0.5f, 0.52f, 0.5f);
+                triangle(pixmap, max, 0.04f, 0.5f, 0.42f, 0.4f, 0.42f, 0.6f);
+                triangle(pixmap, max, 0.8f, 0.5f, 0.42f, 0.4f, 0.42f, 0.6f);
+                triangle(pixmap, max, 0.8f, 0.06f, 0.74f, 0.26f, 0.86f, 0.26f);
+                triangle(pixmap, max, 0.8f, 0.46f, 0.74f, 0.26f, 0.86f, 0.26f);
+            }
+            case SAVE -> {
+                // A disk: body, label and shutter
+                box(pixmap, max, 0.08f, 0.08f, 0.92f, 0.92f, w);
+                pixmap.fillRectangle(Math.round(max * 0.28f), Math.round(max * 0.08f), Math.round(max * 0.44f), Math.round(max * 0.26f));
+                box(pixmap, max, 0.24f, 0.56f, 0.76f, 0.92f, w);
+            }
+            case SETTINGS -> {
+                // A cog: a ring with eight teeth
+                ring(pixmap, size, 0.3f, Math.max(2, w + 1), color);
+                for (int i = 0; i < 8; i++) {
+                    double angle = Math.PI / 4 * i;
+                    float cos = (float) Math.cos(angle);
+                    float sin = (float) Math.sin(angle);
+                    thickLine(pixmap, max, 0.5f + 0.3f * cos, 0.5f + 0.3f * sin, 0.5f + 0.46f * cos, 0.5f + 0.46f * sin, w + 1);
+                }
+            }
+            case UNDO -> {
+                thickLine(pixmap, max, 0.24f, 0.4f, 0.7f, 0.4f, w);
+                thickLine(pixmap, max, 0.7f, 0.4f, 0.88f, 0.6f, w);
+                thickLine(pixmap, max, 0.88f, 0.6f, 0.7f, 0.82f, w);
+                thickLine(pixmap, max, 0.7f, 0.82f, 0.4f, 0.82f, w);
+                triangle(pixmap, max, 0.04f, 0.4f, 0.3f, 0.18f, 0.3f, 0.62f);
+            }
+            case REDO -> {
+                thickLine(pixmap, max, 0.76f, 0.4f, 0.3f, 0.4f, w);
+                thickLine(pixmap, max, 0.3f, 0.4f, 0.12f, 0.6f, w);
+                thickLine(pixmap, max, 0.12f, 0.6f, 0.3f, 0.82f, w);
+                thickLine(pixmap, max, 0.3f, 0.82f, 0.6f, 0.82f, w);
+                triangle(pixmap, max, 0.96f, 0.4f, 0.7f, 0.18f, 0.7f, 0.62f);
+            }
+            case LEVEL -> {
+                // A paint brush: handle, ferrule and bristles
+                thickLine(pixmap, max, 0.9f, 0.1f, 0.5f, 0.5f, w + 1);
+                thickLine(pixmap, max, 0.5f, 0.5f, 0.4f, 0.6f, w + 2);
+                triangle(pixmap, max, 0.44f, 0.56f, 0.06f, 0.94f, 0.3f, 0.7f);
+                triangle(pixmap, max, 0.44f, 0.56f, 0.06f, 0.94f, 0.2f, 0.66f);
             }
             default -> throw new IllegalArgumentException("Not a tool icon: " + icon);
         }
@@ -550,6 +712,31 @@ public final class EditorSkinFactory implements Disposable {
         pixmap.dispose();
         ownedResources.add(texture);
         return new TextureRegionDrawable(new TextureRegion(texture));
+    }
+
+    /**
+     * A rounded box of {@code fill}, stretched to any size: a nine-patch whose corners are quarter circles of {@code radius} UI units
+     * (drawn at the display density), with {@code padX} and {@code padY} of room around what it holds.
+     */
+    private Drawable createRoundedDrawable(Color fill, int radius, float padX, float padY) {
+        int r = Math.max(1, Math.round(radius * uiDensity()));
+        int size = 2 * r + 1;
+        Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        pixmap.setBlending(Pixmap.Blending.None);
+        pixmap.setColor(0f, 0f, 0f, 0f);
+        pixmap.fill();
+        pixmap.setColor(fill);
+        pixmap.fillCircle(r, r, r);
+        pixmap.fillRectangle(r, 0, 1, size);
+        pixmap.fillRectangle(0, r, size, 1);
+        Texture texture = new Texture(pixmap);
+        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        pixmap.dispose();
+        ownedResources.add(texture);
+        NinePatch patch = new NinePatch(new TextureRegion(texture), r, r, r, r);
+        patch.scale(1f / uiDensity(), 1f / uiDensity());
+        patch.setPadding(padX, padX, padY, padY);
+        return new NinePatchDrawable(patch);
     }
 
     /** A scroll bar track or knob of one colour, {@link #SCROLL_BAR_SIZE} thick (wide for a vertical bar, tall for a horizontal one). */

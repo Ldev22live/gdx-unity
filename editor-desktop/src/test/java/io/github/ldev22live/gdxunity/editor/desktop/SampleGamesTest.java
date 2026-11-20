@@ -50,13 +50,18 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.badlogic.gdx.utils.JsonReader;
 import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import com.badlogic.gdx.utils.JsonValue;
+import io.github.ldev22live.gdxunity.engine.core.asset.AssetSource;
 import io.github.ldev22live.gdxunity.engine.render.ColliderGeometry;
+import io.github.ldev22live.gdxunity.engine.render.TerrainHeightFields;
+import io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.MeshGeometry3D;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -77,7 +82,7 @@ class SampleGamesTest {
     /** Tests run in the module folder; the project's assets are one level up. */
     private static final File PROJECT = new File("../assets");
     private static final float FRAME = 1f / 60f;
-    private static final List<String> SAMPLES = List.of("platformer-2d", "breakout-2d", "shooter-2d",
+    private static final List<String> SAMPLES = List.of("platformer-2d", "platformer-tiles-2d", "breakout-2d", "shooter-2d",
         "physics-sandbox-2d", "collector-3d", "runner-3d", "hopper-3d", "ruins-runner-25d", "three-heroes-25d",
         "grapple-gorge-25d", "racing-3d", "arena-fps-3d", "fighter-25d", "puzzle-3d", "physics-sandbox-3d", "character-playground-3d", "physics-joints-3d", "blockworld-3d", "obby-3d", "materials-3d", "terrain-3d");
 
@@ -207,8 +212,23 @@ class SampleGamesTest {
                     threeD++;
                 }
             }
-            run(scene, 10);
-            scene.dispose();
+            if (PhysicsSystem3D.isUsedBy(scene)) {
+                // Played with its 3D physics, as Play does: a walker graph needs it (the Java walkers skip frames without it)
+                scene.dispose();
+                Scene runtimeScene = GameSession.loadScene(new File(PROJECT, "samples/" + sample + ".json"));
+                runtimeScene.setHeightFields(terrainOfProject());
+                GameSession session = new GameSession(PROJECT, runtimeScene,
+                    new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+                assertEquals(List.of(), session.start(), sample);
+                for (int frame = 0; frame < 10; frame++) {
+                    session.update(FRAME);
+                }
+                assertTrue(session.getRuntimeErrors().isEmpty(), () -> sample + ": " + session.getRuntimeErrors());
+                session.dispose();
+            } else {
+                run(scene, 10);
+                scene.dispose();
+            }
         }
         assertTrue(twoD >= 3 && threeD >= 3 && twoAndAHalfD >= 3,
             twoD + " 2D, " + threeD + " 3D and " + twoAndAHalfD + " 2.5D samples");
@@ -234,6 +254,50 @@ class SampleGamesTest {
         assertEquals("Coins: 0 / 8", text(scene, "Score Text"));
         assertEquals(80f, x(scene, "Player"), 0.01f);
         scene.dispose();
+    }
+
+    /**
+     * Roadmap MP.3: the opt-in copy whose platforms are a tile map plays exactly like the original. Both scenes get the same keys for
+     * 20 seconds (run right, jump every 45 frames, a pause and a run back) and the player's position, the score and the message must
+     * be equal on every frame: the tiles cover exactly the original boxes.
+     */
+    @Test
+    void shouldPlayTheTiledPlatformerExactlyLikeTheOriginal() throws IOException {
+        Scene original = load("platformer-2d");
+        Scene tiled = load("platformer-tiles-2d");
+        assertTrue(tiled.getAllEntities().stream().noneMatch(e -> e.getName().startsWith("Platform")), "no platform boxes left");
+        for (Entity entity : original.getAllEntities()) {
+            if (!entity.getName().startsWith("Platform")) {
+                assertNotNull(tiled.findEntityById(entity.getId()), entity.getName() + " keeps its id");
+            }
+        }
+
+        float furthest = 0f;
+        for (int frame = 0; frame < 1200; frame++) {
+            held.clear();
+            if (frame < 700 || frame >= 760) {
+                held.add(frame < 1000 ? Keys.RIGHT : Keys.LEFT);
+            }
+            boolean jump = frame % 45 == 20;
+            if (jump) {
+                justPressed.add(Keys.SPACE);
+                held.add(Keys.SPACE);
+            }
+            original.update(FRAME);
+            tiled.update(FRAME);
+            justPressed.clear();
+            String at = "frame " + frame;
+            assertEquals(x(original, "Player"), x(tiled, "Player"), at);
+            assertEquals(y(original, "Player"), y(tiled, "Player"), at);
+            assertEquals(text(original, "Score Text"), text(tiled, "Score Text"), at);
+            assertEquals(text(original, "Message Text"), text(tiled, "Message Text"), at);
+            furthest = Math.max(furthest, x(original, "Player"));
+        }
+        held.clear();
+        assertTrue(furthest > 1000f, "the run crossed the wall and the gap: " + furthest);
+        assertTrue(!text(original, "Score Text").equals("Coins: 0 / 8"), "coins were collected: " + text(original, "Score Text"));
+        original.dispose();
+        tiled.dispose();
     }
 
     @Test
@@ -1465,6 +1529,102 @@ class SampleGamesTest {
         java.dispose();
     }
 
+    /** Turns an entity so its -Z looks along {@code direction}, as the sandbox's camera aims. */
+    private static void aim(Entity camera, Vector3 direction) {
+        camera.getTransform().setLocalRotation(new Quaternion().setFromCross(new Vector3(0f, 0f, -1f), new Vector3(direction).nor()));
+    }
+
+    /**
+     * Roadmap M1.2: the SandboxKick graph does what {@code SandboxLauncher.java} does, frame for frame, on real 3D physics. The camera is
+     * turned to the crate stack in both scenes; Space kicks the aimed crate, F held pushes it, T stops it, E pops the crates near
+     * the aim point; then the camera looks at the sky, where the ray hits nothing. Every ball and crate, and the Help Text, must match on every
+     * frame, and the keys must really have moved the crates.
+     */
+    @Test
+    void shouldAimKickPushPopAndStopLikeTheReferenceSandboxScriptFrameForFrame() throws IOException {
+        File file = new File(PROJECT, "samples/physics-sandbox-3d.json");
+        Scene graphScene = GameSession.loadScene(file);
+        Scene javaScene = GameSession.loadScene(file);
+        Entity graphCamera = entity(graphScene, "Main Camera");
+        graphCamera.getComponents(EntityScriptBindingComponent.class).forEach(graphCamera::removeComponent);
+        graphCamera.addComponent(new GraphScriptComponent("graphs/samples/SandboxKick.graph"));
+        Vector3 atCrates = new Vector3(300f, 150f, 220f).sub(entity(javaScene, "Main Camera").getTransform().getWorldPosition());
+        for (Scene scene : List.of(graphScene, javaScene)) {
+            aim(entity(scene, "Main Camera"), atCrates);
+        }
+        GameSession graph = new GameSession(PROJECT, graphScene,
+            new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+        GameSession java = new GameSession(PROJECT, javaScene,
+            new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
+        assertEquals(List.of(), graph.start());
+        assertEquals(List.of(), java.start());
+        List<String> bodies = javaScene.getAllEntities().stream().map(Entity::getName)
+            .filter(name -> name.startsWith("Ball") || name.startsWith("Crate")).toList();
+        Map<String, Vector3> start = new HashMap<>();
+        for (String body : bodies) {
+            start.put(body, new Vector3(entity(javaScene, body).getTransform().getWorldPosition()));
+        }
+        Set<String> labels = new HashSet<>();
+        float moved = 0f;
+        for (int frame = 0; frame < 420; frame++) {
+            held.clear();
+            justPressed.clear();
+            // The stack has settled by frame 60: the kick, push and stop hit the aimed crate before the pop scatters the stack
+            if (frame == 60) justPressed.add(Keys.SPACE);
+            if (frame >= 100 && frame < 140) held.add(Keys.F);
+            if (frame == 170) justPressed.add(Keys.T);
+            if (frame == 240) justPressed.add(Keys.E);
+            if (frame == 330) {
+                for (Scene scene : List.of(graphScene, javaScene)) {
+                    aim(entity(scene, "Main Camera"), new Vector3(0f, 1f, -0.2f));
+                }
+            }
+            if (frame == 360) justPressed.add(Keys.E);
+            held.addAll(justPressed);
+            graph.update(FRAME);
+            java.update(FRAME);
+            String at = "frame " + frame;
+            for (String body : bodies) {
+                Vector3 expected = entity(javaScene, body).getTransform().getWorldPosition();
+                Vector3 actual = entity(graphScene, body).getTransform().getWorldPosition();
+                assertTrue(expected.epsilonEquals(actual, PARITY_TOLERANCE), at + ", " + body + ": " + expected + " against " + actual);
+            }
+            String label = entity(javaScene, "Help Text").getComponent(TextComponent.class).getText();
+            assertEquals(label, entity(graphScene, "Help Text").getComponent(TextComponent.class).getText(), at);
+            labels.add(label.substring(label.lastIndexOf(':') + 2));
+            for (String body : bodies) {
+                if (body.startsWith("Crate")) {
+                    moved = Math.max(moved, start.get(body).dst(entity(javaScene, body).getTransform().getWorldPosition()));
+                }
+            }
+        }
+        assertTrue(labels.stream().anyMatch(name -> name.startsWith("Crate")), "the crates were aimed at: " + labels);
+        assertTrue(labels.contains("nothing"), "the sky gave a miss: " + labels);
+        assertTrue(moved > 100f, "the keys moved the crates (largest distance from its start): " + moved);
+        assertTrue(graph.getRuntimeErrors().isEmpty(), () -> graph.getRuntimeErrors().toString());
+        assertTrue(java.getRuntimeErrors().isEmpty(), () -> java.getRuntimeErrors().toString());
+        graph.dispose();
+        java.dispose();
+    }
+
+    /** What the renderers do in the editor and the game runtime: terrain colliders read the project's terrains (TD-087). */
+    private static TerrainHeightFields terrainOfProject() {
+        return new TerrainHeightFields(new TerrainLibrary(AssetSource.directory(PROJECT)));
+    }
+
+    /** The editor's renderer gives the scene that is playing its terrains; this test has no renderer, so an extension does. */
+    private static final class TerrainBinding implements PlayModeController.Extension {
+        @Override
+        public List<String> onPlay(Scene runtimeScene, PlayModeController controller) {
+            runtimeScene.setHeightFields(terrainOfProject());
+            return List.of();
+        }
+
+        @Override
+        public void onStop(Scene runtimeScene) {
+        }
+    }
+
     @Test
     void shouldPlayEverySampleTheSameInTheGameRuntimeAsInEditorPlayMode() throws IOException {
         for (String sample : SAMPLES) {
@@ -1478,6 +1638,7 @@ class SampleGamesTest {
             PlayModeController play = new PlayModeController(editorState);
             play.addExtension(new GraphPlayModeExtension(editorState, new GraphAssets(PROJECT), NodeRegistry.createDefault(),
                 new EditorLog(), new GraphExecutionTrace()));
+            play.addExtension(new TerrainBinding());
             assertTrue(play.play(), () -> sample + ": " + editorState.getStatusMessage());
             for (int frame = 0; frame < PARITY_FRAMES; frame++) {
                 parityInput(frame);
@@ -1485,7 +1646,9 @@ class SampleGamesTest {
             }
 
             // Runtime: scene file, precompiled scripts, GameSession
-            GameSession session = new GameSession(PROJECT, GameSession.loadScene(file),
+            Scene runtimeScene = GameSession.loadScene(file);
+            runtimeScene.setHeightFields(terrainOfProject());
+            GameSession session = new GameSession(PROJECT, runtimeScene,
                 new GameScripts(compiledScripts.toFile(), getClass().getClassLoader()), GameSession.CONSOLE);
             assertEquals(List.of(), session.start(), sample);
             for (int frame = 0; frame < PARITY_FRAMES; frame++) {

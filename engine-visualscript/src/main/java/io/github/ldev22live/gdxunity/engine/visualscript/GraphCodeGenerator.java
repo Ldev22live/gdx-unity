@@ -104,6 +104,8 @@ public final class GraphCodeGenerator {
         private final String className;
         private final List<String> delayNodes = new ArrayList<>();
         private final List<GraphNode> raycastNodes = new ArrayList<>();
+        /** For Each Entity nodes (roadmap M1.2): each keeps its current entity and index in fields its body reads. */
+        private final List<GraphNode> forEachNodes = new ArrayList<>();
         private final List<GraphNode> methodResultNodes = new ArrayList<>();
         private final Map<String, String> methods = new LinkedHashMap<>();
         private boolean needsWorldPosition;
@@ -157,6 +159,10 @@ public final class GraphCodeGenerator {
             }
             for (String id : delayNodes) {
                 fields.append(INDENT).append(field("float", delayField(id), "-1f", false)).append('\n');
+            }
+            for (GraphNode node : forEachNodes) {
+                fields.append(INDENT).append(field("Entity", outputField(node, "entity"), "null", true)).append('\n');
+                fields.append(INDENT).append(field(kotlin ? "Int" : "int", outputField(node, "index"), "0", false)).append('\n');
             }
 
             // Entry points
@@ -447,6 +453,19 @@ public final class GraphCodeGenerator {
                         .append(input(node, "speed")).append(')').append(end()).append('\n');
                     emitFrom(nodeId, PinDef.EXEC_OUT, depth, path, out);
                 }
+                case BuiltInNodes.ACTION_MOVE_TO -> {
+                    out.append(pad).append("if (").append(BuiltInNodes.NAV_AGENT_CLASS).append(".moveTo(").append(target(node))
+                        .append(", ").append(input(node, "destination")).append(")) {\n");
+                    emitFrom(nodeId, BuiltInNodes.PIN_MOVING, depth + 1, path, out);
+                    out.append(pad).append("} else {\n");
+                    emitFrom(nodeId, BuiltInNodes.PIN_UNREACHABLE, depth + 1, path, out);
+                    out.append(pad).append("}\n");
+                }
+                case BuiltInNodes.ACTION_STOP_MOVING -> {
+                    out.append(pad).append(BuiltInNodes.NAV_AGENT_CLASS).append(".stop(").append(target(node)).append(')').append(end())
+                        .append('\n');
+                    emitFrom(nodeId, PinDef.EXEC_OUT, depth, path, out);
+                }
                 case BuiltInNodes.ACTION_RAYCAST_3D -> {
                     if (!raycastNodes.contains(node)) {
                         raycastNodes.add(node);
@@ -469,6 +488,29 @@ public final class GraphCodeGenerator {
                     out.append(pad).append("} else {\n");
                     emitFrom(nodeId, BuiltInNodes.PIN_MISS, depth + 1, path, out);
                     out.append(pad).append("}\n");
+                }
+                case LoopNodes.FOR_EACH_ENTITY -> {
+                    if (!forEachNodes.contains(node)) {
+                        forEachNodes.add(node);
+                    }
+                    // Over a copy, as the interpreter does, so the body may change what the list came from
+                    String item = identifier(nodeId) + "Item";
+                    String entity = outputField(node, "entity");
+                    String index = outputField(node, "index");
+                    String inner = pad + INDENT;
+                    out.append(pad).append(index).append(" = 0").append(end()).append('\n');
+                    if (kotlin) {
+                        out.append(pad).append("for (").append(item).append(" in ArrayList(").append(input(node, "list")).append(")) {\n");
+                        out.append(inner).append(entity).append(" = ").append(item).append(" as Entity").append('\n');
+                    } else {
+                        out.append(pad).append("for (Object ").append(item).append(" : new java.util.ArrayList<>(").append(input(node, "list"))
+                            .append(")) {\n");
+                        out.append(inner).append(entity).append(" = (Entity) ").append(item).append(";\n");
+                    }
+                    emitFrom(nodeId, "body", depth + 1, path, out);
+                    out.append(inner).append(index).append("++").append(end()).append('\n');
+                    out.append(pad).append("}\n");
+                    emitFrom(nodeId, "completed", depth, path, out);
                 }
                 case BuiltInNodes.VARIABLE_SET -> {
                     out.append(pad).append(identifier((String) node.getProperty(BuiltInNodes.PROPERTY_VARIABLE))).append(" = ")
@@ -542,6 +584,8 @@ public final class GraphCodeGenerator {
                     return "requirePhysics3D().getLinearVelocity(" + targetOf(node, depth) + ")";
                 case BuiltInNodes.DATA_IS_GROUNDED:
                     return "requirePhysics3D().isCharacterGrounded(" + targetOf(node, depth) + ")";
+                case BuiltInNodes.DATA_HAS_ARRIVED:
+                    return BuiltInNodes.NAV_AGENT_CLASS + ".hasArrived(" + targetOf(node, depth) + ")";
                 case BuiltInNodes.INPUT_KEY_PRESSED:
                     needsKeyPressed = true;
                     return "keyPressed(" + String.join(", ", KeyNames.constants((String) node.getProperty(BuiltInNodes.PROPERTY_KEY))) + ")";
@@ -553,6 +597,7 @@ public final class GraphCodeGenerator {
                     return "((" + keyDownCall((String) node.getProperty(BuiltInNodes.PROPERTY_POSITIVE)) + " ? 1f : 0f) - ("
                         + keyDownCall((String) node.getProperty(BuiltInNodes.PROPERTY_NEGATIVE)) + " ? 1f : 0f))";
                 case BuiltInNodes.ACTION_RAYCAST_3D:
+                case LoopNodes.FOR_EACH_ENTITY:
                     return outputField(node, pinId);
                 case BuiltInNodes.MATH_ADD:
                     return binary(node, "+", depth);

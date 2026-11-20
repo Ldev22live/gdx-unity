@@ -66,6 +66,16 @@
             "colorB": 0.52,
             "colorA": 1.0
           }
+        },
+        {
+          "type": "ConvexHullCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
         }
       ]
     },
@@ -106,6 +116,16 @@
             "colorB": 0.41,
             "colorA": 1.0
           }
+        },
+        {
+          "type": "ConvexHullCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
         }
       ]
     },
@@ -145,6 +165,16 @@
             "colorG": 0.5,
             "colorB": 0.52,
             "colorA": 1.0
+          }
+        },
+        {
+          "type": "ConvexHullCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
           }
         }
       ]

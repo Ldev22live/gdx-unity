@@ -5,6 +5,8 @@ import com.badlogic.gdx.utils.JsonValue;
 import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
 
+import io.github.ldev22live.gdxunity.engine.core.asset.ThirdPartyManifest;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * The New Game template gallery (roadmap M1.4): what the dialog offers and what choosing one does. It offers an empty 2D, 2.5D and
@@ -96,18 +99,32 @@ public final class TemplateGallery {
      */
     public static List<Choice> choices(File projectRoot) throws IOException {
         Objects.requireNonNull(projectRoot, "projectRoot cannot be null");
-        List<Choice> choices = new ArrayList<>(emptyStarts());
+        List<Choice> choices = new ArrayList<>(emptyStarts(projectRoot));
         choices.addAll(samples(projectRoot));
         return List.copyOf(choices);
     }
 
-    /** The empty 2D, 2.5D and 3D starts. */
-    public static List<Choice> emptyStarts() {
+    /**
+     * The empty 2D, 2.5D and 3D starts, made from {@code projectRoot}: the 2.5D and 3D ones also get its starter palette
+     * ({@link StarterPalette}), which their file count and size include.
+     */
+    public static List<Choice> emptyStarts(File projectRoot) throws IOException {
+        Objects.requireNonNull(projectRoot, "projectRoot cannot be null");
         List<Choice> starts = new ArrayList<>();
+        List<String> paletteList = StarterPalette.files(projectRoot);
+        int paletteFiles = paletteList.size();
+        long paletteBytes = StarterPalette.bytes(projectRoot);
+        // The palette's downloaded models bring their licence records (M2b.2): one more file
+        Optional<ThirdPartyManifest> paletteLicences = ProjectLicences.recordFor(projectRoot, paletteList);
+        if (paletteLicences.isPresent()) {
+            paletteFiles++;
+            paletteBytes += paletteLicences.get().toJson().getBytes(StandardCharsets.UTF_8).length;
+        }
         for (GameMode mode : GameMode.values()) {
-            // Its scene and the project file; the scene is a few kilobytes, written when the project is made
+            boolean palette = StarterPalette.appliesTo(mode);
+            // Its scene and the project file (the scene is a few kilobytes, written when the project is made), and the palette
             starts.add(new Choice(Kind.EMPTY, "Empty " + mode.getLabel(), "Empty", mode, summaryOf(mode), null, null,
-                EMPTY_START_FILES, 0, false));
+                EMPTY_START_FILES + (palette ? paletteFiles : 0), palette ? paletteBytes : 0, false));
         }
         return starts;
     }
@@ -136,11 +153,31 @@ public final class TemplateGallery {
             if (!sceneFile.isFile()) {
                 throw new IOException(CATALOG_FILE + " lists " + scene + ", which does not exist");
             }
+            String title = required(entry, "title");
             TemplateProject.Plan plan = TemplateProject.plan(projectRoot, scene);
-            samples.add(new Choice(Kind.SAMPLE, required(entry, "title"), required(entry, "genre"), modeOf(sceneFile, scene),
+            GameMode mode = modeOf(sceneFile, scene);
+            int files = plan.files().size();
+            long bytes = plan.bytes();
+            List<String> copied = new ArrayList<>(plan.files());
+            if (StarterPalette.appliesTo(mode)) {
+                for (String file : StarterPalette.files(projectRoot)) {
+                    if (!plan.files().contains(file)) {
+                        files++;
+                        bytes += Files.size(projectRoot.toPath().resolve(file));
+                        copied.add(file);
+                    }
+                }
+            }
+            // Downloaded files bring their licence records (M2b.2): one more file
+            Optional<ThirdPartyManifest> licences = ProjectLicences.recordFor(projectRoot, copied);
+            if (licences.isPresent()) {
+                files++;
+                bytes += licences.get().toJson().getBytes(StandardCharsets.UTF_8).length;
+            }
+            samples.add(new Choice(Kind.SAMPLE, title, required(entry, "genre"), mode,
                 required(entry, "summary"), scene, previewOf(projectRoot, scene),
                 // The project file is added to what is copied
-                plan.files().size() + 1, plan.bytes(), entry.getBoolean("web", false)));
+                files + 1, bytes, entry.getBoolean("web", false)));
         }
         return samples;
     }
@@ -158,9 +195,19 @@ public final class TemplateGallery {
         Objects.requireNonNull(projectRoot, "projectRoot cannot be null");
         Objects.requireNonNull(projectsDir, "projectsDir cannot be null");
         Objects.requireNonNull(serializer, "serializer cannot be null");
-        return choice.kind() == Kind.EMPTY
+        TemplateProject.Result made = choice.kind() == Kind.EMPTY
             ? StarterProject.create(projectsDir, name, choice.mode(), serializer)
             : TemplateProject.create(projectRoot, choice.scene(), projectsDir, name);
+        // Objects and Characters have something to place in the new project (roadmap M3c.5)
+        try {
+            return StarterPalette.addTo(projectRoot, made, choice.mode());
+        } catch (IOException | RuntimeException e) {
+            IOException cleanup = TemplateProject.deleteTree(made.folder().toPath());
+            if (cleanup != null) {
+                e.addSuppressed(cleanup);
+            }
+            throw e;
+        }
     }
 
     /** The preview image of a sample scene, relative to the project, or null when there is none. */

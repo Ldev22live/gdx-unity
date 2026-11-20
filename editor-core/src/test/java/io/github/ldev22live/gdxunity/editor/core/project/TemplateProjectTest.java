@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import io.github.ldev22live.gdxunity.engine.core.asset.ThirdPartyManifest;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -81,11 +84,19 @@ class TemplateProjectTest {
             if (!Arrays.equals(Files.readAllBytes(source.resolve(scene)), Files.readAllBytes(folder.resolve(result.startScene())))) {
                 problems.add(scene + ": the scene was changed in the copy");
             }
-            // Following the references again, from inside the template, finds nothing it does not already hold
+            // Following the references again, from inside the template, finds nothing it does not already hold; the licence
+            // manifest is not a reference but the record of the downloaded files among them (TD-094, M2b.2)
             TreeSet<String> held = new TreeSet<>(result.files());
+            boolean licences = held.remove(ThirdPartyManifest.PATH);
             TreeSet<String> needed = TemplateProject.findDependencies(folder, result.startScene());
             if (!held.equals(needed)) {
                 problems.add(scene + ": the template needs " + needed + " but holds " + held);
+            }
+            TreeSet<String> downloaded = new TreeSet<>(needed);
+            downloaded.retainAll(ThirdPartyManifest.read(source.toFile()).paths());
+            Set<String> recorded = ThirdPartyManifest.read(folder.toFile()).paths();
+            if (licences != !downloaded.isEmpty() || !recorded.equals(downloaded)) {
+                problems.add(scene + ": its licence records " + recorded + " are not exactly its downloaded files " + downloaded);
             }
             for (String file : result.files()) {
                 if (!Files.isRegularFile(folder.resolve(file))) {

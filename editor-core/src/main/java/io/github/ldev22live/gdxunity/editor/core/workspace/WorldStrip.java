@@ -49,10 +49,13 @@ public final class WorldStrip {
             throw new IllegalArgumentException(section + " is not in the World strip of a " + mode.getLabel() + " scene");
         }
         return switch (section) {
-            case BUILDINGS -> Optional.of("Buildings are planned: placing and reshaping a building needs mesh editing (roadmap R7a). "
-                + "Drag a model from the Content Browser into the World for now.");
-            case CHARACTERS -> Optional.of("Characters are planned for the World strip. For now make one in Customize > Animation "
-                + "(character creator) or drag a character model from the Content Browser.");
+            // Placing buildings works (UI M3); reshaping one needs mesh editing (roadmap R7a), which Customize says
+            case BUILDINGS -> Optional.empty();
+            // 2.5D and 3D place the player and its spawn point (roadmap M3c.2); 2D has no character controller yet
+            case CHARACTERS -> mode == GameMode.MODE_2D
+                ? Optional.of("Characters for 2D scenes are planned: they need a 2D character controller. Drag a sprite from the "
+                    + "Content Browser into the World for now.")
+                : Optional.empty();
             case OBJECTS -> mode == GameMode.MODE_2D
                 ? Optional.of("Objects for 2D scenes are planned. Drag a sprite or a prefab from the Content Browser into the World "
                     + "for now.")

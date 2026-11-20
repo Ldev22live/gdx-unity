@@ -16,8 +16,26 @@ public final class TerrainBrush {
         FLATTEN,
         /** Adds a rough, repeatable bumpiness. */
         NOISE,
-        /** Paints the brush's {@link Surface} onto the points under it; the heights stay as they are (TD-083). */
-        PAINT
+        /**
+         * Paints the brush's {@link Surface} onto the points under it as a layer weight that fades out towards the brush's edge, so
+         * a patch has a soft border (TD-089; it was a hard value per point in TD-083). Inverted, it wipes the paint back to the base
+         * ground. The heights stay as they are.
+         */
+        PAINT,
+        /** Cuts a hole in the ground (fills holes when inverted): nothing is drawn or collides there (TD-089). */
+        HOLE,
+        /**
+         * Wears steep ground down (roadmap M3.5): where the ground drops more steeply than {@link TerrainStroke#TALUS_SLOPE} to a
+         * neighbour, part of the excess slides down to it, so cliffs soften into slopes and the material piles at their foot. The
+         * ground is moved, not removed.
+         */
+        ERODE,
+        /**
+         * A ramp between two points (roadmap M3.5): the stroke runs from where the button goes down to where it comes up, and the
+         * ground along that line, as wide as the brush, becomes an even slope from the height at the start to the height at the end,
+         * blending into the ground beside it.
+         */
+        RAMP
     }
 
     /** Largest brush radius, in world units. */

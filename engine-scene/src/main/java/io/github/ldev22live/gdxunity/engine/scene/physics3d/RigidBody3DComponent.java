@@ -47,6 +47,14 @@ public class RigidBody3DComponent extends BaseComponent {
         return motionType;
     }
 
+    /**
+     * True when this body is switched on and {@link MotionType#DYNAMIC}: what forces, impulses and velocities move. A graph asks this
+     * instead of comparing the motion type (roadmap M1.2), as the sandbox's kick does before it pushes what it aims at.
+     */
+    public boolean isDynamic() {
+        return isEnabled() && motionType == MotionType.DYNAMIC;
+    }
+
     public void setMotionType(MotionType motionType) {
         this.motionType = Objects.requireNonNull(motionType, "motionType cannot be null");
     }

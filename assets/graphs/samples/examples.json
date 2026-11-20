@@ -82,9 +82,9 @@
     },
     {
       "graph": "samples/SandboxKick.graph",
-      "mirrors": "sandbox/SandboxLauncher.java (the kick)",
-      "covers": "Space (once per press) casts a ray 6000 units from the entity along -Z and kicks the first thing it hits with an impulse of 900 along -Z.",
-      "notCovered": "The ray always points along -Z; the script aims along the camera's view. The kick does not scale with the target's mass, and the push (F), pop (E), stop (T) and the aimed-at name on the help text are left out."
+      "mirrors": "sandbox/SandboxLauncher.java",
+      "covers": "All of it: every frame the ray aims along the camera's view (-Z turned by its rotation) and the Help Text names what it hits, or nothing; at a dynamic body Space (once per press) kicks it with 900 times its mass along the view, F (held) pushes with 1500 times its mass and T stops it; E pops every dynamic body within 260 of the aim point upwards with 700 times its mass.",
+      "notCovered": "Nothing left out of the script; a test plays the physics sandbox with SandboxLauncher.java and with this graph on real 3D physics and compares every ball and crate and the Help Text on every frame (SampleGamesTest). Unlike the script, the graph reports an error rather than doing nothing when the scene has no 3D physics or no Help Text."
     },
     {
       "graph": "samples/PlatformerRunner.graph",

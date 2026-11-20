@@ -10,6 +10,7 @@ as it was. The gallery's list, genres and summaries are in `templates/gallery.js
 | Scene | Kind | Shows | Controls | Scripts |
 |---|---|---|---|---|
 | `platformer-2d.json` | 2D | Running and jumping, box collision with platforms, collectables, a goal, a camera that follows the player | A/D or arrows, Space/W jump, R restart | `scripts/samples/platformer/` |
+| `platformer-tiles-2d.json` | 2D | The 2D Platformer migrated opt-in (roadmap MP.3): its platforms are one tile map (`sprites/tiles.sprite`, 20-unit cells) painted in 2D Studio: Tiles instead of typed-in boxes; the player's script reads the tile map's solid boxes. Plays frame for frame like the original | A/D or arrows, Space/W jump, R restart | `scripts/samples/platformer/` |
 | `breakout-2d.json` | 2D | Ball physics written by hand, paddle angle control, bricks, lives, win and lose states | A/D or arrows, Space launch, R restart | `scripts/samples/breakout/` |
 | `shooter-2d.json` | 2D | Object pools for bullets and enemies, spawning over time, rising difficulty, scrolling stars | WASD or arrows, Space fire, R restart | `scripts/samples/shooter/` |
 | `sprite-animation-2d.json` | 2D | A pixel-art sprite (`sprites/hero.sprite`, drawn in the Sprites tab format) playing its idle and walk tags: Sprite Animator with tag, speed, flip and tint | none | none |
@@ -44,6 +45,18 @@ as it was. The gallery's list, genres and summaries are in `templates/gallery.js
 | `skeleton-walk-3d.json` | 3D animation | A looping walk cycle seen from the side: legs swing in opposition, knees bend only while a leg swings forward, arms counter-swing, hips bob and the torso counter-rotates | Press Play; Timeline: `animations/skeleton/WalkCycle.anim` | none (same script) |
 | `skeleton-tentacle-3d.json` | 3D animation | A six-segment chain: every segment runs the same wave a little later than its parent, which gives follow-through. The way to build tails, tentacles and ropes | Press Play; Timeline: `animations/skeleton/Tentacle.anim` | none (same script) |
 | `grapple-gorge-25d.json` | 2.5D | Grappling rope with pendulum swinging across chasms, a pushable crate, a pressure plate that raises a gate | A/D, Space jump, hold J or Shift in the air to grapple, R restart | `scripts/samples/grapple/`, `scripts/samples/common/` |
+| `materials-3d.json` | 3D | A material showroom: balls and blocks each drawn from a `.material` file (gold, lava, glass, rock, wood, water, brick, checker, neon) with colour, metal, roughness, emission, transparency and textures; the red ball has none | none (select one in the editor and open Details) | none |
+| `platformer-profile-25d.json` | 2.5D | The Platformer genre in 2.5D mode with no scripts: a runner on platforms seen from the side, moved by the genre profile (Player and Character Controller 3D) | A/D or arrows run, Space jumps | none |
+| `platformer-profile-terrain-25d.json` | 2.5D | The Platformer Profile migrated opt-in (roadmap MP.3): its ground is a flat terrain (`terrains/Platformer Ground.terrain`) to sculpt into slopes in World: Terrain, with a Terrain Collider 3D | A/D or arrows run, Space jumps | none |
+| `action-rpg-iso-25d.json` | 2.5D | The Action RPG genre in 2.5D mode with no scripts: a courtyard seen from above at an angle, a player spawned at a Spawn Point and walked by the genre profile | WASD or arrows walk, Space jumps | none |
+| `platformer-profile-3d.json` | 3D | The Platformer genre in 3D mode with no scripts (roadmap M3b.7): floating stones over nothing, a chase camera, running and jumping from the genre profile; a fall puts the Jumper back on the start platform | WASD or arrows run, Space jumps, Q/E turn the camera | none |
+| `polyhaven-showcase-3d.json` | 3D | Downloaded CC0 assets (docs/asset-integration-report.md): Poly Haven's Red Brick 03, Wood Floor Deck and Rocky Terrain 02 as `.material` files on shapes, and the Rollershutter Door and Stone Fire Pit glTF models; each file is recorded in `licenses/manifest.json` | none (look around in the editor) | none (regenerate with `python tools/make_thirdparty_samples.py`) |
+| `first-person-range-3d.json` | 3D | The First-person Shooter genre in 3D mode with no scripts (roadmap M3b.7): a walled range seen from the Shooter's eyes; a shot along the view knocks the crates (dynamic Rigid Body 3D) off the shelf | W/S walk, A/D step sideways, Q/E turn, Space jumps, F or Ctrl shoots | none |
+| `action-rpg-valley-3d.json` | 3D | The Action RPG genre in 3D mode with no scripts: a terrain valley with terrain collision, the player walked by the genre profile, a turning camera | WASD or arrows walk, Space jumps, Q/E turn the camera | none |
+| `humanoid-animations-3d.json` | 3D animation | Five copies of the skeleton, each playing a clip from `animations/humanoid/` (Idle, Walk, Run, Jump, Fall) | none | none |
+| `visual-scripting-3d.json` | 3D | Three entities each running a graph from `graphs/`: `Spinner` turns, `Hop` hops every 0.8 s, `Greeter` prints a greeting | none | graphs only |
+| `sculpted-rock-3d.json` | 3D | A rock made in sculpt mode (`sculpts/SculptedRock.sculpt`) and placed as its exported model `models/SculptedRock.glb` | none | none |
+| `depth-compositing-3d.json` | 3D | Flat 2D shapes among 3D boxes seen through a perspective camera: each is hidden or drawn over by depth | none | none |
 
 ## How the samples are built
 

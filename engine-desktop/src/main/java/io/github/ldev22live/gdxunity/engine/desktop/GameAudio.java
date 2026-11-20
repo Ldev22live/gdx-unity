@@ -209,11 +209,38 @@ public final class GameAudio implements SoundSink, MusicSink, Disposable {
             source.bind(this);
             bound.add(source);
         }
-        if (output && (!bound.isEmpty() || !songs.isEmpty() || !engines.isEmpty())) {
+        if (output) {
+            startOutput();
+        }
+        return problems;
+    }
+
+    /**
+     * Opens the sound device, if the bound scene has something to play and no device is open yet. {@link #bind()} does this
+     * itself when constructed with {@code output}; the game runtime binds before its window (and so its audio backend)
+     * exists, and calls this once it does.
+     *
+     * @return why the device could not be opened, or null
+     */
+    public String startOutput() {
+        if (disposed) {
+            throw new IllegalStateException("GameAudio is disposed");
+        }
+        if (device == null && (!bound.isEmpty() || !songs.isEmpty() || !engines.isEmpty())) {
             device = new SfxAudioOutput(this::render);
             device.start();
         }
-        return problems;
+        return getOutputError();
+    }
+
+    /** True while a sound device is open and playing. */
+    public boolean isOutputRunning() {
+        return device != null && device.isRunning();
+    }
+
+    /** The open device's latency and render cost (roadmap M9.5), or null when no device is open. */
+    public AudioOutputStats getOutputStats() {
+        return device != null && device.isRunning() ? device.getStats() : null;
     }
 
     /** Reads a {@code .wav} clip of the project into {@code clips} (once per file); returns what is wrong with it, or null. */

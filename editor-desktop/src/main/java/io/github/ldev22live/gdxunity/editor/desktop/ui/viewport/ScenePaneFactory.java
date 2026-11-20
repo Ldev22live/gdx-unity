@@ -9,6 +9,8 @@ import io.github.ldev22live.gdxunity.editor.core.input.ViewportCameraController3
 import io.github.ldev22live.gdxunity.editor.core.viewport.OrthographicViewCamera;
 import io.github.ldev22live.gdxunity.editor.core.viewport.OrthographicViewInteraction;
 import io.github.ldev22live.gdxunity.editor.core.viewport.SceneViewportInteraction3D;
+import com.badlogic.gdx.math.collision.BoundingBox;
+import io.github.ldev22live.gdxunity.editor.core.viewport.WorldBounds;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ViewKind;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportFocus;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportInteraction;
@@ -27,6 +29,7 @@ import io.github.ldev22live.gdxunity.engine.render.SceneRenderer3D;
 import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
 
 import java.util.Objects;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -40,6 +43,11 @@ import java.util.function.Supplier;
 public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
     /** Where a new perspective camera starts relative to the scene centre. */
     private static final Vector3 NEW_CAMERA_OFFSET = new Vector3(0f, 280f, 900f);
+    /**
+     * Frames the full-map view waits for the scene's models to load before it frames what it knows: a model that never loads
+     * (a renderer that has not drawn it) must not keep the view waiting.
+     */
+    private static final int MAX_WORLD_FRAME_WAIT = 120;
     /** Zoom a new axis view starts with, in scene units per pixel. */
     private static final float AXIS_START_ZOOM = 1.2f;
 
@@ -226,6 +234,11 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
         private final SceneEditorWorkspace.PaneOverlays overlays;
         private final AxisGridRenderer grid;
 
+        /** Set while the pane should fit the whole scene as soon as it has a size and its models are loaded (UI M2). */
+        private boolean worldFramePending;
+        /** Frames waited for the scene's models to load before framing what is known. */
+        private int worldFrameWait;
+
         AxisPane(ViewKind kind) {
             this.view = new OrthographicViewCamera(kind);
             this.axisInteraction = new OrthographicViewInteraction(editorState, view, gizmoController);
@@ -249,7 +262,39 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
 
         @Override
         public void render(Color background, float delta) {
+            int width = Math.round(widget.getWidth());
+            int height = Math.round(widget.getHeight());
+            if (worldFramePending && width > 0 && height > 0) {
+                // Models get their bounds when the renderer first loads them, which happens as the scene is drawn
+                boolean settled = WorldBounds.isSettled(editorState.getActiveScene());
+                if (settled || ++worldFrameWait >= MAX_WORLD_FRAME_WAIT) {
+                    view.resize(width, height);
+                    worldFramePending = false;
+                    List<BoundingBox> world = WorldBounds.boxes(editorState.getActiveScene(), terrainSession.getLibrary()::get);
+                    if (!world.isEmpty()) {
+                        view.frame(world);
+                    }
+                }
+            }
             widget.renderScene(background, () -> workspace.renderPane3D(view.getCamera(), overlays, delta));
+        }
+
+        @Override
+        public boolean canTurn() {
+            return view.getKind().canTurn();
+        }
+
+        @Override
+        public void turn(int quarterTurns) {
+            view.turn(quarterTurns);
+        }
+
+        @Override
+        public void frameWorld() {
+            if (view.getKind().canTurn()) {
+                worldFramePending = true;
+                worldFrameWait = 0;
+            }
         }
 
         @Override
@@ -266,6 +311,8 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
         public void resetView() {
             view.setFocus(sceneCenter);
             view.setZoom(AXIS_START_ZOOM);
+            // The full-map view starts by showing the whole map, once the pane knows its size
+            frameWorld();
         }
 
         @Override

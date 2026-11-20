@@ -3,6 +3,7 @@ package io.github.ldev22live.gdxunity.engine.desktop;
 import io.github.ldev22live.gdxunity.engine.animation.AnimatorComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.CameraComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.CameraRigComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.render.components.serialization.TerrainPathComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.MeshPrimitiveComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.DynamicMeshComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.ModelComponentSerializer;
@@ -15,6 +16,10 @@ import io.github.ldev22live.gdxunity.engine.scene.audio.EngineSoundComponentSeri
 import io.github.ldev22live.gdxunity.engine.scene.audio.MusicSourceComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.DirectionalLightComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.PointLightComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.environment.serialization.AtmosphereComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.environment.serialization.PostProcessVolumeComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.navigation.serialization.NavigationSerializers;
+import io.github.ldev22live.gdxunity.engine.scene.environment.serialization.WaterBodyComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.SkyLightComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.serialization.ToneMappingComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics.serialization.BoxCollider2DComponentSerializer;
@@ -24,6 +29,9 @@ import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.BoxCol
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.CapsuleCollider3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.ConvexHullCollider3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.MeshCollider3DComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.TerrainCollider3DComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.play.serialization.PlayerComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.play.serialization.SpawnPointComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.CharacterController3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.Joint3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.RigidBody3DComponentSerializer;
@@ -66,6 +74,13 @@ public final class GameComponentSerializers {
         registry.register(new DirectionalLightComponentSerializer());
         registry.register(new PointLightComponentSerializer());
         registry.register(new SkyLightComponentSerializer());
+        // Sky, fog, weather and water bodies (roadmap M3.9, TD-090)
+        registry.register(new AtmosphereComponentSerializer());
+        registry.register(new WaterBodyComponentSerializer());
+        // Bloom, colour grading, ambient occlusion and depth of field (roadmap M6.2, TD-091)
+        registry.register(new PostProcessVolumeComponentSerializer());
+        // Walkable areas and agents that find their way round obstacles (roadmap M6.4, TD-092)
+        NavigationSerializers.registerAll(registry);
         registry.register(new ToneMappingComponentSerializer());
         registry.register(new RigidBody3DComponentSerializer());
         registry.register(new BoxCollider3DComponentSerializer());
@@ -73,6 +88,9 @@ public final class GameComponentSerializers {
         registry.register(new CapsuleCollider3DComponentSerializer());
         registry.register(new ConvexHullCollider3DComponentSerializer());
         registry.register(new MeshCollider3DComponentSerializer());
+        registry.register(new TerrainCollider3DComponentSerializer());
+        registry.register(new PlayerComponentSerializer());
+        registry.register(new SpawnPointComponentSerializer());
         registry.register(new CharacterController3DComponentSerializer());
         registry.register(new Joint3DComponentSerializer());
         registry.register(new PrefabInstanceComponentSerializer());
@@ -81,5 +99,6 @@ public final class GameComponentSerializers {
         registry.register(new AudioListenerComponentSerializer());
         registry.register(new EngineSoundComponentSerializer());
         registry.register(new io.github.ldev22live.gdxunity.engine.render.components.serialization.TerrainComponentSerializer());
+        registry.register(new TerrainPathComponentSerializer());
     }
 }

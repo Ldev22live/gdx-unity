@@ -1,6 +1,7 @@
 package io.github.ldev22live.gdxunity.engine.visualscript;
 
 import io.github.ldev22live.gdxunity.engine.scene.BaseComponent;
+import io.github.ldev22live.gdxunity.engine.scene.play.EntityLogicComponent;
 
 import java.util.Objects;
 
@@ -9,13 +10,21 @@ import java.util.Objects;
  * play loads the graph and {@link #bind binds} a {@link GraphInstance}. Begin Play fires on the first update,
  * Event Tick on every update. Without an instance (editing, or a graph that failed to load) it does nothing.
  */
-public class GraphScriptComponent extends BaseComponent {
+public class GraphScriptComponent extends BaseComponent implements EntityLogicComponent {
     private String graphPath;
+    /** The Profiler's name for this graph, kept so profiling a frame builds no strings. */
+    private String profilerLabel;
     private GraphInstance instance;
     private boolean begun;
 
     public GraphScriptComponent(String graphPath) {
         setGraphPath(graphPath);
+    }
+
+    /** "Graph " and the graph file's name, without its folder. */
+    @Override
+    public String getProfilerLabel() {
+        return profilerLabel;
     }
 
     /** Asset path of the {@code .graph} file, relative to the asset root. */
@@ -29,6 +38,7 @@ public class GraphScriptComponent extends BaseComponent {
             throw new IllegalArgumentException("graphPath cannot be blank");
         }
         this.graphPath = graphPath;
+        this.profilerLabel = "Graph " + graphPath.substring(graphPath.lastIndexOf('/') + 1);
     }
 
     public void bind(GraphInstance instance) {

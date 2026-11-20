@@ -284,12 +284,17 @@ class TemplateMatrixTest {
 
     /** The editability audit with the editor's own serializers and Details editors, as the editor builds it. */
     static EditabilityAudit editorAudit() {
+        return editorAudit(ASSETS);
+    }
+
+    /** The same audit for another asset root (a test's own project, MP.1). */
+    static EditabilityAudit editorAudit(File assets) {
         ComponentSerializerRegistry serializers = new ComponentSerializerRegistry();
         GameComponentSerializers.registerAll(serializers);
-        return new EditabilityAudit(ASSETS, serializers, EditorApplication.createDetailEditors(
-            asset -> { }, new ModelAssets(ASSETS), (asset, entity) -> { }, new SculptSession(new SculptAssets(ASSETS)), asset -> { },
-            new MaterialLibrary(AssetSource.directory(ASSETS)),
+        return new EditabilityAudit(assets, serializers, EditorApplication.createDetailEditors(
+            asset -> { }, new ModelAssets(assets), (asset, entity) -> { }, new SculptSession(new SculptAssets(assets)), asset -> { },
+            new MaterialLibrary(AssetSource.directory(assets)),
             new io.github.ldev22live.gdxunity.editor.terrain.TerrainSession(
-                new io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary(AssetSource.directory(ASSETS))), ASSETS));
+                new io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary(AssetSource.directory(assets))), assets));
     }
 }

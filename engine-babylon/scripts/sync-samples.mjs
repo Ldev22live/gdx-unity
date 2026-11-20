@@ -125,3 +125,46 @@ for (const file of readdirSync(exampleSource).filter((name) => name.endsWith(".g
   exampleCount++;
 }
 console.log(`Copied ${exampleCount} example graphs to ${exampleTarget}`);
+
+// The desktop's terrains (../assets/terrains/*.terrain, TD-082) go to public/terrains: Terrain components name them by project path
+// (`terrains/Valley.terrain`), the same as the desktop (roadmap M3.11)
+const terrainSource = join(root, "..", "assets", "terrains");
+const terrainTarget = join(root, "public", "terrains");
+rmSync(terrainTarget, { recursive: true, force: true });
+mkdirSync(terrainTarget, { recursive: true });
+let terrainCount = 0;
+for (const file of readdirSync(terrainSource).filter((name) => name.endsWith(".terrain")).sort()) {
+  copyFileSync(join(terrainSource, file), join(terrainTarget, file));
+  terrainCount++;
+}
+console.log(`Copied ${terrainCount} terrains to ${terrainTarget}`);
+
+// The desktop's materials (../assets/materials/*.material, TD-081) and the textures they name (../assets/textures/**) go to public/materials
+// and public/textures: Mesh Primitives name them by project path (`materials/Brick.material`, `textures/brick.png`), the same as the
+// desktop (roadmap M2.5)
+const materialSource = join(root, "..", "assets", "materials");
+const materialTarget = join(root, "public", "materials");
+rmSync(materialTarget, { recursive: true, force: true });
+mkdirSync(materialTarget, { recursive: true });
+let materialCount = 0;
+for (const file of readdirSync(materialSource).filter((name) => name.endsWith(".material")).sort()) {
+  copyFileSync(join(materialSource, file), join(materialTarget, file));
+  materialCount++;
+}
+console.log(`Copied ${materialCount} materials to ${materialTarget}`);
+const textureSource = join(root, "..", "assets", "textures");
+const textureTarget = join(root, "public", "textures");
+rmSync(textureTarget, { recursive: true, force: true });
+let textureCount = 0;
+function copyTextures(from, to) {
+  mkdirSync(to, { recursive: true });
+  for (const entry of readdirSync(from, { withFileTypes: true })) {
+    if (entry.isDirectory()) copyTextures(join(from, entry.name), join(to, entry.name));
+    else if (/\.(png|jpg|jpeg)$/i.test(entry.name)) {
+      copyFileSync(join(from, entry.name), join(to, entry.name));
+      textureCount++;
+    }
+  }
+}
+copyTextures(textureSource, textureTarget);
+console.log(`Copied ${textureCount} textures to ${textureTarget}`);

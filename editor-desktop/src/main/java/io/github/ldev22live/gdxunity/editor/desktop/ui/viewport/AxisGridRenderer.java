@@ -10,7 +10,8 @@ import io.github.ldev22live.gdxunity.editor.core.viewport.ViewKind;
 import java.util.Objects;
 
 /**
- * The grid of an axis view (TD-039): lines on the plane square to the view direction, through the origin, spaced in
+ * The grid of an axis view (TD-039), or of the isometric view on the ground (UI M2): lines on the plane square to the view
+ * direction (the ground plane for the isometric view), through the origin, spaced in
  * powers of ten to suit the zoom, with the two axes that lie in the plane drawn in their colours (X red, Y green,
  * Z blue).
  */
@@ -44,8 +45,9 @@ public final class AxisGridRenderer {
         int lines = Math.min(MAX_LINES, Math.max(10, (int) (extent / spacing)));
 
         // The two scene axes that span the screen: "across" and "up" in scene coordinates
+        // The isometric view looks down on the map, so its grid lies on the ground, like the top view's
         int across = kind == ViewKind.X_AXIS ? 2 : 0;
-        int up = kind == ViewKind.Y_AXIS ? 2 : 1;
+        int up = kind == ViewKind.Y_AXIS || kind == ViewKind.ISOMETRIC ? 2 : 1;
         float[] center = {focus.x, focus.y, focus.z};
 
         Matrix4 previous = new Matrix4(shapeRenderer.getTransformMatrix());

@@ -29,11 +29,20 @@ export interface ColliderGeometrySource {
  */
 export class MeshColliderGeometry implements ColliderGeometrySource {
   /**
-   * @param isModelFailed whether the entity's model failed to load, so waiting for it is pointless
+   * @param isModelFailed whether the entity's model or terrain failed to load, so waiting for it is pointless
    */
   constructor(private readonly isModelFailed: (entity: GameEntity) => boolean = () => false) {}
 
   geometryOf(entity: GameEntity): GeometryResult {
+    // A Terrain's ground (roadmap M3.11) arrives once its file has loaded; only the ground collides, not the water drawn over it. Its
+    // triangles face up already (the desktop's winding), so they are not turned around
+    if (entity.getComponents("Terrain").length > 0) {
+      const ground = entity.meshes.filter((mesh) => (mesh.metadata as { terrain?: boolean } | null)?.terrain === true);
+      if (ground.length === 0) {
+        return this.isModelFailed(entity) ? { state: "failed", reason: "its terrain file could not be loaded" } : { state: "pending" };
+      }
+      return { state: "ready", geometry: readMeshes(entity, ground, false) };
+    }
     const hasModel = entity.getComponents("ModelComponent").length > 0;
     const meshes = entity.meshes.filter((mesh) => mesh.getTotalVertices() > 0);
     if (meshes.length === 0) {

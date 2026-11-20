@@ -67,3 +67,48 @@ describe("bounded Repeat", () => {
     for (const language of ["java", "kotlin"] as const) expect(() => generateJvm(graph, registry, language)).toThrow("flow.repeat");
   });
 });
+
+describe("For Each Entity (roadmap M1.2)", () => {
+  function entity(name: string): GraphEntity {
+    return { name, getWorldPosition: () => ({ x: 0, y: 0, z: 0 }), setWorldPosition: () => {}, rotate: () => {}, destroy: () => {} };
+  }
+
+  /** A registry whose test node outputs `list` on its List pin, standing in for a desktop Java method node. */
+  function run(list: unknown) {
+    const local = createDefaultRegistry();
+    local.register({ id: "test.list", title: "List", category: "Test", kind: "pure", properties: [],
+      pins: () => [{ id: "result", label: "Result", type: "OBJECT", objectClass: "java.util.List", input: false, exec: false }],
+      run: (c) => c.output("result", list) });
+    const graph = new Graph("For each");
+    const b = new Builder(graph);
+    const loop = b.node("flow.forEachEntity");
+    b.wire(b.node("test.list"), "result", loop, "list");
+    b.exec(b.node("event.beginPlay"), loop);
+    const name = b.node("data.getName");
+    const index = b.node("text.fromFloat");
+    const line = b.node("text.append");
+    const print = b.node("action.print");
+    b.wire(loop, "entity", name, "target");
+    b.wire(loop, "index", index, "value");
+    b.wire(index, "text", line, "a");
+    b.wire(name, "name", line, "b");
+    b.wire(line, "result", print, "message");
+    b.exec(loop, print, "body");
+    b.exec(loop, b.node("action.print", { message: "done" }), "completed");
+    const lines: string[] = [];
+    const errors: string[] = [];
+    new GraphInstance(parseGraph(serializeGraph(graph)), local, self,
+      { log: (_graph, text) => lines.push(text), error: (_graph, error) => errors.push(error.message) }).beginPlay();
+    return { lines, errors };
+  }
+
+  it("shouldRunTheBodyForEachEntityInOrderThenCompleted", () => {
+    expect(run([entity("Crate"), entity("Ball")])).toEqual({ lines: ["0Crate", "1Ball", "done"], errors: [] });
+  });
+
+  it("shouldStopWithAnErrorOnAMissingListOrSomethingThatIsNotAnEntity", () => {
+    expect(run(undefined).errors[0]).toContain("needs a list");
+    expect(run([entity("Crate"), 3]).errors[0]).toContain("not an entity");
+    expect(run([entity("Crate"), 3]).lines).toEqual([]);
+  });
+});

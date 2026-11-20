@@ -6,7 +6,7 @@ import java.util.Objects;
 
 /**
  * The places the Customize gateway leads to (roadmap Appendix E2, milestone M1b.7). Each is shown today by an existing part of the
- * editor: World by the Viewport tab, 3D Modeling by sculpt mode in that view, 2D Studio by the Sprites and Tiles tabs, Animation by
+ * editor: World by the World tab (named Viewport until owner decision 11, 2026-11-15), 3D Modeling by sculpt mode in that view, 2D Studio by the Sprites and Tiles tabs, Animation by
  * the Animations tab, Audio &amp; Music by the Music tab, Logic by the Visual Scripting tab and Assets by the Content Browser.
  */
 public enum Workspace {
@@ -19,7 +19,7 @@ public enum Workspace {
     ASSETS("Assets");
 
     /** Title of the editor's centre tab that shows the World (and 3D Modeling, in sculpt mode). */
-    public static final String TAB_VIEWPORT = "Viewport";
+    public static final String TAB_WORLD = "World";
     /** Title of the centre tab that shows the game while it plays: part of the World during Play (Appendix E3). */
     public static final String TAB_SCENE = "Scene";
     public static final String TAB_ANIMATIONS = "Animations";
@@ -57,6 +57,15 @@ public enum Workspace {
         this.label = label;
     }
 
+    /**
+     * Whether the World's own tools (the view overlay, Select, Move, Rotate, Scale, Frame, Sculpt and Level) belong on screen in this
+     * workspace: in World and in 3D Modeling, which is the World's view with sculpt mode on. Other workspaces have their own tools,
+     * so showing these there would put unrelated controls together (roadmap M1b.4, M3b.6).
+     */
+    public boolean showsWorldTools() {
+        return this == WORLD || this == MODELING_3D;
+    }
+
     /** The name shown to a person, e.g. "Audio &amp; Music". */
     public String getLabel() {
         return label;
@@ -72,7 +81,7 @@ public enum Workspace {
     public static Workspace forCenterTab(String tabTitle, boolean sculptMode) {
         Objects.requireNonNull(tabTitle, "tabTitle cannot be null");
         return switch (tabTitle) {
-            case TAB_VIEWPORT -> sculptMode ? MODELING_3D : WORLD;
+            case TAB_WORLD -> sculptMode ? MODELING_3D : WORLD;
             case TAB_SCENE -> WORLD;
             case TAB_ANIMATIONS -> ANIMATION;
             case TAB_VISUAL_SCRIPTING -> LOGIC;
@@ -84,11 +93,11 @@ public enum Workspace {
 
     /**
      * The centre tab that shows this workspace, or null for {@link #ASSETS}, which is the Content Browser panel rather than a tab.
-     * 3D Modeling is the Viewport tab with sculpt mode on.
+     * 3D Modeling is the World tab with sculpt mode on.
      */
     public String centerTab() {
         return switch (this) {
-            case WORLD, MODELING_3D -> TAB_VIEWPORT;
+            case WORLD, MODELING_3D -> TAB_WORLD;
             case STUDIO_2D -> TAB_SPRITES;
             case ANIMATION -> TAB_ANIMATIONS;
             case AUDIO_MUSIC -> TAB_MUSIC;

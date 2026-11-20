@@ -7,6 +7,10 @@ host it. It plays scenes with the same `GameSession` and `GameRenderer` as the d
 
 ## Status
 
+> **2026-11-18 (roadmap M9.4): the release build does not compile at present.** Shared runtime code added since this table was
+> written uses Java that TeaVM cannot translate (audio, graph reflection, sprite PNG decoding, Jolt). The table below is the
+> November 2 state. The current per-feature status is [`docs/BACKEND_SUPPORT_MATRIX.md`](../docs/BACKEND_SUPPORT_MATRIX.md).
+
 | Feature | Web |
 |---|---|
 | Scene loading (`?scene=` URL parameter), all component serializers | Works |

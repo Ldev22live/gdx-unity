@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public final class GameModeProfile {
     private static final GameModeProfile PROFILE_2D = new GameModeProfile(GameMode.MODE_2D, ViewportMode.VIEW_2D, false,
-        Set.of("Physics 3D", "Rendering 3D", "Lighting"),
+        Set.of("Physics 3D", "Rendering 3D", "Lighting", "Navigation"),
         "Flat view of the XY plane. Sprites, tile maps and Box2D physics; 3D components are hidden.");
     private static final GameModeProfile PROFILE_2_5D = new GameModeProfile(GameMode.MODE_2_5D, ViewportMode.VIEW_3D, true,
         Set.of("Physics 2D"),

@@ -14,8 +14,15 @@ const sampleFiles = readdirSync(SAMPLES_DIR).filter((name) => name.endsWith(".js
  */
 const KNOWN_UNSUPPORTED: Readonly<Record<string, string[]>> = {
   "racing-3d.json": ["EngineSound"],
-  // Terrain (TD-082) is desktop only for now: the web player reads no .terrain file, so the sample's ground is missing there
-  "terrain-3d.json": ["Terrain"],
+  "platformer-profile-25d.json": ["PlayerComponent"],
+  // Roadmap MP.3: the terrain copy of the profile sample has the same gap as its original
+  "platformer-profile-terrain-25d.json": ["PlayerComponent"],
+  // Roadmap M3b.7: Platformer + 3D, played by its genre profile, which the web player does not run
+  "platformer-profile-3d.json": ["PlayerComponent"],
+  // Roadmap M3b.7: First-person Shooter + 3D, played by its genre profile
+  "first-person-range-3d.json": ["PlayerComponent"],
+  "action-rpg-valley-3d.json": ["PlayerComponent"],
+  "action-rpg-iso-25d.json": ["PlayerComponent", "SpawnPointComponent"],
 };
 
 describe("parseSceneFile", () => {

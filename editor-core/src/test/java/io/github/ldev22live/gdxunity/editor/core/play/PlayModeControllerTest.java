@@ -3,6 +3,8 @@ package io.github.ldev22live.gdxunity.editor.core.play;
 import com.badlogic.gdx.graphics.Color;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.EditorTestHelper;
+import io.github.ldev22live.gdxunity.editor.core.command.RenameEntityCommand;
+import io.github.ldev22live.gdxunity.engine.core.profile.FrameProfiler;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.ShapeRendererComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.BaseComponent;
@@ -31,6 +33,30 @@ class PlayModeControllerTest {
     private EditorState editorState;
     private PlayModeController controller;
 
+    /**
+     * Appendix E3, found by the M3c.5 owner-journey test: Play and Stop keep the person's undo history. Play used to clear it,
+     * because swapping in the runtime copy went through the scene switch that clears history; an earlier test missed it because its
+     * history was empty to begin with.
+     */
+    @Test
+    void shouldKeepTheUndoHistoryThroughPlayAndStop() {
+        Entity hero = editorState.createEntity("Hero");
+        assertTrue(editorState.executeCommand(new RenameEntityCommand(editorState, hero.getId(), "Hero", "Knight")));
+        int steps = editorState.getCommandHistory().getUndoCount();
+        assertTrue(steps >= 1);
+
+        assertTrue(controller.play());
+        assertEquals(steps, editorState.getCommandHistory().getUndoCount(), "kept while playing");
+        assertFalse(editorState.undo(), "but refused while playing, so it never acts on the Play copy");
+        controller.stop();
+
+        assertEquals(steps, editorState.getCommandHistory().getUndoCount(), "kept after Stop");
+        assertTrue(editorState.undo(), "the edit made before Play still undoes");
+        assertEquals("Hero", hero.getName());
+        assertTrue(editorState.redo());
+        assertEquals("Knight", hero.getName());
+    }
+
     @BeforeEach
     void setUp() {
         editorState = new EditorState();
@@ -44,6 +70,38 @@ class PlayModeControllerTest {
         editorState.getSerializer().getRegistry().register(new io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.SphereCollider3DComponentSerializer());
         controller = new PlayModeController(editorState);
         editorState.setPlayModeController(controller);
+    }
+
+    /** Roadmap M9.6: while profiled, each Play step and each component type gets its own section in the Profiler. */
+    @Test
+    void shouldTimeThePlayStepsAndEachComponentTypeWhenProfiled() {
+        editorState.getActiveScene().createEntity("Box").addComponent(new ShapeRendererComponent(10f, 10f, Color.RED));
+        FrameProfiler profiler = new FrameProfiler();
+        profiler.setRecording(true);
+        controller.setProfiler(profiler);
+        assertTrue(controller.play());
+
+        profiler.beginFrame();
+        controller.update(0.016f);
+        profiler.endFrame();
+
+        int play = profiler.section(PlayModeController.PROFILE_PLAY, FrameProfiler.ROOT);
+        int sceneUpdate = profiler.section(PlayModeController.PROFILE_SCENE_UPDATE, play);
+        int shapes = profiler.section("ShapeRendererComponent", sceneUpdate);
+        int physics2D = profiler.section("2D physics", play);
+        assertEquals(1, profiler.getSectionCalls(0, play));
+        assertEquals(1, profiler.getSectionCalls(0, sceneUpdate));
+        assertEquals(1, profiler.getSectionCalls(0, physics2D), "every scene steps 2D physics");
+        assertEquals(1, profiler.getSectionCalls(0, shapes), "the one box's update");
+        assertEquals(0, profiler.getSectionCalls(0, profiler.section("3D physics", play)), "no 3D colliders, no 3D physics");
+        assertTrue(profiler.getSectionNanos(0, play) >= profiler.getSectionNanos(0, sceneUpdate));
+
+        controller.setProfiler(null);
+        profiler.beginFrame();
+        controller.update(0.016f);
+        profiler.endFrame();
+        assertEquals(0, profiler.getSectionCalls(0, play), "not profiled any more");
+        controller.stop();
     }
 
     @Test

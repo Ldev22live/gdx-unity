@@ -12,7 +12,10 @@ import io.github.ldev22live.gdxunity.editor.core.project.TemplateProject;
 import io.github.ldev22live.gdxunity.editor.core.scripting.ScriptManager;
 import io.github.ldev22live.gdxunity.engine.desktop.GameScripts;
 import io.github.ldev22live.gdxunity.engine.desktop.GameSession;
+import io.github.ldev22live.gdxunity.engine.core.asset.AssetSource;
 import io.github.ldev22live.gdxunity.engine.render.ColliderGeometry;
+import io.github.ldev22live.gdxunity.engine.render.TerrainHeightFields;
+import io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary;
 import io.github.ldev22live.gdxunity.engine.render.camera.GameCameraRig;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import org.junit.jupiter.api.AfterAll;
@@ -171,6 +174,8 @@ class TemplateGalleryProjectsTest {
         };
         Scene scene = GameSession.loadScene(sceneFile);
         scene.setColliderGeometry(new ColliderGeometry(null));
+        // What the game runtime's renderer does: terrain colliders read the project's terrains (TD-087)
+        scene.setHeightFields(new TerrainHeightFields(new TerrainLibrary(AssetSource.directory(project.getRoot()))));
         try (GameScripts scripts = new GameScripts(project.getScriptsBuildDir(), TemplateGalleryProjectsTest.class.getClassLoader())) {
             GameSession session = new GameSession(project.getRoot(), scene, scripts, log);
             try {

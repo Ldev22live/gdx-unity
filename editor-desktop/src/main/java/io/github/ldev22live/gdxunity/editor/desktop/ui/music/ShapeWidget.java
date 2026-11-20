@@ -16,7 +16,7 @@ import java.util.Objects;
  * A widget drawn with filled shapes, outlines and text in the editor's colours, like the Timeline and graph canvases.
  * Subclasses draw in widget coordinates (origin at the bottom left) in three passes.
  */
-abstract class ShapeWidget extends Widget implements Disposable {
+public abstract class ShapeWidget extends Widget implements Disposable {
     protected final Skin skin;
     private final ShapeRenderer shapes = new ShapeRenderer();
 

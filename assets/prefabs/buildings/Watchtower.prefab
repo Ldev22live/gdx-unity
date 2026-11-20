@@ -1,0 +1,391 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "Watchtower",
+  "rootId": "d898f169-8458-51eb-90fc-e1169b0ef9d6",
+  "entities": [
+    {
+      "id": "d898f169-8458-51eb-90fc-e1169b0ef9d6",
+      "parentId": null,
+      "name": "Watchtower",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "cfddbc15-fa5f-5102-95b8-927ec46e909d",
+      "parentId": "d898f169-8458-51eb-90fc-e1169b0ef9d6",
+      "name": "Base",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 200.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 220.0,
+            "sizeY": 400.0,
+            "sizeZ": 220.0,
+            "colorR": 0.58,
+            "colorG": 0.56,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 220.0,
+            "sizeY": 400.0,
+            "sizeZ": 220.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7cabfde5-4cdc-5221-b5fb-5b5e980979a1",
+      "parentId": "d898f169-8458-51eb-90fc-e1169b0ef9d6",
+      "name": "Top",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 430.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 280.0,
+            "sizeY": 60.0,
+            "sizeZ": 280.0,
+            "colorR": 0.58,
+            "colorG": 0.56,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 280.0,
+            "sizeY": 60.0,
+            "sizeZ": 280.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "87d7096d-5985-5bdb-91e7-8c0c8fc8cf9a",
+      "parentId": "d898f169-8458-51eb-90fc-e1169b0ef9d6",
+      "name": "Merlon 1",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -110.0,
+          "y": 485.0,
+          "z": -110.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 50.0,
+            "sizeZ": 60.0,
+            "colorR": 0.58,
+            "colorG": 0.56,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 60.0,
+            "sizeY": 50.0,
+            "sizeZ": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "675e2ba1-8ed5-575f-b502-f66ba855e078",
+      "parentId": "d898f169-8458-51eb-90fc-e1169b0ef9d6",
+      "name": "Merlon 2",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 110.0,
+          "y": 485.0,
+          "z": -110.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 50.0,
+            "sizeZ": 60.0,
+            "colorR": 0.58,
+            "colorG": 0.56,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 60.0,
+            "sizeY": 50.0,
+            "sizeZ": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f43d755e-2918-5d85-9ccd-61d034c0940a",
+      "parentId": "d898f169-8458-51eb-90fc-e1169b0ef9d6",
+      "name": "Merlon 3",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -110.0,
+          "y": 485.0,
+          "z": 110.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 50.0,
+            "sizeZ": 60.0,
+            "colorR": 0.58,
+            "colorG": 0.56,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 60.0,
+            "sizeY": 50.0,
+            "sizeZ": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2c81a2f9-6b76-56c9-931e-0d1161780057",
+      "parentId": "d898f169-8458-51eb-90fc-e1169b0ef9d6",
+      "name": "Merlon 4",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 110.0,
+          "y": 485.0,
+          "z": 110.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 50.0,
+            "sizeZ": 60.0,
+            "colorR": 0.58,
+            "colorG": 0.56,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 60.0,
+            "sizeY": 50.0,
+            "sizeZ": 60.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c8301731-d140-548f-915f-f553ac83bd6e",
+      "parentId": "d898f169-8458-51eb-90fc-e1169b0ef9d6",
+      "name": "Door",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 60.0,
+          "z": -112.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 120.0,
+            "sizeZ": 8.0,
+            "colorR": 0.42,
+            "colorG": 0.28,
+            "colorB": 0.16,
+            "colorA": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}

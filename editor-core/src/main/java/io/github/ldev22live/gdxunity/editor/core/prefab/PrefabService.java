@@ -3,6 +3,7 @@ package io.github.ldev22live.gdxunity.editor.core.prefab;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.JsonValue;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.command.EditorCommand;
 import io.github.ldev22live.gdxunity.editor.core.command.SceneSnapshotCommand;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
@@ -193,9 +194,17 @@ public class PrefabService {
      *
      * @return the instance root, or null when the prefab could not be read or placed
      */
-    public Entity instantiate(AssetReference prefab, Vector3 position, float yawDegrees, float scale, boolean select) {
+    /**
+     * The command {@link #instantiate(AssetReference, Vector3, float, float, boolean)} runs, not yet run, so a caller can put several
+     * placements and other edits into one undo step (roadmap M3.7: a path's meshes and its carve). When it runs,
+     * {@code created[0]} receives the instance root.
+     *
+     * @return the command, or null when the prefab cannot be read (the status bar says why)
+     */
+    public EditorCommand instantiateCommand(AssetReference prefab, Vector3 position, float yawDegrees, float scale, Entity[] created) {
         Objects.requireNonNull(prefab, "prefab cannot be null");
         Objects.requireNonNull(position, "position cannot be null");
+        Objects.requireNonNull(created, "created cannot be null");
         PrefabDocument document;
         try {
             document = getDocument(prefab.getPath());
@@ -203,28 +212,32 @@ public class PrefabService {
             editorState.setStatusMessage("Cannot place " + prefab.getFileName() + ": " + e.getMessage(), true);
             return null;
         }
+        Vector3 at = new Vector3(position);
+        return new SceneSnapshotCommand(editorState, "Place Prefab '" + document.getName() + "'", () -> {
+            Scene scene = editorState.getActiveScene();
+            Map<UUID, Entity> bySource = new HashMap<>();
+            for (UUID sourceId : document.getEntityIds()) {
+                Entity parent = bySource.get(document.getParent(sourceId));
+                bySource.put(sourceId, createMember(scene, document, prefab.getPath(), sourceId, parent));
+            }
+            Entity root = bySource.get(document.getRootId());
+            root.getTransform().setLocalPosition(at);
+            if (yawDegrees != 0f) {
+                root.getTransform().setLocalEulerAngles(yawDegrees, 0f, 0f);
+            }
+            if (scale != 1f) {
+                root.getTransform().setLocalScale(scale, scale, scale);
+            }
+            linkOf(root).setKnownSourceIds(new LinkedHashSet<>(document.getEntityIds()));
+            created[0] = root;
+            return true;
+        });
+    }
+
+    public Entity instantiate(AssetReference prefab, Vector3 position, float yawDegrees, float scale, boolean select) {
         Entity[] created = new Entity[1];
-        boolean placed = editorState.executeCommand(new SceneSnapshotCommand(editorState,
-            "Place Prefab '" + document.getName() + "'", () -> {
-                Scene scene = editorState.getActiveScene();
-                Map<UUID, Entity> bySource = new HashMap<>();
-                for (UUID sourceId : document.getEntityIds()) {
-                    Entity parent = bySource.get(document.getParent(sourceId));
-                    bySource.put(sourceId, createMember(scene, document, prefab.getPath(), sourceId, parent));
-                }
-                Entity root = bySource.get(document.getRootId());
-                root.getTransform().setLocalPosition(position);
-                if (yawDegrees != 0f) {
-                    root.getTransform().setLocalEulerAngles(yawDegrees, 0f, 0f);
-                }
-                if (scale != 1f) {
-                    root.getTransform().setLocalScale(scale, scale, scale);
-                }
-                linkOf(root).setKnownSourceIds(new LinkedHashSet<>(document.getEntityIds()));
-                created[0] = root;
-                return true;
-            }));
-        if (!placed) {
+        EditorCommand command = instantiateCommand(prefab, position, yawDegrees, scale, created);
+        if (command == null || !editorState.executeCommand(command)) {
             return null;
         }
         if (select) {

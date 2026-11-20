@@ -61,9 +61,12 @@ class TemplateRatingsTest {
             }
             counts.merge(rating.label(), 1, Integer::sum);
         }
-        assertEquals(40, samples);
-        assertEquals(Map.of(TemplateMatrix.Label.INCOMPLETE, 7, TemplateMatrix.Label.PARTIALLY_EDITABLE, 20,
-            TemplateMatrix.Label.CHECKS_PENDING, 13), counts, "no template is Fully Customizable while the gates are unchecked");
+        // 45 with the two MP.3 copies: the tiled platformer keeps its Java player (Partially Editable), the terrain one has no FAIL;
+        // 46 with Platformer Profile 3D and 47 with First-person Range (M3b.7), made of shapes with no scripts
+        // 48 with the Poly Haven Showcase (downloaded CC0 assets), Partially Editable: its glTF models have no mesh editor (R7a)
+        assertEquals(48, samples);
+        assertEquals(Map.of(TemplateMatrix.Label.INCOMPLETE, 7, TemplateMatrix.Label.PARTIALLY_EDITABLE, 22,
+            TemplateMatrix.Label.CHECKS_PENDING, 19), counts, "no template is Fully Customizable while the gates are unchecked");
     }
 
     @Test
@@ -89,7 +92,7 @@ class TemplateRatingsTest {
     @Test
     void shouldRefuseToRateAnEmptyStart() throws IOException {
         TemplateRatings ratings = new TemplateRatings(ASSETS, TemplateMatrixTest.editorAudit());
-        TemplateGallery.Choice start = TemplateGallery.emptyStarts().get(0);
+        TemplateGallery.Choice start = TemplateGallery.emptyStarts(ASSETS).get(0);
         assertThrows(IllegalArgumentException.class, () -> ratings.rate(start));
     }
 

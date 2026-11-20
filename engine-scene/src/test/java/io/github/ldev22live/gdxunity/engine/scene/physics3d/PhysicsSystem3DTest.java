@@ -370,4 +370,20 @@ class PhysicsSystem3DTest {
         physics.update(1f);
         assertEquals(0, backend.steps);
     }
+    /** Roadmap M1.2: what a graph asks of whatever its ray hit, without an error for a floor that has no rigid body. */
+    @Test
+    void shouldSayWhichEntitiesAreDynamicAndTheirMassWithoutFailingOnOnesWithoutABody() {
+        Entity ball = crate(RigidBody3DComponent.MotionType.DYNAMIC);
+        ball.getComponent(RigidBody3DComponent.class).setMass(4f);
+        Entity wall = crate(RigidBody3DComponent.MotionType.STATIC);
+        Entity floor = scene.createEntity("Floor");
+
+        assertTrue(physics.isDynamic(ball));
+        assertFalse(physics.isDynamic(wall));
+        assertFalse(physics.isDynamic(floor), "no rigid body: not dynamic, and no error");
+        assertFalse(physics.isDynamic(null));
+        assertEquals(4f, physics.getMass(ball));
+        IllegalArgumentException none = assertThrows(IllegalArgumentException.class, () -> physics.getMass(floor));
+        assertTrue(none.getMessage().contains("Floor"), none.getMessage());
+    }
 }

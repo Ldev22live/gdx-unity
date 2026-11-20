@@ -53,7 +53,17 @@ function play(file: string) {
   };
 }
 
+/**
+ * Samples with no Java to port whose graphs use nodes the web player refuses, with the reason. They are not played here; a test
+ * below checks the web still refuses them, so an entry must go once the web supports it.
+ */
+const DESKTOP_ONLY_GRAPHS: Readonly<Record<string, string>> = {
+  // TD-087: Hero is walked by a graph of character nodes, and the web player simulates no 3D physics for graphs (nor terrain)
+  "terrain-3d.json": "needs 3D physics",
+};
+
 const fullyPorted = sampleFiles.filter((file) => {
+  if (file in DESKTOP_ONLY_GRAPHS) return false;
   const engine = createHeadlessEngine();
   const built = buildScene(engine, loadSample(file));
   const ok = boundClasses(built).every((name) => registry.has(name));
@@ -81,6 +91,10 @@ describe("ported sample scenes", () => {
     expect(fullyPorted).toContain("ruins-runner-25d.json");
     expect(fullyPorted).toContain("grapple-gorge-25d.json");
     expect(fullyPorted).toContain("three-heroes-25d.json");
+  });
+
+  it.each(Object.entries(DESKTOP_ONLY_GRAPHS))("shouldStillRefuseTheGraphsOfADesktopOnlySample: %s", (file, reason) => {
+    expect(() => play(file)).toThrow(reason);
   });
 
   it.each(fullyPorted)("shouldRunTenSecondsOfRandomInputWithoutAnError: %s", (file) => {

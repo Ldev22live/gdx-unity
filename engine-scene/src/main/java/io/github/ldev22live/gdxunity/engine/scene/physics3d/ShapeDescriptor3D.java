@@ -14,9 +14,11 @@ import java.util.Objects;
  * @param points      x, y, z of the vertices (HULL: the points around which the hull is built; MESH: the mesh vertices),
  *                    in the body's local frame before {@code offset}; empty for the other kinds
  * @param indices     three vertex numbers per triangle (MESH only, otherwise empty)
+ * @param heightField the ground's heights in meters, in the body's local frame before {@code offset} (HEIGHT_FIELD only, otherwise
+ *                    null)
  */
 public record ShapeDescriptor3D(Kind kind, Vector3 halfExtents, float radius, float halfHeight, Vector3 offset,
-                                float[] points, int[] indices) {
+                                float[] points, int[] indices, HeightField3D heightField) {
 
     public enum Kind {
         BOX,
@@ -25,7 +27,9 @@ public record ShapeDescriptor3D(Kind kind, Vector3 halfExtents, float radius, fl
         /** Convex hull of {@code points} (TD-052); any motion type. */
         HULL,
         /** Triangle mesh (TD-052); static bodies only. */
-        MESH
+        MESH,
+        /** A grid of heights, the ground of a terrain (TD-087); static bodies only. */
+        HEIGHT_FIELD
     }
 
     public ShapeDescriptor3D {
@@ -34,6 +38,15 @@ public record ShapeDescriptor3D(Kind kind, Vector3 halfExtents, float radius, fl
         offset = new Vector3(Objects.requireNonNull(offset, "offset cannot be null"));
         points = Objects.requireNonNull(points, "points cannot be null").clone();
         indices = Objects.requireNonNull(indices, "indices cannot be null").clone();
+        if ((kind == Kind.HEIGHT_FIELD) != (heightField != null)) {
+            throw new IllegalArgumentException("A height field is required for HEIGHT_FIELD and only for it: " + kind);
+        }
+    }
+
+    /** A shape built from points and triangles, or neither; not a height field. */
+    public ShapeDescriptor3D(Kind kind, Vector3 halfExtents, float radius, float halfHeight, Vector3 offset, float[] points,
+                             int[] indices) {
+        this(kind, halfExtents, radius, halfHeight, offset, points, indices, null);
     }
 
     /** A primitive shape: no vertex data. */
@@ -61,6 +74,12 @@ public record ShapeDescriptor3D(Kind kind, Vector3 halfExtents, float radius, fl
     /** Triangle mesh of {@code points} (x, y, z each) and {@code indices} (three per triangle). */
     public static ShapeDescriptor3D mesh(float[] points, int[] indices, Vector3 offset) {
         return new ShapeDescriptor3D(Kind.MESH, Vector3.Zero, 0f, 0f, offset, points, indices);
+    }
+
+    /** The ground of a terrain: {@code heightField} in meters (TD-087). */
+    public static ShapeDescriptor3D heightField(HeightField3D heightField, Vector3 offset) {
+        return new ShapeDescriptor3D(Kind.HEIGHT_FIELD, Vector3.Zero, 0f, 0f, offset, new float[0], new int[0],
+            Objects.requireNonNull(heightField, "heightField cannot be null"));
     }
 
     @Override

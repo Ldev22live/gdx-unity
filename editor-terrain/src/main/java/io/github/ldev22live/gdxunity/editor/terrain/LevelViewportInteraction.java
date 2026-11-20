@@ -61,6 +61,8 @@ public final class LevelViewportInteraction implements ViewportInteraction {
         }
         if (level.getTool() == LevelSession.Tool.PLACE) {
             level.placeObject(hit.x, hit.y, hit.z);
+        } else if (level.getTool() == LevelSession.Tool.PATH) {
+            level.addPathPoint(hit.x, hit.z); // the ground's own space, where a path's points live (roadmap M3.7)
         } else {
             Vector3 world = new Vector3(hit.x, hit.y, hit.z).mul(ground.getTransform().getWorldMatrix());
             level.eraseObjectNear(world.x, world.z);

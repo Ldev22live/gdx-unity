@@ -12,6 +12,10 @@ Forgeroom for the web on [Babylon.js](https://www.babylonjs.com/), written in Ty
 | 2 | Port the sample scripts, add 3D physics, models and sprites | In progress: 10 of 14 samples play with their game logic; `racing-3d`, `arena-fps-3d`, `puzzle-3d` and `fighter-25d` do not yet |
 | 3 | Editor: outline, details, viewport with gizmos, undo, save in the same file format | First version, see "The editor" below |
 
+The current status of every component and feature against the desktop and TeaVM backends is
+[`docs/BACKEND_SUPPORT_MATRIX.md`](../docs/BACKEND_SUPPORT_MATRIX.md) (roadmap M9.4); where it and the sections below differ, the matrix is
+newer and is checked against `SUPPORTED_COMPONENTS` by a test.
+
 ## Run it
 
 Needs Node 20 or newer.
@@ -125,6 +129,14 @@ of the scene still shows. The sample `landscape-3d.json` (`?scene=landscape-3d.j
 - 2D physics from Rigid Body 2D and Box Collider 2D, with [planck.js](https://piqnt.com/planck.js/) (a JavaScript port
   of Box2D), at 100 pixels per metre and a fixed 1/60 s step like the desktop engine.
 - 3D physics from Rigid Body 3D and Box, Sphere and Capsule Collider 3D, with [Jolt](https://github.com/jrouwe/JoltPhysics.js) (the engine the desktop uses), at 100 units per metre and a fixed 1/60 s step. Loaded only for scenes that have a 3D collider. Convex hull and mesh colliders, joints, character controllers and camera rigs run too (TD-064).
+- Materials (roadmap M2.5): a Mesh Primitive's `.material` file (TD-081) is drawn with Babylon's PBR material: base colour and
+  opacity, metallic, roughness, emissive times strength, opaque, blend or mask, double sided, and the five texture slots with
+  tiling, offset, normal scale and occlusion strength. Shiny materials reflect a cube of the scene's Sky Light colours. A
+  material that cannot be read leaves the primitive's own colour and is named in the status line. `npm run sync-samples`
+  copies `assets/materials` and `assets/textures` to `public/`. Try `?scene=materials-3d.json`.
+- Terrain (roadmap M3.11): a Terrain component's `.terrain` file is drawn with the desktop's shape, ground colours, paint
+  layers, holes and water, and a Terrain Collider 3D is ground in Jolt; Play waits for the file. Try `?scene=terrain-3d.json`.
+- `?scene=<sample file>` opens that sample first, for testing.
 - Runs scripts. See below.
 - Lists what it cannot do: the status line names component types it does not support and script classes that have no web
   version.

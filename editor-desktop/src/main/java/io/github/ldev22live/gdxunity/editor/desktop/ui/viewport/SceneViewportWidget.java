@@ -4,10 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.GLFrameBuffer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -126,7 +128,12 @@ public class SceneViewportWidget extends Widget implements Disposable {
         if (frameBuffer != null) {
             frameBuffer.dispose();
         }
-        frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, pixelWidth, pixelHeight, true);
+        // 24 depth bits, not the 16 a plain FrameBuffer gets: at the 3D view's 1 to 50000 near and far planes, 16 bits resolve
+        // only about 250 units at 4 km, so water and the ground it lies on drew in bands (roadmap M3.9)
+        GLFrameBuffer.FrameBufferBuilder builder = new GLFrameBuffer.FrameBufferBuilder(pixelWidth, pixelHeight);
+        builder.addBasicColorTextureAttachment(Pixmap.Format.RGBA8888);
+        builder.addDepthRenderBuffer(GL30.GL_DEPTH_COMPONENT24);
+        frameBuffer = builder.build();
         frameRegion = new TextureRegion(frameBuffer.getColorBufferTexture());
         // Frame buffer textures are stored bottom-up
         frameRegion.flip(false, true);

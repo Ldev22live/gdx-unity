@@ -10,6 +10,7 @@ import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TerrainComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.TerrainPathComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
@@ -20,6 +21,11 @@ import io.github.ldev22live.gdxunity.engine.scene.lighting.PointLightComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.CameraRigComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
+import io.github.ldev22live.gdxunity.engine.scene.environment.AtmosphereComponent;
+import io.github.ldev22live.gdxunity.engine.scene.environment.PostProcessVolumeComponent;
+import io.github.ldev22live.gdxunity.engine.scene.navigation.NavAgent3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.navigation.NavMeshBoundsComponent;
+import io.github.ldev22live.gdxunity.engine.scene.environment.WaterBodyComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.audio.AudioListenerComponent;
 import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
@@ -35,9 +41,12 @@ import io.github.ldev22live.gdxunity.engine.scene.physics3d.CharacterController3
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.Collider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.ConvexHullCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.MeshCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.TerrainCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.Joint3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.SphereCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.play.PlayerComponent;
+import io.github.ldev22live.gdxunity.engine.scene.play.SpawnPointComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptLanguage;
 
@@ -154,6 +163,31 @@ public class ComponentCatalog {
                     + "bodies (TD-052). Use a Convex Hull Collider 3D, or make the body static.";
             }
         }
+        if (TerrainCollider3DComponent.class.isAssignableFrom(entry.type())) {
+            if (entity.getComponent(TerrainComponent.class) == null) {
+                return entity.getName() + " has no Terrain. A Terrain Collider 3D makes the entity's terrain solid: add a Terrain first.";
+            }
+            RigidBody3DComponent body = entity.getComponent(RigidBody3DComponent.class);
+            if (body != null && body.isEnabled() && body.getMotionType() != RigidBody3DComponent.MotionType.STATIC) {
+                return entity.getName() + " has a " + body.getMotionType() + " Rigid Body 3D, and the ground does not move (TD-087). "
+                    + "Remove the Rigid Body 3D or make it static.";
+            }
+        }
+        if (PlayerComponent.class.isAssignableFrom(entry.type()) && entity.getScene() != null) {
+            for (Entity other : entity.getScene().getAllEntities()) {
+                if (other != entity && other.getComponent(PlayerComponent.class) != null) {
+                    return other.getName() + " is already the player, and a scene has one (TD-088). Remove Player from it first.";
+                }
+            }
+        }
+        if (SpawnPointComponent.class.isAssignableFrom(entry.type()) && entity.getScene() != null) {
+            for (Entity other : entity.getScene().getAllEntities()) {
+                if (other != entity && other.getComponent(SpawnPointComponent.class) != null) {
+                    return other.getName() + " is already the spawn point, and a scene has one (roadmap M3c.2). Move it, or remove "
+                        + "its Spawn Point first.";
+                }
+            }
+        }
         if (addingBodyPart && entity.getComponent(CharacterController3DComponent.class) != null) {
             return entity.getName() + " is a Character Controller 3D, which is its own body and cannot also have a "
                 + entry.displayName() + ".";
@@ -215,6 +249,8 @@ public class ComponentCatalog {
             state -> new ConvexHullCollider3DComponent()));
         catalog.register(new Entry("Mesh Collider 3D", "Physics 3D", MeshCollider3DComponent.class, false,
             state -> new MeshCollider3DComponent()));
+        catalog.register(new Entry("Terrain Collider 3D", "Physics 3D", TerrainCollider3DComponent.class, false,
+            state -> new TerrainCollider3DComponent()));
         catalog.register(new Entry("Character Controller 3D", "Physics 3D", CharacterController3DComponent.class, false,
             state -> new CharacterController3DComponent()));
         catalog.register(new Entry("Joint 3D", "Physics 3D", Joint3DComponent.class, false, state -> new Joint3DComponent()));
@@ -222,6 +258,8 @@ public class ComponentCatalog {
             state -> new MeshPrimitiveComponent(MeshPrimitiveComponent.Shape.BOX)));
         catalog.register(new Entry("Model", "Rendering 3D", ModelComponent.class, false, ComponentCatalog::createModel));
         catalog.register(new Entry("Terrain", "Rendering 3D", TerrainComponent.class, false, state -> new TerrainComponent()));
+        // A road, river or cliff on the level's ground (roadmap M3.7); the level editor's Path tool makes and applies them
+        catalog.register(new Entry("Terrain Path", "Rendering 3D", TerrainPathComponent.class, false, state -> new TerrainPathComponent()));
         catalog.register(new Entry("Directional Light", "Lighting", DirectionalLightComponent.class, false,
             state -> new DirectionalLightComponent()));
         catalog.register(new Entry("Point Light", "Lighting", PointLightComponent.class, false,
@@ -230,8 +268,20 @@ public class ComponentCatalog {
             state -> new SkyLightComponent()));
         catalog.register(new Entry("Tone Mapping", "Lighting", ToneMappingComponent.class, false,
             state -> new ToneMappingComponent()));
+        // The sky, fog and weather of the scene, and lakes or seas (roadmap M3.9, TD-090)
+        catalog.register(new Entry("Sky and Weather", "Lighting", AtmosphereComponent.class, false, state -> new AtmosphereComponent()));
+        catalog.register(new Entry("Water Body", "Rendering 3D", WaterBodyComponent.class, false, state -> new WaterBodyComponent()));
+        // Effects on the finished frame where the camera is (roadmap M6.2, TD-091); several per scene, one per entity
+        catalog.register(new Entry("Post Process Volume", "Rendering 3D", PostProcessVolumeComponent.class, false,
+            state -> new PostProcessVolumeComponent()));
+        // Walkable areas and agents that find their way round obstacles (roadmap M6.4, TD-092)
+        catalog.register(new Entry("Nav Mesh Bounds", "Navigation", NavMeshBoundsComponent.class, false,
+            state -> new NavMeshBoundsComponent()));
+        catalog.register(new Entry("Nav Agent", "Navigation", NavAgent3DComponent.class, false, state -> new NavAgent3DComponent()));
         catalog.register(new Entry("Camera", "Game", CameraComponent.class, false, ComponentCatalog::createCamera));
         catalog.register(new Entry("Camera Rig", "Game", CameraRigComponent.class, false, state -> new CameraRigComponent()));
+        catalog.register(new Entry("Player", "Game", PlayerComponent.class, false, state -> new PlayerComponent()));
+        catalog.register(new Entry("Spawn Point", "Game", SpawnPointComponent.class, false, state -> new SpawnPointComponent()));
         catalog.register(new Entry("Text", "Game", TextComponent.class, false, state -> new TextComponent()));
         catalog.register(new Entry("Audio Source", "Audio", AudioSourceComponent.class, true,
             state -> new AudioSourceComponent()));

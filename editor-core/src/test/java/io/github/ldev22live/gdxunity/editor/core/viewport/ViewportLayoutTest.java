@@ -304,6 +304,21 @@ class ViewportLayoutTest {
             assertEquals(1f, kind.getUp().len(), 1e-6f);
         }
         assertEquals(ViewKind.X_AXIS, ViewKind.PERSPECTIVE.next());
-        assertEquals(ViewKind.PERSPECTIVE, ViewKind.Z_AXIS.next());
+        assertEquals(ViewKind.ISOMETRIC, ViewKind.Z_AXIS.next(), "then the full-map view (UI M2), then back to Perspective");
+    }
+
+    /** UI M2: the full-map view is a pane kind like the others, saved by name. */
+    @Test
+    void shouldCycleToTheIsometricViewAndKeepItInTheSavedLayout() {
+        assertEquals(ViewKind.ISOMETRIC, ViewKind.Z_AXIS.next());
+        assertEquals(ViewKind.PERSPECTIVE, ViewKind.ISOMETRIC.next());
+        assertTrue(ViewKind.ISOMETRIC.isOrthographic());
+        assertTrue(ViewKind.ISOMETRIC.canTurn());
+        assertFalse(ViewKind.Y_AXIS.canTurn());
+
+        ViewportLayout layout = ViewportLayout.single(ViewKind.ISOMETRIC);
+        ViewportLayout reloaded = ViewportLayout.fromJson(layout.toJson());
+
+        assertEquals(ViewKind.ISOMETRIC, reloaded.getPanes().get(0).kind());
     }
 }

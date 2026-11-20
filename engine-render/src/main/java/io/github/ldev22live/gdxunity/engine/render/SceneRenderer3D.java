@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.Vector3;
@@ -34,6 +35,10 @@ import io.github.ldev22live.gdxunity.engine.render.components.TerrainComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.environment.AtmosphereComponent;
+import io.github.ldev22live.gdxunity.engine.scene.environment.PostProcessSettings;
+import io.github.ldev22live.gdxunity.engine.scene.environment.PostProcessVolumes;
+import io.github.ldev22live.gdxunity.engine.scene.environment.WaterBodyComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.DirectionalLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.PointLightComponent;
 import io.github.ldev22live.gdxunity.engine.scene.lighting.SkyLightComponent;
@@ -43,6 +48,7 @@ import io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -50,8 +56,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
@@ -71,7 +79,12 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
  *       color} is used.</li>
  *   <li>{@link ToneMappingComponent}: exposure scales all light; the operator is compiled into the shader
  *       ({@link ToneMappingShader}). Without one: exposure 1, no tone mapping.</li>
+ *   <li>{@link AtmosphereComponent} (roadmap M3.9, TD-090): a sky gradient behind everything, distance fog through the PBR
+ *       shader's own fog, rain or snow in front, and a multiplier on every directional light.</li>
  * </ul>
+ *
+ * <p>{@link WaterBodyComponent}s are drawn as translucent, wave-animated surfaces after everything else; they cast no
+ * shadow.
  *
  * <p>Colors in components are authored in sRGB, like any color picker; they are converted to linear before
  * lighting, and the shader converts back. Shadow and sky quality come from {@link RenderQuality3D}.
@@ -138,6 +151,8 @@ public class SceneRenderer3D implements EngineRenderer {
     private DirectionalLightComponent shadowCaster;
     private SkyLightComponent skyLight;
     private float exposure = 1f;
+    /** The scene's sky, fog and weather (roadmap M3.9), or null. */
+    private AtmosphereComponent atmosphere;
     private ToneMappingComponent.Operator requestedOperator = ToneMappingComponent.Operator.NONE;
 
     // Environment content, reused every frame
@@ -148,9 +163,33 @@ public class SceneRenderer3D implements EngineRenderer {
     private final List<DirectionalLight> directionalLightPool = new ArrayList<>();
     private final List<PointLight> pointLightPool = new ArrayList<>();
     private final Color linearColor = new Color();
+    private final ColorAttribute fogColorAttribute = new ColorAttribute(ColorAttribute.Fog);
+    private final FogAttribute fogAttribute = FogAttribute.createFog(1f, 2f, 1f);
+    private final Color atmosphereColor = new Color();
+
+    /** Sky and weather drawing, made the first time a scene has a Sky and Weather component (roadmap M3.9). */
+    private AtmosphereRenderer atmosphereRenderer;
+    private final Map<WaterBodyComponent, WaterBodyGpu> waterBodies = new IdentityHashMap<>();
+    private final List<ModelInstance> waterDraws = new ArrayList<>();
+    /** Seconds rendered since this renderer started; moves the waves. */
+    private float environmentSeconds;
+    /** Drawn over the sky and under the scene, such as the editor's ground grid; null for nothing. */
+    private Runnable skyOverlay;
+    /** Post Process Volumes (roadmap M6.2): found every frame, drawn by a post-processor made the first time one is on. */
+    private final PostProcessVolumes postVolumes = new PostProcessVolumes();
+    private final PostProcessSettings postSettings = new PostProcessSettings();
+    private PostProcessor postProcessor;
+    private ModelBatch postDepthBatch;
+    private boolean postProcessingEnabled = true;
 
     private final ShadowBounds shadowBounds = new ShadowBounds();
     private final List<ModelInstance> drawList = new ArrayList<>();
+    /**
+     * Terrain chunks in view while level of detail is on (roadmap M3.8), kept apart from {@link #drawList} with a bounding sphere each
+     * (x, y, z, radius in world space), so the shadow pass draws only those inside the shadow map's area.
+     */
+    private final List<ModelInstance> terrainChunkDraws = new ArrayList<>();
+    private float[] terrainChunkBounds = new float[4 * 64];
     private IntBuffer glQuery;
     private int savedFrameBuffer;
     /** x, y, width, height of the viewport saved by {@link #saveRenderTarget()}. */
@@ -161,6 +200,13 @@ public class SceneRenderer3D implements EngineRenderer {
     private final Map<MeshPrimitiveComponent, AppliedMaterial> appliedMaterials = new IdentityHashMap<>();
     private final Map<ModelComponent, CachedModel> modelInstances = new IdentityHashMap<>();
     private final Map<TerrainComponent, TerrainGpu> terrainMeshes = new IdentityHashMap<>();
+    /** Level of detail for terrain chunks (roadmap M3.8), and scratch for the camera in a terrain's own space. */
+    private boolean terrainLod = true;
+    private final Matrix4 terrainInverse = new Matrix4();
+    private final Vector3 terrainCamera = new Vector3();
+    private final Vector3 terrainCenter = new Vector3();
+    private final Vector3 terrainScale = new Vector3();
+    private int terrainTriangles;
     private final Map<DynamicMeshComponent, DynamicMeshGpu<GlChunkTarget>> dynamicMeshes = new IdentityHashMap<>();
     private final BoundingBox dynamicBounds = new BoundingBox();
     /** Finds the geometry of {@link DynamicMeshComponent}s; null (the default) skips them. */
@@ -174,6 +220,9 @@ public class SceneRenderer3D implements EngineRenderer {
 
     /** An imported model to draw: its component and world transform (entity world matrix scaled by import scale). */
     public record ModelDraw(ModelComponent component, Matrix4 transform) {}
+
+    /** A water body to draw: its component and the entity's world transform (roadmap M3.9). */
+    public record WaterDraw(WaterBodyComponent component, Matrix4 transform) {}
 
     /** An editable mesh to draw: its component and the entity's world transform. */
     public record DynamicMeshDraw(DynamicMeshComponent component, Matrix4 transform) {}
@@ -224,6 +273,17 @@ public class SceneRenderer3D implements EngineRenderer {
     /** Depth-only batch for the shadow pass, with the same bone limit as {@link #createModelBatch()}. */
     protected ModelBatch createShadowBatch() {
         return new ModelBatch(PBRShaderProvider.createDefaultDepth(ModelAssets.MAX_BONES));
+    }
+
+    /**
+     * Depth batch for post-processing (roadmap M6.2): gdx-gltf's packed-depth shader with each pixel's exact depth
+     * ({@link PostProcessor#exactDepthFragment}) and the same bone limit as {@link #createModelBatch()}.
+     */
+    protected ModelBatch createPostDepthBatch() {
+        DepthShader.Config config = PBRShaderProvider.createDefaultDepthConfig();
+        config.numBones = ModelAssets.MAX_BONES;
+        config.fragmentShader = PostProcessor.exactDepthFragment(config.fragmentShader);
+        return new ModelBatch(PBRShaderProvider.createDefaultDepth(config));
     }
 
     /** Shadow-casting light with a square shadow map of {@code mapSize} texels. Needs a GL context. */
@@ -304,6 +364,45 @@ public class SceneRenderer3D implements EngineRenderer {
             }
         }
         return draws;
+    }
+
+    /**
+     * Collects the enabled water bodies of active entities with their world transforms (roadmap M3.9). Pure scene traversal,
+     * usable without a graphics context.
+     */
+    public static List<WaterDraw> collectWaterBodies(Scene scene) {
+        List<WaterDraw> draws = new ArrayList<>();
+        if (scene == null || !scene.isActive()) {
+            return draws;
+        }
+        for (Entity entity : scene.getAllEntities()) {
+            if (!entity.isActiveInHierarchy()) continue;
+            for (Component comp : entity.getAllComponents()) {
+                if (comp.isEnabled() && comp instanceof WaterBodyComponent water) {
+                    draws.add(new WaterDraw(water, new Matrix4(entity.getTransform().getWorldMatrix())));
+                }
+            }
+        }
+        return draws;
+    }
+
+    /**
+     * The scene's first enabled Sky and Weather component on an active entity (roadmap M3.9), or null. Pure scene
+     * traversal, usable without a graphics context.
+     */
+    public static AtmosphereComponent findAtmosphere(Scene scene) {
+        if (scene == null || !scene.isActive()) {
+            return null;
+        }
+        for (Entity entity : scene.getAllEntities()) {
+            if (!entity.isActiveInHierarchy()) continue;
+            for (Component comp : entity.getAllComponents()) {
+                if (comp.isEnabled() && comp instanceof AtmosphereComponent found) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -447,6 +546,15 @@ public class SceneRenderer3D implements EngineRenderer {
             ambientAttribute.color.set(linearColor);
         }
         environment.set(ambientAttribute);
+
+        // Distance fog (roadmap M3.9): the PBR shader blends towards the fog colour after gamma, so the sRGB colour is used as is
+        if (atmosphere != null && atmosphere.isFogEnabled()) {
+            fogColorAttribute.color.set(atmosphere.getFogColor(atmosphereColor));
+            fogColorAttribute.color.a = 1f;
+            fogAttribute.value.set(atmosphere.getFogStart(), atmosphere.getFogEnd(), 1f);
+            environment.set(fogColorAttribute);
+            environment.set(fogAttribute);
+        }
     }
 
     /** Finds the scene's directional lights, shadow caster, sky light and tone mapping. */
@@ -454,6 +562,7 @@ public class SceneRenderer3D implements EngineRenderer {
         sceneDirectionalLights.clear();
         shadowCaster = null;
         skyLight = null;
+        atmosphere = null;
         ToneMappingComponent toneMapping = null;
         if (activeScene != null && activeScene.isActive()) {
             for (Entity entity : activeScene.getAllEntities()) {
@@ -469,6 +578,8 @@ public class SceneRenderer3D implements EngineRenderer {
                         skyLight = sky;
                     } else if (comp instanceof ToneMappingComponent tone && toneMapping == null) {
                         toneMapping = tone;
+                    } else if (comp instanceof AtmosphereComponent sky && atmosphere == null) {
+                        atmosphere = sky;
                     }
                 }
             }
@@ -478,7 +589,8 @@ public class SceneRenderer3D implements EngineRenderer {
     }
 
     private void setDirectionalLight(DirectionalLight light, Color color, float intensity, Vector3 direction) {
-        toLinear(color, intensity * exposure * PBR_DIRECT_LIGHT_SCALE);
+        float sunlight = atmosphere == null ? 1f : atmosphere.getSunlight();
+        toLinear(color, intensity * sunlight * exposure * PBR_DIRECT_LIGHT_SCALE);
         light.set(linearColor, direction);
         directionalLightsAttribute.lights.add(light);
     }
@@ -595,6 +707,7 @@ public class SceneRenderer3D implements EngineRenderer {
         List<PrimitiveDraw> draws = collectPrimitives(activeScene);
         List<ModelDraw> modelDraws = modelAssets != null ? collectModels(activeScene) : List.of();
         drawList.clear();
+        terrainChunkDraws.clear();
         for (PrimitiveDraw draw : draws) {
             ModelInstance instance = instanceFor(draw.component());
             instance.transform.set(draw.transform());
@@ -612,6 +725,7 @@ public class SceneRenderer3D implements EngineRenderer {
                 drawList.add(instance);
             }
         }
+        terrainTriangles = 0;
         List<TerrainDraw> terrainDraws = terrainLibrary != null ? collectTerrains(activeScene) : List.of();
         for (TerrainDraw draw : terrainDraws) {
             addTerrain(draw);
@@ -620,29 +734,29 @@ public class SceneRenderer3D implements EngineRenderer {
         for (DynamicMeshDraw draw : dynamicDraws) {
             addDynamicMesh(draw);
         }
+        environmentSeconds += deltaTime;
+        List<WaterDraw> waterBodyDraws = collectWaterBodies(activeScene);
+        waterDraws.clear();
+        for (WaterDraw draw : waterBodyDraws) {
+            addWaterBody(draw);
+        }
 
-        // 6. Shadow pass, then the lit pass with depth testing; depth test is switched off again for later 2D passes
-        if (!drawList.isEmpty()) {
-            if (environment.shadowMap != null && Gdx.gl != null) {
-                renderShadowPass();
+        // 6. Shadow pass, then the sky, then the lit pass with depth testing (water last); depth test is switched off again for
+        //    later 2D passes
+        if (environment.shadowMap != null && Gdx.gl != null && (!drawList.isEmpty() || !terrainChunkDraws.isEmpty())) {
+            renderShadowPass();
+        }
+        // With post-processing (roadmap M6.2) the sky, scene and weather are drawn off-screen, then the effects put the frame back
+        boolean capturing = postProcessingEnabled && Gdx.gl != null && resolvePostProcess().isActive()
+            && postProcessor().begin(!clearEnabled, clearColor);
+        try {
+            renderSkySceneAndWeather(deltaTime);
+            if (capturing) {
+                renderPostProcessDepth();
             }
-            if (Gdx.gl != null) {
-                Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
-                Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
-            }
-            try {
-                modelBatch.begin(camera.getGdxCamera());
-                try {
-                    for (ModelInstance instance : drawList) {
-                        modelBatch.render(instance, environment);
-                    }
-                } finally {
-                    modelBatch.end();
-                }
-            } finally {
-                if (Gdx.gl != null) {
-                    Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
-                }
+        } finally {
+            if (capturing) {
+                postProcessor.finish(postSettings, camera.getGdxCamera());
             }
         }
 
@@ -656,6 +770,7 @@ public class SceneRenderer3D implements EngineRenderer {
         }
         releaseUndrawnDynamicMeshes(dynamicDraws);
         releaseUndrawnTerrains(terrainDraws);
+        releaseUndrawnWaterBodies(waterBodyDraws);
         if (modelInstances.size() > modelDraws.size()) {
             List<ModelComponent> drawn = new ArrayList<>(modelDraws.size());
             for (ModelDraw draw : modelDraws) {
@@ -663,6 +778,110 @@ public class SceneRenderer3D implements EngineRenderer {
             }
             modelInstances.keySet().removeIf(component -> !drawn.contains(component));
         }
+    }
+
+    /** The sky, then the lit pass with depth testing (water last), then the weather; depth test is off again afterwards. */
+    private void renderSkySceneAndWeather(float deltaTime) {
+        if (atmosphere != null) {
+            atmosphereRenderer().drawSky(camera.getGdxCamera(), atmosphere);
+            if (skyOverlay != null) {
+                skyOverlay.run();
+            }
+        }
+        if (!drawList.isEmpty() || !terrainChunkDraws.isEmpty() || !waterDraws.isEmpty()) {
+            if (Gdx.gl != null) {
+                Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+                Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
+            }
+            try {
+                modelBatch.begin(camera.getGdxCamera());
+                try {
+                    for (ModelInstance instance : drawList) {
+                        modelBatch.render(instance, environment);
+                    }
+                    for (int i = 0; i < terrainChunkDraws.size(); i++) {
+                        modelBatch.render(terrainChunkDraws.get(i), environment);
+                    }
+                    for (int i = 0; i < waterDraws.size(); i++) {
+                        modelBatch.render(waterDraws.get(i), environment);
+                    }
+                } finally {
+                    modelBatch.end();
+                }
+            } finally {
+                if (Gdx.gl != null) {
+                    Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+                }
+            }
+        }
+
+        if (atmosphere != null) {
+            atmosphereRenderer().drawWeather(camera.getGdxCamera(), atmosphere, deltaTime);
+        }
+    }
+
+    /** Draws the scene's depth, packed into colours, for the post-processing effects and the host's depth buffer. */
+    private void renderPostProcessDepth() {
+        postProcessor.beginDepth();
+        if (drawList.isEmpty() && terrainChunkDraws.isEmpty() && waterDraws.isEmpty()) {
+            return;
+        }
+        if (postDepthBatch == null) {
+            postDepthBatch = createPostDepthBatch();
+        }
+        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+        Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
+        try {
+            postDepthBatch.begin(camera.getGdxCamera());
+            try {
+                for (ModelInstance instance : drawList) {
+                    postDepthBatch.render(instance);
+                }
+                for (int i = 0; i < terrainChunkDraws.size(); i++) {
+                    postDepthBatch.render(terrainChunkDraws.get(i));
+                }
+                for (int i = 0; i < waterDraws.size(); i++) {
+                    postDepthBatch.render(waterDraws.get(i));
+                }
+            } finally {
+                postDepthBatch.end();
+            }
+        } finally {
+            Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+        }
+    }
+
+    /**
+     * Works out the post-processing the camera sees now from the scene's Post Process Volumes (roadmap M6.2) and returns it; neutral
+     * without a scene or camera. Called by {@link #render} every frame; pure scene traversal, usable without a graphics context.
+     */
+    public PostProcessSettings resolvePostProcess() {
+        if (camera == null) {
+            return postSettings.reset();
+        }
+        return postVolumes.resolve(activeScene, camera.getGdxCamera().position, postSettings);
+    }
+
+    /** The post-processing found by the last {@link #resolvePostProcess()}. */
+    public PostProcessSettings getPostProcessSettings() {
+        return postSettings;
+    }
+
+    /** Whether Post Process Volumes change the frame; on by default. */
+    public boolean isPostProcessingEnabled() {
+        return postProcessingEnabled;
+    }
+
+    /** Switches post-processing on or off, such as for a view that must show the scene's plain colours. */
+    public void setPostProcessingEnabled(boolean enabled) {
+        this.postProcessingEnabled = enabled;
+    }
+
+    private PostProcessor postProcessor() {
+        if (postProcessor == null) {
+            postProcessor = new PostProcessor();
+        }
+        return postProcessor;
     }
 
     /** Brings the graphics copy of a terrain up to date and adds its chunks to the draw list. A missing or unreadable file draws nothing. */
@@ -684,10 +903,122 @@ public class SceneRenderer3D implements EngineRenderer {
             gpu = new TerrainGpu(terrain);
             terrainMeshes.put(component, gpu);
         }
-        for (ModelInstance chunk : gpu.sync()) {
-            chunk.transform.set(draw.transform());
-            drawList.add(chunk);
+        boolean lod = terrainLod && camera != null;
+        List<ModelInstance> chunks;
+        if (lod) {
+            // The camera in the terrain's own space decides each chunk's level of detail (roadmap M3.8)
+            terrainInverse.set(draw.transform()).inv();
+            chunks = gpu.sync(terrainCamera.set(camera.getPosition()).mul(terrainInverse));
+        } else {
+            chunks = gpu.sync();
         }
+        Frustum frustum = lod ? camera.getGdxCamera().frustum : null;
+        float scale = lod ? draw.transform().getScale(terrainScale).len() / (float) Math.sqrt(3) : 1f;
+        for (int i = 0; i < chunks.size(); i++) {
+            ModelInstance chunk = chunks.get(i);
+            chunk.transform.set(draw.transform());
+            if (frustum == null || i >= gpu.chunkCount()) {
+                drawList.add(chunk); // level of detail off, or the water quad (after the chunks), which is always drawn
+                if (i < gpu.chunkCount()) {
+                    terrainTriangles += chunk.nodes.get(0).parts.get(0).meshPart.size / 3;
+                }
+                continue;
+            }
+            // A chunk wholly out of view is not drawn (roadmap M3.8)
+            gpu.chunkCenter(i, terrainCenter).mul(draw.transform());
+            float radius = gpu.chunkRadius(i) * scale;
+            if (!frustum.sphereInFrustum(terrainCenter, radius)) {
+                continue;
+            }
+            int at = terrainChunkDraws.size() * 4;
+            if (at + 4 > terrainChunkBounds.length) {
+                terrainChunkBounds = Arrays.copyOf(terrainChunkBounds, terrainChunkBounds.length * 2);
+            }
+            terrainChunkBounds[at] = terrainCenter.x;
+            terrainChunkBounds[at + 1] = terrainCenter.y;
+            terrainChunkBounds[at + 2] = terrainCenter.z;
+            terrainChunkBounds[at + 3] = radius;
+            terrainChunkDraws.add(chunk);
+            terrainTriangles += chunk.nodes.get(0).parts.get(0).meshPart.size / 3;
+        }
+    }
+
+    /** Brings the graphics copy of a water body up to date and adds it to the water draws (roadmap M3.9). */
+    private void addWaterBody(WaterDraw draw) {
+        WaterBodyComponent water = draw.component();
+        WaterBodyGpu gpu = waterBodies.get(water);
+        if (gpu == null) {
+            gpu = new WaterBodyGpu();
+            waterBodies.put(water, gpu);
+        }
+        water.getColor(atmosphereColor);
+        float opacity = atmosphereColor.a;
+        toLinear(atmosphereColor, 1f);
+        linearColor.a = opacity;
+        ModelInstance instance = gpu.sync(water, environmentSeconds, linearColor);
+        instance.transform.set(draw.transform());
+        waterDraws.add(instance);
+    }
+
+    /** Frees the graphics copies of water bodies whose component is no longer drawn. */
+    private void releaseUndrawnWaterBodies(List<WaterDraw> draws) {
+        if (waterBodies.size() <= draws.size()) {
+            return;
+        }
+        List<WaterBodyComponent> drawn = new ArrayList<>(draws.size());
+        for (WaterDraw draw : draws) {
+            drawn.add(draw.component());
+        }
+        for (Iterator<Map.Entry<WaterBodyComponent, WaterBodyGpu>> it = waterBodies.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<WaterBodyComponent, WaterBodyGpu> entry = it.next();
+            if (!drawn.contains(entry.getKey())) {
+                entry.getValue().dispose();
+                it.remove();
+            }
+        }
+    }
+
+    private AtmosphereRenderer atmosphereRenderer() {
+        if (atmosphereRenderer == null) {
+            atmosphereRenderer = new AtmosphereRenderer();
+        }
+        return atmosphereRenderer;
+    }
+
+    /**
+     * Sets what is drawn right after a Sky and Weather's sky and before the scene, such as the editor's ground grid, which the sky
+     * would otherwise cover (roadmap M3.9). Only runs in frames that draw a sky; null for nothing.
+     */
+    public void setSkyOverlay(Runnable overlay) {
+        this.skyOverlay = overlay;
+    }
+
+    /** The Sky and Weather component the last frame used (roadmap M3.9), or null when the scene has none. */
+    public AtmosphereComponent getAtmosphere() {
+        return atmosphere;
+    }
+
+    /** Rain drops or snow flakes drawn in the last frame (roadmap M3.9), for statistics; 0 without weather. */
+    public int getWeatherParticles() {
+        return atmosphereRenderer == null || atmosphere == null ? 0 : atmosphereRenderer.weatherParticles();
+    }
+
+    /**
+     * Whether terrain chunks far from the camera are drawn with fewer triangles and chunks wholly out of view are not drawn (roadmap
+     * M3.8; on by default). Off draws every chunk at full detail, for comparison. A culled chunk casts no shadow into the view, which
+     * matters only for a hill just behind the camera.
+     */
+    public void setTerrainLod(boolean enabled) {
+        this.terrainLod = enabled;
+    }
+
+    public boolean isTerrainLod() {
+        return terrainLod;
+    }
+
+    /** Triangles of terrain drawn in the last frame (roadmap M3.8), for statistics. */
+    public int getTerrainTriangles() {
+        return terrainTriangles;
     }
 
     /** Frees the graphics copies of terrains whose component is no longer drawn. */
@@ -782,6 +1113,16 @@ public class SceneRenderer3D implements EngineRenderer {
             try {
                 for (ModelInstance instance : drawList) {
                     shadowBatch.render(instance);
+                }
+                // Only the terrain chunks inside the shadow map's area cast into it (roadmap M3.8); the map covers a small area
+                // around the camera, and drawing every chunk in view into it cost a draw call each for nothing
+                Frustum shadowFrustum = shadowLight.getCamera().frustum;
+                for (int i = 0; i < terrainChunkDraws.size(); i++) {
+                    int at = i * 4;
+                    if (shadowFrustum.sphereInFrustum(terrainChunkBounds[at], terrainChunkBounds[at + 1], terrainChunkBounds[at + 2],
+                        terrainChunkBounds[at + 3])) {
+                        shadowBatch.render(terrainChunkDraws.get(i));
+                    }
                 }
             } finally {
                 shadowBatch.end();
@@ -893,6 +1234,7 @@ public class SceneRenderer3D implements EngineRenderer {
         this.terrainLibrary = terrainLibrary;
         terrainMeshes.values().forEach(TerrainGpu::dispose);
         terrainMeshes.clear();
+        bindColliderGeometry();
     }
 
     /**
@@ -942,12 +1284,14 @@ public class SceneRenderer3D implements EngineRenderer {
     }
 
     /**
-     * Lets the active scene's mesh and convex hull colliders read the meshes this renderer shows (TD-052). It reads from this
-     * renderer's models, so it is set whenever either the scene or the models change.
+     * Lets the active scene's mesh and convex hull colliders read the meshes this renderer shows (TD-052), and its terrain colliders
+     * the terrains it draws (TD-087). It reads from this renderer's models and terrain library, so it is set whenever the scene, the
+     * models or the library change.
      */
     private void bindColliderGeometry() {
         if (activeScene != null) {
             activeScene.setColliderGeometry(new ColliderGeometry(modelAssets));
+            activeScene.setHeightFields(terrainLibrary != null ? new TerrainHeightFields(terrainLibrary) : null);
         }
     }
 
@@ -1050,9 +1394,19 @@ public class SceneRenderer3D implements EngineRenderer {
         appliedMaterials.clear();
         modelInstances.clear();
         drawList.clear();
+        terrainChunkDraws.clear();
         ResourceManager owned = new ResourceManager();
         terrainMeshes.values().forEach(owned::register);
         terrainMeshes.clear();
+        waterBodies.values().forEach(owned::register);
+        waterBodies.clear();
+        waterDraws.clear();
+        registerIfPresent(owned, atmosphereRenderer);
+        atmosphereRenderer = null;
+        registerIfPresent(owned, postProcessor);
+        postProcessor = null;
+        registerIfPresent(owned, postDepthBatch);
+        postDepthBatch = null;
         for (DynamicMeshGpu<GlChunkTarget> gpu : dynamicMeshes.values()) {
             owned.register(gpu);
         }

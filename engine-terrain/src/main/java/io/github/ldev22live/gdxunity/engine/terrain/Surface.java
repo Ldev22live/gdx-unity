@@ -11,7 +11,11 @@ public enum Surface {
     GRASS("Grass", 0.30f, 0.52f, 0.18f),
     SAND("Sand", 0.80f, 0.71f, 0.46f),
     SNOW("Snow", 0.92f, 0.94f, 0.97f),
-    GRAVEL("Gravel", 0.50f, 0.48f, 0.45f);
+    GRAVEL("Gravel", 0.50f, 0.48f, 0.45f),
+    /** Bare rock (roadmap M3.4). */
+    ROCK("Rock", 0.46f, 0.43f, 0.40f),
+    /** Bare earth (roadmap M3.4). */
+    DIRT("Dirt", 0.42f, 0.31f, 0.20f);
 
     private final String label;
     private final float red;
@@ -38,6 +42,25 @@ public enum Surface {
             case 2 -> blue;
             default -> throw new IllegalArgumentException("A colour has channels 0 to 2: " + channel);
         };
+    }
+
+    /** Number of paint layers: every surface but {@link #AUTO} can be painted with a weight (roadmap M3.4, TD-089). */
+    public static final int LAYER_COUNT = values().length - 1;
+
+    /** Index of this surface's paint layer, 0 to {@link #LAYER_COUNT} - 1. */
+    public int layer() {
+        if (this == AUTO) {
+            throw new IllegalStateException("Auto is the base look, not a paint layer");
+        }
+        return ordinal() - 1;
+    }
+
+    /** The surface painted by layer {@code layer}. */
+    public static Surface ofLayer(int layer) {
+        if (layer < 0 || layer >= LAYER_COUNT) {
+            throw new IllegalArgumentException("Layer must be 0 to " + (LAYER_COUNT - 1) + ": " + layer);
+        }
+        return values()[layer + 1];
     }
 
     /** The code stored in a file. */

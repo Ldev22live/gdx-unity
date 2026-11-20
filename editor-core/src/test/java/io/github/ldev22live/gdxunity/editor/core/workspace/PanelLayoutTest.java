@@ -46,7 +46,7 @@ class PanelLayoutTest {
         assertTrue(registry.execute(PanelLayout.TOGGLE_OUTLINER));
         assertTrue(registry.execute(PanelLayout.TOGGLE_BOTTOM_PANEL));
         assertTrue(registry.execute(PanelLayout.CYCLE_DETAILS));
-        assertEquals("Details: always", state.getStatusMessage());
+        assertEquals("Properties: always", state.getStatusMessage());
 
         assertTrue(panels.isOutlinerShown() && panels.isBottomPanelShown() && panels.isDetailsShown(false));
         PanelLayout reloaded = new PanelLayout(serializer.deserialize(serializer.serialize(config)));
@@ -75,6 +75,45 @@ class PanelLayoutTest {
         assertEquals(DetailsMode.WITH_SELECTION.name(), badMode.getDetailsMode(), "an unknown mode falls back to the default");
     }
 
+    /** UI M3: the Asset Library and the Console are separate drawers, each opened and closed on its own and remembered. */
+    @Test
+    void shouldOpenTheAssetLibraryAndTheConsoleIndependentlyAndSaveBoth() {
+        WorkspaceLayoutSerializer serializer = new WorkspaceLayoutSerializer();
+        WorkspaceLayoutConfig config = serializer.createDefaultConfig();
+        PanelLayout panels = new PanelLayout(config);
+        EditorState state = new EditorState();
+        EditorActionRegistry registry = new EditorActionRegistry();
+        PanelLayout.registerActions(registry, state, panels);
+        assertFalse(panels.isAssetLibraryShown() || panels.isConsoleShown(), "the World layout starts with both closed");
+
+        assertTrue(registry.execute(PanelLayout.TOGGLE_CONSOLE));
+        assertEquals("Scripts open", state.getStatusMessage());
+        assertTrue(panels.isConsoleShown());
+        assertFalse(panels.isAssetLibraryShown(), "opening the Console leaves the Asset Library closed");
+        assertTrue(panels.isBottomPanelShown());
+
+        assertTrue(registry.execute(PanelLayout.TOGGLE_BOTTOM_PANEL));
+        assertEquals("Assets open", state.getStatusMessage());
+        assertTrue(panels.isAssetLibraryShown() && panels.isConsoleShown(), "both open, side by side");
+        PanelLayout reloaded = new PanelLayout(serializer.deserialize(serializer.serialize(config)));
+        assertTrue(reloaded.isAssetLibraryShown() && reloaded.isConsoleShown(), "both saved");
+
+        panels.toggleConsole();
+        assertTrue(panels.isAssetLibraryShown() && !panels.isConsoleShown(), "closing the Console leaves the Asset Library open");
+    }
+
+    @Test
+    void shouldReadALayoutFromBeforeTheDrawersWithTheConsoleClosed() {
+        String saved = "{\"version\":2,\"activeWorkspaceId\":\"scene-editor\",\"splitRatioMain\":0.7,\"splitRatioLeft\":0.2,"
+            + "\"splitRatioRight\":0.25,\"bottomPanelCollapsed\":false,\"outlinerShown\":true,\"detailsMode\":\"ALWAYS\"}";
+
+        PanelLayout panels = new PanelLayout(new WorkspaceLayoutSerializer().deserialize(saved));
+
+        assertTrue(panels.isAssetLibraryShown(), "the old bottom panel's state is the Asset Library's");
+        assertFalse(panels.isConsoleShown());
+        assertTrue(panels.isOutlinerShown());
+    }
+
     @Test
     void shouldOfferTheStripFor2DAnd3DScenesAndExplainTheSectionsThatAreNotBuiltYet() {
         assertEquals(List.of(WorldStrip.Section.TERRAIN, WorldStrip.Section.OBJECTS, WorldStrip.Section.BUILDINGS,
@@ -86,7 +125,8 @@ class PanelLayoutTest {
         assertEquals(Optional.empty(), WorldStrip.unavailableReason(WorldStrip.Section.TERRAIN, GameMode.MODE_3D));
         assertEquals(Optional.empty(), WorldStrip.unavailableReason(WorldStrip.Section.OBJECTS, GameMode.MODE_3D));
         assertEquals(Optional.empty(), WorldStrip.unavailableReason(WorldStrip.Section.TILES, GameMode.MODE_2D));
-        assertTrue(WorldStrip.unavailableReason(WorldStrip.Section.BUILDINGS, GameMode.MODE_3D).orElseThrow().contains("R7a"));
+        assertEquals(Optional.empty(), WorldStrip.unavailableReason(WorldStrip.Section.BUILDINGS, GameMode.MODE_3D),
+            "placing buildings works since UI M3; reshaping one is Customize's (R7a)");
         assertTrue(WorldStrip.unavailableReason(WorldStrip.Section.OBJECTS, GameMode.MODE_2D).isPresent());
         assertTrue(WorldStrip.unavailableReason(WorldStrip.Section.CHARACTERS, GameMode.MODE_2D).isPresent());
         assertThrows(IllegalArgumentException.class, () -> WorldStrip.unavailableReason(WorldStrip.Section.TERRAIN, GameMode.MODE_2D));

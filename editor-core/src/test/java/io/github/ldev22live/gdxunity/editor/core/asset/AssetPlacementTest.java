@@ -1,5 +1,15 @@
 package io.github.ldev22live.gdxunity.editor.core.asset;
 
+import org.junit.jupiter.api.io.TempDir;
+import java.nio.file.Path;
+import java.io.IOException;
+import java.nio.file.Files;
+import io.github.ldev22live.gdxunity.engine.sprite.SpriteFile;
+import io.github.ldev22live.gdxunity.engine.sprite.SpriteDocument;
+import io.github.ldev22live.gdxunity.engine.scene.GameMode;
+import io.github.ldev22live.gdxunity.engine.core.asset.AssetService;
+import io.github.ldev22live.gdxunity.engine.core.asset.AssetSource;
+import io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.EditorTestHelper;
@@ -55,6 +65,41 @@ class AssetPlacementTest {
             .getAssetReference().getPath());
         editorState.undo();
         assertEquals(before, editorState.getActiveScene().getAllEntities().size());
+    }
+
+    /**
+     * Roadmap M3c.8: in a 2.5D or 3D world a dropped sprite gets a size that can be seen beside the characters (its longer side
+     * {@link AssetPlacement#DROPPED_SPRITE_SIZE}, its shape kept); a 2D scene keeps the pixel size; a sprite that cannot be read is
+     * placed at its pixel size and the status bar says why.
+     */
+    @Test
+    void shouldSizeADroppedSpriteForA25DOr3DWorldKeepingItsShape(@TempDir Path project)
+        throws IOException {
+        Files.createDirectories(project.resolve("sprites"));
+        Files.writeString(project.resolve("sprites/banner.sprite"),
+            SpriteFile.write(new SpriteDocument(16, 8)));
+        for (GameMode mode : GameMode.values()) {
+            EditorState editorState = new EditorState();
+            editorState.getActiveScene().setGameMode(mode);
+            editorState.setAssetService(new AssetService(
+                AssetSource.directory(project.toFile())));
+
+            assertEquals(AssetPlacement.Result.PLACED,
+                AssetPlacement.place(editorState, new AssetReference("sprites/banner.sprite"), new Vector3()));
+
+            var sprite = editorState.getSelectedEntity()
+                .getComponent(SpriteAnimatorComponent.class);
+            boolean depth = mode != GameMode.MODE_2D;
+            assertEquals(depth ? AssetPlacement.DROPPED_SPRITE_SIZE : 0f, sprite.getWidth(), 0.001f, mode + " width");
+            assertEquals(depth ? AssetPlacement.DROPPED_SPRITE_SIZE / 2f : 0f, sprite.getHeight(), 0.001f, mode + " height, shape kept");
+        }
+        EditorState missing = new EditorState();
+        missing.getActiveScene().setGameMode(GameMode.MODE_3D);
+        missing.setAssetService(new AssetService(
+            AssetSource.directory(project.toFile())));
+        assertEquals(AssetPlacement.Result.PLACED, AssetPlacement.place(missing, new AssetReference("sprites/gone.sprite"), new Vector3()));
+        assertTrue(missing.getStatusMessage().startsWith("Placed gone.sprite at its pixel size: cannot read it"),
+            missing.getStatusMessage());
     }
 
     @Test

@@ -1,0 +1,371 @@
+{
+  "schemaVersion": 1,
+  "name": "Poly Haven Showcase 3D",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "aa37e7cf-9d66-5364-a726-4538e29c8c52",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "77a4bb79-c6ed-5f61-85fa-1049501a3e70",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.6,
+            "skyG": 0.72,
+            "skyB": 0.9,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7e77c414-0f00-5940-90b3-ce3da49c9161",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 260.0,
+          "z": 700.0
+        },
+        "rotation": {
+          "x": -0.1305,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9914
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 55.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "70d5b1e7-5856-574a-ad77-db9ba7cba602",
+      "name": "Wood Deck",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 1600.0,
+            "sizeY": 1.0,
+            "sizeZ": 1600.0,
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0,
+            "colorA": 1.0,
+            "materialPath": "materials/WoodFloorDeck.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "94c87a0c-b5f8-5494-80c9-75434d3a55e5",
+      "name": "Brick Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 150.0,
+          "z": -320.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 900.0,
+            "sizeY": 300.0,
+            "sizeZ": 40.0,
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0,
+            "colorA": 1.0,
+            "materialPath": "materials/RedBrick03.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7bee7e3d-8774-5c9c-8664-07b3c53a67da",
+      "name": "Rollershutter Door",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/polyhaven/rollershutter_door/rollershutter_door_1k.gltf",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "661cb592-e6ef-5242-a06c-4e929b93bb04",
+      "name": "Rock Block",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -300.0,
+          "y": 60.0,
+          "z": -80.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 120.0,
+            "sizeY": 120.0,
+            "sizeZ": 120.0,
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0,
+            "colorA": 1.0,
+            "materialPath": "materials/RockyTerrain02.material"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d94933ed-05cc-5c4c-ae96-16ce266dba97",
+      "name": "Stone Fire Pit",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 220.0,
+          "y": 19.0,
+          "z": 60.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/polyhaven/stone_fire_pit/stone_fire_pit_1k.gltf",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "671286d0-a1f6-5ffc-a3a9-df574cbee073",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "CC0 assets from Poly Haven: wood deck, brick, rock (materials) and the door and fire pit (glTF models).",
+            "colorR": 0.95,
+            "colorG": 0.95,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 24.0
+          }
+        }
+      ]
+    }
+  ]
+}

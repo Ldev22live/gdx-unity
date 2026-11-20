@@ -66,6 +66,19 @@
             "colorB": 0.14,
             "colorA": 1.0
           }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 30.0,
+            "sizeY": 110.0,
+            "sizeZ": 30.0
+          }
         }
       ]
     },

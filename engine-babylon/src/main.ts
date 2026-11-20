@@ -83,7 +83,10 @@ async function start(): Promise<void> {
   for (const sample of samples) {
     select.add(new Option(sample.name, sample.file));
   }
-  const first = samples.find((sample) => sample.file === "collector-3d.json") ?? samples[0];
+  // `?scene=<file>` opens that sample first: a testing aid, so a headless browser can show any sample (roadmap M3.11)
+  const asked = new URLSearchParams(window.location.search).get("scene");
+  const first = samples.find((sample) => sample.file === asked)
+    ?? samples.find((sample) => sample.file === "collector-3d.json") ?? samples[0];
   if (!first) throw new Error("The samples folder has no scenes");
   select.value = first.file;
   await loadSample(first.file);

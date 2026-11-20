@@ -28,6 +28,8 @@ public class EditorState {
         default void onViewportModeChanged(ViewportMode oldMode, ViewportMode newMode) {}
         /** The scene's game mode (2D, 2.5D, 3D) changed, or another scene with another mode became active. {@code oldMode} is null for the first scene. */
         default void onGameModeChanged(GameMode oldMode, GameMode newMode) {}
+        /** The scene's genre id (TD-088) changed; either may be null for "none". */
+        default void onGameGenreChanged(String oldGenre, String newGenre) {}
         default void onStatusMessage(String message, boolean isError) {}
         default void onHierarchyModified() {}
         default void onEntityTransformModified(Entity entity) {}
@@ -149,6 +151,20 @@ public class EditorState {
     }
 
     public void setActiveScene(Scene newScene) {
+        switchActiveScene(newScene, true);
+    }
+
+    /**
+     * Shows the Play copy of the scene, or the authored scene again on Stop, <b>keeping the undo history</b> (roadmap Appendix E3,
+     * found by the M3c.5 journey test: Play used to clear it). Only {@code PlayModeController} calls this. It is safe because undo,
+     * redo and new commands are refused while the game plays, and Stop brings back the very scene object the history's commands
+     * were made on.
+     */
+    public void swapSceneForPlay(Scene scene) {
+        switchActiveScene(Objects.requireNonNull(scene, "scene cannot be null"), false);
+    }
+
+    private void switchActiveScene(Scene newScene, boolean clearHistory) {
         if (this.activeScene == newScene) {
             return;
         }
@@ -156,8 +172,10 @@ public class EditorState {
         GameMode oldGameMode = oldScene == null ? null : GameModeProfile.resolve(oldScene);
         this.activeScene = (newScene != null) ? newScene : new Scene("Untitled Scene");
 
-        // Clear command history to prevent stale entity mutations across scene transitions
-        this.commandHistory.clear();
+        // Clear command history to prevent stale entity mutations across scene transitions (not for Play and Stop, see above)
+        if (clearHistory) {
+            this.commandHistory.clear();
+        }
 
         // Clear selection or reconcile
         java.util.Set<UUID> oldSelection = new java.util.LinkedHashSet<>(this.selectedEntityIds);
@@ -211,6 +229,43 @@ public class EditorState {
                 l.onGameModeChanged(old, mode);
             }
         }
+    }
+
+    /** The id of the active scene's genre (TD-088), or null when none was chosen. */
+    public String getGameGenre() {
+        return activeScene == null ? null : activeScene.getGameGenre();
+    }
+
+    /**
+     * Sets the active scene's genre id (TD-088); null means none. Not allowed during Play. Not an undo step, like the game mode: it is
+     * a setting of the scene and changes nothing in it. Any id is accepted, also one whose pairs are only planned; Play refuses those
+     * with the reason.
+     *
+     * @return false when nothing changed or the change was refused
+     */
+    public boolean setGameGenre(String genreId) {
+        if (isPlayModeActive()) {
+            setStatusMessage("Cannot change the game genre during Play/Pause mode", true);
+            return false;
+        }
+        if (activeScene == null) {
+            return false;
+        }
+        String old = activeScene.getGameGenre();
+        try {
+            activeScene.setGameGenre(genreId);
+        } catch (IllegalArgumentException e) {
+            setStatusMessage(e.getMessage(), true);
+            return false;
+        }
+        String now = activeScene.getGameGenre();
+        if (Objects.equals(old, now)) {
+            return false;
+        }
+        for (Listener l : listeners) {
+            l.onGameGenreChanged(old, now);
+        }
+        return true;
     }
 
     public UUID getSelectedEntityId() {

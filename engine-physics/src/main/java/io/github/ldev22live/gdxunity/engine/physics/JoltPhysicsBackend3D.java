@@ -15,6 +15,8 @@ import com.github.stephengold.joltjni.BroadPhaseLayerInterfaceTable;
 import com.github.stephengold.joltjni.Body;
 import com.github.stephengold.joltjni.CapsuleShapeSettings;
 import com.github.stephengold.joltjni.ConvexHullShapeSettings;
+import com.github.stephengold.joltjni.HeightFieldShapeConstants;
+import com.github.stephengold.joltjni.HeightFieldShapeSettings;
 import com.github.stephengold.joltjni.Float3;
 import com.github.stephengold.joltjni.IndexedTriangle;
 import com.github.stephengold.joltjni.IndexedTriangleList;
@@ -69,6 +71,7 @@ import com.github.stephengold.joltjni.readonly.ConstCharacterContact;
 import com.github.stephengold.joltjni.readonly.ConstShape;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.BodyDescriptor3D;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.CharacterDescriptor3D;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.HeightField3D;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.Joint3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.JointDescriptor3D;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsBackend3D;
@@ -77,6 +80,7 @@ import io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.ShapeDescriptor3D;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -786,6 +790,11 @@ public final class JoltPhysicsBackend3D implements PhysicsBackend3D {
 
     /** One shape, or a compound when there are several or one is moved off the body's origin. */
     private static ShapeSettings shapeOf(List<ShapeDescriptor3D> shapes) {
+        if (shapes.size() == 1 && shapes.get(0).kind() == ShapeDescriptor3D.Kind.HEIGHT_FIELD) {
+            // A height field carries its own offset, so a lone one needs no compound around it
+            ShapeDescriptor3D ground = shapes.get(0);
+            return heightFieldOf(ground.heightField(), ground.offset());
+        }
         if (shapes.size() == 1 && shapes.get(0).offset().isZero()) {
             return single(shapes.get(0));
         }
@@ -804,7 +813,44 @@ public final class JoltPhysicsBackend3D implements PhysicsBackend3D {
             case CAPSULE -> new CapsuleShapeSettings(shape.halfHeight(), shape.radius());
             case HULL -> hullOf(shape.points());
             case MESH -> meshOf(shape.points(), shape.indices());
+            case HEIGHT_FIELD -> heightFieldOf(shape.heightField(), Vector3.Zero);
         };
+    }
+
+    /**
+     * Points per block of a height field: Jolt's smallest, so each block's heights are quantised over the smallest range and the
+     * ground stays closest to the terrain that is drawn (TD-087).
+     */
+    static final int HEIGHT_FIELD_BLOCK_SIZE = 2;
+    /** Bits per height inside a block: Jolt's most. */
+    static final int HEIGHT_FIELD_BITS_PER_SAMPLE = 8;
+
+    /**
+     * Jolt's height field is square, with a side that is a multiple of the block size. A terrain that is not is padded along the
+     * far edges with points nothing collides with, so the ground ends where the terrain does.
+     */
+    static int heightFieldSide(int columns, int rows) {
+        int side = Math.max(columns, rows);
+        return ((side + HEIGHT_FIELD_BLOCK_SIZE - 1) / HEIGHT_FIELD_BLOCK_SIZE) * HEIGHT_FIELD_BLOCK_SIZE;
+    }
+
+    private static ShapeSettings heightFieldOf(HeightField3D field, Vector3 offset) {
+        int side = heightFieldSide(field.columns(), field.rows());
+        float[] samples = new float[side * side];
+        Arrays.fill(samples, HeightFieldShapeConstants.cNoCollisionValue);
+        float[] heights = field.heights();
+        for (int row = 0; row < field.rows(); row++) {
+            for (int column = 0; column < field.columns(); column++) {
+                float height = heights[row * field.columns() + column];
+                samples[row * side + column] = HeightField3D.isHole(height) ? HeightFieldShapeConstants.cNoCollisionValue : height;
+            }
+        }
+        HeightFieldShapeSettings settings = new HeightFieldShapeSettings(samples,
+            new Vec3(field.originX() + offset.x, offset.y, field.originZ() + offset.z),
+            new Vec3(field.cellSizeX(), 1f, field.cellSizeZ()), side);
+        settings.setBlockSize(HEIGHT_FIELD_BLOCK_SIZE);
+        settings.setBitsPerSample(HEIGHT_FIELD_BITS_PER_SAMPLE);
+        return settings;
     }
 
     /** Convex radius of a hull collider in meters: small, so the hull stays close to the mesh it was built from. */

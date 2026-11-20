@@ -230,7 +230,8 @@ public final class TemplateMatrix {
         cells.put(Domain.ART_2D, art(assetsRoot, scan, flattened));
         cells.put(Domain.LOGIC, logic(audit));
         cells.put(Domain.ANIMATION, animation(assetsRoot, scan, flattened));
-        cells.put(Domain.MATERIALS, scan.has("DirectionalLightComponent", "PointLightComponent", "SkyLightComponent", "ToneMappingComponent")
+        cells.put(Domain.MATERIALS, scan.has("DirectionalLightComponent", "PointLightComponent", "SkyLightComponent", "ToneMappingComponent",
+            "AtmosphereComponent", "WaterBodyComponent", "PostProcessVolumeComponent")
             || scan.anyString("MeshPrimitiveComponent", "materialPath") ? new Cell(Status.PASS, "") : notUsed());
         cells.put(Domain.SOUND, sound(scan, flattened));
         cells.put(Domain.MUSIC, music(assetsRoot, scan));
@@ -369,7 +370,8 @@ public final class TemplateMatrix {
 
     private static Cell gameplay(EditabilityAudit.Row audit, Scan scan) {
         boolean used = audit.logic() != EditabilityAudit.Logic.NONE || scan.has("RigidBody2DComponent", "RigidBody3DComponent",
-            "BoxCollider2DComponent", "BoxCollider3DComponent", "CharacterController3DComponent");
+            "BoxCollider2DComponent", "BoxCollider3DComponent", "CharacterController3DComponent", "NavAgent3DComponent",
+            "NavMeshBoundsComponent");
         if (!used) {
             return notUsed();
         }

@@ -4,11 +4,12 @@ import com.badlogic.gdx.utils.GdxNativesLoader;
 import io.github.ldev22live.gdxunity.editor.core.action.DefaultEditorActions;
 import io.github.ldev22live.gdxunity.editor.core.action.EditorAction;
 import io.github.ldev22live.gdxunity.editor.core.action.HeaderMenus;
+import io.github.ldev22live.gdxunity.editor.core.play.GenreChoices;
 import io.github.ldev22live.gdxunity.editor.core.project.TemplateGallery;
 import io.github.ldev22live.gdxunity.editor.core.workspace.Workspace;
 import io.github.ldev22live.gdxunity.editor.core.workspace.WorldStrip;
-import io.github.ldev22live.gdxunity.editor.desktop.ui.EditorFooter;
 import io.github.ldev22live.gdxunity.engine.scene.GameMode;
+import io.github.ldev22live.gdxunity.engine.scene.play.GameGenres;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -105,9 +106,14 @@ class WebUxContractTest {
                 .append(" | ").append(planned.isEmpty() ? "none" : String.join("<br>", planned)).append(" |\n");
         }
 
-        out.append("\n### Footer\n\n- Game Genre, while there is no genre system: \"").append(EditorFooter.GENRE_NOT_YET).append("\"\n")
-            .append("- Game Mode choices: ").append(Stream.of(GameMode.values()).map(GameMode::getLabel).collect(Collectors.joining(", ")))
-            .append('\n');
+        out.append("\n### Footer\n\n- Game Mode choices: ").append(Stream.of(GameMode.values()).map(GameMode::getLabel).collect(Collectors.joining(", ")))
+            .append("\n- Game Genre choices, as the desktop marks them in each game mode (the desktop registry; the web plays none of them yet):\n\n"
+                + "| Game mode | Choices |\n|---|---|\n");
+        GameGenres genres = GameGenres.standard();
+        for (GameMode mode : GameMode.values()) {
+            out.append("| ").append(mode.getLabel()).append(" | ").append(GenreChoices.choices(genres, null, mode).stream()
+                .map(GenreChoices.Choice::display).collect(Collectors.joining(", "))).append(" |\n");
+        }
 
         out.append("\n### Desktop template labels (Appendix F5), from the most to the least editable\n\n"
             + "The web labels (Web Editable, Web Preview Only, Desktop Required) are separate (section 5).\n\n| Label | Meaning |\n|---|---|\n");

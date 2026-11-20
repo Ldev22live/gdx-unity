@@ -49,7 +49,9 @@ final class ActionInventoryDump {
         SculptActions.registerFromSelected(registry, state, sculpts, new ColliderGeometry(null));
         DefaultEditorActions.registerLightingActions(registry, state, org.mockito.Mockito.mock(SceneRenderer3D.class));
         TerrainSession terrain = new TerrainSession(new TerrainLibrary(AssetSource.directory(project)));
-        LevelActions.register(registry, state, new LevelSession(state, terrain, project), on -> { });
+        LevelSession level = new LevelSession(state, terrain, project);
+        LevelActions.register(registry, state, level, on -> { });
+        LevelActions.registerHeightmaps(registry, state, level, new NonInteractiveDialogService(), project);
         PanelLayout.registerActions(registry, state, new PanelLayout(new WorkspaceLayoutConfig()));
         List<EditorAction> actions = new ArrayList<>(registry.getAll());
         actions.sort(Comparator.comparing(EditorAction::getId));

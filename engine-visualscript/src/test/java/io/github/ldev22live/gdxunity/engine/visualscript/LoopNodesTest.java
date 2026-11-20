@@ -1,6 +1,7 @@
 package io.github.ldev22live.gdxunity.engine.visualscript;
 
 import com.badlogic.gdx.utils.GdxNativesLoader;
+import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -124,5 +125,61 @@ class LoopNodesTest {
         }
         assertTrue(assertThrows(IllegalArgumentException.class,
             () -> new GraphTypeScriptGenerator(registry).generate(graph)).getMessage().contains(LoopNodes.REPEAT));
+    }
+    // ---- For Each Entity (roadmap M1.2) ----
+
+    private static final String GET_SCENE = "java:io.github.ldev22live.gdxunity.engine.scene.Entity#getScene()";
+    private static final String ALL_ENTITIES = "java:io.github.ldev22live.gdxunity.engine.scene.Scene#getAllEntities()";
+
+    /** For Each Entity over the scene's entities, from Self's scene; the body prints index and name. */
+    private GraphNode forEachOverScene() {
+        GraphNode self = node(BuiltInNodes.DATA_SELF);
+        GraphNode scene = node(GET_SCENE);
+        GraphNode all = node(ALL_ENTITIES);
+        wire(self, "entity", scene, "target");
+        wire(scene, "result", all, "target");
+        GraphNode loop = node(LoopNodes.FOR_EACH_ENTITY);
+        wire(all, "result", loop, "list");
+        GraphNode index = node(BuiltInNodes.TEXT_FROM_FLOAT);
+        wire(loop, "index", index, "value");
+        GraphNode name = node(BuiltInNodes.DATA_GET_NAME);
+        wire(loop, "entity", name, "target");
+        GraphNode line = node(BuiltInNodes.TEXT_APPEND);
+        wire(index, "text", line, "a");
+        wire(name, "name", line, "b");
+        GraphNode body = print("");
+        wire(line, "result", body, "message");
+        wire(loop, "body", body, "exec");
+        wire(loop, "completed", print("done"), "exec");
+        return loop;
+    }
+
+    @Test
+    void shouldRunTheBodyForEachEntityOfAListInOrderThenCompleted() {
+        GraphNode loop = forEachOverScene();
+        assertEquals(List.of(), new GraphValidator(registry).validate(graph), "a List output wires into For Each Entity");
+        Scene scene = new Scene("For each");
+        Entity self = scene.createEntity("Self");
+        scene.createEntity("Crate");
+        scene.createEntity("Ball");
+        wire(node(BuiltInNodes.EVENT_BEGIN_PLAY), "then", loop, "exec");
+        GraphInstance instance = new GraphInstance(GraphSerializer.fromJson(GraphSerializer.toJson(graph)), registry, self, new GraphHost() {
+            @Override public void log(GraphInstance graph, String message) { lines.add(message); }
+            @Override public void error(GraphInstance graph, GraphRuntimeException error) { errors.add(error); }
+        });
+        instance.beginPlay();
+
+        assertEquals(List.of(), errors);
+        assertEquals(List.of("0Self", "1Crate", "2Ball", "done"), lines);
+    }
+
+    @Test
+    void shouldStopWithAnErrorWhenTheListIsMissing() {
+        GraphNode loop = node(LoopNodes.FOR_EACH_ENTITY);
+        wire(loop, "body", print("body"), "exec");
+        start(loop);
+        assertEquals(List.of(), lines, "nothing runs on a missing list");
+        assertEquals(1, errors.size());
+        assertTrue(errors.get(0).getMessage().contains("needs a list"), errors.get(0).getMessage());
     }
 }

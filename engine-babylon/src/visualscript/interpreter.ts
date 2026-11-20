@@ -37,7 +37,7 @@ interface PendingDelay {
   remaining: number;
 }
 
-interface Continuation { nodeId: string; pinId: string; index?: number }
+interface Continuation { nodeId: string; pinId: string; index?: number; item?: GraphEntity }
 
 /**
  * One graph running for one entity: an interpreter (TD-029, TD-044), the web version of the desktop's `GraphInstance`.
@@ -243,6 +243,7 @@ export class GraphInstance {
         const next = pending.pop()!;
         const { nodeId: fromNode, pinId: fromPin } = next;
         if (next.index !== undefined) this.outputsOf(fromNode).set("index", next.index);
+        if (next.item !== undefined) this.outputsOf(fromNode).set("entity", next.item);
         for (const link of this.graph.linksFrom(fromNode, fromPin)) {
           const target = this.graph.requireNode(link.to);
           current = target.id;
@@ -380,6 +381,13 @@ class Context implements NodeContext {
     if (this.node.type !== "flow.repeat" || !Number.isInteger(count) || count < 0 || count > MAX_LOOP_ITERATIONS) throw this.error(`Invalid Repeat count: ${count}`);
     this.output("index", 0);
     for (let index = 0; index < count; index++) this.continuations.push({ nodeId: this.node.id, pinId: "body", index });
+    this.continuations.push({ nodeId: this.node.id, pinId: "completed" });
+  }
+
+  forEachEntity(entities: GraphEntity[]): void {
+    if (this.node.type !== "flow.forEachEntity") throw this.error("For Each Entity runs only from its own node");
+    this.output("index", 0);
+    entities.forEach((item, index) => this.continuations.push({ nodeId: this.node.id, pinId: "body", index, item }));
     this.continuations.push({ nodeId: this.node.id, pinId: "completed" });
   }
 

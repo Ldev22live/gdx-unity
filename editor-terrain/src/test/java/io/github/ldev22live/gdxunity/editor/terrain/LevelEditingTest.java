@@ -5,6 +5,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
+import io.github.ldev22live.gdxunity.editor.core.viewport.OrthographicViewCamera;
+import io.github.ldev22live.gdxunity.editor.core.viewport.ViewKind;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportInteraction;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetSource;
 import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
@@ -180,13 +182,13 @@ class LevelEditingTest {
         click(Input.Buttons.LEFT, 0);
 
         int centre = terrain.getResolutionX() / 2;
-        assertEquals(Surface.GRAVEL, terrain.getSurface(centre, centre), "the patch is gravel under the cursor");
-        assertEquals(Surface.GRASS, terrain.getSurface(0, 0), "far ground is still the base");
+        assertEquals(Surface.GRAVEL, terrain.dominantSurface(centre, centre), "the patch is gravel under the cursor (a soft layer, TD-089)");
+        assertEquals(Surface.GRASS, terrain.dominantSurface(0, 0), "far ground is still the base");
         assertTrue(java.util.Arrays.equals(heights, terrain.copyHeights()), "painting ground does not change the shape");
         assertTrue(normal.calls.isEmpty(), "the stroke was not passed on");
 
         assertTrue(editorState.getCommandHistory().undo());
-        assertEquals(Surface.GRASS, terrain.getSurface(centre, centre), "one undo takes the patch back");
+        assertEquals(Surface.GRASS, terrain.dominantSurface(centre, centre), "one undo takes the patch back");
     }
 
     @Test
@@ -213,6 +215,71 @@ class LevelEditingTest {
         assertTrue(placed().isEmpty(), "one undo removes the object");
         assertTrue(editorState.getCommandHistory().redo());
         assertEquals(1, placed().size());
+    }
+
+    /** UI M3: the Buildings drawer places a building square and at its own size, selected, as one undo step; Erase takes it away. */
+    @Test
+    void shouldPlaceABuildingSquareAtItsOwnSizeFromTheBuildingsDrawerAndEraseIt() throws IOException {
+        String building = LevelSession.BUILDING_FOLDER + "/Cottage.prefab";
+        Files.createDirectories(project.resolve(LevelSession.BUILDING_FOLDER));
+        Files.writeString(project.resolve(building), PREFAB_TEXT.replace("\"Tree\"", "\"Cottage\""));
+        level.createLevel(Surface.GRASS);
+        level.setFocus(LevelSession.Focus.BUILDINGS);
+        assertEquals(LevelSession.BUILDING_FOLDER, level.getObjectFolder());
+        assertEquals(List.of(building), level.listObjects(), "the drawer lists the buildings, not the trees");
+        assertEquals(LevelSession.Tool.PLACE, level.getTool());
+        assertTrue(LevelSession.Focus.BUILDINGS.offers(LevelSession.Tool.ERASE));
+        assertFalse(LevelSession.Focus.BUILDINGS.offers(LevelSession.Tool.RAISE), "no ground tools in the Buildings drawer");
+        level.setObjectPath(building);
+        int undoSteps = editorState.getCommandHistory().getUndoCount();
+
+        click(Input.Buttons.LEFT, 0);
+
+        assertEquals(1, placed().size());
+        Entity cottage = placed().get(0);
+        assertEquals(1f, cottage.getTransform().getLocalScale().x, 1e-6f, "at its own size");
+        assertEquals(0f, cottage.getTransform().getLocalRotation().getYaw(), 1e-3f, "square, facing -Z");
+        assertSame(cottage, editorState.getSelectedEntity(), "selected, to be moved or turned next");
+        assertEquals(undoSteps + 1, editorState.getCommandHistory().getUndoCount(), "one undo step");
+
+        level.setTool(LevelSession.Tool.ERASE);
+        click(Input.Buttons.LEFT, 0);
+        assertTrue(placed().isEmpty(), "Erase takes a building away too");
+    }
+
+    /** UI M2: the full-map view paints ground and places objects where clicked, through its own orthographic camera. */
+    @Test
+    void shouldPaintAndPlaceThroughTheIsometricViewWhereClickedEachAsOneUndoStep() {
+        level.createLevel(Surface.GRASS);
+        Terrain terrain = level.findTerrain();
+        OrthographicViewCamera isometric = new OrthographicViewCamera(ViewKind.ISOMETRIC);
+        isometric.resize((int) WIDTH, (int) HEIGHT);
+        isometric.setZoom(2f);
+        isometric.turn(1);
+        isometric.setFocus(new Vector3(300f, 0f, -200f));
+        interaction = new LevelViewportInteraction(level, isometric.getCamera(),
+            new TerrainViewportInteraction(editorState, terrainSession, isometric.getCamera(), normal));
+        int undoSteps = editorState.getCommandHistory().getUndoCount();
+
+        level.setPaintSurface(Surface.GRAVEL);
+        level.setTool(LevelSession.Tool.PAINT);
+        terrainSession.getBrush().setRadius(120f);
+        click(Input.Buttons.LEFT, 0);
+        int column = Math.round((300f + terrain.getSizeX() / 2f) / terrain.getCellSize());
+        int row = Math.round((-200f + terrain.getSizeZ() / 2f) / terrain.getCellSize());
+        assertEquals(Surface.GRAVEL, terrain.dominantSurface(column, row), "painted under the cursor, at the view's focus");
+        assertEquals(Surface.GRASS, terrain.dominantSurface(0, 0));
+        assertEquals(undoSteps + 1, editorState.getCommandHistory().getUndoCount(), "one undo step");
+
+        level.setObjectPath(OBJECT);
+        level.setTool(LevelSession.Tool.PLACE);
+        click(Input.Buttons.LEFT, 0);
+        assertEquals(1, placed().size());
+        Vector3 at = placed().get(0).getTransform().getWorldPosition();
+        assertEquals(300f, at.x, 3f, "placed where the click landed on the ground: " + at);
+        assertEquals(-200f, at.z, 3f);
+        assertEquals(undoSteps + 2, editorState.getCommandHistory().getUndoCount());
+        assertTrue(normal.calls.isEmpty(), "both stayed with the level editor: " + normal.calls);
     }
 
     @Test
@@ -296,7 +363,8 @@ class LevelEditingTest {
         assertFalse(terrainSession.isPaintMode(), "no brush strokes while placing objects");
         for (LevelSession.Tool tool : LevelSession.Tool.values()) {
             assertEquals(tool == LevelSession.Tool.PLACE || tool == LevelSession.Tool.ERASE, LevelSession.Focus.OBJECTS.offers(tool), tool.name());
-            assertEquals(tool.isBrush(), LevelSession.Focus.TERRAIN.offers(tool), tool.name());
+            // The ground tools: the brushes and the Path tool (roadmap M3.7)
+            assertEquals(tool.isBrush() || tool == LevelSession.Tool.PATH, LevelSession.Focus.TERRAIN.offers(tool), tool.name());
             assertTrue(LevelSession.Focus.ALL.offers(tool));
         }
         level.setTool(LevelSession.Tool.ERASE);

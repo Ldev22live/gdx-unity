@@ -45,8 +45,8 @@ class TerrainRenderingTest {
         assertEquals(33, TerrainMeshBuilder.vertexCountX(terrain, 1));
         assertEquals(11, TerrainMeshBuilder.vertexCountX(terrain, 2), "the last chunk is short: vertices 64 to 74");
         assertEquals(33, TerrainMeshBuilder.vertexCountZ(terrain, 0));
-        float[] first = new float[33 * 33 * FLOATS];
-        float[] second = new float[33 * 33 * FLOATS];
+        float[] first = new float[TerrainMeshBuilder.vertexCount(33, 33) * FLOATS]; // the grid, then the skirts (M3.8)
+        float[] second = new float[TerrainMeshBuilder.vertexCount(33, 33) * FLOATS];
         terrain.setHeight(Terrain.CHUNK_CELLS, 3, 7f);
         new TerrainMeshBuilder().vertices(terrain, 0, 0, 0f, 10f, first);
         new TerrainMeshBuilder().vertices(terrain, 1, 0, 0f, 10f, second);
@@ -61,7 +61,7 @@ class TerrainRenderingTest {
     @Test
     void shouldWindTheTrianglesSoTheGroundFacesUp() {
         Terrain terrain = new Terrain(3, 3, 10f);
-        float[] vertices = new float[9 * FLOATS];
+        float[] vertices = new float[TerrainMeshBuilder.vertexCount(3, 3) * FLOATS];
         new TerrainMeshBuilder().vertices(terrain, 0, 0, 0f, 1f, vertices);
         short[] indices = TerrainMeshBuilder.indices(3, 3);
 
@@ -124,7 +124,7 @@ class TerrainRenderingTest {
         Terrain terrain = new Terrain(9, 9, 10f);
         terrain.fillSurface(Surface.SAND);
         terrain.setSurface(2, 2, Surface.SNOW);
-        float[] out = new float[FLOATS * 81];
+        float[] out = new float[FLOATS * TerrainMeshBuilder.vertexCount(9, 9)];
 
         new TerrainMeshBuilder().vertices(terrain, 0, 0, 0f, 1f, out);
 
@@ -132,6 +132,65 @@ class TerrainRenderingTest {
         int sandAt = (4 * 9 + 4) * FLOATS + 6;
         assertTrue(out[snowAt + 2] > 0.7f, "the snow point is white: " + out[snowAt + 2]);
         assertTrue(out[sandAt] > out[sandAt + 2] * 1.5f, "the rest is sand");
+    }
+
+    /** TD-089: a painted layer blends over the base by its weight, so the edge of a patch is a gradient. */
+    @Test
+    void shouldBlendAPaintedLayerOverTheBaseByItsWeight() {
+        Terrain terrain = new Terrain(9, 9, 10f);
+        terrain.fillSurface(Surface.GRASS);
+        terrain.setLayerWeight(2, 2, Surface.SNOW, Terrain.FULL_WEIGHT);
+        terrain.setLayerWeight(3, 2, Surface.SNOW, 128);
+        float[] out = new float[FLOATS * TerrainMeshBuilder.vertexCount(9, 9)];
+
+        new TerrainMeshBuilder().vertices(terrain, 0, 0, 0f, 1f, out);
+
+        float full = out[(2 * 9 + 2) * FLOATS + 6 + 2];
+        float half = out[(2 * 9 + 3) * FLOATS + 6 + 2];
+        float none = out[(2 * 9 + 4) * FLOATS + 6 + 2];
+        assertTrue(full > half && half > none, "blue (snow) falls from all snow to half to grass: " + full + ", " + half + ", " + none);
+        float[] snow = new float[4];
+        float[] grass = new float[4];
+        TerrainMeshBuilder.color(Surface.SNOW, 1f, 0f, snow, 0);
+        TerrainMeshBuilder.color(Surface.GRASS, 1f, 0f, grass, 0);
+        assertEquals(snow[2], full, 1e-4f, "all snow is the snow colour");
+        assertEquals(grass[2] * 127f / 255f + snow[2] * 128f / 255f, half, 1e-4f, "half and half is the mix");
+    }
+
+    /** TD-089: a hole leaves out every cell that touches it; the rest of the chunk keeps its two triangles per cell. */
+    @Test
+    void shouldLeaveOutTheCellsAroundAHole() {
+        Terrain terrain = new Terrain(5, 5, 10f);
+        short[] out = new short[4 * 4 * 6];
+        assertEquals(4 * 4 * 6, TerrainMeshBuilder.indices(terrain, 0, 0, out), "no hole: every cell");
+
+        terrain.setHole(2, 2, true);
+
+        assertEquals((16 - 4) * 6, TerrainMeshBuilder.indices(terrain, 0, 0, out), "the four cells around the hole are gone");
+        terrain.setHole(0, 0, true);
+        assertEquals((16 - 5) * 6, TerrainMeshBuilder.indices(terrain, 0, 0, out), "a corner hole opens one cell");
+    }
+
+    @Test
+    void shouldDrawTheHoleAndTheWaterThroughTheGpuCopy() {
+        Terrain terrain = new Terrain(9, 9, 10f);
+        TerrainGpu gpu = new TerrainGpu(terrain);
+        List<ModelInstance> instances = gpu.sync();
+        assertEquals(1, instances.size());
+        assertEquals(8 * 8 * 6, instances.get(0).nodes.get(0).parts.get(0).meshPart.size);
+
+        terrain.setHole(4, 4, true);
+        terrain.setWaterLevel(-5f);
+        instances = gpu.sync();
+
+        assertEquals((64 - 4) * 6, instances.get(0).nodes.get(0).parts.get(0).meshPart.size, "the drawn triangles skip the hole");
+        assertEquals(2, instances.size(), "the water quad is drawn too");
+        float[] water = vertices(instances.get(1).model.meshes.first());
+        assertEquals(-5f, water[1], "at the water level");
+        assertEquals(-40f, water[0], "over the whole terrain");
+        terrain.setWaterLevel(Float.NaN);
+        assertEquals(1, gpu.sync().size(), "no water, no quad");
+        gpu.dispose();
     }
 
     @Test

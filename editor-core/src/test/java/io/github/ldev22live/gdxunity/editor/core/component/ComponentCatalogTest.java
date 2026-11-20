@@ -42,8 +42,9 @@ class ComponentCatalogTest {
     void shouldSearchByNameOrCategoryCaseInsensitively() {
         List<String> physics = catalog.search("physics").stream().map(ComponentCatalog.Entry::displayName).toList();
         assertEquals(List.of("Rigid Body 2D", "Box Collider 2D", "Circle Collider 2D",
-            "Rigid Body 3D", "Box Collider 3D", "Sphere Collider 3D", "Capsule Collider 3D", "Convex Hull Collider 3D", "Mesh Collider 3D", "Character Controller 3D", "Joint 3D"), physics);
-        assertEquals(8, catalog.search("physics 3d").size());
+            "Rigid Body 3D", "Box Collider 3D", "Sphere Collider 3D", "Capsule Collider 3D", "Convex Hull Collider 3D", "Mesh Collider 3D", "Terrain Collider 3D",
+            "Character Controller 3D", "Joint 3D"), physics);
+        assertEquals(9, catalog.search("physics 3d").size());
         assertEquals(List.of("Sprite Renderer", "Sprite Animator"), catalog.search("SPRITE").stream().map(ComponentCatalog.Entry::displayName).toList());
         assertEquals(catalog.getEntries().size(), catalog.search("  ").size());
         assertTrue(catalog.search("does-not-exist").isEmpty());
@@ -51,7 +52,7 @@ class ComponentCatalogTest {
 
     @Test
     void shouldOfferSkyLightAndToneMappingOncePerEntityUnderLighting() {
-        assertEquals(List.of("Directional Light", "Point Light", "Sky Light", "Tone Mapping"),
+        assertEquals(List.of("Directional Light", "Point Light", "Sky Light", "Tone Mapping", "Sky and Weather"),
             catalog.search("lighting").stream().map(ComponentCatalog.Entry::displayName).toList());
 
         assertTrue(catalog.addTo(editorState, entity, entry("Sky Light")));
@@ -115,6 +116,29 @@ class ComponentCatalogTest {
         assertEquals("Game", entry("Text").category());
         assertEquals(CameraComponent.class,
             entry("Camera").type());
+    }
+
+    @Test
+    void shouldOfferOnePlayerPerSceneUnderGame() {
+        assertEquals("Game", entry("Player").category());
+        assertEquals(io.github.ldev22live.gdxunity.engine.scene.play.PlayerComponent.class, entry("Player").type());
+        assertTrue(catalog.addTo(editorState, entity, entry("Player")));
+        assertFalse(catalog.canAdd(entity, entry("Player")), "one per entity");
+
+        Entity other = editorState.createEntity("Other");
+        assertFalse(catalog.addTo(editorState, other, entry("Player")), "one per scene (TD-088)");
+        assertTrue(editorState.getStatusMessage().contains("already the player"), editorState.getStatusMessage());
+        assertNull(other.getComponent(io.github.ldev22live.gdxunity.engine.scene.play.PlayerComponent.class));
+    }
+
+    @Test
+    void shouldOfferOneSpawnPointPerSceneUnderGame() {
+        assertEquals("Game", entry("Spawn Point").category());
+        assertTrue(catalog.addTo(editorState, entity, entry("Spawn Point")));
+
+        Entity other = editorState.createEntity("Other");
+        assertFalse(catalog.addTo(editorState, other, entry("Spawn Point")), "one per scene (roadmap M3c.2)");
+        assertTrue(editorState.getStatusMessage().contains("already the spawn point"), editorState.getStatusMessage());
     }
 
     @Test

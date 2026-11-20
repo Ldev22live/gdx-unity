@@ -110,6 +110,32 @@ public final class MultiViewportArea extends WidgetGroup implements Disposable {
         }
     }
 
+    /** The view of the layout's first pane: what the tab row's view drop-down shows (UI M3b). */
+    public ViewKind getPrimaryKind() {
+        return layout.getPanes().get(0).kind();
+    }
+
+    /** Shows {@code kind} in the layout's first pane, as its header would (UI M3b); the layout is saved as for any change. */
+    public void setPrimaryKind(ViewKind kind) {
+        Objects.requireNonNull(kind, "kind cannot be null");
+        int paneId = layout.getPanes().get(0).id();
+        if (layout.getKind(paneId) == kind) {
+            return;
+        }
+        layout.setKind(paneId, kind);
+        syncIfChanged();
+        rebuildHeaders();
+        onLayoutChanged.run();
+        invalidate();
+    }
+
+    /** Fits the whole scene into every full-map pane (UI M2); other panes keep their cameras. */
+    public void frameWorld() {
+        for (Entry entry : entries.values()) {
+            entry.view.frameWorld();
+        }
+    }
+
     /** Puts every pane's camera back where it starts. */
     public void resetAll() {
         for (Entry entry : entries.values()) {
@@ -193,6 +219,11 @@ public final class MultiViewportArea extends WidgetGroup implements Disposable {
         header.pad(1f);
         header.add(headerButton(kind.getDisplayName(), () -> layout.setKind(paneId, layout.getKind(paneId).next())))
             .height(20f);
+        if (kind.canTurn()) {
+            // Turn the map a quarter round, as isometric map editors do
+            header.add(headerButton("<", () -> turn(paneId, 1))).height(20f).width(22f);
+            header.add(headerButton(">", () -> turn(paneId, -1))).height(20f).width(22f);
+        }
         header.add(headerButton("|", () -> split(paneId, Orientation.SIDE_BY_SIDE))).height(20f).width(22f);
         header.add(headerButton("-", () -> split(paneId, Orientation.STACKED))).height(20f).width(22f);
         boolean maximized = layout.getMaximizedPaneId() == paneId;
@@ -205,6 +236,13 @@ public final class MultiViewportArea extends WidgetGroup implements Disposable {
         })).height(20f);
         header.add(headerButton("x", () -> layout.close(paneId))).height(20f).width(22f);
         return header;
+    }
+
+    private void turn(int paneId, int quarterTurns) {
+        Entry entry = entries.get(paneId);
+        if (entry != null && entry.view.canTurn()) {
+            entry.view.turn(quarterTurns);
+        }
     }
 
     private void split(int paneId, Orientation orientation) {

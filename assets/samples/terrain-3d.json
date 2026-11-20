@@ -126,6 +126,30 @@
             "nearPlane": 1.0,
             "farPlane": 50000.0
           }
+        },
+        {
+          "type": "CameraRigComponent",
+          "enabled": true,
+          "data": {
+            "mode": "FOLLOW",
+            "targetName": "Hero",
+            "followOffsetX": 0.0,
+            "followOffsetY": 420.0,
+            "followOffsetZ": 560.0,
+            "followRate": 6.0,
+            "pivotHeight": 0.0,
+            "eyeHeight": 70.0,
+            "yaw": 0.0,
+            "pitch": -20.0,
+            "minPitch": -80.0,
+            "maxPitch": 60.0,
+            "distance": 400.0,
+            "minDistance": 100.0,
+            "maxDistance": 1200.0,
+            "occlusionEnabled": false,
+            "occlusionMargin": 20.0,
+            "occlusionMask": 65535
+          }
         }
       ]
     },
@@ -159,6 +183,77 @@
           "data": {
             "terrainPath": "terrains/Valley.terrain"
           }
+        },
+        {
+          "type": "TerrainCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "3d5adb5d-2b65-55ac-8de4-2bad25246f54",
+      "name": "Hero",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 70.81593738941751,
+          "z": 1500.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 140.0,
+            "sizeZ": 60.0,
+            "colorR": 0.9,
+            "colorG": 0.35,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "CharacterController3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 30.0,
+            "height": 80.0,
+            "slopeLimitDegrees": 45.0,
+            "stepHeight": 30.0,
+            "mass": 70.0,
+            "gravityScale": 1.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "GraphScriptComponent",
+          "enabled": true,
+          "data": {
+            "graph": "graphs/samples/ValleyWalker.graph"
+          }
         }
       ]
     },
@@ -190,7 +285,7 @@
           "type": "TextComponent",
           "enabled": true,
           "data": {
-            "text": "Select Valley and open Details: Paint turns on the terrain brush. Drag to reshape, Ctrl inverts, Shift smooths, Alt-drag orbits. Every stroke is undoable and saved.",
+            "text": "Select Valley and open Details: Paint turns on the terrain brush. Drag to reshape, Ctrl inverts, Shift smooths, Alt-drag orbits. Every stroke is undoable and saved. Press Play: WASD or the arrows walk Hero, Space jumps; slopes steeper than 45 degrees cannot be climbed, and Hero slides down them.",
             "colorR": 0.9,
             "colorG": 0.95,
             "colorB": 1.0,

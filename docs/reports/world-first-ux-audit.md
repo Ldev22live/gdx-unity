@@ -67,10 +67,10 @@ Customize opens: World | 3D Modeling | 2D Studio | Animation | Audio & Music | L
 | Tone Mapping | `create.tone-mapping` | Create |  | Create dropdown | World > lighting presets (Appendix E2) |
 | Delete | `edit.delete` | Edit | Delete | shortcut Delete; Outliner context menu | Selection context menu and selection strip |
 | Duplicate | `edit.duplicate` | Edit | Ctrl+D | shortcut Ctrl+D; Outliner context menu | Selection context menu and selection strip |
-| Redo | `edit.redo` | Edit | Ctrl+Y | shortcut Ctrl+Y; header Redo button | Header: Redo button (Appendix E1) |
+| Redo | `edit.redo` | Edit | Ctrl+Y | shortcut Ctrl+Y; header Redo icon | Header: Redo icon (Appendix E1) |
 | Redo | `edit.redo.ctrl-shift-z` | none | Ctrl+Shift+Z | shortcut Ctrl+Shift+Z | Keyboard only (Ctrl+Shift+Z), unchanged |
 | Rename | `edit.rename` | Edit | F2 | shortcut F2; Outliner context menu | Selection context menu (and F2) |
-| Undo | `edit.undo` | Edit | Ctrl+Z | shortcut Ctrl+Z; header Undo button | Header: Undo button (Appendix E1) |
+| Undo | `edit.undo` | Edit | Ctrl+Z | shortcut Ctrl+Z; header Undo icon | Header: Undo icon (Appendix E1) |
 | Exit | `file.exit` | File |  | header Project dropdown; window close button | Header > Project menu |
 | Export Game... | `file.export-game` | File |  | header Project dropdown | Header > Project menu: Export |
 | Export Sculpt as Model | `file.export-sculpt-model` | File |  | header Project dropdown | Customize > 3D Modeling (sculpt tools) |
@@ -83,7 +83,7 @@ Customize opens: World | 3D Modeling | 2D Studio | Animation | Audio & Music | L
 | New Scene... | `file.new-scene-screen` | File |  | header Project dropdown | Start screen and template gallery (M1.4) |
 | Open Sample... | `file.open-sample` | File |  | header Project dropdown | Template gallery: Play Sample (M1.4) |
 | Open Scene... | `file.open-scene` | File | Ctrl+O | header Project dropdown; shortcut Ctrl+O | Header > Project menu (and Ctrl+O) |
-| Save Scene | `file.save-scene` | File | Ctrl+S | header Project dropdown; shortcut Ctrl+S; header Save button | Header: Save button (Appendix E1) |
+| Save Scene | `file.save-scene` | File | Ctrl+S | header Project dropdown; shortcut Ctrl+S; header Save icon | Header: Save icon (Appendix E1, the UI M3b reference) |
 | Save Scene As... | `file.save-scene-as` | File | Ctrl+Shift+S | header Project dropdown; shortcut Ctrl+Shift+S | Header > Project menu (and Ctrl+Shift+S) |
 | Save Sculpts | `file.save-sculpts` | File | Ctrl+Alt+S | header Project dropdown; shortcut Ctrl+Alt+S | Customize > 3D Modeling (and Ctrl+Alt+S) |
 | Use Sample as Template... | `file.use-sample-as-template` | File |  | header Project dropdown | Template gallery: Use as Template (M1.4) |
@@ -92,10 +92,12 @@ Customize opens: World | 3D Modeling | 2D Studio | Animation | Audio & Music | L
 | Create Prefab | `prefab.create` | Edit |  | Outliner context menu | Selection context menu |
 | Revert Prefab Overrides | `prefab.revert` | Edit |  | Outliner context menu | Selection context menu (prefab instances) |
 | Unpack Prefab | `prefab.unpack` | Edit |  | Outliner context menu | Selection context menu (prefab instances) |
-| Level | `tools.level-toggle` | Tools |  | view tools Level button; World strip Terrain and Objects | World > Terrain and Objects strips (the level palette becomes the World strip) |
-| Move | `tools.move` | Tools | W | shortcut W; view tools Move button | Viewport tool strip (and W) |
-| Rotate | `tools.rotate` | Tools | E | shortcut E; view tools Rotate button | Viewport tool strip (and E) |
-| Scale | `tools.scale` | Tools | R | shortcut R; view tools Scale button | Viewport tool strip (and R) |
+| Export Heightmap... | `tools.level-export-heightmap` | Tools |  | level palette Heightmap Export... (Terrain) | World > Terrain strip: Heightmap row (roadmap M3.5) |
+| Import Heightmap... | `tools.level-import-heightmap` | Tools |  | level palette Heightmap Import... (Terrain) | World > Terrain strip: Heightmap row (roadmap M3.5) |
+| Level | `tools.level-toggle` | Tools |  | tool rail Level icon; tab row Terrain, Objects, Buildings and Characters | Tab row map drawers; their settings in Properties |
+| Move | `tools.move` | Tools | W | shortcut W; tool rail Move icon | Tool rail (and W) |
+| Rotate | `tools.rotate` | Tools | E | shortcut E; tool rail Rotate icon | Tool rail (and E) |
+| Scale | `tools.scale` | Tools | R | shortcut R; tool rail Scale icon | Tool rail (and R) |
 | Sculpt Brush: Draw | `tools.sculpt-brush.draw` | Tools |  | sculpt strip in the viewport | Customize > 3D Modeling: brush strip |
 | Sculpt Brush: Flatten | `tools.sculpt-brush.flatten` | Tools |  | sculpt strip in the viewport | Customize > 3D Modeling: brush strip |
 | Sculpt Brush: Grab | `tools.sculpt-brush.grab` | Tools |  | sculpt strip in the viewport | Customize > 3D Modeling: brush strip |
@@ -110,23 +112,24 @@ Customize opens: World | 3D Modeling | 2D Studio | Animation | Audio & Music | L
 | Sculpt Mirror Z | `tools.sculpt-mirror-z` | Tools |  | sculpt strip in the viewport | Customize > 3D Modeling: brush strip |
 | Sculpt Brush Smaller | `tools.sculpt-smaller` | Tools | [ | shortcut [ | Customize > 3D Modeling: brush strip (and [) |
 | Sculpt Brush Stronger | `tools.sculpt-stronger` | Tools | = | shortcut = | Customize > 3D Modeling: brush strip (and =) |
-| Sculpt | `tools.sculpt-toggle` | Tools | F4 | shortcut F4; view tools Sculpt button; Customize > 3D Modeling | Customize > 3D Modeling (and F4) |
+| Sculpt | `tools.sculpt-toggle` | Tools | F4 | shortcut F4; tool rail Sculpt icon; Customize > 3D Modeling | Customize > 3D Modeling (and F4) |
 | Sculpt Brush Weaker | `tools.sculpt-weaker` | Tools | - | shortcut - | Customize > 3D Modeling: brush strip (and -) |
 | Sculpt Wireframe | `tools.sculpt-wireframe` | Tools |  | sculpt strip in the viewport | Customize > 3D Modeling: brush strip |
-| Select | `tools.select` | Tools | Q | shortcut Q; view tools Select button | Viewport tool strip (and Q) |
-| Focus Selection | `view.focus-selection` | Tools | F | shortcut F; view tools Frame button | Viewport overlay and selection context menu (and F) |
+| Select | `tools.select` | Tools | Q | shortcut Q; tool rail Select icon | Tool rail (and Q) |
+| Focus Selection | `view.focus-selection` | Tools | F | shortcut F; tool rail Frame icon | Tool rail and selection context menu (and F) |
 | Lighting Quality: High | `view.lighting-quality.high` | Window |  | header Settings dropdown | Header > Settings: graphics |
 | Lighting Quality: Low | `view.lighting-quality.low` | Window |  | header Settings dropdown | Header > Settings: graphics |
 | Lighting Quality: Medium | `view.lighting-quality.medium` | Window |  | header Settings dropdown | Header > Settings: graphics |
-| Reset View | `view.reset` | Tools |  | viewport overlay icon | Viewport overlay |
-| 2D / 3D | `view.toggle-2d-3d` | Tools |  | viewport overlay icon | Viewport overlay (editor view, not the game mode: Appendix E, decision 11) |
+| Reset View | `view.reset` | Tools |  | tool rail icon | Tool rail |
+| 2D / 3D | `view.toggle-2d-3d` | Tools |  | tool rail icon | Tool rail (editor view, not the game mode: Appendix E, decision 11) |
 | Shadows | `view.toggle-shadows` | Window |  | header Settings dropdown | Header > Settings: graphics |
-| Details | `window.cycle-details` | Window |  | toolbar row 2 Details button | Panel buttons (Details with the selection, always or hidden) |
-| AI Assistant | `window.toggle-assistant` | Window |  | toolbar AI Assistant button (calls the same code) | Collapsible panel until R10's Describe your game |
-| Content Browser and Log | `window.toggle-bottom-panel` | Window |  | toolbar row 2 Content Browser button | Panel buttons (collapsible Content Browser and Log) |
-| Grid | `window.toggle-grid` | Window |  | viewport overlay icon | Viewport overlay |
-| Outliner | `window.toggle-outliner` | Window |  | toolbar row 2 Outliner button | Panel buttons (collapsible Outliner) |
-| Physics Debug | `window.toggle-physics-debug` | Window |  | viewport overlay icon | Viewport overlay |
+| Properties | `window.cycle-details` | Window |  | status bar Properties link | Properties panel (auto, on or off) |
+| AI Assistant | `window.toggle-assistant` | Window |  | tab row AI Assistant tab | AI Assistant drawer until R10's Describe your game |
+| Assets | `window.toggle-bottom-panel` | Window |  | tab row Assets tab; status bar link | Assets drawer |
+| Scripts | `window.toggle-console` | Window |  | tab row Scripts tab; status bar link | Scripts drawer (Console and Profiler) |
+| Grid | `window.toggle-grid` | Window |  | tool rail icon | Tool rail |
+| Layers | `window.toggle-outliner` | Window |  | tab row Layers tab; status bar link | Layers drawer (the scene hierarchy) |
+| Physics Debug | `window.toggle-physics-debug` | Window |  | tool rail icon | Tool rail |
 | Toggle Dark/Light Theme | `window.toggle-theme` | Window |  | header Settings dropdown | Header > Settings: appearance |
 <!-- action-inventory:end -->
 

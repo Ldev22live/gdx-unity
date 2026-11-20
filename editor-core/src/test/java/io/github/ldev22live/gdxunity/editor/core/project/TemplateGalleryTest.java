@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -85,8 +86,18 @@ class TemplateGalleryTest {
         assertEquals(GameMode.MODE_3D, racing.mode());
         assertEquals("Racing", racing.genre());
         TemplateProject.Plan plan = TemplateProject.plan(PROJECT, "samples/racing-3d.json");
-        assertEquals(plan.files().size() + 1, racing.files(), "the copied files and the project file");
-        assertEquals(plan.bytes(), racing.bytes());
+        List<String> palette = StarterPalette.files(PROJECT).stream().filter(f -> !plan.files().contains(f)).toList();
+        long paletteBytes = 0;
+        for (String file : palette) {
+            paletteBytes += Files.size(PROJECT.toPath().resolve(file));
+        }
+        // The palette's Kenney models bring their licence records (M2b.2), one more file of a known size
+        List<String> copied = new ArrayList<>(plan.files());
+        copied.addAll(palette);
+        String licences = ProjectLicences.recordFor(PROJECT, copied).orElseThrow().toJson();
+        assertEquals(plan.files().size() + palette.size() + 1 + 1, racing.files(),
+            "the copied files, the starter palette, the licence records and the project file");
+        assertEquals(plan.bytes() + paletteBytes + licences.getBytes(StandardCharsets.UTF_8).length, racing.bytes());
         assertTrue(racing.sizeText().matches("\\d+ files, \\d+ KB"), racing.sizeText());
         assertEquals(GameMode.MODE_2_5D, sample("samples/fighter-25d.json").mode());
         assertEquals(GameMode.MODE_2D, sample("samples/breakout-2d.json").mode());
@@ -138,7 +149,7 @@ class TemplateGalleryTest {
 
     @Test
     void shouldOfferOnlyTheEmptyStartsWhenAProjectHasNoCatalog() throws IOException {
-        assertEquals(TemplateGallery.emptyStarts(), TemplateGallery.choices(temp.toFile()));
+        assertEquals(TemplateGallery.emptyStarts(temp.toFile()), TemplateGallery.choices(temp.toFile()));
     }
 
     @Test
@@ -197,13 +208,44 @@ class TemplateGalleryTest {
 
     @Test
     void shouldMakeTheChoicesProjectThroughTheGalleryForBothKinds() throws IOException {
-        TemplateProject.Result empty = TemplateGallery.create(TemplateGallery.emptyStarts().get(1), PROJECT, temp.toFile(), "Side",
+        TemplateProject.Result empty = TemplateGallery.create(TemplateGallery.emptyStarts(PROJECT).get(1), PROJECT, temp.toFile(), "Side",
             serializer());
         assertEquals("Side", empty.folder().getName());
         TemplateProject.Result sample = TemplateGallery.create(sample("samples/breakout-2d.json"), PROJECT, temp.toFile(), "",
             serializer());
         assertEquals("breakout-2d", sample.folder().getName());
         assertTrue(new File(sample.folder(), "scenes/breakout-2d.json").isFile());
+    }
+
+    /**
+     * Roadmap M3c.5 (finding H2 of M0.4): a new 3D or 2.5D project gets project-owned copies of the World strip's objects and
+     * characters, so Place has something to place; a 2D one gets none. The gallery's file count says so before the project is made.
+     */
+    @Test
+    void shouldGiveNewDepthProjectsTheStarterPaletteAndCountItInTheGallery() throws IOException {
+        List<String> palette = StarterPalette.files(PROJECT);
+        assertTrue(palette.contains(StarterPalette.LEVEL_FOLDER + "/Oak Tree.prefab"), palette.toString());
+        assertTrue(palette.contains(StarterPalette.CHARACTER_FOLDER + "/Player.prefab"), palette.toString());
+        List<TemplateGallery.Choice> starts = TemplateGallery.emptyStarts(PROJECT);
+
+        for (TemplateGallery.Choice start : starts) {
+            TemplateProject.Result made = TemplateGallery.create(start, PROJECT, temp.toFile(), null, serializer());
+            boolean depth = start.mode() != GameMode.MODE_2D;
+            for (String file : palette) {
+                assertEquals(depth, Files.isRegularFile(made.folder().toPath().resolve(file)), start.title() + ": " + file);
+                assertEquals(depth, made.files().contains(file), start.title() + " lists " + file);
+            }
+            try (java.util.stream.Stream<java.nio.file.Path> walk = Files.walk(made.folder().toPath())) {
+                assertEquals(start.files(), walk.filter(Files::isRegularFile).count(), start.title() + ": the gallery's count is right");
+            }
+        }
+        TemplateGallery.Choice valley = sample("samples/action-rpg-valley-3d.json");
+        TemplateProject.Result made = TemplateGallery.create(valley, PROJECT, temp.toFile(), "Valley", serializer());
+        assertTrue(Files.isRegularFile(made.folder().toPath().resolve(StarterPalette.CHARACTER_FOLDER + "/Spawn Point.prefab")),
+            "a template gets the palette too");
+        try (java.util.stream.Stream<java.nio.file.Path> walk = Files.walk(made.folder().toPath())) {
+            assertEquals(valley.files(), walk.filter(Files::isRegularFile).count(), "the gallery's count for a sample is right");
+        }
     }
 
     private static boolean has(Scene scene, String name, Class<? extends Component> type) {

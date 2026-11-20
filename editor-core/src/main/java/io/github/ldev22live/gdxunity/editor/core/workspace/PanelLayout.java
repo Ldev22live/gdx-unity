@@ -20,8 +20,10 @@ public final class PanelLayout {
     public static final String TOGGLE_OUTLINER = "window.toggle-outliner";
     /** Steps Details through {@link DetailsMode}. */
     public static final String CYCLE_DETAILS = "window.cycle-details";
-    /** Opens or closes the bottom panel (Content Browser and Output Log). */
+    /** Opens or closes the Asset Library drawer (the Content Browser), at the bottom left (UI M3; its id predates the drawers). */
     public static final String TOGGLE_BOTTOM_PANEL = "window.toggle-bottom-panel";
+    /** Opens or closes the Console drawer (Output Log and Profiler), at the bottom right (UI M3). */
+    public static final String TOGGLE_CONSOLE = "window.toggle-console";
     private static final int GROUP_PANELS = 3;
 
     /** When Details shows. */
@@ -70,8 +72,19 @@ public final class PanelLayout {
         return config.isOutlinerShown();
     }
 
-    public boolean isBottomPanelShown() {
+    /** Whether the Asset Library drawer is open. */
+    public boolean isAssetLibraryShown() {
         return !config.isBottomPanelCollapsed();
+    }
+
+    /** Whether the Console drawer is open. */
+    public boolean isConsoleShown() {
+        return config.isConsoleShown();
+    }
+
+    /** Whether anything at the bottom is open: the Asset Library, the Console, or both side by side. */
+    public boolean isBottomPanelShown() {
+        return isAssetLibraryShown() || isConsoleShown();
     }
 
     public DetailsMode getDetailsMode() {
@@ -91,8 +104,14 @@ public final class PanelLayout {
         config.setOutlinerShown(!config.isOutlinerShown());
     }
 
+    /** Opens or closes the Asset Library drawer (the Content Browser); the Console is not touched. */
     public void toggleBottomPanel() {
         config.setBottomPanelCollapsed(!config.isBottomPanelCollapsed());
+    }
+
+    /** Opens or closes the Console drawer; the Asset Library is not touched. */
+    public void toggleConsole() {
+        config.setConsoleShown(!config.isConsoleShown());
     }
 
     /**
@@ -117,28 +136,35 @@ public final class PanelLayout {
     }
 
     /**
-     * Registers the three panel actions in the Window menu. Each reports the new state in the status bar. They change the editor's
+     * Registers the four panel actions in the Window menu (Outliner, Details, Asset Library, Console). Each reports the new state in the status bar. They change the editor's
      * layout, not the scene, so they are not undo steps.
      */
     public static void registerActions(EditorActionRegistry registry, EditorState editorState, PanelLayout panels) {
         Objects.requireNonNull(registry, "registry cannot be null");
         Objects.requireNonNull(editorState, "editorState cannot be null");
         Objects.requireNonNull(panels, "panels cannot be null");
-        registry.register(EditorAction.builder(TOGGLE_OUTLINER, "Outliner", () -> {
+        // The drawers' names of the reference layout (UI M3b): Layers, Properties, Assets and Scripts
+        registry.register(EditorAction.builder(TOGGLE_OUTLINER, "Layers", () -> {
                 panels.toggleOutliner();
-                editorState.setStatusMessage("Outliner " + (panels.isOutlinerShown() ? "open" : "closed"), false);
+                editorState.setStatusMessage("Layers " + (panels.isOutlinerShown() ? "open" : "closed"), false);
             })
             .menu(DefaultEditorActions.MENU_WINDOW, GROUP_PANELS)
             .build());
-        registry.register(EditorAction.builder(CYCLE_DETAILS, "Details", () -> {
+        registry.register(EditorAction.builder(CYCLE_DETAILS, "Properties", () -> {
                 DetailsMode mode = panels.cycleDetails();
-                editorState.setStatusMessage("Details: " + mode.getLabel(), false);
+                editorState.setStatusMessage("Properties: " + mode.getLabel(), false);
             })
             .menu(DefaultEditorActions.MENU_WINDOW, GROUP_PANELS)
             .build());
-        registry.register(EditorAction.builder(TOGGLE_BOTTOM_PANEL, "Content Browser and Log", () -> {
+        registry.register(EditorAction.builder(TOGGLE_BOTTOM_PANEL, "Assets", () -> {
                 panels.toggleBottomPanel();
-                editorState.setStatusMessage("Content Browser and Output Log " + (panels.isBottomPanelShown() ? "open" : "closed"), false);
+                editorState.setStatusMessage("Assets " + (panels.isAssetLibraryShown() ? "open" : "closed"), false);
+            })
+            .menu(DefaultEditorActions.MENU_WINDOW, GROUP_PANELS)
+            .build());
+        registry.register(EditorAction.builder(TOGGLE_CONSOLE, "Scripts", () -> {
+                panels.toggleConsole();
+                editorState.setStatusMessage("Scripts " + (panels.isConsoleShown() ? "open" : "closed"), false);
             })
             .menu(DefaultEditorActions.MENU_WINDOW, GROUP_PANELS)
             .build());

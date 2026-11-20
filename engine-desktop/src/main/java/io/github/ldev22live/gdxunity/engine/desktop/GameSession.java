@@ -12,15 +12,22 @@ import io.github.ldev22live.gdxunity.engine.animation.ClipSampler;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetSource;
 import io.github.ldev22live.gdxunity.engine.core.resource.ResourceDisposalException;
+import io.github.ldev22live.gdxunity.engine.render.TerrainHeightFields;
 import io.github.ldev22live.gdxunity.engine.render.camera.GameCameraRig;
+import io.github.ldev22live.gdxunity.engine.render.play.PlayProfiles;
+import io.github.ldev22live.gdxunity.engine.render.play.ProfileProblem;
+import io.github.ldev22live.gdxunity.engine.render.play.ProfileStart;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.physics.JoltPhysicsBackend3D;
 import io.github.ldev22live.gdxunity.engine.scene.physics.PhysicsSystem2D;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D;
+import io.github.ldev22live.gdxunity.engine.scene.play.GameGenres;
+import io.github.ldev22live.gdxunity.engine.scene.play.InputSource;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSerializerRegistry;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializationException;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
+import io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary;
 import io.github.ldev22live.gdxunity.engine.visualscript.Graph;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphCollisionForwarder;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphContactForwarder;
@@ -105,6 +112,8 @@ public final class GameSession implements Disposable {
     private PhysicsSystem3D physics3D;
     private GameAudio audio;
     private boolean started;
+    private InputSource input = InputSource.keyboard();
+    private String profileMessage = "";
     private boolean disposed;
 
     private final GraphHost graphHost = new GraphHost() {
@@ -194,6 +203,22 @@ public final class GameSession implements Disposable {
         return audio;
     }
 
+    /**
+     * Opens the sound device once the application's audio backend exists. {@link #start()} runs before the game window is
+     * created, when there is no backend yet, so the renderer calls this from its initialization; without it a game run from
+     * the launcher would play no sound. A missing device is reported to the log, not as a failure: the game stays playable.
+     * Does nothing before {@link #start()}, after {@link #dispose()}, or without an audio backend.
+     */
+    public void startAudioOutput() {
+        if (!started || disposed || audio == null || Gdx.audio == null) {
+            return;
+        }
+        String error = audio.startOutput();
+        if (error != null) {
+            log.info(error);
+        }
+    }
+
     public boolean isStarted() {
         return started;
     }
@@ -223,6 +248,9 @@ public final class GameSession implements Disposable {
         if (problems.isEmpty()) {
             physics = new PhysicsSystem2D(scene);
             problems.addAll(startPhysics3D());
+        }
+        if (problems.isEmpty()) {
+            problems.addAll(applyProfile());
         }
         if (problems.isEmpty()) {
             problems.addAll(bindGraphs());
@@ -258,10 +286,38 @@ public final class GameSession implements Disposable {
         scene.update(step);
     }
 
+    /**
+     * Where a genre profile's movement reads keys (TD-088); the keyboard unless set. Call before {@link #start}.
+     */
+    public void setInput(InputSource input) {
+        this.input = Objects.requireNonNull(input, "input cannot be null");
+    }
+
+    /** What the scene played as and what its profile left to the author's logic; empty without a genre (TD-088). */
+    public String getProfileMessage() {
+        return profileMessage;
+    }
+
+    /** The genre profile step, the same as editor Play's (TD-088): the scene's saved genre and game mode. */
+    private List<String> applyProfile() {
+        ProfileStart profileStart = new PlayProfiles(GameGenres.standard()).start(scene, null, input);
+        profileMessage = profileStart.message();
+        List<String> problems = new ArrayList<>();
+        for (ProfileProblem problem : profileStart.problems()) {
+            problems.add(problem.message());
+        }
+        return problems;
+    }
+
     /** Creates the 3D physics for a scene that has 3D colliders; the native library loads here, never for 2D games. */
     private List<String> startPhysics3D() {
         if (!PhysicsSystem3D.isUsedBy(scene)) {
             return List.of();
+        }
+        if (scene.getHeightFields() == null) {
+            // Terrains are read without a window, so the Play step's ground check sees the ground before the renderer exists
+            // (TD-088); the renderer sets its own source on the scene when it is made, after start
+            scene.setHeightFields(new TerrainHeightFields(new TerrainLibrary(project)));
         }
         try {
             physics3D = new PhysicsSystem3D(scene, new JoltPhysicsBackend3D());

@@ -81,7 +81,7 @@ class ActionInventoryTest {
         home("file.open-scene", "", "Header > Project menu (and Ctrl+O)");
         home("file.open-sample", "", "Template gallery: Play Sample (M1.4)");
         home("file.use-sample-as-template", "", "Template gallery: Use as Template (M1.4)");
-        home("file.save-scene", "header Save button", "Header: Save button (Appendix E1)");
+        home("file.save-scene", "header Save icon", "Header: Save icon (Appendix E1, the UI M3b reference)");
         home("file.save-scene-as", "", "Header > Project menu (and Ctrl+Shift+S)");
         home("file.import-asset", "", "Customize > Assets, and Header > Project menu");
         home("file.export-game", "", "Header > Project menu: Export");
@@ -89,8 +89,8 @@ class ActionInventoryTest {
         home("file.export-sculpt-model", "", "Customize > 3D Modeling (sculpt tools)");
         home("file.save-sculpts", "", "Customize > 3D Modeling (and Ctrl+Alt+S)");
         // Edit
-        home("edit.undo", "header Undo button", "Header: Undo button (Appendix E1)");
-        home("edit.redo", "header Redo button", "Header: Redo button (Appendix E1)");
+        home("edit.undo", "header Undo icon", "Header: Undo icon (Appendix E1)");
+        home("edit.redo", "header Redo icon", "Header: Redo icon (Appendix E1)");
         home("edit.redo.ctrl-shift-z", "", "Keyboard only (Ctrl+Shift+Z), unchanged");
         home("edit.duplicate", "Outliner context menu", "Selection context menu and selection strip");
         home("edit.delete", "Outliner context menu", "Selection context menu and selection strip");
@@ -111,12 +111,14 @@ class ActionInventoryTest {
         home("create.sculpt", "", "Customize > 3D Modeling");
         home("create.sculpt-from-selected", "", "Customize > 3D Modeling (Edit Selected)");
         // Tools
-        home("tools.select", "view tools Select button", "Viewport tool strip (and Q)");
-        home("tools.move", "view tools Move button", "Viewport tool strip (and W)");
-        home("tools.rotate", "view tools Rotate button", "Viewport tool strip (and E)");
-        home("tools.scale", "view tools Scale button", "Viewport tool strip (and R)");
-        home("tools.level-toggle", "view tools Level button; World strip Terrain and Objects", "World > Terrain and Objects strips (the level palette becomes the World strip)");
-        home("tools.sculpt-toggle", "view tools Sculpt button; Customize > 3D Modeling", "Customize > 3D Modeling (and F4)");
+        home("tools.select", "tool rail Select icon", "Tool rail (and Q)");
+        home("tools.move", "tool rail Move icon", "Tool rail (and W)");
+        home("tools.rotate", "tool rail Rotate icon", "Tool rail (and E)");
+        home("tools.scale", "tool rail Scale icon", "Tool rail (and R)");
+        home("tools.level-toggle", "tool rail Level icon; tab row Terrain, Objects, Buildings and Characters", "Tab row map drawers; their settings in Properties");
+        home("tools.level-import-heightmap", "level palette Heightmap Import... (Terrain)", "World > Terrain strip: Heightmap row (roadmap M3.5)");
+        home("tools.level-export-heightmap", "level palette Heightmap Export... (Terrain)", "World > Terrain strip: Heightmap row (roadmap M3.5)");
+        home("tools.sculpt-toggle", "tool rail Sculpt icon; Customize > 3D Modeling", "Customize > 3D Modeling (and F4)");
         home("tools.sculpt-enter", "", "Customize > 3D Modeling (the Sculpt toggle covers it)");
         home("tools.sculpt-exit", "", "Customize > 3D Modeling (the Sculpt toggle covers it)");
         for (String brush : List.of("draw", "smooth", "inflate", "pinch", "flatten", "grab")) {
@@ -130,23 +132,24 @@ class ActionInventoryTest {
         home("tools.sculpt-smaller", "", "Customize > 3D Modeling: brush strip (and [)");
         home("tools.sculpt-stronger", "", "Customize > 3D Modeling: brush strip (and =)");
         home("tools.sculpt-weaker", "", "Customize > 3D Modeling: brush strip (and -)");
-        home("view.focus-selection", "view tools Frame button", "Viewport overlay and selection context menu (and F)");
+        home("view.focus-selection", "tool rail Frame icon", "Tool rail and selection context menu (and F)");
         // View and window
-        home("view.toggle-2d-3d", "viewport overlay icon", "Viewport overlay (editor view, not the game mode: Appendix E, decision 11)");
-        home("window.toggle-grid", "viewport overlay icon", "Viewport overlay");
-        home("window.toggle-physics-debug", "viewport overlay icon", "Viewport overlay");
-        home("view.reset", "viewport overlay icon", "Viewport overlay");
+        home("view.toggle-2d-3d", "tool rail icon", "Tool rail (editor view, not the game mode: Appendix E, decision 11)");
+        home("window.toggle-grid", "tool rail icon", "Tool rail");
+        home("window.toggle-physics-debug", "tool rail icon", "Tool rail");
+        home("view.reset", "tool rail icon", "Tool rail");
         home("view.toggle-shadows", "", "Header > Settings: graphics");
         home("view.lighting-quality.low", "", "Header > Settings: graphics");
         home("view.lighting-quality.medium", "", "Header > Settings: graphics");
         home("view.lighting-quality.high", "", "Header > Settings: graphics");
         home("window.toggle-theme", "", "Header > Settings: appearance");
-        home("window.toggle-assistant", "toolbar AI Assistant button (calls the same code)", "Collapsible panel until R10's Describe your game");
+        home("window.toggle-assistant", "tab row AI Assistant tab", "AI Assistant drawer until R10's Describe your game");
         home("help.about", "", "Header > Settings: about");
-        // Panels (M1b.2 stage 4, TD-085): the World layout starts with them closed, so their buttons are always on screen
-        home("window.toggle-outliner", "toolbar row 2 Outliner button", "Panel buttons (collapsible Outliner)");
-        home("window.cycle-details", "toolbar row 2 Details button", "Panel buttons (Details with the selection, always or hidden)");
-        home("window.toggle-bottom-panel", "toolbar row 2 Content Browser button", "Panel buttons (collapsible Content Browser and Log)");
+        // Drawers (M1b.2 stage 4, TD-085; UI M3): the World layout starts with them closed, so their buttons are always on screen
+        home("window.toggle-outliner", "tab row Layers tab; status bar link", "Layers drawer (the scene hierarchy)");
+        home("window.cycle-details", "status bar Properties link", "Properties panel (auto, on or off)");
+        home("window.toggle-bottom-panel", "tab row Assets tab; status bar link", "Assets drawer");
+        home("window.toggle-console", "tab row Scripts tab; status bar link", "Scripts drawer (Console and Profiler)");
     }
 
     /**
@@ -234,8 +237,9 @@ class ActionInventoryTest {
 
         assertEquals(Set.of(), withoutHome, "every action needs a planned home before the layout changes (M1b.1)");
         assertEquals(Set.of(), stale, "the plan names actions that no longer exist");
-        assertEquals(73, registered.size(), "the editor registers 73 actions (69 at M1b.1, the three panel actions of M1b.2 "
-            + "stage 4 and New Game of M1.4); a change here means the inventory needs a look");
+        assertEquals(76, registered.size(), "the editor registers 76 actions (69 at M1b.1, the three panel actions of M1b.2 "
+            + "stage 4, New Game of M1.4, the two heightmap actions of M3.5 and the Console drawer of UI M3); a change here means the "
+            + "inventory needs a look");
     }
 
     @Test
@@ -259,33 +263,35 @@ class ActionInventoryTest {
     }
 
     /**
-     * The footer of roadmap M1b.3 (decision 11): Game Mode, Customize and the play controls are built once, into the footer, and not
-     * also kept in the toolbar. Read from the source because the shell needs a window; the screenshots in the M1b.3 report show it.
+     * The reference layout (UI M3b, docs/ForgeRoom Isometric World Editor.png): Game Genre, Game Mode and Customize are built once, into
+     * the Properties panel's World Settings, and the play controls once, into the header; the tools are on the tool rail and the
+     * drawers in the tab row. Read from the source because the shell needs a window; the screenshots in the UI M3b report show it.
      */
     @Test
-    void shouldPutGameModeCustomizeAndPlayInTheFooterOnly() throws IOException {
+    void shouldPutTheWorldSettingsThePlayControlsAndTheToolsWhereTheReferenceHasThem() throws IOException {
         String source = Files.readString(APPLICATION.toPath());
-        assertTrue(source.contains("new EditorFooter(skin, new GameModeSelector(editorState, skin), createCustomizeGateway(),\n"
-                + "            toolbar.getPlayControls())") || source.contains("new EditorFooter(skin, new GameModeSelector(editorState, skin), "
-                + "createCustomizeGateway(),\r\n            toolbar.getPlayControls())"),
-            "the footer holds the scene's game mode, the Customize gateway and the play controls");
-        assertTrue(source.contains("viewTools,\n            null, false)") || source.contains("viewTools,\r\n            null, false)"),
-            "the toolbar no longer holds the mode selector or the play controls");
-        // The thin header (M1b.2): the centre tabs are not shown, and the routes the inventory names for the tools are built
-        assertFalse(source.contains("menuRow.add(centerTabs.getTabRow())"), "the header no longer shows the centre tabs");
-        for (String button : List.of("TOOL_SELECT, \"Select\"", "TOOL_MOVE, \"Move\"", "TOOL_ROTATE, \"Rotate\"", "TOOL_SCALE, \"Scale\"",
-                "ACTION_FOCUS_SELECTION, \"Frame\"", "SculptActions.TOGGLE_MODE, \"Sculpt\"", "LevelActions.TOGGLE, \"Level\"")) {
-            assertTrue(source.contains("(viewTools, DefaultEditorActions." + button) || source.contains("actionRegistry, " + button),
-                "view tools button " + button);
+        assertTrue(source.contains("worldSettings.add(genreSelector)") && source.contains("worldSettings.add(new GameModeSelector(editorState, genres, skin))")
+                && source.contains("worldSettings.add(createCustomizeGateway())"),
+            "World Settings holds the scene's game genre and mode (M3b.4) and the Customize gateway");
+        assertTrue(source.contains("menuRow.add(toolbar.getPlayControls())"), "the play controls are in the header");
+        assertTrue(source.contains("new PropertiesPanel(skin, levelPalette, inspectorPanel, levelSession::isActive, worldSettings)"),
+            "the Properties panel shows the map tool's settings or the selection, and World Settings");
+        assertFalse(source.contains("new EditorFooter("), "no footer");
+        for (String button : List.of("DefaultEditorActions.TOOL_SELECT, \"select\"", "DefaultEditorActions.TOOL_MOVE, \"move\"",
+                "DefaultEditorActions.TOOL_ROTATE, \"rotate\"", "DefaultEditorActions.TOOL_SCALE, \"scale\"", "ACTION_FOCUS_SELECTION, \"focus\"",
+                "SculptActions.TOGGLE_MODE, \"sculpt\"", "LevelActions.TOGGLE, \"level\"", "ACTION_TOGGLE_GRID, \"grid\"",
+                "ACTION_TOGGLE_PHYSICS_DEBUG, \"physics\"", "ACTION_RESET_VIEW, \"reset_view\"", "DefaultEditorActions.VIEW_TOGGLE_2D_3D, \"view_mode\"")) {
+            assertTrue(source.contains("railButton(rail, " + button), "tool rail button " + button);
         }
-        assertTrue(source.contains("viewTools.add(new ActionTextButton(skin, actionRegistry, LevelActions.TOGGLE, \"Level\""),
-            "Level is in the view tools");
+        for (String icon : List.of("FILE_SAVE_SCENE, \"save\"", "EDIT_UNDO, \"undo\"", "EDIT_REDO, \"redo\"")) {
+            assertTrue(source.contains("headerIcon(DefaultEditorActions." + icon), "header icon " + icon);
+        }
         assertEquals(1, source.split("new GameModeSelector\\(", -1).length - 1, "one Game Mode selector");
+        assertEquals(1, source.split("new GameGenreSelector\\(", -1).length - 1, "one Game Genre selector");
         assertEquals(1, source.split("createCustomizeGateway\\(\\)", -1).length - 2, "one Customize gateway (one call besides its definition)");
-        assertTrue(source.contains("root.add(footer)"), "the footer is in the layout");
-        assertTrue(source.contains("secondRow.add(panelButtons)") && source.contains("PanelLayout.TOGGLE_OUTLINER, \"Outliner\"")
-                && source.contains("PanelLayout.CYCLE_DETAILS, \"Details\"") && source.contains("PanelLayout.TOGGLE_BOTTOM_PANEL, \"Content Browser\""),
-            "closed panels must keep a button on screen (TD-085), or the inventory's routes for the panel actions are wrong");
+        assertTrue(source.contains("tabRow.add(worldStrip)") && source.contains("for (EditorDrawers.Drawer drawer : EditorDrawers.tabs())"),
+            "the map drawers and the docked drawers are tabs, so a closed drawer can always be reopened (TD-085)");
+        assertTrue(source.contains("root.add(statusRow)"), "the status bar is in the layout");
     }
 
     @Test

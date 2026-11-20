@@ -9,9 +9,13 @@ import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.desktop.GameComponentSerializers;
 import io.github.ldev22live.gdxunity.engine.render.ColliderGeometry;
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.TerrainComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.HeightField3D;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.HeightFieldSource;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.TerrainCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSerializerRegistry;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
 import org.junit.jupiter.api.BeforeAll;
@@ -61,15 +65,32 @@ class ComponentConsistencyTest {
 
     /**
      * A fresh entity ready to take a component of this type. Mesh and hull colliders need an entity that shows a mesh (the catalog
-     * refuses them otherwise), so every entity gets a Mesh Primitive first unless it is the one being added.
+     * refuses them otherwise), so every entity gets a Mesh Primitive first unless it is the one being added. A Terrain Collider 3D
+     * needs a Terrain the same way (TD-087); a path is enough, nothing here loads it.
      */
     private static Entity entityFor(EditorState state, ComponentCatalog.Entry entry) {
         Entity entity = state.createEntity(entry.displayName());
         if (!MeshPrimitiveComponent.class.isAssignableFrom(entry.type())) {
             entity.addComponent(new MeshPrimitiveComponent());
         }
+        if (TerrainCollider3DComponent.class.isAssignableFrom(entry.type())) {
+            entity.addComponent(new TerrainComponent("terrains/consistency.terrain"));
+        }
         return entity;
     }
+
+    /** A flat 2 by 2 ground for any terrain collider, as the renderer would read from a terrain file. */
+    private static final HeightFieldSource FLAT_GROUND = new HeightFieldSource() {
+        @Override
+        public HeightField3D heightFieldOf(Entity entity) {
+            return new HeightField3D(2, 2, 100f, 100f, -50f, -50f, new float[4]);
+        }
+
+        @Override
+        public long revisionOf(Entity entity) {
+            return 0L;
+        }
+    };
 
     /** The saved form of an entity's components, as text, so two entities or two loads compare field by field. */
     private static String savedComponents(SceneSerializer serializer, Entity entity) {
@@ -205,12 +226,13 @@ class ComponentConsistencyTest {
         String before = state.getSerializer().toJson(authored);
         int entities = authored.getAllEntities().size();
         PlayModeController play = new PlayModeController(state);
-        // In the editor the renderer gives the scene that is playing a source for its mesh and hull colliders to read
-        // (SceneRenderer3D.bindColliderGeometry); this test has no renderer, so a small extension does the same on the copy
+        // In the editor the renderer gives the scene that is playing a source for its mesh and hull colliders, and its terrain
+        // colliders, to read (SceneRenderer3D.bindColliderGeometry); this test has no renderer, so a small extension does the same
         play.addExtension(new PlayModeController.Extension() {
             @Override
             public List<String> onPlay(Scene runtimeScene, PlayModeController controller) {
                 runtimeScene.setColliderGeometry(new ColliderGeometry(null));
+                runtimeScene.setHeightFields(FLAT_GROUND);
                 return List.of();
             }
 

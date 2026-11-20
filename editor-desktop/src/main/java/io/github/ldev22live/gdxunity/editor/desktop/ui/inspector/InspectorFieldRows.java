@@ -169,6 +169,26 @@ final class InspectorFieldRows {
         container.add(row).growX().padTop(2).padBottom(2).row();
     }
 
+    /** Drop-down of named choices showing {@code value}; choosing a different one commits its name. */
+    static void choiceRow(Table container, Skin skin, String label, String value, String[] options, Consumer<String> onCommit) {
+        Table row = new Table(skin);
+        row.left();
+        row.add(new Label(label, skin, "muted")).width(LABEL_WIDTH).left();
+        SelectBox<String> select = new SelectBox<>(skin);
+        select.setItems(options);
+        select.setSelected(value);
+        select.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (!select.getSelected().equals(value)) {
+                    onCommit.accept(select.getSelected());
+                }
+            }
+        });
+        row.add(select).growX().height(FIELD_HEIGHT);
+        container.add(row).growX().padTop(2).padBottom(2).row();
+    }
+
     private static float clamp01(float v) {
         return Math.max(0f, Math.min(1f, v));
     }

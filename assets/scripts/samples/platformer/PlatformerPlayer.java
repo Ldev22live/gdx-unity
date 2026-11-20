@@ -5,8 +5,10 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TextComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.TilemapComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.audio.AudioSourceComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics.StaticColliderSource2D.StaticBox2D;
 import io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptComponent;
 
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import java.util.List;
  * <p>Scene conventions (rename to taste):
  * <ul>
  *   <li>Entities whose name starts with "Platform" are solid boxes (their Shape Renderer size is the box).</li>
+ *   <li>A Tilemap whose Collides is on is solid too: its solid tiles, merged into boxes (painted in 2D Studio: Tiles).</li>
  *   <li>Entities whose name starts with "Coin" are collected on touch.</li>
  *   <li>"Goal" ends the level; "Score Text" and "Message Text" show progress.</li>
  * </ul>
@@ -66,6 +69,12 @@ public class PlatformerPlayer extends ScriptComponent {
         super.onStart();
         for (Entity entity : getScene().getAllEntities()) {
             String name = entity.getName();
+            TilemapComponent tiles = entity.getComponent(TilemapComponent.class);
+            if (tiles != null && tiles.isEnabled() && tiles.isCollides()) {
+                for (StaticBox2D box : tiles.getStaticBoxes()) {
+                    platforms.add(new Box(entity, box.centerX(), box.centerY(), box.width() / 2f, box.height() / 2f));
+                }
+            }
             if (name.startsWith("Platform")) {
                 platforms.add(boxOf(entity));
             } else if (name.startsWith("Coin")) {

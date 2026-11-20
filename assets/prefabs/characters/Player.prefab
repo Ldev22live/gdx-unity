@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "Player",
+  "rootId": "f8b4d1ed-9dad-5e9e-92ed-fa8b09094ea8",
+  "entities": [
+    {
+      "id": "f8b4d1ed-9dad-5e9e-92ed-fa8b09094ea8",
+      "parentId": null,
+      "name": "Player",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CharacterController3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 30.0,
+            "height": 80.0,
+            "slopeLimitDegrees": 45.0,
+            "stepHeight": 30.0,
+            "mass": 70.0,
+            "gravityScale": 1.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "PlayerComponent",
+          "enabled": true,
+          "data": {
+            "useProfileMovement": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "ff30f4c4-1885-5073-9948-cafadd8849a5",
+      "parentId": "f8b4d1ed-9dad-5e9e-92ed-fa8b09094ea8",
+      "name": "Legs",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -45.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 44.0,
+            "sizeY": 50.0,
+            "sizeZ": 34.0,
+            "colorR": 0.25,
+            "colorG": 0.22,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5fd5b60d-8e9f-5a4d-abdf-db17ca165d75",
+      "parentId": "f8b4d1ed-9dad-5e9e-92ed-fa8b09094ea8",
+      "name": "Body",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 10.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 56.0,
+            "sizeY": 60.0,
+            "sizeZ": 40.0,
+            "colorR": 0.85,
+            "colorG": 0.38,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "639a256c-ff34-545b-88ac-6077054c399f",
+      "parentId": "f8b4d1ed-9dad-5e9e-92ed-fa8b09094ea8",
+      "name": "Head",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 52.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.93,
+            "colorG": 0.76,
+            "colorB": 0.62,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b7a62803-c280-5939-b7c0-8c3b81cacf73",
+      "parentId": "f8b4d1ed-9dad-5e9e-92ed-fa8b09094ea8",
+      "name": "Nose",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 52.0,
+          "z": -22.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 10.0,
+            "sizeY": 10.0,
+            "sizeZ": 12.0,
+            "colorR": 0.93,
+            "colorG": 0.76,
+            "colorB": 0.62,
+            "colorA": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}

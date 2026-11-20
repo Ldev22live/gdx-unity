@@ -2,6 +2,7 @@ package io.github.ldev22live.gdxunity.engine.scene.scripting;
 
 import io.github.ldev22live.gdxunity.engine.scene.BaseComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.play.EntityLogicComponent;
 
 import java.util.Objects;
 
@@ -9,7 +10,7 @@ import java.util.Objects;
  * Entity component that binds a persistent script reference (source path, class name, language)
  * to an entity, and delegates runtime lifecycle updates to the instantiated {@link ScriptComponent}.
  */
-public class EntityScriptBindingComponent extends BaseComponent {
+public class EntityScriptBindingComponent extends BaseComponent implements EntityLogicComponent {
     private String scriptPath;
     private String scriptClassName;
     private ScriptLanguage language;
@@ -17,6 +18,8 @@ public class EntityScriptBindingComponent extends BaseComponent {
     // Transient runtime instance (not serialized)
     private transient ScriptComponent scriptInstance;
     private transient boolean instanceInitialized = false;
+    /** The Profiler's name for the script, made on first use and again after the class changes, so a frame builds no strings. */
+    private transient String profilerLabel;
 
     public EntityScriptBindingComponent() {
     }
@@ -44,6 +47,7 @@ public class EntityScriptBindingComponent extends BaseComponent {
 
     public void setScriptClassName(String scriptClassName) {
         this.scriptClassName = scriptClassName;
+        this.profilerLabel = null;
     }
 
     public ScriptLanguage getLanguage() {
@@ -52,6 +56,16 @@ public class EntityScriptBindingComponent extends BaseComponent {
 
     public void setLanguage(ScriptLanguage language) {
         this.language = language;
+    }
+
+    /** "Script " and the script's class name without its package; "Script (none)" when no class is bound. */
+    @Override
+    public String getProfilerLabel() {
+        if (profilerLabel == null) {
+            profilerLabel = scriptClassName == null || scriptClassName.isBlank()
+                ? "Script (none)" : "Script " + scriptClassName.substring(scriptClassName.lastIndexOf('.') + 1);
+        }
+        return profilerLabel;
     }
 
     public ScriptComponent getScriptInstance() {

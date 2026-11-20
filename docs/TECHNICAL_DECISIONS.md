@@ -2549,7 +2549,7 @@ AGENTS.md section 4 says a new module needs approval; it was given for both.
 
 **Why.** It gives the editing loop of the old campaign editors (pick the ground, shape it, paint other ground, drop trees and rocks) using the terrain, prefab and undo systems that already exist.
 
-**Limits.** Surfaces are one hard value per point, so patch edges are one cell wide gradients and not blended weights; objects do not collide (terrain has no collision yet) and are placed on the ground at click height, not snapped again if the ground is reshaped later; no object brush, no random scatter, no water, no cliffs or roads; the web player ignores terrain and so the level.
+**Limits.** Surfaces are one hard value per point, so patch edges are one cell wide gradients and not blended weights (**superseded by TD-089, approved 2026-11-16: the Ground tool now paints soft-edged layer weights; the base surface stays**); objects do not collide (terrain has no collision yet) and are placed on the ground at click height, not snapped again if the ground is reshaped later; no object brush, no random scatter, no water, no cliffs or roads; the web player ignores terrain and so the level.
 
 ### TD-084: Customize Gateway and the Back to World Contract (Roadmap M1b.7, World-first Stage 2)
 
@@ -2595,3 +2595,472 @@ AGENTS.md section 4 says a new module needs approval; it was given for both.
 **Why.** It gives the owner journey's first step (roadmap §3, step 1: open or create a project and land in World) a single place to start, without the risk of rebuilding the editor in place.
 
 **Limits.** A restart takes as long as a cold start, and the second editor's window opens where the window system puts it. The gallery is not shown at startup; it is reached from the Project menu. Templates are offered as listed. (2026-11-15: the fixed "not yet rated" line is replaced by M1.7's label, read from the editability matrix each time a template is shown; see the M1.7 report.)
+
+### TD-087: Terrain Collision: a Terrain Collider 3D Built as a Jolt Height Field (Roadmap M3.3)
+
+**Status:** **Approved by the owner on 2026-11-15** ("approve TD-087"), as written, including its scope (no 2D slopes in M3.3) and its order (before the first genre slice, decision 12). **Built the same day (M3.3, [report](reports/m3-3-terrain-collision.md))**, with two differences from the text below: the type id is `TerrainCollider3DComponent`, following the other colliders, and the sample's Hero is walked by a graph (`ValleyWalker.graph`) rather than Java. Drafted the same day at the owner's request ("draft M3.3"); M3.3's chart gate is a TD. It adds no module and no dependency: Jolt's height field is already in jolt-jni 6.2.0 (`HeightFieldShapeSettings`, checked in the jar). It adds one component type, so scene files gain a type id; existing scenes still load unchanged.
+
+**Context.** Terrain (TD-082) and the level editor (TD-083) make worlds people can shape and paint, but nothing collides with them: a character falls through the ground, a raycast passes through it and placed objects do not rest on it. This blocks the owner journey's Play step (Action RPG + 3D, M3c.1), M3.10 and M4.5. Three facts shape the choice:
+- `engine-scene` holds `PhysicsSystem3D` and must not see terrain (it depends on `engine-core` only). `TerrainComponent` is in `engine-render`, which also builds collider meshes for the scene (`ColliderGeometry`, TD-052, registered with `Scene.setColliderGeometry`).
+- `PhysicsSystem3D` builds a body for every active entity with a 3D collider, in meters (`PhysicsUnits3D`). It loads the Jolt native library only when `isUsedBy(scene)` is true. Characters are `CharacterController3DComponent` bodies of their own (TD-049) and already slide on slopes steeper than their slope limit.
+- Jolt height fields are square (one sample count). They can mark samples as "no collision" (`cNoCollisionValue`), store heights quantised per block, and take an offset and a scale.
+
+**Options considered.**
+1. **A Terrain Collider 3D whose shape is a Jolt height field (recommended).** A new shape kind and a new collider component, with the terrain heights supplied through a source interface like the mesh one.
+2. **Reuse the Mesh Collider 3D** with the terrain's triangles from `ColliderGeometry`. It needs no backend change. But a 1025 by 1025 terrain is about 2 million triangles (20 times `LARGE_MESH_TRIANGLES`), several times the memory and build time of a height field, and the character controller's contacts on a triangle soup are rougher at cell edges.
+3. **Collision implied by the Terrain component**, with no collider component. It is the simplest for a person, but it would be the only shape outside the collider model: no Details row to turn it off, no layer, mask or friction, and `isUsedBy` would need to know about terrain.
+
+**Decision (proposed): option 1.**
+- **`TerrainCollider3DComponent`** (`engine-scene`, `physics3d`, type id `TerrainCollider3D`) extends `Collider3DComponent`. It comes with a serializer, a round-trip test (`ComponentCloningAndSerializationCoverageTest`), a Details editor and an Add Component entry.
+  - It must sit on an entity that also has a Terrain component; otherwise Play reports "<name> has a Terrain Collider 3D but no Terrain".
+  - It cannot be a trigger: a ground is not a sensor.
+  - Like a Mesh Collider, it needs a static body, so a moving Rigid Body 3D on the same entity is refused with the reason.
+- **`HeightFieldSource`** (`engine-scene`, an interface like `ColliderGeometrySource`) returns a `HeightField3D` for an entity: the sample count per side, the cell size, and the heights in scene units in the entity's local space, with "no collision" for padding.
+  - `engine-render` implements it from `TerrainComponent` and the renderer's `TerrainLibrary`.
+  - `SceneRenderer3D` registers it with the scene in the same place it registers `ColliderGeometry`, so editor Play and the game runtime get the same data.
+  - A missing or broken `.terrain` file gives the library's stored reason.
+- **`ShapeDescriptor3D.Kind.HEIGHT_FIELD`** carries the samples, and `JoltPhysicsBackend3D` builds it with `HeightFieldShapeSettings`. The offset and scale are in meters, with the entity's world scale applied as for the other shapes.
+  - A terrain that is not square is padded to the larger side with no-collision samples.
+  - Jolt keeps the samples in its own memory; the descriptor is not kept after the body is made.
+- **Precision:** Jolt quantises each block's heights, so the backend uses the largest bits per sample Jolt allows. A test bounds the error: at sampled points of the valley sample, a downward raycast against the physics body agrees with `Terrain.heightAt` within 1 cm (one scene unit). If that bound cannot be met, this record is revised before anything is built on it.
+- **Keeping up with edits:**
+  - Strokes are refused during Play, as all editor commands are, so the shape built at Play is the one played.
+  - A terrain edited between Plays is read again at the next Play.
+  - While a system runs, `PhysicsSystem3D` checks the terrain's revision (`Terrain.getRevision`, through the source) each step and rebuilds that one body when it has changed. A script or a future runtime edit can then never leave a stale shape.
+- **`isUsedBy`** needs no change: a Terrain Collider 3D is a 3D collider.
+- **Default on:** every new terrain gets a Terrain Collider 3D in the same undo step, so a new world is walkable with no setup step. That covers New Level and the Terrain Details' New Hills and New Flat. The empty starters make no terrain today.
+  - Existing scenes are not changed when they load.
+  - The `terrain-3d.json` sample and its generator gain the component.
+  - The Play readiness check (M3b) can later offer to add it.
+- **Scripts and graphs** reach terrain through the existing API, with no new script API: `raycast` hits it, and characters stand, walk, jump and slide on it.
+
+**Not in this decision.**
+- **"Slopes for 2D"** (the chart's M3.3 text): there is no 2D terrain asset, and 2D games use tiles and Box2D shapes. Proposed: drop it from M3.3, and leave it to a later 2D milestone if a 2D height terrain is ever wanted. 2.5D games use the 3D terrain, so they are covered.
+- **Holes** (M3.4) will set samples to no-collision. **Water** (M3.9) is a separate volume. **Level of detail** (M3.8) does not change collision.
+- **The web player** reads no `.terrain` at all, so it has no terrain collision. This is unchanged and stays listed.
+- **Placed objects** (TD-083) still have no colliders of their own. Whether level prefabs get box or capsule colliders belongs to M2b.4's collision plan.
+
+**Testing plan.**
+- `engine-scene`, with a fake backend and a fake source:
+  - the component's serializer and cloning;
+  - in `PhysicsSystem3D`: the shape kind, sample count, padding and scale in meters;
+  - the refused combinations, with their messages;
+  - a rebuild when the revision changes, and only then.
+- `engine-physics` (Jolt, headless):
+  - a sphere dropped on a sloped height field comes to rest on it;
+  - a character walks up a gentle slope;
+  - it cannot walk up a slope steeper than its slope limit, and slides down it;
+  - it jumps and lands (`isGrounded3D`);
+  - the 1 cm raycast bound holds;
+  - a non-square terrain has no collision in its padding.
+- `engine-render`: the source returns the terrain's heights, and the library's reason for a missing file.
+- `engine-desktop`: `terrain-3d.json` in the game runtime with a character. After 240 frames, the character's height is within a step of the ground under it, with 0 runtime errors.
+- Editor: New Level adds the collider in one undo step.
+- Manual check for a person: reshape the valley, press Play, walk up and down, jump, and try a cliff steeper than the slope limit.
+
+**Why.** It uses the physics engine already approved (TD-028) in the way that engine expects to be given terrain. It keeps the collider model that people and scripts already use, and it respects the module boundaries. It is also the item the chart puts on the critical path to a playable Action RPG world.
+
+**Risks.**
+- The quantisation bound may need a smaller block size on steep, large terrains.
+- Padding wastes memory for very long, thin terrains, bounded by `Terrain.MAX_RESOLUTION` (1025).
+- How long a 1025 by 1025 terrain takes to build the first time is not measured yet; the M3.3 report will record it.
+
+**Open for the owner.**
+- Approve this record (option 1).
+- Approve dropping "slopes for 2D" from M3.3.
+- Answer decision 12 (terrain collision before the first genre slice). This record assumes **before**, which is how the chart's critical path already orders it.
+
+---
+
+### TD-088: Play Profiles: a Genre Registry, `GameTestProfile` and Runtime-Only Gameplay at Play (Roadmap M3b.1, for M3b.2 to M3b.5)
+
+**Status:** **Approved by the owner on 2026-11-15** ("approve TD-088"), as written. The four open questions were not answered, so the proposals stand: a Player component marks the player, the author's scripts and rigs win, shooters in 2D and 2.5D are "not offered", and Platformer + 2.5D uses the Character Controller 3D with a depth lock. **Amended by the owner the same day** ("update TD-088 with the suggestions and implement"): a "Make <name> the player" safe fix (question 1) and an opt-in **Use Profile Movement** field on Player (question 2); the answers are recorded under the open questions below. Built in part as M3b.2 (see its report). Written for milestone M3b.1 with its [audit](reports/m3b-1-play-profile-audit.md). Approval covers the design of M3b.2 (profile model and registry), M3b.3 and M3c.1 (the first two playable pairs) and the scene-file field of M3b.5, so those milestones need no further TD unless their build departs from this text.
+
+**Context** (checked in the source; details in the audit):
+- The scene's Game Mode exists and is saved (`GameMode`, TD-067). Decision 11, answered on 2026-11-14, makes the footer's Game Mode that same field, with no play-time override.
+- There is no genre anywhere: the footer says "Game Genre: none yet (planned)".
+- `PlayModeController` already plays a serialised copy and restores the scene and selection on Stop. `GameSession` plays scene files in exported games through the same engine code.
+- Movement and cameras exist as parts: the Character Controller 3D (TD-049), camera rigs (TD-050), terrain collision (TD-087). No 2D character controller exists. 2.5D samples move with the sample class `SideBody`, outside the physics engine.
+- Nothing marks the player, and nothing maps keys to actions: scripts and the graph Key Pressed node read `Gdx.input`.
+- `GameModeProfile` (`editor-core`) holds the editor's view rules per mode; it supplies no gameplay.
+
+**Options considered.**
+1. **A registry of genres plus profiles applied to the runtime copy by engine code (recommended).** Each playable pair is a small Java slice that adds runtime-only components to the copy; the editor and the game runtime call the same code.
+2. **Profiles as template scenes or prefabs** copied into the world at Play. Editable by people, but a template cannot check the world, explain what is missing, or adapt a camera to the player it finds; and copying entities into the copy blurs what the world is.
+3. **Profiles as graphs** attached at Play (the M3.3 `ValleyWalker.graph` approach). Graphs are editable, but `engine-render` and `engine-scene` cannot see `engine-visualscript`, the web graph runtime refuses character nodes, and validation still needs Java.
+
+**Decision (proposed): option 1.**
+
+*Model (`engine-scene`, package `play`, headless):*
+- **`GameGenre`**: an id (`platformer`, `action-rpg`, `adventure`, `fps`, `tps`, `rts`, `turn-based`, `racing`, `puzzle`, `simulation`, `sandbox`), a label and one sentence. **`GameGenres`** is the registry: the eleven roadmap genres are registered at start-up, and `register` adds more (an extension point, Javadoc'd).
+- **`GenreSupport`**: for every genre and `GameMode` pair, a status `PLAYABLE`, `PLANNED` or `NOT_OFFERED` and a reason in plain words ("Planned: needs a 2D character controller"). Only `PLAYABLE` pairs have a profile.
+- **`GameTestProfile`** (a record): genre, mode, `CameraSetup` (kind `SIDE_FOLLOW` or `THIRD_PERSON`, with its numbers), `MovementSetup` (kind `PLANE_RUN` or `GROUND_WALK`, speed, jump speed, turn rate), the physics it needs (`PHYSICS_3D` for both first slices), an `InputMapping`, and a list of `ProfileRequirement`s.
+- **`InputMapping`**: named actions (`MOVE_LEFT`, `MOVE_RIGHT`, `MOVE_FORWARD`, `MOVE_BACK`, `JUMP`, `TURN_LEFT`, `TURN_RIGHT`) to LibGDX key codes, defaults WASD and arrows, Space, Q and E. **`InputSource`** answers `isPressed(key)`; the default reads `Gdx.input`, and tests pass a fake. Remapping in the UI is out of scope.
+- **`PlayerComponent`** (saved, with serializer, Add Component > Game > Player, a Details editor): marks the one entity the profile controls; its authored position is the spawn. A separate spawn point is M3c.2's. *(Amendment)* Its one field, **`useProfileMovement`** (default false), lets the profile's mover run even when the player has its own script or graph.
+- **`RuntimeOnlyComponent`** (a marker interface): `SceneSerializer` throws when asked to write one, naming the entity and the component, so profile parts can never be saved by mistake.
+
+*Scene file:*
+- One new optional field, **`gameGenre`** (the genre id), written only when set. Game Mode stays `gameMode`. `schemaVersion` stays 1; files without the field load unchanged and play exactly as today (scripts only, no profile).
+- An unknown id is **kept** and written back unchanged, and Play reports "This scene's genre 'x' is not known to this version of ForgeRoom"; it is not refused at load, so a newer or web-written file is not lost (decision 19). This differs on purpose from TD-067, which refuses an unknown `gameMode`.
+- Changing the genre is not an undo step, like changing the mode (TD-067).
+
+*Resolution, validation and application (`engine-render`, package `play`, headless; `engine-render` is seen by both `editor-core` and `engine-desktop` and holds the camera rig):*
+- **`PlayProfiles.resolve(scene)`** reads the scene's genre and mode: no genre gives "no profile" (play as today); a pair that is not `PLAYABLE` is refused with its reason; otherwise the profile.
+- **`PlayProfiles.validate(scene, profile)`** returns `ProfileProblem`s, each with a plain message, the entity's name when there is one, and an optional **safe fix** (an undoable editor command on the authored scene, offered as a button, never applied silently). Examples:
+  - "No player: select the entity to control and add Player". *(Amendment)* When one entity is the likely player (the only entity named "Player", else the only Character Controller 3D), the problem offers **"Make <name> the player"**, an undoable fix the person clicks; Play never picks a player by itself.
+  - "Hero cannot walk: it needs a Character Controller 3D" (fix: add one with defaults).
+  - "Hero has a Rigid Body 3D; a player walks with a Character Controller 3D instead" (no fix: removing a body is not safe).
+  - "No camera: add a Camera" (fix: add one).
+  - "Nothing under Hero to stand on: add a Terrain Collider 3D or a Box Collider 3D below it" (checked by a downward ray after physics is built, so it runs in the Play step, not before).
+- **`PlayProfiles.apply(runtimeScene, profile, input)`** adds runtime-only components to the copy: a mover on the player (`PlaneRunMover` or `GroundWalkMover`, which call `PhysicsSystem3D.moveCharacter` and `jumpCharacter`) and, on the main camera, a `CameraRigComponent` configured from `CameraSetup` (a runtime-only subclass, so the serializer refuses it).
+- **What the author made wins.** If the player already has a script or a graph (any component marked `EntityLogicComponent`, an `engine-scene` interface that the script binding and the graph component implement), no mover is added unless the player's `useProfileMovement` is on, and Play's status says "Hero is moved by its own script; the profile supplies the camera only". If the camera already has a rig, it is kept. The profile never removes or edits authored components.
+
+*Where it runs:*
+- **Editor Play:** a `PlayModeController` step between building physics and the extensions' `onPlay`. Problems stop Play with their messages, as today's script errors do. Stop is unchanged: the copy, with its runtime-only parts, is disposed.
+- **Game runtime:** `GameSession.start` resolves, validates and applies the same way, and reports problems as start-up errors. One code path, so Play and exported games agree (the rule of TD-035 and TD-049).
+- **Undo and selection:** Play adds no command, and Stop restores the selection as today. M3b.5 adds the missing tests: the undo count and the top command are the same before Play and after Stop, and the authored scene's JSON is byte-identical.
+
+*The first two playable pairs:*
+- **Platformer + 2.5D (M3b.3).** `SIDE_FOLLOW`: a `FOLLOW` rig offset to the side of the play plane (no new rig mode). `PLANE_RUN`: left and right move along x, Space jumps. The character keeps its authored depth through a new option on `PhysicsSystem3D`, **`lockCharacterDepth(entity, z)`**: after each step the system puts the character back on its plane without clearing its velocity (a teleport would stop jumps). Collision is the Character Controller 3D against the level's colliders and terrain; `SideBody` samples are not migrated.
+- **Action RPG + 3D (M3c.1).** `THIRD_PERSON`: an `ORBIT` rig behind the player; Q and E turn the camera. `GROUND_WALK`: WASD move relative to the camera's yaw, Space jumps, and the player's yaw turns toward its movement (the mover does it, so TD-049's "rotation is left to scripts" holds). Done when a character walks `terrain-3d`'s valley in Play with the genre set and no script on Hero.
+
+*Not in this decision:* combat, goals, enemies, health (later named slices); a 2D character controller; Platformer + 2D; first-person, racing and the other pairs (M3b.7, each its own slice); agent tools (M3b.7); the footer dropdown's look (M3b.4); key remapping; the web player (desktop only; the web keeps the field, per decision 19).
+
+**Testing plan.**
+- `engine-scene`: registry (eleven genres, `register` adds one, a duplicate id is refused); support table (all 33 pairs have a status and a reason); `gameGenre` round trip, absent field, unknown id kept on save; `PlayerComponent` round trip; the serializer refuses a runtime-only component.
+- `engine-render`: resolution for no genre, a planned pair (refused with its reason) and a playable pair; each validation problem and its fix; "author wins" for a scripted player and a camera with a rig; apply adds only runtime-only components.
+- A **truth test**: every `PLAYABLE` pair must be named in a list of acceptance tests that exist and run, so a pair cannot be marked playable without one.
+- Real Jolt (`engine-desktop`, `GameSession`): M3b.3's player runs and jumps along the plane and keeps its depth after hitting a slanted wall; M3c.1's player walks the valley. Keys come from a fake `InputSource`.
+- `editor-core`: Play with a profile, Stop, the undo count and the authored scene unchanged; a refused pair stops Play with its reason.
+
+**Risks.** Listed in the audit, section 7: two "profile" names, a built-in mover mistaken for a whole game, the depth lock on a Jolt character, input reads left in sample scripts, and the web.
+
+**Open questions for the owner** (answered 2026-11-15: proposals 3 and 4 stand; 1 and 2 stand with the amendments above):
+1. **Player marker.** A Player component (proposed), or the entity named "Player"?
+2. **Author wins.** Keep an authored script or rig and skip the profile's part (proposed), or let the profile replace them at Play?
+3. **"Not offered" pairs.** First- and third-person shooters in 2D and 2.5D are shown as "not offered" with a reason (proposed), or as planned?
+4. **Platformer + 2.5D collision.** The Character Controller 3D with a depth lock against real colliders (proposed), or `SideBody`'s box test made engine code?
+
+**Implementation notes (2026-11-15, M3b.2, where the build differs from or adds to the text above; [report](reports/m3b-2-profile-model-and-registry.md)):**
+- Built: the model in `engine-scene` `play` (`GameGenre`, `GameGenres`, `GenreStatus`, `GenreSupport`, `GameTestProfile` with `CameraSetup`, `MovementSetup`, `Physics` and `Requirement`, `InputAction`, `InputMapping`, `InputSource`, `PlayerComponent` and its serializer, `RuntimeOnlyComponent`, `EntityLogicComponent`); `Scene.get/setGameGenre` and the `gameGenre` field; `engine-render` `play` (`PlayProfiles.resolve`, `validate` and `plan`, `ProfileResolution`, `ProfileProblem`, `ProfileFix`, `ProfilePlan`); `editor-core`: `EditorState.get/setGameGenre` with `onGameGenreChanged`, `ProfileFixes`, Add Component > Game > Player (one per scene); `editor-desktop`: Player Details; `engine-desktop`: serializer registered.
+- The registry is an instance (`GameGenres.standard()`), not a global, so tests and later extensions build their own.
+- Planned and not-offered pairs keep their reason, and Play's refusal quotes it. No pair is playable yet; the truth test is `PlayableGenrePairsTest` in `engine-render`.
+- `PlayProfiles.plan` is the "author wins" rule; the movers and the rig it decides on are not built yet (M3b.3, M3c.1). Applying a profile, the ground check by a downward ray, and the calls from `PlayModeController` and `GameSession` are M3b.5's.
+- The scene's genre is copied into the Play copy (it is part of the scene file), so M3b.5 can resolve it there.
+- Not built here: the Game Genre dropdown (M3b.4), agent tools (M3b.7).
+
+**Implementation notes (2026-11-15, M3b.3 with M3b.5's Play step; [report](reports/m3b-3-platformer-25d-profile.md)):**
+- **Platformer + 2.5D is playable** (`GameGenres.platformer25D`): a `FOLLOW` rig 900 units in front of the play plane and 150 above the player, running at 450 units per second, a 650 units per second jump (about 2.15 m), A/D or the arrows and Space. Its acceptance test is `PlatformerSideProfileOnJoltTest` (game runtime, real Jolt), listed in the truth test.
+- **Depth lock:** `PhysicsSystem3D.lockCharacterDepth`, `unlockCharacterDepth` and `getLockedCharacterDepth`. After each fixed step a locked character is put back on its plane with `setCharacterPosition`, keeping its speeds; the z part of `moveCharacter` is ignored while it holds.
+- **Runtime-only parts:** `PlaneRunMover` (one jump per press of the key) and `ProfileCameraRig` (a `CameraRigComponent` subclass) in `engine-render` `play`, added by `PlayProfiles.apply`. `PlayProfiles.start` is the whole step, called by `ProfilePlayStep` (editor Play, registered by `PlayModeController` as its first extension, in the game mode the editor shows) and by `GameSession.start` (the saved game mode). Problems stop Play through the existing extension path; `ProfilePlayStep.getLastProblems` keeps their fixes for a UI that does not exist yet.
+- **Keys:** `InputSource.keyboard()` throws without a running application, so headless callers pass a source (`ProfilePlayStep.setInput`, `GameSession.setInput`).
+- **Footer:** Game Genre now shows the open scene's genre and its status ("Platformer / Side-scroller (playable)"), read only; it showed "none yet" for a scene that had one. The selector is still M3b.4.
+- **Not built:** the ground check by a downward ray at Play (M3b.5); a UI for the fixes (M3b.5); the third-person camera and ground walking (M3c.1).
+
+**Implementation notes (2026-11-15, M3c.1; [report](reports/m3c-1-action-rpg-3d-profile.md)):**
+- **Action RPG + 3D is playable** (`GameGenres.actionRpg3D`). Its acceptance test is `ActionRpgValleyProfileOnJoltTest` (game runtime, real Jolt, the sample `action-rpg-valley-3d.json` on `terrains/Valley.terrain`), listed in the truth test.
+- **`THIRD_PERSON`:** `ProfileCameraRig` sets an `ORBIT` rig 520 units behind a pivot 90 above the player, tilted 18 degrees down, with occlusion on so hills and walls pull it in. It starts looking the way the player faces. The rig itself reads the turn keys (Q and E, 120 degrees per second, `ProfileCameraRig.TURN_DEGREES_PER_SECOND`); the camera setup's `followRate` is unused by this kind. The rig now takes the profile's `InputMapping` and the `InputSource`.
+- **`GROUND_WALK`:** `GroundWalkMover` walks at 400 units per second relative to the yaw of the active game camera (also an author's own rig), jumps at 600 (once per press), and turns the player toward where it walks at 720 degrees per second by setting its local rotation, so the player is expected at the scene's root.
+- The existing `terrain-3d.json` sample is unchanged (it is still walked by its graph); the new sample is that valley with the genre set, a Player on Hero, no graph and no rig.
+- **Not built:** a spawn point (M3c.2); combat and the rest of the genre (later named slices); mouse look; the ground check and the fixes UI (M3b.5).
+
+**Implementation notes (2026-11-15, M3b.4; [report](reports/m3b-4-genre-and-mode-selectors.md)):**
+- **Game Genre is a footer drop-down** (`GameGenreSelector`, logic in `editor-core` `GenreChoices`), fed by the registry Play uses (`PlayModeController.getProfileStep().getProfiles().getGenres()`), so the two cannot disagree. Entries: None, then every registered genre, each marked "(planned)" or "(not offered)" in the scene's game mode; an unknown id is shown as its own entry and kept.
+- A short line after Game Mode says what Play does with the pair ("Playable", "Planned: Play refuses it", "Scripts only" with no genre). With a genre set, the Game Mode buttons of the modes it does not play in are dimmed but still work.
+- Choosing a planned pair is allowed (it is only the scene's setting) and the status bar says the pair has no gameplay yet, that Play will refuse it, the reason, and the modes it plays in.
+- Game Mode stays the three M1b.3 buttons rather than a drop-down: decision 11 made it the scene's mode, and the buttons already were its selector.
+
+**Implementation notes (2026-11-15, M3b.5; [report](reports/m3b-5-play-fixes-and-ground-check.md)):**
+- **Ground check:** for a profile that walks a character, `PlayProfiles.start` builds the bodies (`PhysicsSystem3D.prepareBodies`, new) and casts a ray straight down from just below the player's capsule (a ray starting inside a shape reports that shape). Nothing solid within 100 m refuses Play: "Nothing under Hero to stand on: add a Terrain Collider 3D or a Box Collider 3D below it, or move it over the ground." It has no safe fix.
+- The bodies need the scene's mesh and terrain sources before the renderer has seen the copy. Editor Play gives the copy the authored scene's sources; `GameSession` reads terrains from the project itself. A mesh collider's shape in the game runtime needs the window, which opens after start: then the ground is not checked, and the start message says so rather than refusing Play.
+- **Fix buttons:** `ProfileFixButtons` beside Customize shows up to three safe fixes of the last refused Play. A click is one undoable command through `ProfilePlayStep.applyFix`; the button goes away and the status bar says "Done: … Press Play again." Play is never started by a fix. Opening another scene forgets the offer.
+
+**Implementation notes (2026-11-15, M3b.7 slice 1; [report](reports/m3b-7-1-genre-and-play-agent-tools.md)):**
+- **Agent tools** (TD-088's "agent tools to set the profile, validate, Play and Stop"): `play_profile_set`, `play_profile_check` (read-only), `play_start`, `play_stop` in `editor-core` `agent.tools`, using the registry and `PlayModeController` Play uses. They run only in a plan the person approves.
+- Setting the genre, Play and Stop are not undo steps in the editor, so the tools declare `actsOutsideUndoHistory`: the plan executor runs them through `execute` and keeps their outputs, and a rollback of a plan's other steps does not undo them.
+- A refused Play is a successful result with `started: false` and the problems, each with the label of its safe fix. No tool applies a fix: the person clicks it ("Play never fixes a scene by itself").
+
+**Implementation notes (2026-11-19, M3b.7 slice 2; [report](reports/m3b-7-2-platformer-3d.md)):**
+- **Platformer + 3D is playable.** TD-088 left each further pair to its own slice without specifying it; I chose this design (no owner question was needed for a pair the chart lists): the existing `THIRD_PERSON` camera, farther (650) and steeper (26 degrees) than Action RPG's so landings can be judged, and the existing `GROUND_WALK` movement, faster (500) with a higher jump (700, about 2.5 m).
+- **One addition to the model: `GameTestProfile.fallRespawnDepth`.** A 3D platform level has gaps, and without a rule the player falls forever. When it is above 0, `PlayProfiles.apply` adds a runtime-only `FallRespawner` that puts the player back where Play started it (after the spawn point) once it is that far below; 12 m for Platformer + 3D. It is a genre rule, not movement, so it is added even when the author's own script moves the player. The old seven-part constructor gives 0, so the other three profiles are unchanged. It needs `CHARACTER_3D` (the profile is refused otherwise).
+- Its acceptance test is `PlatformerChaseProfileOnJoltTest`, listed in the truth test.
+
+**Implementation notes (2026-11-19, M3b.7 slice 3; [report](reports/m3b-7-3-first-person-shooter-3d.md)):**
+- **First-person Shooter + 3D is playable.** Three additions to the model, each optional so the other profiles are unchanged:
+  - `CameraSetup.Kind.FIRST_PERSON`, the rig's existing first-person mode at the player's eyes;
+  - `MovementSetup.Kind.FIRST_PERSON_WALK` (`FirstPersonMover`): the turn keys turn the player, and walking and strafing are relative to its facing, because Action RPG's walker turns toward its movement and would spin the view;
+  - `GameTestProfile.ShotSetup` (`ProfileShooter`): one hitscan ray per press of the new `InputAction.FIRE` (F, left Ctrl; the profile input is keys only), from the game camera through the player's own shape. A dynamic body hit gains the knock speed along it; anything else only stops the shot.
+- **Requirements:** a shot needs 3D physics. It is added only with the profile's movement, so a scripted player shoots by its own script.
+- **Not in this slice:** health, enemies, ammunition and mouse look.
+
+**Implementation notes (2026-11-15, M3c.2; [report](reports/m3c-2-player-prefab-and-spawn-point.md)):**
+- **Spawn point** (TD-088 left it to M3c.2): `SpawnPointComponent` in `engine-scene` `play`, saved, no fields; the entity's position is the ground under the player's feet and its yaw the way the player faces. One per scene (Add Component refuses a second; Play names two). In Play the player of the copy is put on it before 3D physics builds the character: lifted by half its capsule, turned to its yaw. Without one the player starts where it stands, as before.
+- **Player prefab:** `prefabs/characters/Player.prefab`, whose root is the capsule's centre and carries the Character Controller 3D and Player, with a simple body of shapes and a nose that shows which way it faces. `Spawn Point.prefab` has its origin at the foot.
+- **Placing:** the World strip's Characters (2.5D and 3D) is the level editor's place tool on `prefabs/characters`: no random turn or size, a character lifted to stand, one player and one spawn point per scene. The editor marks spawn points in the 3D view; the game shows nothing there.
+
+**Implementation notes (2026-11-15, M3c.3; [report](reports/m3c-3-action-rpg-25d-isometric.md)):**
+- **Action RPG + 2.5D is playable, isometric.** The chart allows "isometric or side-view"; the owner was asked and declined to choose, so I chose isometric: it is the usual action-RPG view and differs from Platformer + 2.5D. This adds one value to TD-088's model, `CameraSetup.Kind.ISOMETRIC`: an `ORBIT` rig at a fixed yaw (`ProfileCameraRig.ISOMETRIC_YAW_DEGREES`, 45) and the profile's tilt (35 degrees), 1300 units from a pivot 40 above the player, never turned by keys, with no occlusion (a fixed high view should not jump about).
+- Movement is the same `GROUND_WALK` as 3D: relative to the camera, so with a fixed camera relative to the screen. Its acceptance test is `ActionRpgIsometricProfileOnJoltTest`, listed in the truth test; it does not reuse 3D's test.
+
+### TD-089: Terrain Paint Layers with Soft Edges, Holes and a Water Level (Roadmap M3.4)
+
+**Status:** **Approved by the owner on 2026-11-16** ("approve TD-089"), as built under milestone M3.4. It extends TD-082 and TD-083 without changing anything they store: every existing `.terrain` file reads and draws as before. It replaces one TD-083 behaviour, the Ground tool's hard paint (TD-083 lists that as a limit). [Report](reports/m3-4-terrain-layers-holes-water.md).
+
+**Context.** Roadmap M3.4 asks for splat weights per layer (grass, rock, sand, snow, dirt), holes and a water level, done when "a slope is repainted with soft edges and a hole is cut". TD-083 kept one hard surface per point, so a patch's edge was one cell wide.
+
+**Decision.**
+- **Paint layers.** `Surface` gains Rock and Dirt at the end (codes 5 and 6; existing codes unchanged). Every surface but Auto is a paint layer (`Surface.LAYER_COUNT`, 6). A point keeps its base surface (TD-083) plus one weight per layer, 0 to 255, never summing past 255; what is left shows the base. The colour is the base colour blended with each layer's colour by weight, so a patch fades into the ground around it.
+- **The Ground tool paints weights.** A dab adds `strength x falloff x 2` of the way to a full layer (`TerrainStroke.PAINT_RATE`), with the brush's smooth falloff, so the centre covers in one dab at the default strength and the edge is soft. It scales the point's other layers down to make room. Ctrl, or painting Auto, wipes the layers back towards the base. The base row ("Ground") still sets the whole ground's base and leaves painted patches on top of it.
+- **Holes are per grid point**, as Jolt's height fields are. A hole point removes every cell touching it from the drawn mesh, and becomes `HeightField3D.NO_COLLISION` in the collider, so what is drawn open is what collides open. `Terrain.isHoleAt` answers "is there ground here"; `heightAt` and `raycast` keep meaning the shaped surface, so brushes can still reach a hole to fill it. The Hole tool cuts the points well inside the brush (falloff at least 0.25), and Ctrl fills them.
+- **Water** is one level per terrain (none by default), drawn as a translucent quad over the terrain's footprint. The level editor's Water row offers Add (a quarter of the way up the height range), Up, Down (20 units) and Remove, each one undo step.
+- **One undo step per stroke still covers everything:** `TerrainDelta` gained weight and hole changes. `TerrainWaterCommand` is the water's undo step. Both write the file on execute and undo.
+- **The file stays version 1** and gains optional fields, each written only when used: `layerCount` and `layers` (Base64, `layerCount` bytes per point), `holes` (Base64, one byte per point, 0 or 1), `waterLevel` (a number). A file with fewer layers than this editor reads, the missing layers empty. Reading stays strict: a point's weights summing past 255, a hole byte other than 0 or 1, a wrong length, or `layerCount` out of range is an error that names the problem.
+- **Agent parity:** `terrain_edit` (`editor-terrain`, registered by the editor) does one brush dab (raise, lower, smooth, flatten, noise, paint, hole) or sets the water, as one undo step.
+
+**Why.** Weights per layer are what "splat weights" asks for and what makes soft edges possible. Keeping the base surface means TD-083 files, the base row and the Auto look keep working. Per-point holes match the physics backend, so drawing and collision cannot disagree. Optional fields keep every existing terrain byte-for-byte readable.
+
+**Limits.**
+- Water does not collide or float anything. It is drawn only, with no waves and no shoreline blending. Where it meets nearly flat ground its edge shimmers (the two surfaces are almost coplanar).
+- Weights cost 6 bytes per point in memory, and in the file when painted: about 6.3 MB for a 1025 by 1025 map.
+- Layers are colours, not textures: there is no texture splatting, normal maps or per-layer tiling (R2 materials).
+- Holes are as fine as the grid, so a hole is at least two cells wide.
+- The web player ignores terrain, so none of this is shown there.
+
+### TD-090: Sky and Weather, Water Bodies and a 24-bit Depth Buffer (Roadmap M3.9)
+
+**Status:** **Recorded as built under milestone M3.9 on 2026-11-17, for the owner's review.** The chart lists no approval gate for M3.9. This record exists because the milestone adds two component types to the scene file and changes the depth buffer of both desktop applications. [Report](reports/m3-9-water-sky-weather-fog.md).
+
+**Context.** Roadmap M3.9 asks for "a water body component, presets, fog", done when "a preset applies and persists". Before it, a scene's background was a flat clear colour, there was no fog or weather, and the only water was a terrain's one level (TD-089).
+
+**Decision.**
+- **Sky and Weather** (`AtmosphereComponent`, `engine-scene`, serializer type `AtmosphereComponent`). One per scene: the renderer uses the first enabled one. It holds:
+  - a zenith and a horizon colour;
+  - fog on or off, its colour, and where it starts and ends in world units;
+  - the weather (Clear, Rain or Snow) and its intensity from 0 to 1;
+  - a sunlight multiplier on every directional light, from 0 to 4.
+- **Water Body** (`WaterBodyComponent`, serializer type `WaterBodyComponent`). A rectangle centred on its entity, turned and scaled with it. It holds a width and length, a colour whose alpha is the opacity, a roughness, and waves (height, spacing, speed). It is drawn only: it does not collide and nothing floats.
+- **Presets** are enums in `engine-scene`:
+  - `AtmospherePreset`: Clear Day, Overcast, Foggy, Sunset, Night, Rain, Snow;
+  - `WaterPreset`: Lake, Ocean, Swamp, Tropical, Icy.
+  
+  Applying a preset sets every setting (a water preset leaves the size alone). The file stores the settings, not the preset's name: the editor shows the preset the settings match, within 0.002, or "Custom". A tweaked preset therefore never claims to be what it no longer is, and older files never need a preset table.
+- **Drawing** (`SceneRenderer3D`, `engine-render`):
+  - The sky is a full-view gradient from horizon to zenith, by the sine of the elevation (`SkyGradient`, `AtmosphereRenderer`). It is drawn after the shadow pass and before the scene. An orthographic view shows the whole gradient.
+  - Fog uses gdx-gltf's own PBR fog (`ColorAttribute.Fog` and `FogAttribute.FogEquation`, linear from start to end). That shader fogs after gamma, so the sRGB colour is used as authored and matches the sky.
+  - Rain and snow are up to 3,000 particles in a 30 m box that moves with the camera (`WeatherParticles`, fixed arrays, seeded). They are drawn as lines with depth testing, after the scene.
+  - Water is a 64 by 64 grid with two crossing sine waves and analytic normals (`WaterSurfaceBuilder`), rewritten each frame only while it moves (`WaterBodyGpu`). It is translucent PBR, drawn with the scene and kept out of the shadow pass. Waves too short for the grid (fewer than 4 cells) are scaled down rather than left to flicker.
+  - The renderer's `setSkyOverlay` lets the editor draw its ground grid over the sky.
+- **Editing:**
+  - Add Component offers "Sky and Weather" (Lighting) and "Water Body" (Rendering 3D), both 3D only.
+  - In Details each has a Preset menu and its fields. A preset is one undo step that restores every setting; each field is its own undo step.
+  - The level palette has a Sky row: a preset menu that shows None, Custom or the preset, and adds a "Sky and Weather" entity when the scene has none.
+  - All three go through `EnvironmentPresets` (`editor-core`).
+- **Agent parity:** `environment_preset` (`target` sky or water, `preset`, and either `entityId` or `x, y, z` to add water) is one undo step.
+- **24-bit depth.** The game window (`DesktopLauncher`) and the editor's view frame buffer (`SceneViewportWidget`) now ask for 24 depth bits instead of LibGDX's default 16. With the 1 to 50,000 near and far planes the 3D views use, 16 bits resolve only about 250 units at 4 km. Water then drew in bands, cut by the ground it lay on, and that was the "shimmer" TD-089 recorded for terrain water.
+
+**Why.**
+- One component holds the scene's whole atmosphere because a preset must change sky, fog, weather and light together, as one undo step.
+- Reusing the PBR shader's fog keeps one shader and compiles no new one.
+- A gradient drawn in screen space needs no cubemap bake and follows any colour change at once.
+- Storing settings rather than a preset name keeps the file honest after tweaks.
+
+**Limits.**
+- No clouds, sun disc, stars or time of day. The sky does not light the scene: Sky Light (image-based light) stays separate, and presets do not change it.
+- Weather is visual only: no wet surfaces, puddles, snow cover, wind or sound. Particles do not collide, so rain falls through roofs.
+- Water does not collide, reflect, refract or foam, and has no shoreline blending. Through thick fog, a translucent water body's far end shows faintly lighter than the fog around it.
+- Fog is linear distance fog only: no height fog, and nothing for 2D views.
+- The editor's view also animates waves and weather while editing.
+- The web player does not draw either component (they are not in its supported list).
+
+---
+
+### TD-091: Post Process Volumes, Drawn Off-Screen With LibGDX Frame Buffers (Roadmap M6.2)
+
+**Status:** **Recorded as built under milestone M6.2 on 2026-11-17, for the owner's review.** The chart lists no approval gate for M6.2. This record exists because the milestone adds a component type to the scene file and changes how the 3D renderer finishes a frame. [Report](reports/m6-2-post-processing.md).
+
+**Context.** Roadmap M6.2 asks for "bloom, colour grading, ambient occlusion, depth of field as a volume component", done when "a volume changes the frame". Before it, `SceneRenderer3D` drew straight into the host's frame buffer, and the only frame-wide adjustment was tone mapping inside the PBR shader (TD-032).
+
+**Decision.**
+- **Post Process Volume** (`PostProcessVolumeComponent`, `engine-scene`, serializer type `PostProcessVolumeComponent`):
+  - **Placement:** global (applies everywhere, the default), or a box of a given size centred on its entity, turned and scaled with it. A blend distance in world units fades the effects in outside the box. A weight from 0 to 1 scales everything. A priority orders overlapping volumes.
+  - **Four effects**, each with its own switch:
+    - bloom: intensity, threshold, radius;
+    - colour grading: exposure in stops, contrast, saturation, temperature, tint, colour filter;
+    - ambient occlusion: intensity, radius in world units;
+    - depth of field: focus distance, sharp range, blur.
+  - **A switched-off effect is not overridden by that volume:** a lower volume's value, or none, stays. A new volume changes nothing until an effect is switched on.
+- **Blending** (`PostProcessVolumes`, `PostProcessSettings`, pure and headless):
+  - every enabled volume on an active entity that reaches the camera is applied in priority order, lowest first, equal priorities in scene order;
+  - each moves the effects it switches on from their current values towards its own by its weight times its reach.
+- **Presets** (`PostProcessPreset`): None, Cinematic, Dreamy, Noir, Warm, Cold, Vivid. Applying one sets the four effects and their switches and keeps the volume's placement. As with TD-090, the file stores settings, not the preset's name. The editor shows the matching preset, or "Custom".
+- **Drawing** (`PostProcessor`, `engine-render`). It uses only LibGDX `FrameBuffer`, `ShaderProgram` and `Mesh`: no new dependency, and the GL 2 context is kept.
+  - When the camera's settings have any effect on, `SceneRenderer3D` draws the sky, scene and weather into an off-screen frame of the host viewport's size. With clearing off, that frame starts as a copy of what the host already drew (the editor's grid).
+  - A depth pass then packs each pixel's depth into a colour frame. It uses gdx-gltf's depth shader with one line changed: the depth comes from `gl_FragCoord.z`, not from the vertex shader. A GL 2 context cannot sample a depth buffer, and the per-vertex value drifts across large triangles seen in perspective.
+  - The passes:
+    - bloom: a bright pass with a soft threshold, then three Gaussian blur rounds at half resolution;
+    - ambient occlusion: twelve samples on a spiral, at half resolution, with position and normal rebuilt from depth at texel centres, then blurred;
+    - depth of field: a blurred half-resolution copy, mixed in by a smooth circle of confusion around the focus distance.
+  - A composite applies depth of field, ambient occlusion (in linear light), bloom and grading. Exposure, white balance and filter are applied in linear light; saturation and contrast on the displayed values.
+  - The composite draws into the host's frame buffer and viewport, and **writes the scene's depth there**, so the 2D sprites, gizmos and overlays drawn next are still hidden by 3D surfaces.
+  - The arithmetic is mirrored in `PostProcessMath` for tests.
+  - `SceneRenderer3D.setPostProcessingEnabled` switches it off for a view; it is on by default, in the game runtime, the editor view and Play.
+- **Editing:**
+  - Add Component offers "Post Process Volume" (Rendering 3D, one per entity).
+  - Details has a Preset menu, then Global, Size and Blend (a box only), Weight, Priority and the four effect switches. Each effect's fields show only while its switch is on.
+  - Every change is one undo step; a preset is one step that restores every setting.
+  - `EnvironmentPresets` gives the scene a look on its global volume, making a "Post Process Volume" entity when there is none, or changes a named volume.
+- **Agent parity:** `environment_preset` gains `target: post` (`preset`, optional `entityId`), one undo step.
+
+**Why.**
+- A volume is the reference workflow (TD-020): a level can have one look everywhere and another in a cave, faded in at the entrance.
+- The frame buffer route keeps the existing PBR shader untouched apart from TD-032's one line; post-processing is a separate, optional step that costs nothing when no effect is on.
+- Writing depth from the composite keeps TD-016's overlays and Phase 13-D's depth-composited 2D sprites working unchanged.
+
+**Limits.**
+- The effects work on the displayed 8-bit colours, not HDR light: bloom picks out what is bright on screen, and highlights already clipped at white cannot be recovered.
+- Ambient occlusion comes from depth alone and is screen-space: it is subtle at the presets' settings, misses what is off screen, and darkens the whole lit colour, not only ambient light.
+- Depth of field is a mix between a sharp frame and one blurred copy: sharp foreground edges get a soft halo, and there is no bokeh shape.
+- Translucent surfaces at least half opaque (LibGDX's depth alpha test of 0.5, such as the Water material at 0.55) write depth, so depth of field focuses on them and occlusion treats them as solid. Fainter ones, such as Glass at 0.25, are skipped: what lies behind them is focused and occluded instead.
+- The editor's view shows the effects too, the grid included. There is no editor toggle yet: `setPostProcessingEnabled` is not on a menu.
+- 2D scenes and the web player are not post-processed. The web player does not read the component.
+
+---
+
+### TD-092: Navigation as a Baked Walkable Grid, Nav Agents and Behaviour Graph Nodes (Roadmap M6.4)
+
+**Status:** **Recorded as built under milestone M6.4 on 2026-11-17, for the owner's review.** The chart lists no approval gate for M6.4. This record exists because the milestone adds two component types to the scene file, a navigation package to `engine-scene`, and three graph nodes. [Report](reports/m6-4-navigation.md).
+
+**Context.** Roadmap M6.4 asks for "navmesh baking, agent component, behaviour graphs", done when "an agent paths around an obstacle". Before it, nothing in the engine found a way between two points: characters moved only where a graph or the genre profile pushed them.
+
+**Decision.**
+- **Nav Mesh Bounds** (`NavMeshBoundsComponent`, `engine-scene` package `navigation`, serializer type `NavMeshBoundsComponent`):
+  - a world-aligned box centred on its entity (position and scale count, rotation does not);
+  - settings: cell size (25 units), agent radius (35), agent height (180), steepest slope (45°) and step height (35).
+- **The bake** (`NavMeshBaker` into `NavGrid3D`) is **a 2.5D walkable grid, not a polygon navmesh**:
+  - at each cell's centre, a vertical line meets the static solids in spans. Solids are box, sphere, capsule, mesh or hull colliders as their boxes, and terrain colliders (their height fields, holes open).
+  - The floor is the highest span top inside the box with the agent height free above it.
+  - Neighbouring floors connect within the climb: the step height, or one cell at the steepest slope.
+  - Cells closer than the agent radius to an unconnected edge are not walkable (a chamfer distance along the floor).
+  - Moving bodies, characters, agents and triggers are not obstacles.
+  - It is pure Java in `engine-scene`, with no new module or dependency, and is testable without physics or graphics.
+- **Baking time.** `NavigationSystem3D.of(scene)` bakes every Nav Mesh Bounds the first time an agent or graph asks, and keeps the result on the `Scene` for its life, since baked obstacles do not move. `rebake()` refreshes it. Nothing baked is saved: the file holds only the settings.
+- **Paths.** A* over eight neighbours, without cutting corners, then straightened: a waypoint is dropped when the straight line past it stays on connected walkable cells. An end on an unwalkable cell moves to the nearest walkable one within 16 cells.
+- **Nav Agent** (`NavAgent3DComponent`, serializer type `NavAgent3DComponent`):
+  - settings: speed (300), stopping distance (25), and whether it faces its path (yaw only, +Z forward);
+  - `moveTo`, `stop`, `hasArrived` and a status (Idle, Moving, Arrived, Unreachable);
+  - **movement:** with a Character Controller 3D and running physics it walks through `PhysicsSystem3D.moveCharacter` (TD-049), so gravity and collisions still apply; otherwise it moves its transform and stands on the baked floor.
+- **Behaviour graphs:**
+  - nodes (category Navigation): **Move To** (Target, Destination; execution outputs Moving and Unreachable), **Stop Moving**, and **Has Arrived** (pure);
+  - the interpreter and the Java and Kotlin generators support them; TypeScript refuses them, naming navigation as the reason;
+  - an entity without a Nav Agent is an error on the node.
+- **Editing:**
+  - Add Component offers both under **Navigation**, which is hidden in 2D projects;
+  - Details editors for both (each field one undo step);
+  - a selected Nav Mesh Bounds draws its box, and the outline of its walkable area baked at most once a second.
+- **Agent parity:** the read-only tool `navigation_check` bakes the scene without keeping it, and reports regions, walkable cells and problems. Given `from` and `to`, it also reports the path, whether it is reachable, and its length.
+
+**Why.**
+- A grid baked from colliders needs no third-party navmesh library (a native Recast binding would be a new dependency and a feasibility study) and covers the shipped kinds of level: flat courtyards, terrain valleys, crates, walls and steps.
+- Reusing the colliders physics already has means a level needs no separate navigation geometry.
+- Walking through the character controller keeps one movement model (TD-049).
+
+**Limits.**
+- **One floor per cell:** there are no bridges or floors above floors, and a low overhang's top becomes that cell's floor.
+- **No off-mesh links:** no jumps, ladders or doors that open.
+- **Static bake:** obstacles moved after the first query are not seen until `rebake()`, and agents do not avoid each other or moving bodies (physics still pushes them apart when they are characters).
+- **Approximate shapes:** mesh and hull colliders count as their boxes, and capsules as their boxes.
+- **Cost:** the bake is up to 1,000,000 cells per box (refused above that, with the reason) and runs at the first query, on the game thread.
+- **Not covered:** steering, crowd simulation, behaviour trees (the behaviour is the graph), a Bake button or a saved bake, the web player, and 2D.
+
+### TD-093: A Fixed Text Layout for Scene and Prefab Files (Roadmap M9.3)
+
+**Status:** **Recorded as built under milestone M9.3 on 2026-11-18, for the owner's review.** The chart lists no approval gate for M9.3. This record exists because the change alters the bytes of every scene and prefab file the editor saves (not their content or schema). [Report](reports/m9-3-text-friendly-scenes.md).
+
+**Context.** Roadmap M9.3 asks for "scenes with meaningful version-control diffs", done when "a small edit gives a small diff". Scene files were already JSON with stable ids, fixed member order and entities in creation order, so a second save was already identical to the first. But the layout came from LibGDX's pretty printer, which differs from how most bundled files were written:
+- tabs, and the top-level members not indented;
+- whole floats written without their point (`1` for `1.0`);
+- a long number array, such as a tile layer's cells, on one line of up to 1,858 characters, so painting one tile changed that whole line.
+
+Opening one of the 38 bundled samples written in the other layout (two spaces, `1.0`) and saving it rewrote nearly every line.
+
+**Decision.**
+- **One layout, `SceneTextFormat` (`engine-scene`, package `serialization`).** `SceneSerializer.toJson` and `PrefabDocument.toJson` both write it:
+  - two spaces per level, one object member per line, `"key": value`;
+  - empty objects and arrays as `{}` and `[]`;
+  - `\n` line ends and a final line break.
+- **Values are copied as written, never re-parsed.** Floats keep Java's shortest text, including the point (`1.0`, `0.96`, `1.0E-5`):
+  - scenes are written through `SceneTextFormat.newWriter`, a `JsonWriter` that does not drop the point;
+  - prefab trees keep the text each number was read with (`PrefabState.copy`, `SceneSerializer.entityToJsonValue`).
+- **Arrays of plain values hold up to 16 values per line (`VALUES_PER_LINE`).** One changed value changes one line; an array of up to 16 stays on one line. Arrays of objects put each element on its own lines.
+- **Header order** is `schemaVersion`, `name`, `gameMode`, `gameGenre`, `active`, `entities`, the order most bundled files already had.
+- **Reading is unchanged.** Any valid JSON (old layout, tabs, CRLF) still loads. The formatter refuses input that is not one JSON value, naming the character position, but this cannot happen for text the serializer itself wrote. `NaN` and the infinities pass through as LibGDX writes them.
+- **Bundled files are not rewritten by this milestone.** It edits code only. The first save of a bundled sample changes the lines whose stored text is not what the engine writes back. Most samples change 4 to 90 lines; the worst cases are listed in the report. Normalizing the bundled files once is a separate, owner-approved step.
+
+**Alternatives considered.**
+- **Keep LibGDX's printer and rewrite all bundled files to match it.** Rejected: tabs, and floats without their point, against 38 of 43 files already written the other way, and it would still put long arrays on one line.
+- **One file per entity, or a line-based text format.** Rejected for now: it would change the schema, the web player's reader and every tool that reads scene JSON, and the done-when is met without it.
+- **Sorting keys alphabetically.** Rejected: member order is already fixed by each serializer, and sorting would move every component's fields once.
+
+**Consequences.**
+- Saving a scene twice gives the same bytes. A move, a rename, a switched-off component or one painted tile changes 1 line each. A new entity adds only its 25 lines, and a deleted one removes only its own. This is checked on all 43 bundled samples (`SceneTextDiffTest`) and with a real `git diff --no-index`.
+- The first save of a sample is not small for some files: the three tab-indented 2D samples, the skeleton and humanoid samples written with `1` for whole floats, the landscapes, and racing, which hold doubles longer than a float keeps. Each is a one-time change, and the values read back the same.
+- Not covered: graphs, animation clips, materials, terrain and other asset files still use their own printers (candidates for the same layout); merge conflict tooling; the web player (it only reads).
+
+### TD-094: Third-Party Asset Manifest and Download Rules (Roadmap M2b.1, First Part)
+
+**Status:** **Approved by the owner on 2026-11-19** ("approve TD-094"). Built with the asset integration the owner approved on 2026-11-19 ("All usable rows", files kept uncommitted in the working tree); see [asset-integration-report.md](asset-integration-report.md). It covers the manifest of M2b.1, not its provider-neutral source interface or a UI.
+
+**Context.** The owner asked for verified, redistributable test assets for the samples. Nothing recorded where a file came from or its licence: the sample inventory (MP.1) calls every file "project-made, no licence record". Two providers' `robots.txt` (Kenney, OpenGameArt) disallow AI agents by name; Poly Haven's API terms allow any use, commercial included, with a User-Agent naming the software.
+
+**Decision.**
+- **Downloaded files live in `thirdparty` folders** under the usual asset folders (`models/thirdparty/<provider>/<slug>/`, `textures/thirdparty/...`); project-made files that use them (materials, samples) stay in the usual folders.
+- **`assets/licenses/manifest.json`** (`schemaVersion` 1, `kind` `third-party-assets`) records each asset: id, name, category, source URL, licence, licence evidence URL, authors, retrieval date and tool, format, dependencies, conversion, import status, and each file's path, original name, size and SHA-256. `ThirdPartyManifest` (`engine-core` `asset`) reads it and refuses a missing field, an unsafe path, a path listed twice, a malformed hash or a licence other than **CC0-1.0** (any other licence needs a credits screen and a new decision).
+- **A guard test** (`ThirdPartyAssetsTest`) fails when a file in a `thirdparty` folder is not recorded, or when a recorded file's bytes differ from its SHA-256.
+- **Downloads** go to an empty folder outside the repository and are checked before they are copied in (`tools/thirdparty_assets.py`: MD5 against the provider's, safe paths only, no executables, scripts or links, only the formats ForgeRoom reads). Only providers whose terms allow automated access are fetched by a tool (Poly Haven's API); files from providers that disallow agents (Kenney, OpenGameArt) are downloaded by a person and only checked by the tool.
+- **The sample inventory** takes a downloaded file's origin and licence from the manifest.
+
+**Consequences.** A file's licence is stated wherever the inventory reports it, and cannot silently change. Binary files stay uncommitted until the owner chooses plain Git, LFS or a fetch script. Not built: the provider-neutral source interface, licence detail in the editor's Details and Content Browser (M2b.3), and an archive importer for packs a person downloads.
+
+### TD-095: Online Asset Providers in the Editor, Offline First, High-Definition Imports (UI Brief M4 to M7)
+
+**Status:** **Approved by the owner on 2026-11-19**, answering the questions of [ui-m1-full-map-assessment.md](reports/ui-m1-full-map-assessment.md) section 7: "yes the editor can go online but should work fine offline as well"; "approve TD-094"; "import limits should cater for high definition assets"; and the design reference `docs/ForgeRoom Isometric World Editor.png`.
+
+**Decision.**
+- **Going online.** The editor may contact Poly Haven (`https://api.polyhaven.com`) and ambientCG (`https://ambientcg.com/api/v3`) for the Asset Library. Kenney stays a curated list plus an importer for packs a person downloads, because its `robots.txt` disallows automated agents and it has no documented API.
+- **Only when a person uses it.** No request is made at start-up or in the background. The editor goes online when the Asset Library's Poly Haven or ambientCG tab is opened or searched, or when a person presses Download.
+- **What is sent:** the search words, the filters and the file asked for. The User-Agent is `ForgeRoom/<version>` with nothing personal. Poly Haven's terms require that User-Agent and a "Powered by Poly Haven" credit wherever its live results are shown.
+- **Offline first.** Everything that works without a network keeps working without one: the project's files, the Content Browser, placement, Play, saving, and assets already imported. Search results and thumbnails are cached on disk with their fetch time. Offline, a provider tab shows the cache, marked "offline, from <date>", or says plainly that nothing is cached. A failed request is a message, never a frozen editor or a silent empty list. Network work runs off the render thread.
+- **High-definition imports.**
+  - **Resolutions:** a person chooses the resolution a provider offers (1K, 2K, 4K, 8K and above); 2K is selected first.
+  - **Size limits:** the limit per download is 4 GB. A download over 500 MB asks for confirmation, showing its size first. The size is checked before downloading when the provider states it, and enforced while downloading.
+  - **Checks:** the provider's hash is checked when it gives one (Poly Haven's MD5). The SHA-256 of what arrived is always recorded in the manifest (TD-094). Archives are checked as `tools/thirdparty_assets.py` does: safe paths only, no links, executables or scripts, and only formats ForgeRoom reads. Anything else is listed and left out, never imported silently.
+  - **Disk space:** free space is checked before a download starts.
+- **Where imports go:** the open project's `thirdparty` folders, recorded in `licenses/manifest.json` (TD-094). CC0-1.0 only.
+
+**Consequences.** The editor's first network features are opt-in by use and cannot break an offline session. High-definition textures can be large on disk and in memory. The person chooses them knowingly, and the size is shown before every download.
+
+### TD-096: Gameplay Collision for Placed Objects, and the Instancing and Level-of-Detail Plan (Roadmap M2b.4)
+
+**Status:** **Recorded as built under milestone M2b.4 on 2026-11-20, for the owner's review.** The chart lists no approval gate for M2b.4. This record exists because every Objects and Buildings prefab now carries physics, which changes how a level plays, and because it fixes the plan M3.6 (scatter) builds on. [Report](reports/m2b-4-collision-instancing-lod.md).
+
+**Context.** Objects placed from the World strip (TD-083) drew but did not collide: the player walked through trees, rocks and houses (noted in TD-087 and the M2b.2 report). M2b.4 asks for collision authoring, scene-aware transforms, prefab overrides and performance measurements, done when "a realistic asset has gameplay collision and measured frame cost". The existing 3D colliders (TD-028, TD-052) are enough; the question was which shapes placed objects carry.
+
+**Decision.**
+- **Colliders are authored in the prefab**, on the part they belong to, so every placed copy has them, the Details panel edits them like any collider, and Edit Shared Prefab changes them for all copies. Nothing is added at placement time.
+- **Simple static shapes only:** boxes, capsules, spheres and convex hulls; never a Mesh Collider 3D. A placed object has no Rigid Body 3D, so it is static. Simple shapes cost little when a level holds hundreds of copies, work on every motion type and on the web player (Babylon), and need no model loaded to build, so they are tested without a display.
+- **What blocks:**
+  - Trees block at the trunk only, so a character walks under the crown: a box on a shape-built trunk, a capsule on the CC0 oak's trunk.
+  - Rocks block whole: a convex hull around each shape-built rock part; one box around the CC0 tall rock.
+  - Buildings block at their walls, roofs and chimneys. The CC0 House gives each Building Kit piece the box of its own piece; its doorway gets two jambs and a lintel as child entities named `Collision ...`, so a character walks in through it. A window is glass and blocks.
+  - Plants (the Bush) have no collider: a character walks through them.
+- **Sizes come from the models.** For Kenney's models, `tools/make_starter_pack.py` holds the sizes measured from the meshes' vertices (the trunk is about 0.1 m round below the crown at 0.45 m; the doorway's opening is 1 m by 2.1 m), as named constants. Shape-built parts use their own primitive's size (`tools/make_level_prefabs.py`).
+- **A guard test** (`ObjectPaletteTest`) fails when a shipped Objects or Buildings prefab that should block has no collider, carries a mesh collider or a rigid body, or when the house's doorway is closed.
+
+**Not built here, and planned:**
+- **Scene-aware transforms** already exist: the level editor puts an object's foot on the ground under the cursor (TD-083). Aligning to the ground's slope and random scale and rotation belong to scatter (M3.6), where they are needed.
+- **Prefab overrides** already exist at instance level (TD-027: `PrefabInstanceComponent` records overridden properties). Nothing new was needed for colliders: a collider edited on one copy is an override like any other property.
+- **Instancing (for M3.6).** The game runtime draws each placed model as its own `ModelInstance`, one draw call per mesh part. The measurement in the report sets the starting point. Scatter adds one entity holding many transforms of one prefab, drawn by grouping its copies per mesh (LibGDX has no hardware instancing in `ModelBatch`; GL ES 2.0 has none, so the first step is batching by mesh and material with frustum culling, not GPU instancing), with colliders created per copy from the prefab's simple shapes.
+- **Level of detail (for M3.6 and imported high-detail assets).** A prefab may name lower-detail models by distance; until then the guidance stays: heavy assets such as Poly Haven's 124,000-triangle boulder are for stress tests only. Distance culling of small objects comes first, because it needs no new asset.
+
+**Consequences.** Levels play as they look: players stop at trunks, rocks and walls. A project has its own copies of the palette's prefab files (`StarterPalette`, at creation), and placed copies follow the project's prefab when a scene opens (`PrefabService.syncScene`). So new projects get the colliders; a project made before this keeps its old prefab files, and its objects stay without colliders until those files are updated (copy the new prefab files in, or add colliders with Edit Shared Prefab). A scene with placed objects now creates 3D physics at Play, which it already did for any 3D level with a terrain collider.
+
