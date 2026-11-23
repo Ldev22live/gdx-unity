@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "Boulder",
+  "rootId": "c4d760e8-5628-57b1-9867-51bda8f683a6",
+  "entities": [
+    {
+      "id": "c4d760e8-5628-57b1-9867-51bda8f683a6",
+      "parentId": null,
+      "name": "Boulder",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "8c60b082-71b8-546b-972a-386cc0cc479b",
+      "parentId": "c4d760e8-5628-57b1-9867-51bda8f683a6",
+      "name": "Main",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 75.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 230.0,
+            "sizeY": 170.0,
+            "sizeZ": 200.0,
+            "colorR": 0.5,
+            "colorG": 0.5,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "ConvexHullCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "8ceb3f3e-808b-53ad-9a6b-3efeacf9d348",
+      "parentId": "c4d760e8-5628-57b1-9867-51bda8f683a6",
+      "name": "Shoulder",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -70.0,
+          "y": 40.0,
+          "z": 60.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 120.0,
+            "sizeY": 90.0,
+            "sizeZ": 110.0,
+            "colorR": 0.38,
+            "colorG": 0.38,
+            "colorB": 0.41,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "ConvexHullCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "d2826e2c-8150-5b63-93a8-fd808595312c",
+      "parentId": "c4d760e8-5628-57b1-9867-51bda8f683a6",
+      "name": "Chip",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 85.0,
+          "y": 25.0,
+          "z": -50.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 70.0,
+            "sizeY": 55.0,
+            "sizeZ": 65.0,
+            "colorR": 0.5,
+            "colorG": 0.5,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "ConvexHullCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+node_modules/
+dist/
+# Copied from ../assets/samples by `npm run sync-samples`; the originals are the source of truth
+public/samples/
+# Copied from ../assets/music by the same script
+public/music/
+# Copied from ../assets/models by the same script
+public/models/
+# `npm run package` output
+package/
+# Copied from ../assets/animations and ../assets/graphs by the same script
+public/animations/
+public/graphs/
+# Copied from ../assets/characters by the same script
+public/characters/
+# Copied from ../assets/terrains by the same script (roadmap M3.11)
+public/terrains/
+# Copied from ../assets/materials and ../assets/textures by the same script (roadmap M2.5)
+public/materials/
+public/textures/
+# Copied from ../assets/thirdparty (the packs' Models folders) by the same script (roadmap M2b.7)
+public/thirdparty/

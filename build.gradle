@@ -57,6 +57,8 @@ configure(subprojects) {
     if (tasks.findByName('compileJava')) {
       compileJava {
         options.incremental = true
+        // Keep parameter names in the class files: the visual scripting palette shows them on the pins of method nodes (TD-060)
+        options.compilerArgs << '-parameters'
       }
     }
   }
@@ -64,7 +66,7 @@ configure(subprojects) {
 
 subprojects {
   version = "$projectVersion"
-  ext.appName = 'GdxUnity'
+  ext.appName = 'Forgeroom'
   repositories {
     mavenCentral()
     // You may want to remove the following line if you have errors downloading dependencies.
@@ -77,4 +79,4 @@ subprojects {
   java.targetCompatibility = 21
 }
 
-eclipse.project.name = 'GdxUnity' + '-parent'
+eclipse.project.name = 'Forgeroom' + '-parent'

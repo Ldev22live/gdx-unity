@@ -24,7 +24,10 @@ public class EditorStatusBar extends Table {
         left();
 
         this.statusLabel = new Label("  " + editorState.getStatusMessage(), skin);
-        add(this.statusLabel).pad(2).left().growX();
+        // A long message ends in an ellipsis instead of widening the whole editor past a small window (found in M3c.4 at 1024x640);
+        // the Output Log keeps the full text
+        this.statusLabel.setEllipsis(true);
+        add(this.statusLabel).minWidth(0f).pad(2).left().growX();
 
         this.modeLabel = new Label("Ready  ", skin, "muted");
         add(this.modeLabel).pad(2).right();

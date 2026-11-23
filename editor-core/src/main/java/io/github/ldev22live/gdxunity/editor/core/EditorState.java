@@ -1,6 +1,8 @@
 package io.github.ldev22live.gdxunity.editor.core;
 
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
 
@@ -23,6 +25,11 @@ public class EditorState {
         default void onSelectionChanged(UUID previousSelectedId, UUID newSelectedId) {}
         default void onMultiSelectionChanged(java.util.Set<UUID> previousSelection, java.util.Set<UUID> newSelection, UUID primarySelectedId) {}
         default void onToolModeChanged(ToolMode oldMode, ToolMode newMode) {}
+        default void onViewportModeChanged(ViewportMode oldMode, ViewportMode newMode) {}
+        /** The scene's game mode (2D, 2.5D, 3D) changed, or another scene with another mode became active. {@code oldMode} is null for the first scene. */
+        default void onGameModeChanged(GameMode oldMode, GameMode newMode) {}
+        /** The scene's genre id (TD-088) changed; either may be null for "none". */
+        default void onGameGenreChanged(String oldGenre, String newGenre) {}
         default void onStatusMessage(String message, boolean isError) {}
         default void onHierarchyModified() {}
         default void onEntityTransformModified(Entity entity) {}
@@ -34,12 +41,14 @@ public class EditorState {
     private UUID primarySelectedEntityId;
     private io.github.ldev22live.gdxunity.engine.core.asset.AssetReference selectedAsset;
     private ToolMode toolMode = ToolMode.SELECT;
+    private ViewportMode viewportMode = ViewportMode.VIEW_2D;
     private String statusMessage = "Ready";
     private boolean statusIsError = false;
 
     private final SceneSerializer serializer;
     private io.github.ldev22live.gdxunity.engine.core.asset.AssetService assetService;
     private io.github.ldev22live.gdxunity.editor.core.scripting.ScriptManager scriptManager;
+    private PrefabService prefabService;
     private final io.github.ldev22live.gdxunity.editor.core.command.CommandHistory commandHistory;
     private final List<Listener> listeners = new CopyOnWriteArrayList<>();
 
@@ -64,6 +73,15 @@ public class EditorState {
 
     public void setScriptManager(io.github.ldev22live.gdxunity.editor.core.scripting.ScriptManager scriptManager) {
         this.scriptManager = scriptManager;
+    }
+
+    /** Prefab support, or null when the editor runs without an asset folder (TD-027). */
+    public PrefabService getPrefabService() {
+        return prefabService;
+    }
+
+    public void setPrefabService(PrefabService prefabService) {
+        this.prefabService = prefabService;
     }
 
     public io.github.ldev22live.gdxunity.editor.core.command.CommandHistory getCommandHistory() {
@@ -133,14 +151,31 @@ public class EditorState {
     }
 
     public void setActiveScene(Scene newScene) {
+        switchActiveScene(newScene, true);
+    }
+
+    /**
+     * Shows the Play copy of the scene, or the authored scene again on Stop, <b>keeping the undo history</b> (roadmap Appendix E3,
+     * found by the M3c.5 journey test: Play used to clear it). Only {@code PlayModeController} calls this. It is safe because undo,
+     * redo and new commands are refused while the game plays, and Stop brings back the very scene object the history's commands
+     * were made on.
+     */
+    public void swapSceneForPlay(Scene scene) {
+        switchActiveScene(Objects.requireNonNull(scene, "scene cannot be null"), false);
+    }
+
+    private void switchActiveScene(Scene newScene, boolean clearHistory) {
         if (this.activeScene == newScene) {
             return;
         }
         Scene oldScene = this.activeScene;
+        GameMode oldGameMode = oldScene == null ? null : GameModeProfile.resolve(oldScene);
         this.activeScene = (newScene != null) ? newScene : new Scene("Untitled Scene");
 
-        // Clear command history to prevent stale entity mutations across scene transitions
-        this.commandHistory.clear();
+        // Clear command history to prevent stale entity mutations across scene transitions (not for Play and Stop, see above)
+        if (clearHistory) {
+            this.commandHistory.clear();
+        }
 
         // Clear selection or reconcile
         java.util.Set<UUID> oldSelection = new java.util.LinkedHashSet<>(this.selectedEntityIds);
@@ -158,6 +193,79 @@ public class EditorState {
             }
         }
         setStatusMessage("Switched to scene: " + this.activeScene.getName(), false);
+        GameMode newGameMode = GameModeProfile.resolve(this.activeScene);
+        if (!isPlayModeActive()) {
+            // Play chooses its own view from the game camera (GameViewPlayModeExtension)
+            setViewportMode(GameModeProfile.of(newGameMode).getViewport());
+        }
+        if (newGameMode != oldGameMode) {
+            for (Listener l : listeners) {
+                l.onGameModeChanged(oldGameMode, newGameMode);
+            }
+        }
+    }
+
+    /** The game mode of the active scene: the one saved with it, else inferred from its content. */
+    public GameMode getGameMode() {
+        return GameModeProfile.resolve(activeScene);
+    }
+
+    /**
+     * Sets the active scene's game mode and switches the scene view to the one the mode uses. Not allowed during Play. Not an undo step: the mode
+     * is a setting of the scene, like its name, and changing it removes nothing from the scene.
+     */
+    public void setGameMode(GameMode mode) {
+        Objects.requireNonNull(mode, "mode cannot be null");
+        if (isPlayModeActive()) {
+            setStatusMessage("Cannot change the game mode during Play/Pause mode", true);
+            return;
+        }
+        GameMode old = getGameMode();
+        activeScene.setGameMode(mode);
+        setViewportMode(GameModeProfile.of(mode).getViewport());
+        if (old != mode) {
+            setStatusMessage("Game mode: " + mode.getLabel(), false);
+            for (Listener l : listeners) {
+                l.onGameModeChanged(old, mode);
+            }
+        }
+    }
+
+    /** The id of the active scene's genre (TD-088), or null when none was chosen. */
+    public String getGameGenre() {
+        return activeScene == null ? null : activeScene.getGameGenre();
+    }
+
+    /**
+     * Sets the active scene's genre id (TD-088); null means none. Not allowed during Play. Not an undo step, like the game mode: it is
+     * a setting of the scene and changes nothing in it. Any id is accepted, also one whose pairs are only planned; Play refuses those
+     * with the reason.
+     *
+     * @return false when nothing changed or the change was refused
+     */
+    public boolean setGameGenre(String genreId) {
+        if (isPlayModeActive()) {
+            setStatusMessage("Cannot change the game genre during Play/Pause mode", true);
+            return false;
+        }
+        if (activeScene == null) {
+            return false;
+        }
+        String old = activeScene.getGameGenre();
+        try {
+            activeScene.setGameGenre(genreId);
+        } catch (IllegalArgumentException e) {
+            setStatusMessage(e.getMessage(), true);
+            return false;
+        }
+        String now = activeScene.getGameGenre();
+        if (Objects.equals(old, now)) {
+            return false;
+        }
+        for (Listener l : listeners) {
+            l.onGameGenreChanged(old, now);
+        }
+        return true;
     }
 
     public UUID getSelectedEntityId() {
@@ -296,6 +404,21 @@ public class EditorState {
         }
     }
 
+    public ViewportMode getViewportMode() {
+        return viewportMode;
+    }
+
+    public void setViewportMode(ViewportMode newMode) {
+        Objects.requireNonNull(newMode, "viewportMode cannot be null");
+        if (this.viewportMode != newMode) {
+            ViewportMode old = this.viewportMode;
+            this.viewportMode = newMode;
+            for (Listener l : listeners) {
+                l.onViewportModeChanged(old, this.viewportMode);
+            }
+        }
+    }
+
     public String getStatusMessage() {
         return statusMessage;
     }
@@ -423,11 +546,17 @@ public class EditorState {
     // --- Scene Persistence ---
 
     public void newScene(String sceneName) {
+        newScene(sceneName, null);
+    }
+
+    /** A new empty scene of the given game mode (null: none chosen yet, inferred from content, so 2D while empty). */
+    public void newScene(String sceneName, GameMode mode) {
         if (isPlayModeActive()) {
             setStatusMessage("Cannot create new scene during Play/Pause mode", true);
             return;
         }
         Scene fresh = new Scene(sceneName != null ? sceneName : "New Scene");
+        fresh.setGameMode(mode);
         setActiveScene(fresh);
         setStatusMessage("Created new scene: " + fresh.getName(), false);
     }
@@ -442,6 +571,9 @@ public class EditorState {
             throw new IllegalStateException("No active scene to save");
         }
 
+        if (prefabService != null) {
+            prefabService.storeOverrides(activeScene);
+        }
         String json = serializer.toJson(activeScene);
         if (file.getParentFile() != null) {
             file.getParentFile().mkdirs();
@@ -463,8 +595,14 @@ public class EditorState {
 
         String json = Files.readString(file.toPath());
         Scene loaded = serializer.fromJson(json);
+        List<String> prefabProblems = prefabService != null ? prefabService.syncScene(loaded) : List.of();
         setActiveScene(loaded);
-        setStatusMessage("Loaded scene from: " + file.getName(), false);
+        if (prefabProblems.isEmpty()) {
+            setStatusMessage("Loaded scene from: " + file.getName(), false);
+        } else {
+            setStatusMessage("Loaded " + file.getName() + "; " + prefabProblems.size()
+                + " prefab instance(s) not updated: " + String.join("; ", prefabProblems), true);
+        }
     }
 
     public SceneSerializer getSerializer() {

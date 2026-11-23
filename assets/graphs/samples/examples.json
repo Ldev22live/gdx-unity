@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "kind": "graphExamples",
+  "examples": [
+    {
+      "graph": "samples/ShooterShip.graph",
+      "mirrors": "shooter/ShooterShip.java",
+      "covers": "All of it: WASD or arrows fly the ship at 340 units a second inside the same box (x 30 to 610, y 40 to 260).",
+      "notCovered": "Nothing left out; a test compiles and runs ShooterShip.java and this graph with the same keys and compares the positions every frame (ShooterParityTest). The script moves the local position, the graph the world position; they are the same for a ship with no parent."
+    },
+    {
+      "graph": "samples/BreakoutPaddle.graph",
+      "mirrors": "breakout/BreakoutPaddle.java",
+      "covers": "A/D or arrows slide the paddle at 520 units a second between the walls.",
+      "notCovered": "Nothing left out of the paddle script: Begin Play reads and caches half the Shape Renderer's width, and Tick applies the same speed and bounds. Paddle has no parent, so local and world positions agree. A test plays the breakout scene with this graph and with BreakoutPaddle.java at two paddle widths and uneven frame times and compares the paddle every frame. The ball and bricks remain on their Java script."
+    },
+    {
+      "graph": "samples/WalkerPlayer.graph",
+      "mirrors": "walker/WalkerPlayer.java",
+      "covers": "All of it: WASD or arrows walk a Character Controller 3D at 300 units a second in any direction, diagonals included (the direction is normalised with Vector3.nor); Space jumps at 450 once per press while on the ground; the Help Text says whether the character stands on the ground.",
+      "notCovered": "Nothing left out of the player script; a test plays the character playground with WalkerPlayer.java and with this graph under real 3D physics and compares the hero's position and the Help Text every frame. The script skips the Help Text when the scene has none; the graph expects it. The scene still runs the Java script, because the web player plays this sample and cannot run the character nodes in a graph yet."
+    },
+    {
+      "graph": "samples/CollectorPlayer.graph",
+      "mirrors": "collector/CollectorPlayer.java",
+      "covers": "All of it: WASD or arrows accelerate the ball (1500 a second squared), rolling friction keeps 0.15 of the speed per second (a Power node), the speed is limited to 460 (Vector3.limit), the ball bounces off the arena edge at plus or minus 740 keeping 0.6 of its speed, and R puts it back at the start, once per press. The collector-3d scene runs the ball from this graph.",
+      "notCovered": "Nothing left out of the player script; a test compiles and runs CollectorPlayer.java and this graph with the same keys and compares the positions every frame. The script moves the local position, the graph the world position; they are the same for a ball with no parent. The gems, timer and messages stay on the Java script CollectorGame."
+    },
+    {
+      "graph": "samples/HopperPlayer.graph",
+      "mirrors": "hopper/HopperPlayer.java",
+      "covers": "WASD or arrows move the player at 330 units a second (W is away from the camera).",
+      "notCovered": "Jumping, gravity, landing on the platforms and the goal, and going back to the start after a fall: all of the script's collision code (boxes written in Java) is left out."
+    },
+    {
+      "graph": "samples/RunnerPlayer.graph",
+      "mirrors": "runner/RunnerPlayer.java",
+      "covers": "All of it: A/D or the arrows change lane once per press (three lanes 130 apart) and the player slides across at 1100 units a second; Space, W or Up jump once per press while on the ground (take-off 760, gravity 2400) and play the \"jump\" sound; R starts over. The runner-3d scene runs the player from this graph.",
+      "notCovered": "Nothing left out of the player script; a test compiles and runs RunnerPlayer.java and this graph with the same keys and compares the positions every frame, and the web test replays the recorded positions and counts the sounds. The script moves the local position, the graph the world position; they are the same for a player with no parent. The blocks, speed-up, distance and crash messages stay on the Java script RunnerGame, which also reads RunnerPlayer.LANES, so the Java class stays."
+    },
+    {
+      "graph": "samples/RaceCar.graph",
+      "mirrors": "racing/RaceCar.java (drive)",
+      "covers": "W/S accelerate (520 a second squared, top speed 820 forward and 220 in reverse) and A/D turn the car, more the faster it goes (115 degrees a second, full at 250); the car drives the way it points.",
+      "notCovered": "Grass, the track, laps, rivals and the AI (RaceGame, RaceTrack) are left out, and the car keeps the heading it has: it does not slide. The heading is kept in a variable, so a car that starts turned needs the variable set to match."
+    },
+    {
+      "graph": "samples/ArenaPlayer.graph",
+      "mirrors": "fps/FpsGame.java (the player)",
+      "covers": "The left and right arrows turn the player at 150 degrees a second; W and S walk at 320 the way the player looks.",
+      "notCovered": "Strafing, looking up and down, firing balls, the drones, waves and walls (Arena) are left out. The heading is kept in a variable, so a player that starts turned needs the variable set to match."
+    },
+    {
+      "graph": "samples/PuzzlePlayer.graph",
+      "mirrors": "puzzle/PuzzleGame.java (the player's step)",
+      "covers": "One press of WASD or an arrow moves the player one cell (100 units) and holding the key does not repeat.",
+      "notCovered": "The walls, the crates and pushing them, the targets, the levels, undo and restart. Two keys pressed together move diagonally; the script moves along one axis."
+    },
+    {
+      "graph": "samples/FighterWalk.graph",
+      "mirrors": "fighter/Fighter.java (control, walking)",
+      "covers": "A/D walk along X at 260 units a second, and holding S (blocking) slows the walk to 110.",
+      "notCovered": "Everything else a fighter does: jumping, punches and kicks, taking hits, facing the opponent, the stage limits and the computer opponent (FighterGame)."
+    },
+    {
+      "graph": "samples/GrappleRunner.graph",
+      "mirrors": "grapple/GrappleGame.java (running and the hook key)",
+      "covers": "A/D run at 300 units a second; pressing J or Shift is noticed once per press (it prints a line).",
+      "notCovered": "The swing itself: finding an anchor, the pendulum, letting go, jumping, the crates, the plate and gate, checkpoints and collision with platforms (SideBody)."
+    },
+    {
+      "graph": "samples/RuinsRunner.graph",
+      "mirrors": "ruins/RuinsGame.java (running and collecting)",
+      "covers": "A/D run at 300 units a second; anything that touches the player's trigger (an orb) is removed.",
+      "notCovered": "It removes whatever enters the trigger, not only entities named Orb, and keeps no score. Jumping, solid platforms, movers, spikes, checkpoints and the goal are left out."
+    },
+    {
+      "graph": "samples/TrioScout.graph",
+      "mirrors": "trio/TrioGame.java (the Scout's speed)",
+      "covers": "A/D run; holding Shift runs faster, the way the Scout hero does (the speeds 220 and 340 are an approximation to the script's).",
+      "notCovered": "Switching heroes, Mason's crates, the Brute's pushing and smashing, the Scout's double jump, platforms and the goal. The Shift key stands in for choosing the Scout."
+    },
+    {
+      "graph": "samples/SandboxKick.graph",
+      "mirrors": "sandbox/SandboxLauncher.java",
+      "covers": "All of it: every frame the ray aims along the camera's view (-Z turned by its rotation) and the Help Text names what it hits, or nothing; at a dynamic body Space (once per press) kicks it with 900 times its mass along the view, F (held) pushes with 1500 times its mass and T stops it; E pops every dynamic body within 260 of the aim point upwards with 700 times its mass.",
+      "notCovered": "Nothing left out of the script; a test plays the physics sandbox with SandboxLauncher.java and with this graph on real 3D physics and compares every ball and crate and the Help Text on every frame (SampleGamesTest). Unlike the script, the graph reports an error rather than doing nothing when the scene has no 3D physics or no Help Text."
+    },
+    {
+      "graph": "samples/PlatformerRunner.graph",
+      "mirrors": "platformer/PlatformerPlayer.java (running)",
+      "covers": "A/D run at 260 units a second, and touching something prints its name.",
+      "notCovered": "Jumping and gravity, landing on solid platforms, coins, score text, the goal and the messages: the script's collision code (boxes written in Java) has no nodes."
+    }
+  ]
+}

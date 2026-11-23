@@ -1,0 +1,6 @@
+# Build context excludes for engine-web/deploy/Dockerfile (BuildKit reads <Dockerfile>.dockerignore)
+.git
+.gradle
+**/build
+.idea
+*.iml

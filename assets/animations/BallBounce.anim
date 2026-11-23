@@ -1,0 +1,25 @@
+{
+"format": 1,
+"name": "BallBounce",
+"duration": 1.2,
+"frameRate": 30,
+"tracks": [
+	{
+		"target": "",
+		"property": "transform.position.y",
+		"keys": [
+			{ "t": 0, "v": 50, "i": "BEZIER" },
+			{ "t": 0.6, "v": 250, "i": "BEZIER" },
+			{ "t": 1.2, "v": 50, "i": "BEZIER" }
+		]
+	},
+	{
+		"target": "",
+		"property": "transform.rotation.yaw",
+		"keys": [
+			{ "t": 0, "v": 0, "i": "LINEAR" },
+			{ "t": 1.2, "v": 180, "i": "LINEAR" }
+		]
+	}
+]
+}

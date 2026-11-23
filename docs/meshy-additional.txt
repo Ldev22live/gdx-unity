@@ -1,0 +1,51 @@
+# Skill: image-to-3d-generation
+
+## Objective
+Convert user-supplied images into textured,
+game-ready 3D assets.
+
+## Orchestrator
+TrueForge
+
+## AI Models
+- Primary: Microsoft TRELLIS.2
+- Preview: Stability AI SPAR3D
+- Optional: Tencent Hunyuan3D 2.1
+
+## Processing Pipeline
+1. Accept JPG, PNG or WebP.
+2. Validate image dimensions, size and type.
+3. Remove background where appropriate.
+4. Select a reconstruction model.
+5. Generate a textured 3D mesh.
+6. Process the model using headless Blender.
+7. Optimize polygon count and materials.
+8. Export GLB/glTF.
+9. Validate the generated asset.
+10. Return the model and preview images.
+
+## Blender Requirements
+- Run in background mode.
+- Use versioned Python scripts.
+- Preserve PBR materials.
+- Generate configurable levels of detail.
+- Validate mesh geometry.
+- Export compatible GLB files.
+
+## Security
+- Execute workers in isolated containers.
+- Restrict uploaded file types and sizes.
+- Apply GPU memory and execution limits.
+- Never execute arbitrary user Python scripts.
+- Keep credentials outside generated workspaces.
+
+## Output
+- model.glb
+- thumbnail.png
+- metadata.json
+- generation-report.json
+
+## Integration Targets
+- GdxUnity
+- VFilm
+- Other TrueForge-supported 3D applications

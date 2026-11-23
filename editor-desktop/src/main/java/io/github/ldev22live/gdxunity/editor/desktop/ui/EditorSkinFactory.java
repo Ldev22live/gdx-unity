@@ -1,19 +1,28 @@
 package io.github.ldev22live.gdxunity.editor.desktop.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.SplitPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import io.github.ldev22live.gdxunity.editor.core.theme.EditorThemePalette;
@@ -26,7 +35,51 @@ import java.util.Objects;
  * Builds both Dark and Light skins parametrically using semantic {@link EditorThemePalette} tokens.
  */
 public final class EditorSkinFactory implements Disposable {
+    /** Height of a slider's track, in pixels. */
+    private static final int SLIDER_TRACK_HEIGHT = 4;
+    /** Size of a slider's knob, in pixels. */
+    private static final int SLIDER_KNOB_WIDTH = 8;
+    private static final int SLIDER_KNOB_HEIGHT = 16;
     private final java.util.List<Disposable> ownedResources = new ArrayList<>();
+
+    private static final String REGULAR_FONT = "fonts/Inter-Regular.ttf";
+    private static final String SEMIBOLD_FONT = "fonts/Inter-SemiBold.ttf";
+    /** UI text size in logical pixels. */
+    private static final int BASE_FONT_SIZE = 14;
+    /** Space between a drop-down's edge and its text, in pixels. */
+    private static final float SELECT_BOX_TEXT_INSET = 6f;
+    /** Thickness of a scroll bar, in pixels. */
+    private static final float SCROLL_BAR_SIZE = 10f;
+    /** Icon edge length in logical pixels. */
+    private static final int ICON_SIZE = 12;
+    /** Size in UI units of the icons on the viewport tool strip. */
+    private static final int TOOL_ICON_SIZE = 16;
+    /** Prefix of the tool icon {@link ImageButton.ImageButtonStyle} names; the suffix is the lowercase {@link EditorIcon} name. */
+    public static final String TOOL_STYLE_PREFIX = "tool-";
+    /**
+     * Prefix of the drawer tab {@link ImageTextButton.ImageTextButtonStyle} names (UI M3b): a rounded tab with an icon before its
+     * label; the suffix is the lowercase {@link EditorIcon} name.
+     */
+    public static final String DRAWER_STYLE_PREFIX = "drawer-";
+    /** Name of a one-pixel white drawable, tinted with {@code Skin.newDrawable} for colour swatches. */
+    public static final String WHITE_PIXEL = "white-pixel";
+    /** Corner radius of the rounded tabs and cards, in UI units. */
+    private static final int ROUNDED_RADIUS = 6;
+    /** Size of a drawer tab's icon, in UI units. */
+    private static final int DRAWER_ICON_SIZE = 16;
+    /** Room around a drawer tab's icon and label. */
+    private static final float DRAWER_TAB_PAD_X = 12f;
+    private static final float DRAWER_TAB_PAD_Y = 5f;
+
+    /** Border, hover and selected fills of the top-bar buttons: the web editor's #3A3F4E, #343949 and #3B5B8F. */
+    private static final Color BAR_BUTTON_BORDER = new Color(0.227f, 0.247f, 0.306f, 1f);
+    private static final Color BAR_BUTTON_HOVER = new Color(0.204f, 0.224f, 0.286f, 1f);
+    private static final Color BAR_BUTTON_SELECTED = new Color(0.231f, 0.357f, 0.561f, 1f);
+    /** Space between a top-bar button's border and its text. */
+    private static final float BAR_BUTTON_PAD_X = 10f;
+    private static final float BAR_BUTTON_PAD_Y = 3f;
+    /** Typographic characters used in editor text beyond FreeType's default Latin-1 set. */
+    private static final String EXTRA_CHARACTERS = "—–…•·←→↑↓›";
 
     public Skin createSkin() {
         return createSkin(EditorThemePalette.createDarkPalette());
@@ -36,10 +89,11 @@ public final class EditorSkinFactory implements Disposable {
         Objects.requireNonNull(palette, "palette cannot be null");
         Skin skin = new Skin();
 
-        // 1. Typography (Base font)
-        BitmapFont font = new BitmapFont();
+        // 1. Typography: Inter generated at the display's pixel density (TD-021)
+        BitmapFont font = generateFont(REGULAR_FONT, BASE_FONT_SIZE);
+        BitmapFont headingFont = generateFont(SEMIBOLD_FONT, BASE_FONT_SIZE);
         skin.add("default", font);
-        ownedResources.add(font);
+        skin.add("heading", headingFont);
 
         // 2. Semantic Color Registration
         skin.add("background", palette.getBackground());
@@ -120,11 +174,11 @@ public final class EditorSkinFactory implements Disposable {
         Label.LabelStyle mutedStyle = new Label.LabelStyle(font, palette.getTextMuted());
         skin.add("muted", mutedStyle);
 
-        Label.LabelStyle titleStyle = new Label.LabelStyle(font, palette.getTextPrimary());
+        Label.LabelStyle titleStyle = new Label.LabelStyle(headingFont, palette.getTextPrimary());
         titleStyle.background = headerBg;
         skin.add("title", titleStyle);
 
-        Label.LabelStyle sectionStyle = new Label.LabelStyle(font, palette.getPrimary());
+        Label.LabelStyle sectionStyle = new Label.LabelStyle(headingFont, palette.getPrimary());
         skin.add("section", sectionStyle);
 
         Label.LabelStyle errorStyle = new Label.LabelStyle(font, palette.getError());
@@ -197,6 +251,66 @@ public final class EditorSkinFactory implements Disposable {
         tabBtnStyle.checked = tabActiveBg;
         skin.add("tab", tabBtnStyle);
 
+        // Top-bar buttons, like the web editor's: a filled, bordered box; the selected one is the active blue
+        TextButton.TextButtonStyle barBtnStyle = new TextButton.TextButtonStyle();
+        barBtnStyle.font = font;
+        barBtnStyle.fontColor = palette.getTextPrimary();
+        barBtnStyle.overFontColor = palette.getTextPrimary();
+        barBtnStyle.downFontColor = palette.getTextOnAccent();
+        barBtnStyle.checkedFontColor = palette.getTextOnAccent();
+        barBtnStyle.disabledFontColor = palette.getDisabled();
+        barBtnStyle.up = createBorderedDrawable(palette.getSurfaceElevated(), BAR_BUTTON_BORDER);
+        barBtnStyle.over = createBorderedDrawable(BAR_BUTTON_HOVER, BAR_BUTTON_BORDER);
+        barBtnStyle.down = createBorderedDrawable(BAR_BUTTON_SELECTED, palette.getPrimary());
+        barBtnStyle.checked = createBorderedDrawable(BAR_BUTTON_SELECTED, palette.getPrimary());
+        skin.add("bar", barBtnStyle);
+
+        // Play-control buttons: default button look with a drawn icon before the text
+        Color iconColor = palette.getTextPrimary();
+        skin.add("play", iconButtonStyle(btnStyle, createIconDrawable(EditorIcon.PLAY, iconColor)));
+        skin.add("pause", iconButtonStyle(btnStyle, createIconDrawable(EditorIcon.PAUSE, iconColor)));
+        skin.add("stop", iconButtonStyle(btnStyle, createIconDrawable(EditorIcon.STOP, iconColor)));
+
+        // Tool-strip icon buttons: the icon is drawn white and tinted by the button colour (accent when active)
+        for (EditorIcon icon : EditorIcon.values()) {
+            if (icon.tool) {
+                ImageButton.ImageButtonStyle toolStyle = new ImageButton.ImageButtonStyle();
+                toolStyle.over = btnOver;
+                toolStyle.down = btnDown;
+                toolStyle.checked = btnChecked;
+                toolStyle.imageUp = createIconDrawable(icon, Color.WHITE, TOOL_ICON_SIZE);
+                skin.add(TOOL_STYLE_PREFIX + icon.name().toLowerCase(java.util.Locale.ROOT), toolStyle);
+            }
+        }
+
+        // The reference layout (UI M3b): rounded drawer tabs with an icon before the label, lit (the accent) while open, and
+        // rounded cards for the panels around the map
+        Drawable tabUp = createRoundedDrawable(palette.getSurfaceVariant(), ROUNDED_RADIUS, DRAWER_TAB_PAD_X, DRAWER_TAB_PAD_Y);
+        Drawable tabOver = createRoundedDrawable(BAR_BUTTON_HOVER, ROUNDED_RADIUS, DRAWER_TAB_PAD_X, DRAWER_TAB_PAD_Y);
+        Drawable tabOn = createRoundedDrawable(palette.getPrimary(), ROUNDED_RADIUS, DRAWER_TAB_PAD_X, DRAWER_TAB_PAD_Y);
+        for (EditorIcon icon : EditorIcon.values()) {
+            if (icon.tool) {
+                ImageTextButton.ImageTextButtonStyle drawerStyle = new ImageTextButton.ImageTextButtonStyle();
+                drawerStyle.font = font;
+                drawerStyle.fontColor = palette.getTextPrimary();
+                drawerStyle.checkedFontColor = palette.getTextOnAccent();
+                drawerStyle.up = tabUp;
+                drawerStyle.over = tabOver;
+                drawerStyle.down = tabOn;
+                drawerStyle.checked = tabOn;
+                drawerStyle.imageUp = createIconDrawable(icon, palette.getTextPrimary(), DRAWER_ICON_SIZE);
+                drawerStyle.imageChecked = createIconDrawable(icon, palette.getTextOnAccent(), DRAWER_ICON_SIZE);
+                skin.add(DRAWER_STYLE_PREFIX + icon.name().toLowerCase(java.util.Locale.ROOT), drawerStyle);
+            }
+        }
+        skin.add("card-bg", createRoundedDrawable(palette.getSurface(), ROUNDED_RADIUS, 6f, 6f), Drawable.class);
+        // A white pixel to tint: the ground swatches of the Properties panel
+        skin.add(WHITE_PIXEL, createColorDrawable(Color.WHITE), Drawable.class);
+        // Tool tips for the icon buttons of the rail and the header
+        Label.LabelStyle tipLabel = new Label.LabelStyle(font, palette.getTextPrimary());
+        skin.add("default", new TextTooltip.TextTooltipStyle(tipLabel,
+            createRoundedDrawable(palette.getSurfaceElevated(), ROUNDED_RADIUS / 2, 8f, 4f)));
+
         // 6. TextFieldStyle
         TextField.TextFieldStyle txtStyle = new TextField.TextFieldStyle();
         txtStyle.font = font;
@@ -210,6 +324,11 @@ public final class EditorSkinFactory implements Disposable {
         // 7. ScrollPaneStyle
         ScrollPane.ScrollPaneStyle scrollStyle = new ScrollPane.ScrollPaneStyle();
         scrollStyle.background = panelBg;
+        // The style had no scroll bars, so content past the edge scrolled with nothing to show there was more (TD-076)
+        scrollStyle.vScroll = scrollBar(palette.getBackground(), true);
+        scrollStyle.vScrollKnob = scrollBar(palette.getTextMuted(), true);
+        scrollStyle.hScroll = scrollBar(palette.getBackground(), false);
+        scrollStyle.hScrollKnob = scrollBar(palette.getTextMuted(), false);
         skin.add("default", scrollStyle);
 
         // 8. ListStyle
@@ -219,6 +338,21 @@ public final class EditorSkinFactory implements Disposable {
         listStyle.fontColorUnselected = palette.getTextPrimary();
         listStyle.selection = selection;
         skin.add("default", listStyle);
+
+        // 8b. SelectBoxStyle (drop-downs in Details, the Graph tab and the Timeline)
+        Drawable selectBg = createColorDrawable(palette.getBackground());
+        selectBg.setLeftWidth(SELECT_BOX_TEXT_INSET);
+        selectBg.setRightWidth(SELECT_BOX_TEXT_INSET);
+        Drawable selectOverBg = createColorDrawable(palette.getSurfaceElevated());
+        selectOverBg.setLeftWidth(SELECT_BOX_TEXT_INSET);
+        selectOverBg.setRightWidth(SELECT_BOX_TEXT_INSET);
+        ScrollPane.ScrollPaneStyle selectScrollStyle = new ScrollPane.ScrollPaneStyle();
+        selectScrollStyle.background = elevatedBg;
+        SelectBox.SelectBoxStyle selectStyle = new SelectBox.SelectBoxStyle(font, palette.getTextPrimary(), selectBg,
+            selectScrollStyle, listStyle);
+        selectStyle.backgroundOver = selectOverBg;
+        selectStyle.disabledFontColor = palette.getDisabled();
+        skin.add("default", selectStyle);
 
         // 9. WindowStyle / DialogStyle
         Window.WindowStyle winStyle = new Window.WindowStyle();
@@ -236,7 +370,334 @@ public final class EditorSkinFactory implements Disposable {
         skin.add("default-vertical", splitStyleV);
         skin.add("default", splitStyleH);
 
+        // 11. SliderStyle (character creator, TD-056): a thin track, the part up to the knob in the accent color, a block knob
+        Drawable sliderTrack = createColorDrawable(palette.getBorder(), 1, SLIDER_TRACK_HEIGHT);
+        Drawable sliderFilled = createColorDrawable(palette.getPrimary(), 1, SLIDER_TRACK_HEIGHT);
+        Drawable sliderKnob = createColorDrawable(palette.getTextPrimary(), SLIDER_KNOB_WIDTH, SLIDER_KNOB_HEIGHT);
+        Drawable sliderKnobOver = createColorDrawable(palette.getPrimary(), SLIDER_KNOB_WIDTH, SLIDER_KNOB_HEIGHT);
+        Slider.SliderStyle sliderStyle = new Slider.SliderStyle(sliderTrack, sliderKnob);
+        sliderStyle.knobBefore = sliderFilled;
+        sliderStyle.knobOver = sliderKnobOver;
+        sliderStyle.knobDown = sliderKnobOver;
+        skin.add("default-horizontal", sliderStyle);
+
         return skin;
+    }
+
+    /** Icons drawn procedurally at the display density, so no image assets are needed. */
+    enum EditorIcon {
+        PLAY(false), PAUSE(false), STOP(false),
+        SELECT(true), MOVE(true), ROTATE(true), SCALE(true), VIEW_MODE(true), FOCUS(true), GRID(true),
+        PHYSICS(true), RESET_VIEW(true), SCULPT(true),
+        // The reference layout (UI M3b): drawer tabs, the tool rail and the header; drawn here, original to ForgeRoom
+        TERRAIN(true), OBJECTS(true), BUILDINGS(true), CHARACTERS(true), TILES(true), SPRITES(true), ASSETS(true), LAYERS(true),
+        SCRIPTS(true), ASSISTANT(true), SAVE(true), SETTINGS(true), UNDO(true), REDO(true), LEVEL(true);
+
+        /** True for the icons of the viewport tool strip. */
+        final boolean tool;
+
+        EditorIcon(boolean tool) {
+            this.tool = tool;
+        }
+    }
+
+    private static ImageTextButton.ImageTextButtonStyle iconButtonStyle(TextButton.TextButtonStyle base, Drawable icon) {
+        ImageTextButton.ImageTextButtonStyle style = new ImageTextButton.ImageTextButtonStyle(base);
+        style.imageUp = icon;
+        return style;
+    }
+
+    /** Draws a tool-strip icon in {@code color}; shapes are laid out in fractions of the icon size. */
+    private static void drawToolIcon(Pixmap pixmap, EditorIcon icon, int size, Color color) {
+        int max = size - 1;
+        int w = Math.max(1, Math.round(size * 0.12f));
+        switch (icon) {
+            case SELECT -> {
+                triangle(pixmap, max, 0.22f, 0.08f, 0.22f, 0.85f, 0.78f, 0.58f);
+                thickLine(pixmap, max, 0.5f, 0.6f, 0.8f, 0.92f, w);
+            }
+            case MOVE -> {
+                thickLine(pixmap, max, 0.5f, 0.15f, 0.5f, 0.85f, w);
+                thickLine(pixmap, max, 0.15f, 0.5f, 0.85f, 0.5f, w);
+                triangle(pixmap, max, 0.5f, 0.0f, 0.32f, 0.22f, 0.68f, 0.22f);
+                triangle(pixmap, max, 0.5f, 1.0f, 0.32f, 0.78f, 0.68f, 0.78f);
+                triangle(pixmap, max, 0.0f, 0.5f, 0.22f, 0.32f, 0.22f, 0.68f);
+                triangle(pixmap, max, 1.0f, 0.5f, 0.78f, 0.32f, 0.78f, 0.68f);
+            }
+            case ROTATE -> {
+                ring(pixmap, size, 0.42f, w, color);
+                triangle(pixmap, max, 0.95f, 0.18f, 0.62f, 0.12f, 0.88f, 0.48f);
+            }
+            case SCALE -> {
+                box(pixmap, max, 0.08f, 0.4f, 0.6f, 0.92f, w);
+                thickLine(pixmap, max, 0.4f, 0.6f, 0.82f, 0.18f, w);
+                triangle(pixmap, max, 0.95f, 0.05f, 0.55f, 0.12f, 0.88f, 0.45f);
+            }
+            case VIEW_MODE -> {
+                // A cube seen from a corner
+                thickLine(pixmap, max, 0.5f, 0.05f, 0.9f, 0.27f, w);
+                thickLine(pixmap, max, 0.9f, 0.27f, 0.9f, 0.73f, w);
+                thickLine(pixmap, max, 0.9f, 0.73f, 0.5f, 0.95f, w);
+                thickLine(pixmap, max, 0.5f, 0.95f, 0.1f, 0.73f, w);
+                thickLine(pixmap, max, 0.1f, 0.73f, 0.1f, 0.27f, w);
+                thickLine(pixmap, max, 0.1f, 0.27f, 0.5f, 0.05f, w);
+                thickLine(pixmap, max, 0.1f, 0.27f, 0.5f, 0.5f, w);
+                thickLine(pixmap, max, 0.9f, 0.27f, 0.5f, 0.5f, w);
+                thickLine(pixmap, max, 0.5f, 0.5f, 0.5f, 0.95f, w);
+            }
+            case FOCUS -> {
+                ring(pixmap, size, 0.3f, w, color);
+                thickLine(pixmap, max, 0.5f, 0.0f, 0.5f, 0.2f, w);
+                thickLine(pixmap, max, 0.5f, 0.8f, 0.5f, 1.0f, w);
+                thickLine(pixmap, max, 0.0f, 0.5f, 0.2f, 0.5f, w);
+                thickLine(pixmap, max, 0.8f, 0.5f, 1.0f, 0.5f, w);
+                pixmap.fillCircle(max / 2, max / 2, Math.max(1, Math.round(size * 0.08f)));
+            }
+            case GRID -> {
+                box(pixmap, max, 0.08f, 0.08f, 0.92f, 0.92f, w);
+                thickLine(pixmap, max, 0.36f, 0.08f, 0.36f, 0.92f, w);
+                thickLine(pixmap, max, 0.64f, 0.08f, 0.64f, 0.92f, w);
+                thickLine(pixmap, max, 0.08f, 0.36f, 0.92f, 0.36f, w);
+                thickLine(pixmap, max, 0.08f, 0.64f, 0.92f, 0.64f, w);
+            }
+            case PHYSICS -> {
+                // A collider: a circle inside its bounding box
+                ring(pixmap, size, 0.32f, w, color);
+                box(pixmap, max, 0.05f, 0.05f, 0.95f, 0.95f, Math.max(1, w / 2));
+            }
+            case RESET_VIEW -> {
+                // A house: roof and body
+                triangle(pixmap, max, 0.5f, 0.05f, 0.05f, 0.5f, 0.95f, 0.5f);
+                box(pixmap, max, 0.2f, 0.5f, 0.8f, 0.95f, w);
+            }
+            case SCULPT -> {
+                // A blob of clay on a tool handle
+                pixmap.fillCircle(Math.round(max * 0.34f), Math.round(max * 0.66f), Math.max(2, Math.round(size * 0.26f)));
+                thickLine(pixmap, max, 0.45f, 0.55f, 0.92f, 0.08f, w + 1);
+            }
+            case TERRAIN -> {
+                // Two peaks on a ground line
+                triangle(pixmap, max, 0.04f, 0.86f, 0.38f, 0.2f, 0.7f, 0.86f);
+                triangle(pixmap, max, 0.42f, 0.86f, 0.68f, 0.42f, 0.96f, 0.86f);
+                thickLine(pixmap, max, 0.02f, 0.9f, 0.98f, 0.9f, w);
+            }
+            case OBJECTS -> {
+                // A box seen from a corner, as the view-mode cube but solid on top
+                thickLine(pixmap, max, 0.5f, 0.08f, 0.88f, 0.28f, w);
+                thickLine(pixmap, max, 0.88f, 0.28f, 0.88f, 0.72f, w);
+                thickLine(pixmap, max, 0.88f, 0.72f, 0.5f, 0.92f, w);
+                thickLine(pixmap, max, 0.5f, 0.92f, 0.12f, 0.72f, w);
+                thickLine(pixmap, max, 0.12f, 0.72f, 0.12f, 0.28f, w);
+                thickLine(pixmap, max, 0.12f, 0.28f, 0.5f, 0.08f, w);
+                thickLine(pixmap, max, 0.5f, 0.5f, 0.5f, 0.92f, w);
+                triangle(pixmap, max, 0.12f, 0.28f, 0.5f, 0.08f, 0.5f, 0.5f);
+                triangle(pixmap, max, 0.5f, 0.08f, 0.88f, 0.28f, 0.5f, 0.5f);
+            }
+            case BUILDINGS -> {
+                // A house with a door
+                triangle(pixmap, max, 0.5f, 0.06f, 0.04f, 0.46f, 0.96f, 0.46f);
+                box(pixmap, max, 0.16f, 0.46f, 0.84f, 0.94f, w);
+                pixmap.fillRectangle(Math.round(max * 0.42f), Math.round(max * 0.64f), Math.max(1, Math.round(max * 0.16f)),
+                    Math.max(1, Math.round(max * 0.3f)));
+            }
+            case CHARACTERS -> {
+                // Two people, head and shoulders
+                pixmap.fillCircle(Math.round(max * 0.34f), Math.round(max * 0.3f), Math.max(2, Math.round(size * 0.14f)));
+                pixmap.fillCircle(Math.round(max * 0.7f), Math.round(max * 0.36f), Math.max(2, Math.round(size * 0.11f)));
+                triangle(pixmap, max, 0.34f, 0.5f, 0.06f, 0.94f, 0.62f, 0.94f);
+                triangle(pixmap, max, 0.7f, 0.54f, 0.5f, 0.94f, 0.96f, 0.94f);
+            }
+            case TILES -> {
+                box(pixmap, max, 0.08f, 0.08f, 0.46f, 0.46f, w);
+                box(pixmap, max, 0.54f, 0.08f, 0.92f, 0.46f, w);
+                box(pixmap, max, 0.08f, 0.54f, 0.46f, 0.92f, w);
+                pixmap.fillRectangle(Math.round(max * 0.54f), Math.round(max * 0.54f), Math.round(max * 0.38f), Math.round(max * 0.38f));
+            }
+            case SPRITES -> {
+                // A framed picture with a sun and a hill
+                box(pixmap, max, 0.06f, 0.12f, 0.94f, 0.88f, w);
+                pixmap.fillCircle(Math.round(max * 0.32f), Math.round(max * 0.36f), Math.max(1, Math.round(size * 0.08f)));
+                triangle(pixmap, max, 0.12f, 0.84f, 0.58f, 0.44f, 0.9f, 0.84f);
+            }
+            case ASSETS -> {
+                // Three stacked tiles
+                for (float y : new float[] {0.2f, 0.44f, 0.68f}) {
+                    thickLine(pixmap, max, 0.08f, y + 0.08f, 0.5f, y - 0.1f, w);
+                    thickLine(pixmap, max, 0.5f, y - 0.1f, 0.92f, y + 0.08f, w);
+                    thickLine(pixmap, max, 0.92f, y + 0.08f, 0.5f, y + 0.26f, w);
+                    thickLine(pixmap, max, 0.5f, y + 0.26f, 0.08f, y + 0.08f, w);
+                }
+            }
+            case LAYERS -> {
+                // A hierarchy: a parent and two indented children
+                pixmap.fillRectangle(Math.round(max * 0.06f), Math.round(max * 0.1f), Math.round(max * 0.6f), Math.max(2, w + 1));
+                pixmap.fillRectangle(Math.round(max * 0.3f), Math.round(max * 0.44f), Math.round(max * 0.64f), Math.max(2, w + 1));
+                pixmap.fillRectangle(Math.round(max * 0.3f), Math.round(max * 0.78f), Math.round(max * 0.64f), Math.max(2, w + 1));
+                thickLine(pixmap, max, 0.16f, 0.16f, 0.16f, 0.82f, w);
+                thickLine(pixmap, max, 0.16f, 0.48f, 0.28f, 0.48f, w);
+                thickLine(pixmap, max, 0.16f, 0.82f, 0.28f, 0.82f, w);
+            }
+            case SCRIPTS -> {
+                // Angle brackets and a slash
+                thickLine(pixmap, max, 0.3f, 0.22f, 0.06f, 0.5f, w);
+                thickLine(pixmap, max, 0.06f, 0.5f, 0.3f, 0.78f, w);
+                thickLine(pixmap, max, 0.7f, 0.22f, 0.94f, 0.5f, w);
+                thickLine(pixmap, max, 0.94f, 0.5f, 0.7f, 0.78f, w);
+                thickLine(pixmap, max, 0.58f, 0.12f, 0.42f, 0.88f, w);
+            }
+            case ASSISTANT -> {
+                // A four-pointed spark and a small one
+                triangle(pixmap, max, 0.42f, 0.08f, 0.32f, 0.5f, 0.52f, 0.5f);
+                triangle(pixmap, max, 0.42f, 0.92f, 0.32f, 0.5f, 0.52f, 0.5f);
+                triangle(pixmap, max, 0.04f, 0.5f, 0.42f, 0.4f, 0.42f, 0.6f);
+                triangle(pixmap, max, 0.8f, 0.5f, 0.42f, 0.4f, 0.42f, 0.6f);
+                triangle(pixmap, max, 0.8f, 0.06f, 0.74f, 0.26f, 0.86f, 0.26f);
+                triangle(pixmap, max, 0.8f, 0.46f, 0.74f, 0.26f, 0.86f, 0.26f);
+            }
+            case SAVE -> {
+                // A disk: body, label and shutter
+                box(pixmap, max, 0.08f, 0.08f, 0.92f, 0.92f, w);
+                pixmap.fillRectangle(Math.round(max * 0.28f), Math.round(max * 0.08f), Math.round(max * 0.44f), Math.round(max * 0.26f));
+                box(pixmap, max, 0.24f, 0.56f, 0.76f, 0.92f, w);
+            }
+            case SETTINGS -> {
+                // A cog: a ring with eight teeth
+                ring(pixmap, size, 0.3f, Math.max(2, w + 1), color);
+                for (int i = 0; i < 8; i++) {
+                    double angle = Math.PI / 4 * i;
+                    float cos = (float) Math.cos(angle);
+                    float sin = (float) Math.sin(angle);
+                    thickLine(pixmap, max, 0.5f + 0.3f * cos, 0.5f + 0.3f * sin, 0.5f + 0.46f * cos, 0.5f + 0.46f * sin, w + 1);
+                }
+            }
+            case UNDO -> {
+                thickLine(pixmap, max, 0.24f, 0.4f, 0.7f, 0.4f, w);
+                thickLine(pixmap, max, 0.7f, 0.4f, 0.88f, 0.6f, w);
+                thickLine(pixmap, max, 0.88f, 0.6f, 0.7f, 0.82f, w);
+                thickLine(pixmap, max, 0.7f, 0.82f, 0.4f, 0.82f, w);
+                triangle(pixmap, max, 0.04f, 0.4f, 0.3f, 0.18f, 0.3f, 0.62f);
+            }
+            case REDO -> {
+                thickLine(pixmap, max, 0.76f, 0.4f, 0.3f, 0.4f, w);
+                thickLine(pixmap, max, 0.3f, 0.4f, 0.12f, 0.6f, w);
+                thickLine(pixmap, max, 0.12f, 0.6f, 0.3f, 0.82f, w);
+                thickLine(pixmap, max, 0.3f, 0.82f, 0.6f, 0.82f, w);
+                triangle(pixmap, max, 0.96f, 0.4f, 0.7f, 0.18f, 0.7f, 0.62f);
+            }
+            case LEVEL -> {
+                // A paint brush: handle, ferrule and bristles
+                thickLine(pixmap, max, 0.9f, 0.1f, 0.5f, 0.5f, w + 1);
+                thickLine(pixmap, max, 0.5f, 0.5f, 0.4f, 0.6f, w + 2);
+                triangle(pixmap, max, 0.44f, 0.56f, 0.06f, 0.94f, 0.3f, 0.7f);
+                triangle(pixmap, max, 0.44f, 0.56f, 0.06f, 0.94f, 0.2f, 0.66f);
+            }
+            default -> throw new IllegalArgumentException("Not a tool icon: " + icon);
+        }
+    }
+
+    private static void triangle(Pixmap pixmap, int max, float x1, float y1, float x2, float y2, float x3, float y3) {
+        pixmap.fillTriangle(Math.round(x1 * max), Math.round(y1 * max), Math.round(x2 * max), Math.round(y2 * max),
+            Math.round(x3 * max), Math.round(y3 * max));
+    }
+
+    /** Draws a line {@code width} pixels thick by stacking offset 1-pixel lines. */
+    private static void thickLine(Pixmap pixmap, int max, float x1, float y1, float x2, float y2, int width) {
+        int ax = Math.round(x1 * max);
+        int ay = Math.round(y1 * max);
+        int bx = Math.round(x2 * max);
+        int by = Math.round(y2 * max);
+        boolean mostlyVertical = Math.abs(by - ay) >= Math.abs(bx - ax);
+        for (int i = 0; i < width; i++) {
+            int offset = i - width / 2;
+            if (mostlyVertical) {
+                pixmap.drawLine(ax + offset, ay, bx + offset, by);
+            } else {
+                pixmap.drawLine(ax, ay + offset, bx, by + offset);
+            }
+        }
+    }
+
+    private static void box(Pixmap pixmap, int max, float x1, float y1, float x2, float y2, int width) {
+        thickLine(pixmap, max, x1, y1, x2, y1, width);
+        thickLine(pixmap, max, x1, y2, x2, y2, width);
+        thickLine(pixmap, max, x1, y1, x1, y2, width);
+        thickLine(pixmap, max, x2, y1, x2, y2, width);
+    }
+
+    /** Draws a circle outline by filling a disc and clearing its inside; leaves the pixmap colour as {@code color}. */
+    private static void ring(Pixmap pixmap, int size, float radiusFraction, int width, Color color) {
+        int center = (size - 1) / 2;
+        int radius = Math.round(size * radiusFraction);
+        pixmap.fillCircle(center, center, radius);
+        pixmap.setColor(0f, 0f, 0f, 0f);
+        pixmap.fillCircle(center, center, Math.max(0, radius - width));
+        pixmap.setColor(color);
+    }
+
+    private Drawable createIconDrawable(EditorIcon icon, Color color) {
+        return createIconDrawable(icon, color, ICON_SIZE);
+    }
+
+    private Drawable createIconDrawable(EditorIcon icon, Color color, int iconSize) {
+        float density = uiDensity();
+        int size = Math.max(8, Math.round(iconSize * density));
+        Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        pixmap.setBlending(Pixmap.Blending.None);
+        pixmap.setColor(0f, 0f, 0f, 0f);
+        pixmap.fill();
+        pixmap.setColor(color);
+        int inset = Math.round(size * 0.15f);
+        int far = size - 1 - inset;
+        switch (icon) {
+            case PLAY -> pixmap.fillTriangle(inset, inset, inset, far, far, size / 2);
+            case PAUSE -> {
+                int barWidth = Math.max(2, Math.round(size * 0.22f));
+                pixmap.fillRectangle(inset, inset, barWidth, far - inset + 1);
+                pixmap.fillRectangle(far - barWidth + 1, inset, barWidth, far - inset + 1);
+            }
+            case STOP -> pixmap.fillRectangle(inset, inset, far - inset + 1, far - inset + 1);
+            default -> drawToolIcon(pixmap, icon, size, color);
+        }
+        Texture texture = new Texture(pixmap);
+        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        pixmap.dispose();
+        ownedResources.add(texture);
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(texture));
+        drawable.setMinSize(iconSize, iconSize);
+        return drawable;
+    }
+
+    /**
+     * Generates a font from a bundled TrueType file. The glyphs are rendered at the back-buffer resolution and
+     * scaled back to UI units, so text stays sharp on HiDPI displays.
+     *
+     * @throws com.badlogic.gdx.utils.GdxRuntimeException if the font resource is missing
+     */
+    private BitmapFont generateFont(String classpathFile, int logicalSize) {
+        float density = uiDensity();
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.classpath(classpathFile));
+        try {
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            parameter.size = Math.round(logicalSize * density);
+            parameter.minFilter = Texture.TextureFilter.Linear;
+            parameter.magFilter = Texture.TextureFilter.Linear;
+            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + EXTRA_CHARACTERS;
+            BitmapFont font = generator.generateFont(parameter);
+            font.getData().setScale(1f / density);
+            font.setUseIntegerPositions(false);
+            ownedResources.add(font);
+            return font;
+        } finally {
+            generator.dispose();
+        }
+    }
+
+    /** Back-buffer pixels per UI unit (1 on standard displays, e.g. 1.5 or 2 on HiDPI). */
+    static float uiDensity() {
+        if (Gdx.graphics == null || Gdx.graphics.getWidth() <= 0) {
+            return 1f;
+        }
+        return Math.max(1f, Gdx.graphics.getBackBufferWidth() / (float) Gdx.graphics.getWidth());
     }
 
     private Drawable createColorDrawable(Color color) {
@@ -251,6 +712,57 @@ public final class EditorSkinFactory implements Disposable {
         pixmap.dispose();
         ownedResources.add(texture);
         return new TextureRegionDrawable(new TextureRegion(texture));
+    }
+
+    /**
+     * A rounded box of {@code fill}, stretched to any size: a nine-patch whose corners are quarter circles of {@code radius} UI units
+     * (drawn at the display density), with {@code padX} and {@code padY} of room around what it holds.
+     */
+    private Drawable createRoundedDrawable(Color fill, int radius, float padX, float padY) {
+        int r = Math.max(1, Math.round(radius * uiDensity()));
+        int size = 2 * r + 1;
+        Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        pixmap.setBlending(Pixmap.Blending.None);
+        pixmap.setColor(0f, 0f, 0f, 0f);
+        pixmap.fill();
+        pixmap.setColor(fill);
+        pixmap.fillCircle(r, r, r);
+        pixmap.fillRectangle(r, 0, 1, size);
+        pixmap.fillRectangle(0, r, size, 1);
+        Texture texture = new Texture(pixmap);
+        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        pixmap.dispose();
+        ownedResources.add(texture);
+        NinePatch patch = new NinePatch(new TextureRegion(texture), r, r, r, r);
+        patch.scale(1f / uiDensity(), 1f / uiDensity());
+        patch.setPadding(padX, padX, padY, padY);
+        return new NinePatchDrawable(patch);
+    }
+
+    /** A scroll bar track or knob of one colour, {@link #SCROLL_BAR_SIZE} thick (wide for a vertical bar, tall for a horizontal one). */
+    private Drawable scrollBar(Color color, boolean vertical) {
+        Drawable drawable = createColorDrawable(color);
+        if (vertical) {
+            drawable.setMinWidth(SCROLL_BAR_SIZE);
+        } else {
+            drawable.setMinHeight(SCROLL_BAR_SIZE);
+        }
+        return drawable;
+    }
+
+    /** A box of {@code fill} with a one pixel {@code border}, stretched to any size, with room around the text. */
+    private Drawable createBorderedDrawable(Color fill, Color border) {
+        Pixmap pixmap = new Pixmap(3, 3, Pixmap.Format.RGBA8888);
+        pixmap.setColor(border);
+        pixmap.fill();
+        pixmap.setColor(fill);
+        pixmap.drawPixel(1, 1);
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        ownedResources.add(texture);
+        NinePatch patch = new NinePatch(new TextureRegion(texture), 1, 1, 1, 1);
+        patch.setPadding(BAR_BUTTON_PAD_X, BAR_BUTTON_PAD_X, BAR_BUTTON_PAD_Y, BAR_BUTTON_PAD_Y);
+        return new NinePatchDrawable(patch);
     }
 
     private Drawable createSplitHandleDrawable(Color color, int width, int height) {

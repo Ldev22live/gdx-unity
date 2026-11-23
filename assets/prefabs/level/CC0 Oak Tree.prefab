@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "CC0 Oak Tree",
+  "rootId": "bf963160-5041-534c-8e69-1903be621dc1",
+  "entities": [
+    {
+      "id": "bf963160-5041-534c-8e69-1903be621dc1",
+      "parentId": null,
+      "name": "CC0 Oak Tree",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "51eeac6a-4ff1-59a0-8fde-a5f6ae0219e7",
+      "parentId": "bf963160-5041-534c-8e69-1903be621dc1",
+      "name": "Oak (Kenney Nature Kit)",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 5.0,
+          "y": 5.0,
+          "z": 5.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/nature-kit/Models/GLTF format/tree_oak.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "CapsuleCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 11.0,
+            "height": 28.0,
+            "offsetX": 0.0,
+            "offsetY": 20.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        }
+      ]
+    }
+  ]
+}

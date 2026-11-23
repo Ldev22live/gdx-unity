@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "name": "Neon",
+  "baseColor": [
+    0.05,
+    0.05,
+    0.08,
+    1.0
+  ],
+  "metallic": 0.0,
+  "roughness": 0.6,
+  "emissive": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "emissiveStrength": 3.0,
+  "normalScale": 1.0,
+  "occlusionStrength": 1.0,
+  "alphaMode": "OPAQUE",
+  "alphaCutoff": 0.5,
+  "doubleSided": false,
+  "tiling": [
+    2.0,
+    2.0
+  ],
+  "offset": [
+    0.0,
+    0.0
+  ],
+  "textures": {
+    "EMISSIVE": "textures/neon.png"
+  }
+}

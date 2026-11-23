@@ -1,0 +1,314 @@
+{
+  "schemaVersion": 1,
+  "name": "Visual Scripting - Spin, Hop, Greet",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "f7ab3bc0-9b15-5e5b-8f7c-c5a626825fd7",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "62fd27d8-9fd0-55ba-966f-c15a33c8de4f",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.72,
+            "skyB": 0.88,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "31924df0-3316-545d-bec6-b8a2abe3b57d",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 1600.0,
+            "sizeY": 1.0,
+            "sizeZ": 1600.0,
+            "colorR": 0.42,
+            "colorG": 0.55,
+            "colorB": 0.42,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9bee620f-5a1c-5e9a-be31-bee4f4a890d8",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 260,
+          "z": 620
+        },
+        "rotation": {
+          "x": -0.2,
+          "y": 0,
+          "z": 0,
+          "w": 0.9798
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480,
+            "fieldOfView": 55,
+            "nearPlane": 1,
+            "farPlane": 50000
+          }
+        }
+      ]
+    },
+    {
+      "id": "4e2e630f-6e06-5d59-abba-b2dad16a5171",
+      "name": "Spinner Cube",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -220,
+          "y": 60,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 100,
+            "sizeY": 100,
+            "sizeZ": 100,
+            "colorR": 0.9,
+            "colorG": 0.45,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "GraphScriptComponent",
+          "enabled": true,
+          "data": {
+            "graph": "graphs/Spinner.graph"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1fe720d2-489d-5bc0-8ab7-c429465b87e1",
+      "name": "Hop Cube",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 60,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 100,
+            "sizeY": 100,
+            "sizeZ": 100,
+            "colorR": 0.25,
+            "colorG": 0.6,
+            "colorB": 0.95,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "GraphScriptComponent",
+          "enabled": true,
+          "data": {
+            "graph": "graphs/Hop.graph"
+          }
+        }
+      ]
+    },
+    {
+      "id": "56517b8b-c1f2-5188-b309-8425002e9907",
+      "name": "Greeter Sphere",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 220,
+          "y": 60,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 100,
+            "sizeY": 100,
+            "sizeZ": 100,
+            "colorR": 0.4,
+            "colorG": 0.85,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "GraphScriptComponent",
+          "enabled": true,
+          "data": {
+            "graph": "graphs/Greeter.graph"
+          }
+        }
+      ]
+    }
+  ]
+}

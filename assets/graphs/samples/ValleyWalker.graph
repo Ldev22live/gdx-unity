@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Valley Walker",
+  "variables": [],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.tick",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n13",
+      "type": "flow.sequence",
+      "x": 270,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "input.axis",
+      "x": 270,
+      "y": 200,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "A,LEFT"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "D,RIGHT"
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "type": "input.axis",
+      "x": 270,
+      "y": 350,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "W,UP"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "S,DOWN"
+        }
+      ]
+    },
+    {
+      "id": "n6",
+      "type": "vector.make",
+      "x": 540,
+      "y": 200,
+      "literals": [
+        {
+          "pin": "y",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n14",
+      "type": "java:com.badlogic.gdx.math.Vector3#nor()",
+      "x": 810,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n15",
+      "type": "vector.scale",
+      "x": 1080,
+      "y": 200,
+      "literals": [
+        {
+          "pin": "factor",
+          "type": "FLOAT",
+          "value": 300.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n7",
+      "type": "action.moveCharacter",
+      "x": 1350,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n8",
+      "type": "data.isGrounded",
+      "x": 1350,
+      "y": 350,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n9",
+      "type": "input.keyPressed",
+      "x": 1350,
+      "y": 500,
+      "literals": [],
+      "properties": [
+        {
+          "name": "key",
+          "type": "STRING",
+          "value": "SPACE"
+        }
+      ]
+    },
+    {
+      "id": "n10",
+      "type": "logic.and",
+      "x": 1620,
+      "y": 350,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n11",
+      "type": "flow.branch",
+      "x": 1890,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n12",
+      "type": "action.jumpCharacter",
+      "x": 2160,
+      "y": 0,
+      "literals": [
+        {
+          "pin": "speed",
+          "type": "FLOAT",
+          "value": 450.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n16",
+      "type": "data.self",
+      "x": 540,
+      "y": 700,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n17",
+      "type": "java:io.github.ldev22live.gdxunity.engine.scene.Entity#getScene()",
+      "x": 810,
+      "y": 700,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n18",
+      "type": "java:io.github.ldev22live.gdxunity.engine.scene.Scene#findEntityByName(java.lang.String)",
+      "x": 1080,
+      "y": 700,
+      "literals": [
+        {
+          "pin": "p0",
+          "type": "STRING",
+          "value": "Help Text"
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n19",
+      "type": "component.get:TextComponent",
+      "x": 1350,
+      "y": 700,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n20",
+      "type": "data.isGrounded",
+      "x": 1350,
+      "y": 850,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n21",
+      "type": "flow.branch",
+      "x": 1620,
+      "y": 600,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n22",
+      "type": "java:io.github.ldev22live.gdxunity.engine.render.components.TextComponent#setText(java.lang.String)",
+      "x": 1890,
+      "y": 550,
+      "literals": [
+        {
+          "pin": "p0",
+          "type": "STRING",
+          "value": "WASD or arrows walk, Space jumps. Slopes steeper than 45 degrees cannot be climbed, and Hero slides down them.  On the ground"
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n23",
+      "type": "java:io.github.ldev22live.gdxunity.engine.render.components.TextComponent#setText(java.lang.String)",
+      "x": 1890,
+      "y": 750,
+      "literals": [
+        {
+          "pin": "p0",
+          "type": "STRING",
+          "value": "WASD or arrows walk, Space jumps. Slopes steeper than 45 degrees cannot be climbed, and Hero slides down them.  In the air"
+        }
+      ],
+      "properties": []
+    }
+  ],
+  "links": [
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n13",
+      "toPin": "exec"
+    },
+    {
+      "from": "n13",
+      "fromPin": "then0",
+      "to": "n14",
+      "toPin": "exec"
+    },
+    {
+      "from": "n2",
+      "fromPin": "value",
+      "to": "n6",
+      "toPin": "x"
+    },
+    {
+      "from": "n3",
+      "fromPin": "value",
+      "to": "n6",
+      "toPin": "z"
+    },
+    {
+      "from": "n6",
+      "fromPin": "vector",
+      "to": "n14",
+      "toPin": "target"
+    },
+    {
+      "from": "n14",
+      "fromPin": "result",
+      "to": "n15",
+      "toPin": "vector"
+    },
+    {
+      "from": "n14",
+      "fromPin": "then",
+      "to": "n7",
+      "toPin": "exec"
+    },
+    {
+      "from": "n15",
+      "fromPin": "result",
+      "to": "n7",
+      "toPin": "velocity"
+    },
+    {
+      "from": "n7",
+      "fromPin": "then",
+      "to": "n11",
+      "toPin": "exec"
+    },
+    {
+      "from": "n8",
+      "fromPin": "grounded",
+      "to": "n10",
+      "toPin": "a"
+    },
+    {
+      "from": "n9",
+      "fromPin": "pressed",
+      "to": "n10",
+      "toPin": "b"
+    },
+    {
+      "from": "n10",
+      "fromPin": "result",
+      "to": "n11",
+      "toPin": "condition"
+    },
+    {
+      "from": "n11",
+      "fromPin": "true",
+      "to": "n12",
+      "toPin": "exec"
+    },
+    {
+      "from": "n13",
+      "fromPin": "then1",
+      "to": "n21",
+      "toPin": "exec"
+    },
+    {
+      "from": "n16",
+      "fromPin": "entity",
+      "to": "n17",
+      "toPin": "target"
+    },
+    {
+      "from": "n17",
+      "fromPin": "result",
+      "to": "n18",
+      "toPin": "target"
+    },
+    {
+      "from": "n18",
+      "fromPin": "result",
+      "to": "n19",
+      "toPin": "target"
+    },
+    {
+      "from": "n20",
+      "fromPin": "grounded",
+      "to": "n21",
+      "toPin": "condition"
+    },
+    {
+      "from": "n21",
+      "fromPin": "true",
+      "to": "n22",
+      "toPin": "exec"
+    },
+    {
+      "from": "n21",
+      "fromPin": "false",
+      "to": "n23",
+      "toPin": "exec"
+    },
+    {
+      "from": "n19",
+      "fromPin": "component",
+      "to": "n22",
+      "toPin": "target"
+    },
+    {
+      "from": "n19",
+      "fromPin": "component",
+      "to": "n23",
+      "toPin": "target"
+    }
+  ]
+}

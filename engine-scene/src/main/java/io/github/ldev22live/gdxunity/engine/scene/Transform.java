@@ -77,6 +77,23 @@ public final class Transform {
         setDirty();
     }
 
+    public Vector3 getLocalEulerAngles() {
+        return new Vector3(localRotation.getYaw(), localRotation.getPitch(), localRotation.getRoll());
+    }
+
+    public void rotate(float yaw, float pitch, float roll) {
+        Quaternion delta = new Quaternion().setEulerAngles(yaw, pitch, roll);
+        localRotation.mul(delta);
+        setDirty();
+    }
+
+    public void rotate(Vector3 axis, float angle) {
+        Objects.requireNonNull(axis, "axis cannot be null");
+        Quaternion delta = new Quaternion().setFromAxis(axis, angle);
+        localRotation.mul(delta);
+        setDirty();
+    }
+
     public Vector3 getLocalScale() {
         return new Vector3(localVarScale);
     }
@@ -228,9 +245,20 @@ public final class Transform {
         return new Vector3(worldPosition);
     }
 
+    /** Writes the world position into {@code out} and returns it; for per-frame use without allocating. */
+    public Vector3 getWorldPosition(Vector3 out) {
+        validateWorldTransform();
+        return out.set(worldPosition);
+    }
+
     public Quaternion getWorldRotation() {
         validateWorldTransform();
         return new Quaternion(worldRotation);
+    }
+
+    public Vector3 getWorldEulerAngles() {
+        validateWorldTransform();
+        return new Vector3(worldRotation.getYaw(), worldRotation.getPitch(), worldRotation.getRoll());
     }
 
     public Vector3 getWorldScale() {

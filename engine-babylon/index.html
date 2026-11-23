@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forgeroom Web</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <header id="bar">
+      <strong class="brand">Forgeroom Web</strong>
+      <select id="scenes" title="Scene"></select>
+      <button id="play">Play</button>
+      <button id="stop" disabled>Stop</button>
+      <span id="status"></span>
+      <a href="./editor.html" style="color:#5aa0ff;font-size:12px;text-decoration:none">Editor</a>
+    </header>
+    <main id="stage">
+      <canvas id="view" tabindex="0"></canvas>
+      <div id="hud"></div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

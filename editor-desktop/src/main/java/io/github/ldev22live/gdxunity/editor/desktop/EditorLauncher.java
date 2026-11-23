@@ -2,23 +2,162 @@ package io.github.ldev22live.gdxunity.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
+import io.github.ldev22live.gdxunity.editor.core.log.EditorLog;
+import io.github.ldev22live.gdxunity.editor.core.project.CrashLog;
+import io.github.ldev22live.gdxunity.editor.core.project.EditorLaunchOptions;
+import io.github.ldev22live.gdxunity.editor.core.project.GameExportCommand;
+import io.github.ldev22live.gdxunity.editor.core.project.GameExporter;
+import io.github.ldev22live.gdxunity.editor.core.project.EditorProjectLocator;
+import io.github.ldev22live.gdxunity.editor.core.project.PlatformDirectories;
+import io.github.ldev22live.gdxunity.editor.desktop.file.TinyFileDialogService;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Launcher for the desktop GdxUnity Editor application.
+ * Launcher for the desktop Forgeroom Editor application.
+ *
+ * <p>Arguments are described in {@link EditorLaunchOptions}. The project is chosen by {@link EditorProjectLocator}
+ * (TD-033). A failure that ends the editor is written to a crash log in {@link PlatformDirectories#logDir()} and,
+ * outside smoke tests, shown in a native message box, because a packaged app has no console.
+ *
+ * <p>Exit codes: 0 on a normal exit or a passed smoke test, 1 when startup failed, the editor crashed or a smoke test
+ * found errors.
  */
 public class EditorLauncher {
+    /** The smallest window the editor supports; the window cannot be dragged smaller. */
+    static final int MIN_WINDOW_WIDTH = 1024;
+    static final int MIN_WINDOW_HEIGHT = 640;
+    private static final String WINDOW_SIZE_VARIABLE = "GDXUNITY_EDITOR_WINDOW";
+    private static final Pattern WINDOW_SIZE = Pattern.compile("(\\d+)[xX](\\d+)");
+
+    /**
+     * System property naming the sample project bundled with a packaged editor; set by the {@code jpackage} launcher
+     * (see {@code editor-desktop/build.gradle}). Absent in development runs.
+     */
+    static final String SAMPLE_PROJECT_PROPERTY = "gdxunity.sampleProject";
+    /** Forgeroom's icon in the sizes the window system picks from, bundled in this module's resources. */
+    private static final String[] WINDOW_ICONS = {
+        "forgeroom-icon-256.png", "forgeroom-icon-128.png", "forgeroom-icon-64.png", "forgeroom-icon-32.png"};
+    /** Process exit code for startup failures, crashes and failed smoke tests. */
+    static final int EXIT_FAILURE = 1;
+
     public static void main(String[] args) {
-        if (EditorStartupHelper.startNewJvmIfRequired()) return;
-        createApplication();
+        PlatformDirectories directories = PlatformDirectories.forCurrentPlatform();
+        boolean smokeTest = Arrays.stream(args).anyMatch(arg -> arg.startsWith("--smoke-test"));
+        int exitCode;
+        try {
+            EditorLaunchOptions options = EditorLaunchOptions.parse(args);
+            if (EditorStartupHelper.startNewJvmIfRequired()) return;
+            exitCode = run(options, directories);
+        } catch (Throwable failure) {
+            reportCrash(failure, args, directories, !smokeTest);
+            exitCode = EXIT_FAILURE;
+        }
+        // Exit explicitly: background threads (script compiler, assistant) must not keep a finished editor alive
+        System.exit(exitCode);
     }
 
-    private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new EditorApplication(), getDefaultConfiguration());
+    /** Opens the project and runs the editor until its window closes; returns the exit code. */
+    static int run(EditorLaunchOptions options, PlatformDirectories directories) {
+        String sample = System.getProperty(SAMPLE_PROJECT_PROPERTY);
+        EditorProjectLocator.Result located = EditorProjectLocator.locate(options.project(),
+            new File(System.getProperty("user.dir")), directories.projectsDir(),
+            sample == null || sample.isBlank() ? null : new File(sample));
+        if (options.isGameExport()) {
+            return exportGame(options, located.project());
+        }
+        System.out.println("Forgeroom Editor: opening " + located.project() + " (" + located.source() + ")");
+
+        EditorApplication editor = new EditorApplication(located.project(), directories, options);
+        createApplication(editor);
+        if (!options.isSmokeTest()) {
+            return 0;
+        }
+        if (!editor.isSmokeTestFinished()) {
+            throw new IllegalStateException("Smoke test: the editor closed before rendering "
+                + options.smokeTestFrames() + " frames");
+        }
+        List<EditorLog.Entry> errors = editor.getSmokeTestErrors();
+        if (!errors.isEmpty()) {
+            StringBuilder message = new StringBuilder("Smoke test: " + errors.size() + " error(s) in the Output Log");
+            for (EditorLog.Entry error : errors) {
+                message.append(System.lineSeparator()).append("  [").append(error.source()).append("] ")
+                    .append(error.message());
+            }
+            throw new IllegalStateException(message.toString());
+        }
+        System.out.println("Forgeroom Editor: smoke test passed (" + options.smokeTestFrames() + " frames)");
+        return 0;
+    }
+
+    /**
+     * {@code --export-game}: exports the project as a standalone game without opening a window (Phase 18-C, TD-046).
+     * Returns 0 on success, 1 on failure; failures go to stderr and never to a message box, because this runs unattended.
+     */
+    private static int exportGame(EditorLaunchOptions options, io.github.ldev22live.gdxunity.editor.core.project.EditorProject project) {
+        try {
+            String scene = options.scene() == null ? null : options.scene().getPath();
+            GameExporter.Result result = GameExportCommand.run(project, scene, GameExporter.locateTemplate(), options.exportGame());
+            System.out.println("Forgeroom Editor: exported the game to " + result.folder() + " (" + result.projectFiles()
+                + " project files); start " + result.executable().getName());
+            return 0;
+        } catch (IOException e) {
+            System.err.println("Forgeroom Editor: cannot export the game: " + e.getMessage());
+            return EXIT_FAILURE;
+        }
+    }
+
+    private static Lwjgl3Application createApplication(EditorApplication editor) {
+        Lwjgl3ApplicationConfiguration configuration = getDefaultConfiguration();
+        // Closing the window offers to save unsaved scene changes first (Cancel keeps the editor open)
+        configuration.setWindowListener(new Lwjgl3WindowAdapter() {
+            @Override
+            public boolean closeRequested() {
+                return editor.confirmClose();
+            }
+        });
+        return new Lwjgl3Application(editor, configuration);
+    }
+
+    /**
+     * Writes the crash log and tells the user where it is. Problems while reporting are attached to the original
+     * failure, which is always printed to stderr.
+     */
+    private static void reportCrash(Throwable failure, String[] args, PlatformDirectories directories,
+                                    boolean showDialog) {
+        String where;
+        try {
+            File log = CrashLog.write(directories.logDir(), failure, LocalDateTime.now(), args,
+                System.getProperties());
+            where = "Details were written to " + log.getAbsolutePath();
+        } catch (IOException | RuntimeException logFailure) {
+            failure.addSuppressed(logFailure);
+            where = "No crash log could be written to " + directories.logDir().getAbsolutePath();
+        }
+        System.err.println("Forgeroom Editor stopped: " + failure.getMessage());
+        System.err.println(where);
+        failure.printStackTrace();
+        if (showDialog) {
+            try {
+                new TinyFileDialogService().showError("Forgeroom Editor stopped",
+                    failure.getMessage() + System.lineSeparator() + System.lineSeparator() + where);
+            } catch (Throwable dialogFailure) {
+                System.err.println("The error dialog could not be shown: " + dialogFailure);
+            }
+        }
     }
 
     public static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("GdxUnity Editor");
+        configuration.setTitle("Forgeroom Editor");
+        configuration.setWindowIcon(WINDOW_ICONS);
         configuration.useVsync(true);
         configuration.setForegroundFPS(60);
 
@@ -41,7 +180,36 @@ public class EditorLauncher {
         configuration.setWindowedMode(defaultWidth, defaultHeight);
         configuration.setMaximized(true);
         configuration.setResizable(true);
-        configuration.setWindowSizeLimits(1024, 640, -1, -1);
+        configuration.setWindowSizeLimits(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT, -1, -1);
+        // Testing aid (TD-077): GDXUNITY_EDITOR_WINDOW=1366x768 opens a window of that size instead of a maximized one
+        int[] aidSize = parseWindowSize(System.getenv(WINDOW_SIZE_VARIABLE));
+        if (aidSize != null) {
+            configuration.setMaximized(false);
+            configuration.setWindowedMode(aidSize[0], aidSize[1]);
+        }
         return configuration;
+    }
+
+    /**
+     * Reads a window size written {@code 1366x768}.
+     *
+     * @return width and height, or null when {@code text} is null or blank
+     * @throws IllegalArgumentException when the text is not a size or is smaller than the editor's minimum window
+     */
+    static int[] parseWindowSize(String text) {
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+        Matcher size = WINDOW_SIZE.matcher(text.trim());
+        if (!size.matches()) {
+            throw new IllegalArgumentException(WINDOW_SIZE_VARIABLE + " must look like 1366x768, not '" + text + "'");
+        }
+        int width = Integer.parseInt(size.group(1));
+        int height = Integer.parseInt(size.group(2));
+        if (width < MIN_WINDOW_WIDTH || height < MIN_WINDOW_HEIGHT) {
+            throw new IllegalArgumentException(WINDOW_SIZE_VARIABLE + " " + width + "x" + height + " is smaller than the editor's minimum window "
+                + MIN_WINDOW_WIDTH + "x" + MIN_WINDOW_HEIGHT);
+        }
+        return new int[] {width, height};
     }
 }

@@ -1,0 +1,1609 @@
+{
+  "schemaVersion": 1,
+  "name": "Physics Sandbox 3D",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "d2879558-f52c-5284-a7fa-afaced4d4965",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "92a14a91-1388-5e18-be3e-4077aae7b63a",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 520.0,
+          "z": 980.0
+        },
+        "rotation": {
+          "x": -0.258664,
+          "y": -0.0,
+          "z": -0.0,
+          "w": 0.965967
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/sandbox/SandboxLauncher.java",
+            "scriptClassName": "samples.sandbox.SandboxLauncher",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "de0125ae-a2ef-5ae0-a127-b9ae3268d717",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1600.0,
+            "sizeY": 100.0,
+            "sizeZ": 1600.0,
+            "colorR": 0.42,
+            "colorG": 0.55,
+            "colorB": 0.42,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 1600.0,
+            "sizeY": 100.0,
+            "sizeZ": 1600.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a2f4c94f-e094-56a1-b320-b0bd44889730",
+      "name": "Wall North",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 60.0,
+          "z": -820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1640.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 1640.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "074880ca-afbd-5ec6-aee8-9c893f2ec1c6",
+      "name": "Wall South",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 60.0,
+          "z": 820.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1640.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 1640.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a29bcb2e-1c6f-5e70-b2cb-764d3e91e55f",
+      "name": "Wall West",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -820.0,
+          "y": 60.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 1600.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 1600.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a164f0dd-88c3-554f-970a-a49a67d7be06",
+      "name": "Wall East",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 820.0,
+          "y": 60.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 1600.0,
+            "colorR": 0.55,
+            "colorG": 0.5,
+            "colorB": 0.45,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 1600.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d388a5ff-b583-5ab2-a9ba-f430c92e88d5",
+      "name": "Ball 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -560.0,
+          "y": 300.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.25,
+            "colorG": 0.55,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.2,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "64f52b34-bb56-520f-949b-e81541a5a85f",
+      "name": "Ball 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -400.0,
+          "y": 390.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.33,
+            "colorG": 0.55,
+            "colorB": 0.92,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.2,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "bd0e4159-ee0d-57b3-9f2a-97211f411fc7",
+      "name": "Ball 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -240.0,
+          "y": 480.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.41000000000000003,
+            "colorG": 0.55,
+            "colorB": 0.84,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.2,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a0d5540e-1ae8-5737-b23f-fdbd4f3dcaa0",
+      "name": "Ball 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -80.0,
+          "y": 570.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.49,
+            "colorG": 0.55,
+            "colorB": 0.76,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.2,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0d331a60-8570-58fd-a3a8-28d821c55419",
+      "name": "Ball 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 80.0,
+          "y": 660.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.5700000000000001,
+            "colorG": 0.55,
+            "colorB": 0.6799999999999999,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.2,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "47bffd89-a398-5a94-9bc6-7d50059e77f4",
+      "name": "Ball 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 240.0,
+          "y": 750.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.65,
+            "colorG": 0.55,
+            "colorB": 0.6,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.2,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ce1b790a-a22f-5bf2-a6fc-158cfbdbd88a",
+      "name": "Ball 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 400.0,
+          "y": 840.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.73,
+            "colorG": 0.55,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.2,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2cdf6fc3-9fac-5792-a2cb-ca0c2ba907d3",
+      "name": "Ball 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 560.0,
+          "y": 930.0,
+          "z": -200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 1.0,
+            "colorG": 0.55,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.5,
+            "restitution": 0.85,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 40.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0a60d6eb-8df4-5313-93c9-0fea2b1a3702",
+      "name": "Crate 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 165.0,
+          "y": 40.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.72,
+            "colorG": 0.52,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e2eba170-8e8f-5ded-a7ae-4ac546403a8c",
+      "name": "Crate 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 255.0,
+          "y": 40.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.72,
+            "colorG": 0.52,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5a3e703-ea9c-5fc7-bb88-55d6c03bfb78",
+      "name": "Crate 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 345.0,
+          "y": 40.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.72,
+            "colorG": 0.52,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3a33dcc1-de23-5f10-a382-f82c87a1ffd9",
+      "name": "Crate 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 435.0,
+          "y": 40.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.72,
+            "colorG": 0.52,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "48479686-9f85-59ab-8148-e954fce65c30",
+      "name": "Crate 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 210.0,
+          "y": 122.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.72,
+            "colorG": 0.52,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ed8f1752-bc44-5068-ba28-9d54a5c9f076",
+      "name": "Crate 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 122.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.72,
+            "colorG": 0.52,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6b58f19e-e21c-5ca9-9bf7-9735a2f71cc9",
+      "name": "Crate 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 390.0,
+          "y": 122.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.72,
+            "colorG": 0.52,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a6e8047f-7ded-52c8-8a4b-fbb55c18718c",
+      "name": "Crate 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 255.0,
+          "y": 204.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.72,
+            "colorG": 0.52,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a9c155cb-de10-5e85-af04-cdcd33f1058b",
+      "name": "Crate 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 345.0,
+          "y": 204.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.72,
+            "colorG": 0.52,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "164b75b7-5f97-5c19-b768-e38efeba23b0",
+      "name": "Crate 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 286.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0,
+            "colorR": 0.72,
+            "colorG": 0.52,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 80.0,
+            "sizeY": 80.0,
+            "sizeZ": 80.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "46cbeb8c-e03a-5732-a32b-98815e3d6535",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Aim at a ball or crate: Space kick, hold F push, E pop the neighbours, T stop it.  Aiming at: nothing",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.2,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

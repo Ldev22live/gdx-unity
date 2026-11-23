@@ -1,0 +1,203 @@
+# AGENTS.md — Forgeroom Engineering Rules
+
+Concrete rules for AI agents (Windsurf, Claude Code, others) and humans working in this repository.
+The product vision and full engineering brief live in [`docs/design-doc.md.txt`](docs/design-doc.md.txt);
+this file is the operational subset. When the two disagree, the repository's actual state wins and the
+discrepancy must be reported, not silently resolved.
+
+Reusable step-by-step workflows live in [`.windsurf/workflows/`](.windsurf/workflows/).
+
+## 0. Read before changing anything
+
+| Document | Why it matters |
+|---|---|
+| [`docs/TECHNICAL_DECISIONS.md`](docs/TECHNICAL_DECISIONS.md) | **Approved decisions TD-001…TD-019 are binding.** Changing one needs a new decision record and user approval. |
+| [`docs/FEATURE_TEST_MATRIX.md`](docs/FEATURE_TEST_MATRIX.md) | What is implemented, integrated and tested, and the known gaps. |
+| [`docs/ALL_IN_ONE_STUDIO_ROADMAP.md`](docs/ALL_IN_ONE_STUDIO_ROADMAP.md) | Phase 12–15 deliverables, planned module topology, consolidated task checklist (§6). |
+| [`docs/TEST_STRATEGY.md`](docs/TEST_STRATEGY.md) | Test levels, naming, per-milestone smoke tests, headless vs graphics strategy. |
+| [`docs/AI_AGENT_ARCHITECTURE_AUDIT.md`](docs/AI_AGENT_ARCHITECTURE_AUDIT.md) | Agent tool layer, structured plan schema, provider strategy. |
+| `docs/milestones/*.md`, `docs/PHASE_*`, `docs/reports/*` | Per-milestone design and **manual smoke-test checklists** (e.g. gizmos: `milestones/milestone-6-transform-gizmos.md` §7). |
+| [`docs/INDEX.md`](docs/INDEX.md) | Entry point and phase status table. |
+
+Status reports dated before 2026-10-29 sometimes call work "complete/validated" without in-app evidence;
+verify against the source (§9). `docs/porject-suggestions.md` is an intentional mirror of
+`docs/project-suggestions.md`. `docs/swgb.md` and `docs/blender-report.md` are reference research, not specs.
+
+---
+
+## 1. Identity and stack
+
+| Item | Value (verify in the files listed before relying on it) |
+|---|---|
+| Language | Java 21 (`build.gradle` → `java.sourceCompatibility = 21`) |
+| Framework | LibGDX `gdxVersion` in `gradle.properties` (1.14.2) |
+| Desktop backend | LWJGL3 via `gdx-backend-lwjgl3`, which resolves LWJGL **3.3.3** (`backendLwjglVersion`). `lwjgl3Version` (3.4.1) is only used by the unbuilt `lwjgl3/` template. |
+| Build | Gradle wrapper, `gradle/wrapper/gradle-wrapper.properties` (9.6.1) |
+| Tests | JUnit 5.10 (Jupiter), headless with `GdxNativesLoader` |
+| 2D physics | Box2D (`gdx-box2d`). Box2D is 2D only. |
+| 3D physics | Jolt Physics through jolt-jni (`joltJniVersion` in `gradle.properties`), module `engine-physics` (TD-028). |
+| Scripting | Java and Kotlin scripts compiled in-editor (`editor-core/.../scripting`). See §7. |
+| Root package | `io.github.ldev22live.gdxunity` |
+| Reference product | Unreal Engine 5 **workflows and toolset**, not its rendering technology (TD-020). Original implementations only; no Unreal/Unity code, assets, icons or trademarked feature names. |
+
+Do not upgrade versions just because newer releases exist. A version change needs a written justification in
+`docs/TECHNICAL_DECISIONS.md`.
+
+## 2. Repository boundaries
+
+- Work only inside this repository. Do not read, search, copy from, or modify other projects on the machine
+  (in particular Weskaap, Pulse for Processing, UrConnex).
+- External documentation (LibGDX, Java, Gradle, dependency docs) may be consulted. Do not copy code from
+  external repositories without explicit authorization.
+
+## 3. Git safety (non-negotiable)
+
+- Never stage, commit, amend, push, reset, rebase, clean, stash, or switch/create branches unless the user
+  explicitly asks in the current task.
+- Never discard or overwrite uncommitted user changes. Run `git status` before editing and report what was
+  already modified.
+- Report starting and ending `git rev-parse --short HEAD` in every milestone report.
+
+## 4. Modules and responsibilities
+
+Only the modules in `settings.gradle` are part of the build:
+
+| Module | Responsibility | May depend on |
+|---|---|---|
+| `engine-core` | Lifecycle, time, resource ownership (`ResourceManager`), asset references/catalog | LibGDX core |
+| `engine-scene` | `Entity`, `Component`, `Transform`, `Scene`, serialization, 2D physics, lights, script components | `engine-core` |
+| `engine-render` | Cameras (`OrthographicCamera2D`, `PerspectiveCamera3D`), `SceneRenderer2D`, `SceneRenderer3D`, render components, glTF models via gdx-gltf (`ModelAssets`, `ModelComponent`, TD-030) | `engine-core`, `engine-scene`, gdx-gltf (internal) |
+| `engine-visualscript` | Visual scripting runtime: graph model, nodes, validator, `.graph` files, interpreter (TD-029) | `engine-scene` |
+| `engine-animation` | Keyframe curves, tracks, `.anim` clips, `AnimatorComponent`, skeleton FK / two-bone IK (TD-031) | `engine-render` |
+| `engine-audio` | Music and sound core (TD-040): synth, drums, sampler, SoundFont reader, sfxr, effects, mixer, song model, player, exporter; headless, no sound device | `engine-core` |
+| `engine-physics` | 3D physics backend (TD-028): `JoltPhysicsBackend3D` implements the engine-neutral `PhysicsBackend3D`; extracts and loads Jolt's native library; the only module that sees Jolt types | `engine-scene`, jolt-jni (internal) |
+| `engine-desktop` | Game runtime (TD-035): plays a scene file like editor Play (`GameSession`, `GameRenderer`, precompiled `GameScripts`), shared component serializer list (`GameComponentSerializers`); no editor code | engine modules |
+| `editor-core` | Headless editor logic: state, commands/undo, gizmo math, picking, play mode, scripting compiler, AI agent tools | engine modules |
+| `editor-visualscript` | Headless graph editing: documents, undoable commands, graph assets, play mode extension (TD-029) | `editor-core`, `engine-visualscript` |
+| `editor-animation` | Headless Timeline: clip documents, undoable key edits, preview, auto-key, play mode extension (TD-031) | `editor-core`, `engine-animation` |
+| `editor-audio` | Headless music editing: song documents, undoable edits, piano roll operations, sessions, WAV export (TD-040) | `editor-core`, `engine-audio` |
+| `engine-character` | Character creator core (TD-053): MakeHuman-derived CC0 body data, morph targets, skin, glTF writer, humanoid animation templates baked onto the rig; headless, no GL | `engine-animation` |
+| `editor-character` | Headless character creator editing (TD-053): settings with undo, template selection, bake to glTF, place in the scene | `editor-core`, `editor-animation`, `engine-character` |
+| `engine-sprite` | Pixel-art sprite core (TD-066): layered multi-frame images, tags, slices, palette, `.sprite` file, sprite sheets, tag playback; headless, no GL | `engine-core` |
+| `engine-material` | Materials (TD-081): `Material` (PBR parameters), the `.material` file (`MaterialIO`) and the shared `MaterialLibrary`; headless, no GL; how a material is drawn is `engine-render`'s job | `engine-core` |
+| `engine-terrain` | Terrain (TD-082): `Terrain` (heightmap with chunk revisions and ray picking), brushes and strokes, the `.terrain` file (`TerrainIO`), the shared `TerrainLibrary`; headless, no GL; how it is drawn is `engine-render`'s job | `engine-core` |
+| `editor-sprite` | Headless sprite editing (TD-066): drawing tools, undoable commands, layers, frames, tags, palette, session | `editor-core`, `engine-sprite` |
+| `editor-terrain` | Headless terrain editing (TD-082): session and brush, undoable strokes, the viewport interaction, new terrain files | `editor-core`, `engine-terrain` |
+| `editor-desktop` | scene2d.ui editor shell, panels, renderers for gizmos/grid/physics debug/bones, graph canvas, Timeline | `editor-core`, `editor-visualscript`, `editor-animation`, engine modules (including `engine-desktop`, for the shared serializer list) |
+
+Rules:
+- Engine modules must never depend on editor modules.
+- Put testable logic in `editor-core`; keep `editor-desktop` to UI/GL glue.
+- `core/` and `lwjgl3/` are leftovers from the gdx-liftoff template and are **not** in `settings.gradle`.
+  Do not add code there. Their removal is a planned roadmap task (`ALL_IN_ONE_STUDIO_ROADMAP.md` §6) but
+  still requires explicit user approval because it deletes tracked files.
+- Planned modules (`engine-vector`, `editor-studios`) must follow the topology in `ALL_IN_ONE_STUDIO_ROADMAP.md` §3.
+  Creating a module is an architectural change: get approval first.
+
+## 5. Build and test commands
+
+Run from the repository root (`gradlew.bat` on Windows cmd/PowerShell, `./gradlew` in bash).
+
+```bash
+./gradlew test --continue                 # all modules; --continue reports every failing module
+./gradlew :editor-core:test               # one module
+./gradlew :editor-core:test --tests "*TransformGizmoTest"   # one class
+./gradlew :editor-desktop:run             # launch the editor (needs a display)
+./gradlew :engine-desktop:run             # game runtime; plays samples/platformer-2d.json (TD-035)
+./gradlew :engine-desktop:run --args="--scene samples/hopper-3d.json --smoke-test=240"   # another scene; exit 0/1
+./gradlew :engine-desktop:perfBaseline       # performance baseline (M9.5): 11 scenes, medians to engine-desktop/build/perf/current.tsv
+./gradlew :engine-desktop:perfCompare        # what got over 25 % worse than docs/performance/baseline-<os>.tsv; see docs/PERFORMANCE_BASELINES.md
+./gradlew :editor-desktop:zipEditorPackage   # packaged editor for the host OS (TD-033), in editor-desktop/build/package
+./gradlew :editor-desktop:run --args="--smoke-test"   # render a few seconds, exit 0/1 (needs a display)
+# Testing aids (TD-054), environment variables: GDXUNITY_SCREENSHOT=<file.png> saves the app's own last frame at the end of a
+# --smoke-test run (game runtime and editor); editor only: GDXUNITY_EDITOR_TAB=Animations, GDXUNITY_EDITOR_SELECT=<entity>,
+# GDXUNITY_EDITOR_CREATOR=1 (or <saved character>[:<preview animation>], TD-056), GDXUNITY_EDITOR_ASSISTANT=0,
+# GDXUNITY_EDITOR_GRAPH=<graph path>, GDXUNITY_EDITOR_GRAPH_FUNCTION=<function> and GDXUNITY_EDITOR_PALETTE=<search text> (TD-069, TD-070); Music Studio (TD-076): GDXUNITY_EDITOR_SONG=<song path>, GDXUNITY_EDITOR_CHANNEL=<name or number from 1> and GDXUNITY_EDITOR_MUSIC_TAB=<Channel rack|Piano roll|Playlist|Mixer|Instrument>; window size (TD-077): GDXUNITY_EDITOR_WINDOW=<width>x<height> (at least 1024x640, the editor's minimum); template gallery (M1.4): GDXUNITY_EDITOR_GALLERY=1 (or a template's title, to select it) opens Project > New Game on the first frame; Edit 3D Model (M3c.4): GDXUNITY_EDITOR_EDIT_MODEL=1 runs Customize > Edit 3D Model on the GDXUNITY_EDITOR_SELECT entity once the view is drawn; game runtime (M3.8): GDXUNITY_RENDER_STATS=1 prints each frame's cost (GPU finished) and terrain triangles at the end of a --smoke-test run, GDXUNITY_TERRAIN_LOD=0 draws every terrain chunk at full detail to compare, GDXUNITY_OBJECT_CULLING=0 draws every shape and model in every pass to compare (M3.6); Profiler (M9.6): GDXUNITY_EDITOR_PROFILER=1 opens the Profiler tab (and the bottom dock) and prints the last full frame's breakdown at the end of a --smoke-test run; drawers (UI M3b): GDXUNITY_EDITOR_DRAWER=<tab>[:<level tool>][,...] opens those drawers on the first frame (e.g. Terrain:Paint,Layers; Assets:Import shows the pack import tab, UI M4; Assets:Poly Haven and Assets:ambientCG their tabs, UI M5 and M6); Asset Library (UI M5, M6): GDXUNITY_EDITOR_LIBRARY_SEARCH=[textures:|ambientcg:]<words>[!] opens the Poly Haven (or ambientCG) tab, searches (online), selects the first result, with ! downloads it into the open project, and with a final + presses Place in world or Apply to selection once it is in the project (UI M7)
+```
+
+`gradle.properties` sets `org.gradle.logging.level=quiet`, so a passing run prints almost nothing. Do not
+infer success from silence: check the exit code and the XML reports in
+`<module>/build/test-results/test/*.xml` (or HTML in `<module>/build/reports/tests/test/`), and record the
+test counts per module.
+
+## 6. Code conventions
+
+- PascalCase types, camelCase members, UPPER_SNAKE_CASE constants. Name things for what they are.
+- No unexplained magic numbers: promote tuning values to named constants with a one-line Javadoc.
+- Use imports, not fully qualified class names inline.
+- Validate public API arguments with `Objects.requireNonNull(x, "x cannot be null")` or
+  `IllegalArgumentException` with the offending value in the message — matches existing code.
+- No silent fallbacks that fabricate results (e.g. returning a made-up ray when there is no camera). Fail
+  loudly or return an explicit "none" value that callers must handle.
+- No empty `catch` blocks. Disposal errors follow TD-008: keep disposing the remaining resources, then
+  report the failures (`ResourceDisposalException` with suppressed causes). `SceneRenderer2D`/`SceneRenderer3D`
+  `dispose()` currently swallow errors, which deviates from TD-008; do not copy that pattern.
+- Javadoc every public engine API, especially scripting, editor-automation (`agent/`) and extension points.
+- Avoid per-frame allocations in `render`/`update` paths in new code; measure before optimizing existing code.
+
+## 7. Architecture rules
+
+- **Scene/ECS:** components extend `BaseComponent`; each new component type needs a `ComponentSerializer`
+  registered in `ComponentSerializerRegistry` and round-trip test coverage (see
+  `ComponentCloningAndSerializationCoverageTest`).
+- **Editor mutations** go through `EditorCommand` implementations so undo/redo works. Never mutate scene
+  state directly from UI code.
+- **Resources:** every `Disposable` has exactly one owner. Prefer registering with `ResourceManager`.
+  `dispose()` must be idempotent and must null out references.
+- **Rendering:** stay on LibGDX facilities (`ModelBatch`, `Environment`, `ShapeRenderer`, `SpriteBatch`). No
+  Vulkan/native render backend without an approved feasibility study.
+- **Gizmos (TD-016):** math in `TransformGizmoMath` (pure, headless-testable), rendering in
+  `TransformGizmoRenderer`, drags relative to a `TransformSnapshot`, gizmo hit-testing before entity picking,
+  one `ChangeTransformCommand` per completed drag (TD-018). Any handle drawn must be returnable by the
+  hit-test used for that camera type, and vice versa. TD-016 sizes handles by camera zoom; that does not
+  carry over to perspective cameras (`PerspectiveCamera3D.getZoom()` is always 1), so 3D gizmos need a
+  distance-based scale factor.
+- **Scripting (TD-019, approved):** Java and Kotlin scripts extending `ScriptComponent`, bound via
+  `EntityScriptBindingComponent`, compiled in `editor-core`, run as trusted in-process code. The design doc
+  mentions evaluating Lua; adding another script runtime would supersede TD-019 and needs a new decision
+  record plus user approval.
+- **Physics:** 2D physics is `PhysicsSystem2D` (Box2D, see `PHASE_10A_*`). 3D physics is `PhysicsSystem3D` on
+  `PhysicsBackend3D`, implemented by Jolt in `engine-physics` (TD-028, approved 2026-11-06). Engine and editor code outside
+  `engine-physics` must not use Jolt types. Scripts and graphs reach 3D physics only through `Scene.getPhysics3D()` / `ScriptComponent.getPhysics3D()` and the scene-unit API of `PhysicsSystem3D` (TD-048); contact callbacks are `ScriptComponent.onCollisionEnter3D` and its siblings. Walking characters are `CharacterController3DComponent` entities (TD-049), driven only through `moveCharacter3D`, `jumpCharacter3D` and `isGrounded3D` (or `PhysicsSystem3D.moveCharacter`); they never also carry a Rigid Body 3D or a 3D collider. Create a backend only for scenes where `PhysicsSystem3D.isUsedBy` is true, so
+  2D games never load the native library.
+- **AI automation:** editor operations exposed to agents are `AgentTool` implementations in
+  `editor-core/.../agent/tools` returning `AgentToolResult.success/failure` with machine-readable `outputs`.
+
+## 8. Testing rules
+
+- Every behavior change ships with a test that would fail without the change.
+- Test classes: `{ClassName}Test`. Test methods: `should{ExpectedBehavior}[When{Condition}]`.
+- Headless tests must call `EditorTestHelper.initNatives()` / `GdxTestHelper` in `@BeforeAll` when they touch
+  LibGDX math or natives. Do not depend on `Gdx.graphics`/`Gdx.gl` in unit tests; code paths that need a GL
+  context must be isolated and listed as "needs graphics test" in `docs/FEATURE_TEST_MATRIX.md`.
+- Assert behavior, not just "no exception".
+- Visual/interactive behavior is checked with the milestone's manual smoke checklist via
+  `./gradlew :editor-desktop:run`. An agent that cannot see the screen must record the check as
+  **Manually Not Verified (Headless Environment)**, as in `docs/reports/phase-11a-desktop-visual-acceptance.md`,
+  and never describe what it did not observe.
+- Update [`docs/FEATURE_TEST_MATRIX.md`](docs/FEATURE_TEST_MATRIX.md) whenever a feature or its tests change.
+
+## 9. Documentation and honesty
+
+- Status words mean exactly this:
+  - **Implemented** — code exists and has automated tests.
+  - **Integrated** — reachable from the editor or runtime by a user.
+  - **Validated** — integrated and checked in the running application on the stated platform.
+- Never call a feature complete, validated, or production-ready when it is only unit-tested, not wired in,
+  or a placeholder. State the gap.
+- Use repository-relative links in docs, never `file:///C:/...` absolute paths.
+- Record significant decisions in `docs/TECHNICAL_DECISIONS.md` / `docs/adr/`.
+
+## 10. Milestone acceptance
+
+A milestone is done only when all of the following are true and evidenced in a report under `docs/reports/`:
+
+1. Acceptance criteria listed and each marked met / not met with evidence.
+2. Exact commands run, exit codes, and per-module test counts (before and after).
+3. New failures investigated; pre-existing failures distinguished from regressions.
+4. Diff reviewed; no unrelated changes; user's pre-existing changes untouched or explicitly listed.
+5. `docs/FEATURE_TEST_MATRIX.md` and `docs/INDEX.md` updated.
+6. Known limitations and next steps listed.
+7. Explicit statement that no commit, push or destructive Git operation was performed (unless authorized).
+
+Do not start the next milestone (e.g. Phase 13) without explicit instruction.

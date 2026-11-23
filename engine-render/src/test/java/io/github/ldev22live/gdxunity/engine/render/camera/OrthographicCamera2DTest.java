@@ -15,6 +15,21 @@ class OrthographicCamera2DTest {
     }
 
     @Test
+    void shouldCreateScreenFillingCameraThatTakesItsSizeFromResize() {
+        OrthographicCamera2D camera = OrthographicCamera2D.createScreenFilling(320f, 240f);
+        assertTrue(camera.isScreenFilling());
+        assertEquals(320f, camera.getPosition().x, 0.001f);
+        assertEquals(240f, camera.getPosition().y, 0.001f);
+
+        camera.resize(1024, 700);
+        assertEquals(1024f, camera.getViewport().getWorldWidth(), 0.001f);
+        assertEquals(700f, camera.getViewport().getWorldHeight(), 0.001f);
+        assertEquals(1024f, camera.getGdxCamera().viewportWidth, 0.001f);
+
+        assertFalse(new OrthographicCamera2D(800, 600).isScreenFilling());
+    }
+
+    @Test
     void shouldInitializeWithDefaultVirtualDimensionsAndCenterPosition() {
         OrthographicCamera2D camera = new OrthographicCamera2D(800, 600);
 

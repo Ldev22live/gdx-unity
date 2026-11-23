@@ -3,6 +3,8 @@ package io.github.ldev22live.gdxunity.editor.core.play;
 import com.badlogic.gdx.graphics.Color;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.EditorTestHelper;
+import io.github.ldev22live.gdxunity.editor.core.command.RenameEntityCommand;
+import io.github.ldev22live.gdxunity.engine.core.profile.FrameProfiler;
 import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.ShapeRendererComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.BaseComponent;
@@ -31,6 +33,30 @@ class PlayModeControllerTest {
     private EditorState editorState;
     private PlayModeController controller;
 
+    /**
+     * Appendix E3, found by the M3c.5 owner-journey test: Play and Stop keep the person's undo history. Play used to clear it,
+     * because swapping in the runtime copy went through the scene switch that clears history; an earlier test missed it because its
+     * history was empty to begin with.
+     */
+    @Test
+    void shouldKeepTheUndoHistoryThroughPlayAndStop() {
+        Entity hero = editorState.createEntity("Hero");
+        assertTrue(editorState.executeCommand(new RenameEntityCommand(editorState, hero.getId(), "Hero", "Knight")));
+        int steps = editorState.getCommandHistory().getUndoCount();
+        assertTrue(steps >= 1);
+
+        assertTrue(controller.play());
+        assertEquals(steps, editorState.getCommandHistory().getUndoCount(), "kept while playing");
+        assertFalse(editorState.undo(), "but refused while playing, so it never acts on the Play copy");
+        controller.stop();
+
+        assertEquals(steps, editorState.getCommandHistory().getUndoCount(), "kept after Stop");
+        assertTrue(editorState.undo(), "the edit made before Play still undoes");
+        assertEquals("Hero", hero.getName());
+        assertTrue(editorState.redo());
+        assertEquals("Knight", hero.getName());
+    }
+
     @BeforeEach
     void setUp() {
         editorState = new EditorState();
@@ -38,8 +64,44 @@ class PlayModeControllerTest {
         editorState.getSerializer().getRegistry().register(new io.github.ldev22live.gdxunity.engine.scene.physics.serialization.RigidBody2DComponentSerializer());
         editorState.getSerializer().getRegistry().register(new io.github.ldev22live.gdxunity.engine.scene.physics.serialization.BoxCollider2DComponentSerializer());
         editorState.getSerializer().getRegistry().register(new io.github.ldev22live.gdxunity.engine.scene.physics.serialization.CircleCollider2DComponentSerializer());
+        editorState.getSerializer().getRegistry().register(new io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.RigidBody3DComponentSerializer());
+        editorState.getSerializer().getRegistry().register(new io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.CharacterController3DComponentSerializer());
+        editorState.getSerializer().getRegistry().register(new io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.BoxCollider3DComponentSerializer());
+        editorState.getSerializer().getRegistry().register(new io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.SphereCollider3DComponentSerializer());
         controller = new PlayModeController(editorState);
         editorState.setPlayModeController(controller);
+    }
+
+    /** Roadmap M9.6: while profiled, each Play step and each component type gets its own section in the Profiler. */
+    @Test
+    void shouldTimeThePlayStepsAndEachComponentTypeWhenProfiled() {
+        editorState.getActiveScene().createEntity("Box").addComponent(new ShapeRendererComponent(10f, 10f, Color.RED));
+        FrameProfiler profiler = new FrameProfiler();
+        profiler.setRecording(true);
+        controller.setProfiler(profiler);
+        assertTrue(controller.play());
+
+        profiler.beginFrame();
+        controller.update(0.016f);
+        profiler.endFrame();
+
+        int play = profiler.section(PlayModeController.PROFILE_PLAY, FrameProfiler.ROOT);
+        int sceneUpdate = profiler.section(PlayModeController.PROFILE_SCENE_UPDATE, play);
+        int shapes = profiler.section("ShapeRendererComponent", sceneUpdate);
+        int physics2D = profiler.section("2D physics", play);
+        assertEquals(1, profiler.getSectionCalls(0, play));
+        assertEquals(1, profiler.getSectionCalls(0, sceneUpdate));
+        assertEquals(1, profiler.getSectionCalls(0, physics2D), "every scene steps 2D physics");
+        assertEquals(1, profiler.getSectionCalls(0, shapes), "the one box's update");
+        assertEquals(0, profiler.getSectionCalls(0, profiler.section("3D physics", play)), "no 3D colliders, no 3D physics");
+        assertTrue(profiler.getSectionNanos(0, play) >= profiler.getSectionNanos(0, sceneUpdate));
+
+        controller.setProfiler(null);
+        profiler.beginFrame();
+        controller.update(0.016f);
+        profiler.endFrame();
+        assertEquals(0, profiler.getSectionCalls(0, play), "not profiled any more");
+        controller.stop();
     }
 
     @Test
@@ -50,6 +112,34 @@ class PlayModeControllerTest {
         assertFalse(controller.isPaused());
         assertNull(controller.getAuthoredScene());
         assertNull(controller.getRuntimeScene());
+    }
+
+    @Test
+    void shouldLetExtensionsUndoTemporaryEditsBeforeSceneIsCopied() {
+        Entity entity = editorState.getActiveScene().createEntity("Previewed");
+        // A temporary pose (as a Timeline preview would set) that must not reach play
+        entity.getTransform().setLocalPosition(500f, 0f, 0f);
+        controller.addExtension(new PlayModeController.Extension() {
+            @Override
+            public void beforePlay(Scene authoredScene) {
+                authoredScene.getAllEntities().get(0).getTransform().setLocalPosition(0f, 0f, 0f);
+            }
+
+            @Override
+            public List<String> onPlay(Scene runtimeScene, PlayModeController c) {
+                return List.of();
+            }
+
+            @Override
+            public void onStop(Scene runtimeScene) {
+            }
+        });
+
+        assertTrue(controller.play());
+
+        Entity runtime = controller.getRuntimeScene().getAllEntities().get(0);
+        assertEquals(0f, runtime.getTransform().getLocalPosition().x);
+        controller.stop();
     }
 
     @Test
@@ -344,5 +434,94 @@ class PlayModeControllerTest {
         controller.stop();
         assertEquals(4, transitions.get(), "Removed listener should receive no further notifications");
     }
-}
 
+    @Test
+    void shouldSimulate3DPhysicsDuringPlayAndRestoreTheAuthoredSceneOnStop() {
+        Scene authored = editorState.getActiveScene();
+        Entity floor = authored.createEntity("Floor");
+        floor.getTransform().setLocalPosition(0f, -50f, 0f);
+        floor.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent(
+            new com.badlogic.gdx.math.Vector3(2000f, 100f, 2000f)));
+        Entity ball = authored.createEntity("Ball");
+        ball.getTransform().setLocalPosition(0f, 400f, 0f);
+        ball.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent(
+            io.github.ldev22live.gdxunity.engine.scene.physics3d.RigidBody3DComponent.MotionType.DYNAMIC));
+        ball.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.SphereCollider3DComponent(50f));
+
+        assertTrue(controller.play());
+        assertNotNull(controller.getPhysicsSystem3D());
+        for (int i = 0; i < 180; i++) {
+            controller.update(1.0f / 60.0f);
+        }
+
+        Entity runtimeBall = editorState.getActiveScene().findEntityById(ball.getId());
+        assertEquals(50f, runtimeBall.getTransform().getWorldPosition().y, 5f, "the ball fell and came to rest on the floor");
+
+        controller.stop();
+        assertNull(controller.getPhysicsSystem3D());
+        assertEquals(400f, editorState.getActiveScene().findEntityById(ball.getId()).getTransform().getLocalPosition().y, 0.001f,
+            "the authored scene is untouched");
+    }
+
+    @Test
+    void shouldLetACharacterFallAndLandDuringPlayAndKeepTheAuthoredPosition() {
+        Entity floor = editorState.getActiveScene().createEntity("Floor");
+        floor.getTransform().setLocalPosition(0f, -50f, 0f);
+        floor.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent(
+            new com.badlogic.gdx.math.Vector3(2000f, 100f, 2000f)));
+        Entity hero = editorState.getActiveScene().createEntity("Hero");
+        hero.getTransform().setLocalPosition(0f, 400f, 0f);
+        hero.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.CharacterController3DComponent());
+
+        assertTrue(controller.play(), editorState.getStatusMessage());
+        assertNotNull(controller.getPhysicsSystem3D(), "a scene with only a character still gets 3D physics");
+        for (int i = 0; i < 180; i++) {
+            controller.update(1.0f / 60.0f);
+        }
+
+        Entity runtimeHero = editorState.getActiveScene().findEntityById(hero.getId());
+        assertEquals(70f, runtimeHero.getTransform().getWorldPosition().y, 3f, "the character fell and stands on the floor");
+        assertTrue(controller.getPhysicsSystem3D().isCharacterGrounded(runtimeHero));
+
+        controller.stop();
+        assertEquals(400f, editorState.getActiveScene().findEntityById(hero.getId()).getTransform().getLocalPosition().y, 0.001f,
+            "the authored scene is untouched");
+    }
+
+    @Test
+    void shouldStopPlayWithTheReasonInsteadOfThrowingWhenTheSceneFailsOnItsFirstStep() {
+        editorState.getSerializer().getRegistry().register(
+            new io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.Joint3DComponentSerializer());
+        Scene authored = editorState.getActiveScene();
+        Entity floor = authored.createEntity("Floor");
+        floor.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent(
+            new com.badlogic.gdx.math.Vector3(2000f, 100f, 2000f)));
+        // A joint with no collider on its entity is accepted when Play starts and fails when the bodies are first built
+        authored.createEntity("Loose Joint").addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics3d.Joint3DComponent());
+        String before = editorState.getSerializer().toJson(authored);
+
+        assertTrue(controller.play(), editorState.getStatusMessage());
+        assertDoesNotThrow(() -> controller.update(1.0f / 60.0f), "a failing step must not escape and end the editor");
+
+        assertTrue(controller.isStopped(), "Play stops itself when the scene cannot run");
+        assertSame(authored, editorState.getActiveScene(), "the authored scene is back");
+        assertTrue(editorState.getStatusMessage().startsWith("Play stopped: "), editorState.getStatusMessage());
+        assertTrue(editorState.getStatusMessage().contains("Loose Joint") && editorState.getStatusMessage().contains("no solid 3D collider"),
+            "it names the entity and says what to add: " + editorState.getStatusMessage());
+        assertEquals(before, editorState.getSerializer().toJson(authored), "and nothing in it changed");
+        assertNull(controller.getPhysicsSystem3D());
+    }
+
+    @Test
+    void shouldNotCreate3DPhysicsForAScene2DOnly() {
+        Entity box = editorState.getActiveScene().createEntity("Box");
+        box.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent(
+            io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent.BodyType.DYNAMIC));
+        box.addComponent(new io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent(30f, 30f));
+
+        assertTrue(controller.play());
+
+        assertNull(controller.getPhysicsSystem3D(), "no 3D collider, so the native library is never loaded");
+        controller.stop();
+    }
+}

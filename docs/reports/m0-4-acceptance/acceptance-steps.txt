@@ -1,0 +1,10 @@
+1 Create a 3D scene | a new untitled scene in game mode 3D
+2 Import a model | models/SculptedRock.glb copied into the project (498668 bytes, glTF header present), placed on 'Rock Mesh' as a Model component; the model was not loaded or drawn (no graphics)
+3 Physics | a static floor (box collider) and a dynamic ball (rigid body 3D, sphere collider) created; the ball starts at y=400
+4 Camera | a Camera component was added to the 3D scene and came out PERSPECTIVE with no change needed (the first run found it came out ORTHOGRAPHIC, which hid the floor and the model; fixed in this milestone), and a directional light added
+5 Graph logic | graphs/Toucher.graph built from 4 nodes and 4 links (On Collision, Get Name, Append Text, Print) and attached to the ball as a Graph Script
+6 Animation | animations/Bob.anim created with a position-Y track on 'Rock Mesh' (0 at 0 s, 100 at 2 s, linear), saved, and bound to 'Rock' through an Animator component
+7 Music | music/theme.song created in the Music Studio session with two drum steps and saved; a Music Source on the 'Music' entity plays it (loops, starts with the scene). The song was also rendered to sounds/theme.wav with the Music Studio's WAV export (352844 bytes, peak sample 25503 of 32767, so not silent). Not listened to: this run has no audio device
+8 Save | scenes/acceptance.json written (4929 characters, 7 entities)
+9 Reopen | a fresh editor state opened scenes/acceptance.json and its saved form is identical to the original, game mode kept
+10 Play | an active camera was found; after 3 simulated seconds the ball rested at y=47.999996 (started 400, floor top 0); the graph printed 'touched Floor' 1 time(s); the Bob clip had moved 'Rock Mesh' to y=49.999985 at 1 s; after Stop the authored scene's saved form was identical to before Play

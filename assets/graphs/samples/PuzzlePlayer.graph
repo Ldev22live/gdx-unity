@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Puzzle Player",
+  "variables": [
+    {
+      "name": "held",
+      "type": "BOOLEAN",
+      "value": false
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.tick",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "input.keyDown",
+      "x": 270,
+      "y": 150,
+      "literals": [],
+      "properties": [
+        {
+          "name": "key",
+          "type": "STRING",
+          "value": "W,A,S,D,UP,DOWN,LEFT,RIGHT"
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "type": "variable.get",
+      "x": 270,
+      "y": 300,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "held"
+        }
+      ]
+    },
+    {
+      "id": "n4",
+      "type": "logic.not",
+      "x": 540,
+      "y": 300,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n5",
+      "type": "logic.and",
+      "x": 810,
+      "y": 150,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n6",
+      "type": "flow.branch",
+      "x": 270,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n7",
+      "type": "input.axis",
+      "x": 1080,
+      "y": 150,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "A,LEFT"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "D,RIGHT"
+        }
+      ]
+    },
+    {
+      "id": "n8",
+      "type": "math.multiply",
+      "x": 1350,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 100.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n9",
+      "type": "input.axis",
+      "x": 1080,
+      "y": 300,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "W,UP"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "S,DOWN"
+        }
+      ]
+    },
+    {
+      "id": "n10",
+      "type": "math.multiply",
+      "x": 1350,
+      "y": 300,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 100.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n11",
+      "type": "vector.make",
+      "x": 1620,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "y",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n12",
+      "type": "action.moveBy",
+      "x": 1890,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n13",
+      "type": "variable.set",
+      "x": 2160,
+      "y": 0,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "held"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "n3",
+      "fromPin": "value",
+      "to": "n4",
+      "toPin": "value"
+    },
+    {
+      "from": "n2",
+      "fromPin": "pressed",
+      "to": "n5",
+      "toPin": "a"
+    },
+    {
+      "from": "n4",
+      "fromPin": "result",
+      "to": "n5",
+      "toPin": "b"
+    },
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n6",
+      "toPin": "exec"
+    },
+    {
+      "from": "n5",
+      "fromPin": "result",
+      "to": "n6",
+      "toPin": "condition"
+    },
+    {
+      "from": "n7",
+      "fromPin": "value",
+      "to": "n8",
+      "toPin": "a"
+    },
+    {
+      "from": "n9",
+      "fromPin": "value",
+      "to": "n10",
+      "toPin": "a"
+    },
+    {
+      "from": "n8",
+      "fromPin": "result",
+      "to": "n11",
+      "toPin": "x"
+    },
+    {
+      "from": "n10",
+      "fromPin": "result",
+      "to": "n11",
+      "toPin": "z"
+    },
+    {
+      "from": "n11",
+      "fromPin": "vector",
+      "to": "n12",
+      "toPin": "offset"
+    },
+    {
+      "from": "n6",
+      "fromPin": "true",
+      "to": "n12",
+      "toPin": "exec"
+    },
+    {
+      "from": "n2",
+      "fromPin": "pressed",
+      "to": "n13",
+      "toPin": "value"
+    },
+    {
+      "from": "n12",
+      "fromPin": "then",
+      "to": "n13",
+      "toPin": "exec"
+    },
+    {
+      "from": "n6",
+      "fromPin": "false",
+      "to": "n13",
+      "toPin": "exec"
+    }
+  ]
+}

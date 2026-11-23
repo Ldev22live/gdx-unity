@@ -1,0 +1,23 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-engine-material'
+
+apply plugin: 'java-library'
+
+// Materials (TD-081): the `.material` asset, a PBR parameter set the renderers read. Headless and pure Java (plus libGDX's
+// colors and JSON reader), so it is unit-tested and can be read by the web player too. How a material is drawn is the
+// renderer's job (engine-render maps it to its shading attributes).
+dependencies {
+  api project(':engine-core')
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+}
+
+test {
+  useJUnitPlatform()
+}
+
+jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

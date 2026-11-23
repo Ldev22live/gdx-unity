@@ -1,0 +1,15 @@
+# Forgeroom performance baseline (roadmap M9.5); medians of 3 run(s) per scene, 330 frames each, the first 30 not measured
+# Machine: Windows 11 10.0 amd64, 8 processors; Java 21.0.11; the GPU is in each row
+# Frame times wait for the GPU to finish (glFinish), so vsync does not hide them; heap is the Java heap only, not native memory
+scene	frames	parseMs	startMs	firstFrameMs	frameMeanMs	frameP50Ms	frameP95Ms	frameMaxMs	terrainTriangles	heapPeakMb	heapRetainedMb	audioLatencyMs	audioBlockMs	audioBlockMaxMs	gpu
+samples/platformer-2d.json	300	127.00	221.29	214.36	1.33	1.24	1.95	3.34	0	15.92	4.87	37.73	0.21	3.80	Intel(R) Iris(R) Xe Graphics
+samples/tilemap-platformer-2d.json	300	125.97	82.67	366.89	1.35	1.25	1.88	3.25	0	98.14	4.48	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/hopper-3d.json	300	104.90	97.26	272.66	2.00	1.81	2.96	4.49	0	103.48	5.72	37.73	0.02	0.35	Intel(R) Iris(R) Xe Graphics
+samples/racing-3d.json	300	184.15	149.84	336.28	6.07	5.92	8.19	20.74	0	78.48	6.62	37.73	0.99	17.37	Intel(R) Iris(R) Xe Graphics
+samples/landscape-3d.json	300	124.46	71.68	504.91	4.13	3.78	5.13	21.68	0	138.13	5.08	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/materials-3d.json	300	162.39	98.51	839.93	4.47	4.34	5.63	15.89	0	102.68	5.37	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/humanoid-animations-3d.json	300	227.99	138.27	451.28	4.11	3.68	6.35	28.73	0	137.44	5.02	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/physics-mesh-3d.json	300	90.92	175.90	531.02	3.48	3.17	5.03	6.00	0	119.93	5.94	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/terrain-3d.json	300	98.13	192.68	344.40	6.05	5.88	7.28	8.29	21504	116.68	5.91	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/action-rpg-valley-3d.json	300	77.16	237.58	325.60	5.93	5.85	7.57	8.29	21504	114.85	6.11	-	-	-	Intel(R) Iris(R) Xe Graphics
+scenes/Large.json	300	89.73	48.87	893.69	11.58	10.61	16.50	22.03	94784	43.62	27.53	-	-	-	Intel(R) Iris(R) Xe Graphics

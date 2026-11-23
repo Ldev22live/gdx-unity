@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Fighter Walk",
+  "variables": [
+    {
+      "name": "speed",
+      "type": "FLOAT",
+      "value": 260.0
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.tick",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "input.keyDown",
+      "x": 270,
+      "y": 150,
+      "literals": [],
+      "properties": [
+        {
+          "name": "key",
+          "type": "STRING",
+          "value": "S,DOWN"
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "type": "flow.branch",
+      "x": 270,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n4",
+      "type": "variable.set",
+      "x": 540,
+      "y": 0,
+      "literals": [
+        {
+          "pin": "value",
+          "type": "FLOAT",
+          "value": 110.0
+        }
+      ],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "speed"
+        }
+      ]
+    },
+    {
+      "id": "n5",
+      "type": "variable.set",
+      "x": 540,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "value",
+          "type": "FLOAT",
+          "value": 260.0
+        }
+      ],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "speed"
+        }
+      ]
+    },
+    {
+      "id": "n6",
+      "type": "input.axis",
+      "x": 810,
+      "y": 300,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "A,LEFT"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "D,RIGHT"
+        }
+      ]
+    },
+    {
+      "id": "n7",
+      "type": "variable.get",
+      "x": 810,
+      "y": 450,
+      "literals": [],
+      "properties": [
+        {
+          "name": "variable",
+          "type": "STRING",
+          "value": "speed"
+        }
+      ]
+    },
+    {
+      "id": "n8",
+      "type": "math.multiply",
+      "x": 1080,
+      "y": 300,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n9",
+      "type": "math.multiply",
+      "x": 1350,
+      "y": 300,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n10",
+      "type": "vector.make",
+      "x": 1620,
+      "y": 300,
+      "literals": [
+        {
+          "pin": "y",
+          "type": "FLOAT",
+          "value": 0.0
+        },
+        {
+          "pin": "z",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n11",
+      "type": "action.moveBy",
+      "x": 1890,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    }
+  ],
+  "links": [
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n3",
+      "toPin": "exec"
+    },
+    {
+      "from": "n2",
+      "fromPin": "pressed",
+      "to": "n3",
+      "toPin": "condition"
+    },
+    {
+      "from": "n3",
+      "fromPin": "true",
+      "to": "n4",
+      "toPin": "exec"
+    },
+    {
+      "from": "n3",
+      "fromPin": "false",
+      "to": "n5",
+      "toPin": "exec"
+    },
+    {
+      "from": "n6",
+      "fromPin": "value",
+      "to": "n8",
+      "toPin": "a"
+    },
+    {
+      "from": "n7",
+      "fromPin": "value",
+      "to": "n8",
+      "toPin": "b"
+    },
+    {
+      "from": "n8",
+      "fromPin": "result",
+      "to": "n9",
+      "toPin": "a"
+    },
+    {
+      "from": "n1",
+      "fromPin": "deltaTime",
+      "to": "n9",
+      "toPin": "b"
+    },
+    {
+      "from": "n9",
+      "fromPin": "result",
+      "to": "n10",
+      "toPin": "x"
+    },
+    {
+      "from": "n10",
+      "fromPin": "vector",
+      "to": "n11",
+      "toPin": "offset"
+    },
+    {
+      "from": "n4",
+      "fromPin": "then",
+      "to": "n11",
+      "toPin": "exec"
+    },
+    {
+      "from": "n5",
+      "fromPin": "then",
+      "to": "n11",
+      "toPin": "exec"
+    }
+  ]
+}

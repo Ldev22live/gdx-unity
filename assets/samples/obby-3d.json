@@ -1,0 +1,3326 @@
+{
+  "schemaVersion": 1,
+  "name": "Obby",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "9c280a4b-3c62-53d5-a992-4916c84b63ef",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "398e4836-112c-54b5-a343-4a4ba41891ba",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.5,
+            "skyG": 0.75,
+            "skyB": 1.0,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "df542865-47ca-5eaf-b94b-28dc3eb22ef2",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 300.0,
+          "z": 620.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 65.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cb8d1726-dbe9-56e4-a3ab-85a4b2253176",
+      "name": "Checkpoint 0",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -20.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 400.0,
+            "sizeY": 40.0,
+            "sizeZ": 400.0,
+            "colorR": 0.62,
+            "colorG": 0.64,
+            "colorB": 0.7,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "729d9b9f-e8d2-5ae3-b1b1-a7633ccc4fea",
+      "name": "Platform 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -20.0,
+          "z": -400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 40.0,
+            "sizeZ": 200.0,
+            "colorR": 0.0,
+            "colorG": 0.45,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "25c36de3-6046-562a-afc9-588ce37afd81",
+      "name": "Platform 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 70.0,
+          "y": 0.0,
+          "z": -720.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 40.0,
+            "sizeZ": 200.0,
+            "colorR": 0.98,
+            "colorG": 0.8,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1cd14df4-a228-5f32-ae14-c8556badac1b",
+      "name": "Coin 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 70.0,
+          "y": 140.0,
+          "z": -720.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ff409f8d-0f41-54c4-b85c-a09d1fffee88",
+      "name": "Platform 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -70.0,
+          "y": 0.0,
+          "z": -1060.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 40.0,
+            "sizeZ": 200.0,
+            "colorR": 0.2,
+            "colorG": 0.7,
+            "colorB": 0.25,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0575964c-628a-556c-bd40-0ec9bbce6f2c",
+      "name": "Platform 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 20.0,
+          "z": -1410.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 40.0,
+            "sizeZ": 200.0,
+            "colorR": 0.6,
+            "colorG": 0.25,
+            "colorB": 0.75,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3c117479-778d-5730-b724-630f471ead84",
+      "name": "Coin 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 160.0,
+          "z": -1410.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "51240c90-0dc1-53ce-a1db-ebd4b86c0bd6",
+      "name": "Platform 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 90.0,
+          "y": 20.0,
+          "z": -1770.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 40.0,
+            "sizeZ": 200.0,
+            "colorR": 0.98,
+            "colorG": 0.5,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c2ba982d-fc3d-570d-b4db-983c8a364c85",
+      "name": "Platform 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -90.0,
+          "y": 40.0,
+          "z": -2140.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 40.0,
+            "sizeZ": 200.0,
+            "colorR": 0.1,
+            "colorG": 0.75,
+            "colorB": 0.8,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "01b49aff-6994-51c4-aa2b-867752bca36c",
+      "name": "Coin 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -90.0,
+          "y": 180.0,
+          "z": -2140.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2bbd3365-78e8-512b-ac57-9d8fffb6c1ac",
+      "name": "Checkpoint 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 40.0,
+          "z": -2540.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 360.0,
+            "sizeY": 40.0,
+            "sizeZ": 360.0,
+            "colorR": 0.62,
+            "colorG": 0.64,
+            "colorB": 0.7,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "dcb96421-b999-5182-ab95-c12325ef4ba7",
+      "name": "Platform 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 40.0,
+          "z": -2905.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 150.0,
+            "sizeY": 40.0,
+            "sizeZ": 150.0,
+            "colorR": 0.89,
+            "colorG": 0.15,
+            "colorB": 0.21,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2cac23e0-66e6-5d60-8c73-59b939b84d60",
+      "name": "Platform 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -100.0,
+          "y": 40.0,
+          "z": -3185.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 150.0,
+            "sizeY": 40.0,
+            "sizeZ": 150.0,
+            "colorR": 0.0,
+            "colorG": 0.45,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ce6141cc-f27f-54c4-9f41-817c253a31e9",
+      "name": "Platform 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 40.0,
+          "z": -3485.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 150.0,
+            "sizeY": 40.0,
+            "sizeZ": 150.0,
+            "colorR": 0.98,
+            "colorG": 0.8,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8f94d0b7-250d-55f4-97b6-7f76a2e2213d",
+      "name": "Coin 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 180.0,
+          "z": -3485.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1921f2eb-5b2f-5085-986a-5c26dde9ca95",
+      "name": "Platform 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -100.0,
+          "y": 40.0,
+          "z": -3785.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 150.0,
+            "sizeY": 40.0,
+            "sizeZ": 150.0,
+            "colorR": 0.2,
+            "colorG": 0.7,
+            "colorB": 0.25,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "60d58123-9390-50a6-b3a9-4f16894512f5",
+      "name": "Platform 11",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 40.0,
+          "z": -4095.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 150.0,
+            "sizeY": 40.0,
+            "sizeZ": 150.0,
+            "colorR": 0.6,
+            "colorG": 0.25,
+            "colorB": 0.75,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b4b1e92f-1f5f-5d4e-9438-7e35dbc6f7d3",
+      "name": "Platform 12",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 40.0,
+          "z": -4405.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 150.0,
+            "sizeY": 40.0,
+            "sizeZ": 150.0,
+            "colorR": 0.98,
+            "colorG": 0.5,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3f5add80-3221-50c9-b8e5-71f22c75f2b8",
+      "name": "Coin 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 180.0,
+          "z": -4405.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d6604d41-3a57-5b51-adfa-a04eea3e2a58",
+      "name": "Platform 13",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -110.0,
+          "y": 40.0,
+          "z": -4725.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 150.0,
+            "sizeY": 40.0,
+            "sizeZ": 150.0,
+            "colorR": 0.1,
+            "colorG": 0.75,
+            "colorB": 0.8,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "34e114de-c607-58ee-bcf8-139b8995e347",
+      "name": "Platform 14",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 110.0,
+          "y": 40.0,
+          "z": -5045.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 150.0,
+            "sizeY": 40.0,
+            "sizeZ": 150.0,
+            "colorR": 0.89,
+            "colorG": 0.15,
+            "colorB": 0.21,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "71bee04d-0901-51aa-9619-83f8c1bfa2e1",
+      "name": "Kill Lava 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -105.0,
+          "z": -4050.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 1500.0,
+            "sizeY": 30.0,
+            "sizeZ": 3060.0,
+            "colorR": 0.95,
+            "colorG": 0.35,
+            "colorB": 0.05,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "bd038362-a240-5b0e-b391-db036a4f7e01",
+      "name": "Checkpoint 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 40.0,
+          "z": -5430.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 360.0,
+            "sizeY": 40.0,
+            "sizeZ": 360.0,
+            "colorR": 0.62,
+            "colorG": 0.64,
+            "colorB": 0.7,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d8920cbb-fd4f-504d-ab08-390143759c2f",
+      "name": "Platform 15",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 40.0,
+          "z": -5840.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 220.0,
+            "sizeY": 40.0,
+            "sizeZ": 220.0,
+            "colorR": 0.0,
+            "colorG": 0.45,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "eb7f7db7-9d25-5dd7-9ef6-65a86f96f421",
+      "name": "Mover Z 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 40.0,
+          "z": -6390.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 180.0,
+            "sizeY": 40.0,
+            "sizeZ": 180.0,
+            "colorR": 0.98,
+            "colorG": 0.5,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "265aa23c-d9fa-5f37-821e-ac540f7936ae",
+      "name": "Platform 16",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 40.0,
+          "z": -6940.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 220.0,
+            "sizeY": 40.0,
+            "sizeZ": 220.0,
+            "colorR": 0.98,
+            "colorG": 0.8,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cfb96880-e67c-5150-9c91-20812a6329e3",
+      "name": "Mover Y 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 240.0,
+          "z": -7230.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 180.0,
+            "sizeY": 40.0,
+            "sizeZ": 180.0,
+            "colorR": 0.2,
+            "colorG": 0.7,
+            "colorB": 0.25,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5a5a55ef-316f-55d4-9f53-39ec986656f2",
+      "name": "Platform 17",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -7520.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 220.0,
+            "sizeY": 40.0,
+            "sizeZ": 220.0,
+            "colorR": 0.2,
+            "colorG": 0.7,
+            "colorB": 0.25,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6ccef356-ef2f-5161-9ecb-6fa4ff4821d0",
+      "name": "Coin 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 580.0,
+          "z": -7520.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6e35e495-4eff-523b-ac8c-b1100b97ee1a",
+      "name": "Mover Z 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -8070.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 180.0,
+            "sizeY": 40.0,
+            "sizeZ": 180.0,
+            "colorR": 0.98,
+            "colorG": 0.5,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ae7e7672-1719-544c-a00e-96048355b21a",
+      "name": "Platform 18",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -8620.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 220.0,
+            "sizeY": 40.0,
+            "sizeZ": 220.0,
+            "colorR": 0.6,
+            "colorG": 0.25,
+            "colorB": 0.75,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "38c1ea51-89b1-5a99-8098-2d64d7186a13",
+      "name": "Checkpoint 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -9030.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 360.0,
+            "sizeY": 40.0,
+            "sizeZ": 360.0,
+            "colorR": 0.62,
+            "colorG": 0.64,
+            "colorB": 0.7,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "496c540e-afc7-5e94-9561-66d6d31f6046",
+      "name": "Fade 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -9385.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 170.0,
+            "sizeY": 40.0,
+            "sizeZ": 170.0,
+            "colorR": 0.98,
+            "colorG": 0.65,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1b8092f5-cbc7-5087-984e-47f83b737470",
+      "name": "Fade 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 110.0,
+          "y": 440.0,
+          "z": -9645.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 170.0,
+            "sizeY": 40.0,
+            "sizeZ": 170.0,
+            "colorR": 0.98,
+            "colorG": 0.65,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4117aa12-5d36-5450-bad8-80f48fd5a3b8",
+      "name": "Fade 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -110.0,
+          "y": 440.0,
+          "z": -9905.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 170.0,
+            "sizeY": 40.0,
+            "sizeZ": 170.0,
+            "colorR": 0.98,
+            "colorG": 0.65,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "96dca5e1-c097-5c38-87cb-0cd9b0b7e0a7",
+      "name": "Fade 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -10165.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 170.0,
+            "sizeY": 40.0,
+            "sizeZ": 170.0,
+            "colorR": 0.98,
+            "colorG": 0.65,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "65fff66e-97d6-5427-a4ba-dd27700fc5f4",
+      "name": "Coin 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 580.0,
+          "z": -10165.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b884f344-1c79-5887-86b0-ffbc691d95a2",
+      "name": "Fade 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 110.0,
+          "y": 440.0,
+          "z": -10425.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 170.0,
+            "sizeY": 40.0,
+            "sizeZ": 170.0,
+            "colorR": 0.98,
+            "colorG": 0.65,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2dbc7cc0-6ec3-54c8-b9b4-48d082c0fd52",
+      "name": "Fade 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -110.0,
+          "y": 440.0,
+          "z": -10685.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 170.0,
+            "sizeY": 40.0,
+            "sizeZ": 170.0,
+            "colorR": 0.98,
+            "colorG": 0.65,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7a79ec3f-5666-5dd9-b1a3-8f5c58c774af",
+      "name": "Fade 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -10945.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 170.0,
+            "sizeY": 40.0,
+            "sizeZ": 170.0,
+            "colorR": 0.98,
+            "colorG": 0.65,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "85535b98-c9fe-53a0-8912-f79ecbc79919",
+      "name": "Fade 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 110.0,
+          "y": 440.0,
+          "z": -11205.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 170.0,
+            "sizeY": 40.0,
+            "sizeZ": 170.0,
+            "colorR": 0.98,
+            "colorG": 0.65,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5372c635-e70a-5537-b116-31fb73c22cd4",
+      "name": "Coin 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 110.0,
+          "y": 580.0,
+          "z": -11205.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1f911c60-0931-5fa6-bef6-635613a195e1",
+      "name": "Fade 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -110.0,
+          "y": 440.0,
+          "z": -11465.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 170.0,
+            "sizeY": 40.0,
+            "sizeZ": 170.0,
+            "colorR": 0.98,
+            "colorG": 0.65,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "114123d3-bf60-59d2-b293-72f1f236e11c",
+      "name": "Checkpoint 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -11830.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 360.0,
+            "sizeY": 40.0,
+            "sizeZ": 360.0,
+            "colorR": 0.62,
+            "colorG": 0.64,
+            "colorB": 0.7,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "bcc326e1-701c-55d1-ba65-c54b7ae1d768",
+      "name": "Platform Walkway",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -12610.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 360.0,
+            "sizeY": 40.0,
+            "sizeZ": 1000.0,
+            "colorR": 0.1,
+            "colorG": 0.75,
+            "colorB": 0.8,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ec058463-0863-5118-ba75-1788d188eb63",
+      "name": "Spinner 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 480.0,
+          "z": -12810.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 560.0,
+            "sizeY": 40.0,
+            "sizeZ": 36.0,
+            "colorR": 0.89,
+            "colorG": 0.15,
+            "colorB": 0.21,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3bddb08a-d706-5ed2-b2c4-94e93330d450",
+      "name": "Spinner 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 480.0,
+          "z": -12410.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 560.0,
+            "sizeY": 40.0,
+            "sizeZ": 36.0,
+            "colorR": 0.89,
+            "colorG": 0.15,
+            "colorB": 0.21,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "57cb4f14-ed7a-57ff-8912-9d3c0d7d8b75",
+      "name": "Coin 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 580.0,
+          "z": -12610.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "88cd50f2-43cc-5f3a-8db8-e8e56b64863d",
+      "name": "Checkpoint 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -13390.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 360.0,
+            "sizeY": 40.0,
+            "sizeZ": 360.0,
+            "colorR": 0.62,
+            "colorG": 0.64,
+            "colorB": 0.7,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e68c757b-5fd0-581a-9cff-ff992664fc99",
+      "name": "Pad 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 440.0,
+          "z": -13770.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 40.0,
+            "sizeZ": 200.0,
+            "colorR": 0.55,
+            "colorG": 0.9,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a95cee99-cfbf-5cd5-b0e0-755eee2c0ee2",
+      "name": "Platform 19",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 790.0,
+          "z": -14220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 260.0,
+            "sizeY": 40.0,
+            "sizeZ": 260.0,
+            "colorR": 0.98,
+            "colorG": 0.5,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "bc63e44b-27b2-58e9-aa71-0430024e8b31",
+      "name": "Coin 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 930.0,
+          "z": -14220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3b01acec-db90-5492-a753-5160c29f1609",
+      "name": "Pad 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 790.0,
+          "z": -14510.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 40.0,
+            "sizeZ": 200.0,
+            "colorR": 0.55,
+            "colorG": 0.9,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "30ab42a7-25ac-56d9-9e7b-ba762ee56cae",
+      "name": "Platform 20",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1140.0,
+          "z": -14960.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 260.0,
+            "sizeY": 40.0,
+            "sizeZ": 260.0,
+            "colorR": 0.1,
+            "colorG": 0.75,
+            "colorB": 0.8,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e7c985a0-f54a-5b51-9b86-01e2fc2aad2e",
+      "name": "Coin 11",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1280.0,
+          "z": -14960.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "096b1679-26ab-5e94-abfb-2ef8784f8fd0",
+      "name": "Pad 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1140.0,
+          "z": -15250.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 40.0,
+            "sizeZ": 200.0,
+            "colorR": 0.55,
+            "colorG": 0.9,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ff8352c6-abdf-5430-8d22-40751adf9ffc",
+      "name": "Platform 21",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1490.0,
+          "z": -15700.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 260.0,
+            "sizeY": 40.0,
+            "sizeZ": 260.0,
+            "colorR": 0.89,
+            "colorG": 0.15,
+            "colorB": 0.21,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cbfbb233-55e7-5b62-a4c1-ff253d2d15a6",
+      "name": "Coin 12",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1630.0,
+          "z": -15700.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 8.0,
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b6014f17-987a-5ab4-a7e3-78ed4b7bb5f6",
+      "name": "Pad 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1490.0,
+          "z": -15990.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 200.0,
+            "sizeY": 40.0,
+            "sizeZ": 200.0,
+            "colorR": 0.55,
+            "colorG": 0.9,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0fc3affa-9965-5cf8-bca7-50650a7c0531",
+      "name": "Finish",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1840.0,
+          "z": -16520.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 420.0,
+            "sizeY": 40.0,
+            "sizeZ": 420.0,
+            "colorR": 1.0,
+            "colorG": 0.85,
+            "colorB": 0.15,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "15189533-aa51-5e2b-880e-e579dbd76108",
+      "name": "Player",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 78.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/obby/ObbyGame.java",
+            "scriptClassName": "samples.obby.ObbyGame",
+            "language": "JAVA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bef94fdb-af87-568f-a770-138503d7f072",
+      "name": "Torso",
+      "active": true,
+      "parentId": "15189533-aa51-5e2b-880e-e579dbd76108",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 6.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 56.0,
+            "sizeY": 56.0,
+            "sizeZ": 30.0,
+            "colorR": 0.0,
+            "colorG": 0.45,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "62217b39-48d8-5625-b801-915a97de42eb",
+      "name": "Head",
+      "active": true,
+      "parentId": "15189533-aa51-5e2b-880e-e579dbd76108",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 56.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 44.0,
+            "sizeY": 44.0,
+            "sizeZ": 44.0,
+            "colorR": 0.98,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f167410d-c948-5806-9e79-894d7cd90df9",
+      "name": "Eye L",
+      "active": true,
+      "parentId": "62217b39-48d8-5625-b801-915a97de42eb",
+      "transform": {
+        "position": {
+          "x": -10.0,
+          "y": 6.0,
+          "z": -23.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 7.0,
+            "sizeY": 9.0,
+            "sizeZ": 3.0,
+            "colorR": 0.05,
+            "colorG": 0.05,
+            "colorB": 0.05,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "78f1ba04-4dae-5fc2-a70d-d3312806b9d1",
+      "name": "Eye R",
+      "active": true,
+      "parentId": "62217b39-48d8-5625-b801-915a97de42eb",
+      "transform": {
+        "position": {
+          "x": 10.0,
+          "y": 6.0,
+          "z": -23.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 7.0,
+            "sizeY": 9.0,
+            "sizeZ": 3.0,
+            "colorR": 0.05,
+            "colorG": 0.05,
+            "colorB": 0.05,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4e2cb38b-05bd-5561-a46d-76a4d31387f2",
+      "name": "Arm L Pivot",
+      "active": true,
+      "parentId": "15189533-aa51-5e2b-880e-e579dbd76108",
+      "transform": {
+        "position": {
+          "x": -40.0,
+          "y": 34.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "95a4694d-143b-58ef-bdce-fa1b0f6048e6",
+      "name": "Arm L",
+      "active": true,
+      "parentId": "4e2cb38b-05bd-5561-a46d-76a4d31387f2",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -26.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 22.0,
+            "sizeY": 56.0,
+            "sizeZ": 24.0,
+            "colorR": 0.98,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "23060fa3-8cbc-50fe-a109-e53b4f19c238",
+      "name": "Leg L Pivot",
+      "active": true,
+      "parentId": "15189533-aa51-5e2b-880e-e579dbd76108",
+      "transform": {
+        "position": {
+          "x": -14.0,
+          "y": -22.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "921b0de1-ddcc-59d1-b09e-7bc4d90d875b",
+      "name": "Leg L",
+      "active": true,
+      "parentId": "23060fa3-8cbc-50fe-a109-e53b4f19c238",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -28.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 26.0,
+            "sizeY": 56.0,
+            "sizeZ": 26.0,
+            "colorR": 0.2,
+            "colorG": 0.7,
+            "colorB": 0.25,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3a733f21-f28c-596e-a707-51f2bcb8450e",
+      "name": "Arm R Pivot",
+      "active": true,
+      "parentId": "15189533-aa51-5e2b-880e-e579dbd76108",
+      "transform": {
+        "position": {
+          "x": 40.0,
+          "y": 34.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "534d0a91-c7e8-5516-b166-1cc20b7be014",
+      "name": "Arm R",
+      "active": true,
+      "parentId": "3a733f21-f28c-596e-a707-51f2bcb8450e",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -26.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 22.0,
+            "sizeY": 56.0,
+            "sizeZ": 24.0,
+            "colorR": 0.98,
+            "colorG": 0.85,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "acd9d847-3502-50cf-a7bf-0e8784a1d58d",
+      "name": "Leg R Pivot",
+      "active": true,
+      "parentId": "15189533-aa51-5e2b-880e-e579dbd76108",
+      "transform": {
+        "position": {
+          "x": 14.0,
+          "y": -22.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "ef53f7f3-0dfd-53e3-9577-ca8a99107d0a",
+      "name": "Leg R",
+      "active": true,
+      "parentId": "acd9d847-3502-50cf-a7bf-0e8784a1d58d",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -28.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 26.0,
+            "sizeY": 56.0,
+            "sizeZ": 26.0,
+            "colorR": 0.2,
+            "colorG": 0.7,
+            "colorB": 0.25,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2a9ec732-5d2c-51e9-9a50-b7e190fa8845",
+      "name": "Stage Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "075cb949-7d95-5482-a979-d2d746936653",
+      "name": "Coins Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1.0,
+            "colorG": 0.82,
+            "colorB": 0.1,
+            "colorA": 1,
+            "scale": 1.3,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -48.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0ae1e91d-d176-52a2-b880-d8b603fc1c86",
+      "name": "Time Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.5,
+            "anchor": "TOP_RIGHT",
+            "offsetX": -16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1285a132-6ad8-52b2-88bd-f1c26f4b9cb3",
+      "name": "Deaths Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1.0,
+            "colorG": 0.6,
+            "colorB": 0.6,
+            "colorA": 1,
+            "scale": 1.3,
+            "anchor": "TOP_RIGHT",
+            "offsetX": -16.0,
+            "offsetY": -48.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5c4852fa-8625-5b07-b5db-3b17a7532e0d",
+      "name": "Message Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "",
+            "colorR": 1,
+            "colorG": 1,
+            "colorB": 1,
+            "colorA": 1,
+            "scale": 1.8,
+            "anchor": "CENTER",
+            "offsetX": 0.0,
+            "offsetY": 120.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "26ff9d53-3718-5bc9-b46b-8963f7518623",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "WASD: run   Space: jump   Left/Right: turn camera   Up/Down: tilt   R: restart   Reach the gold Finish",
+            "colorR": 0.85,
+            "colorG": 0.9,
+            "colorB": 1.0,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "18ab7180-7f27-593d-aaa0-3c5f8b809573",
+      "name": "Sound Effects",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "jump",
+            "sound": "Jump",
+            "volume": 0.45,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "coin",
+            "sound": "Coin",
+            "volume": 0.5,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "checkpoint",
+            "sound": "Powerup",
+            "volume": 0.5,
+            "pitch": 1.3,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "hurt",
+            "sound": "Hurt",
+            "volume": 0.6,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "bounce",
+            "sound": "Blip",
+            "volume": 0.6,
+            "pitch": 1.8,
+            "playOnStart": false
+          }
+        },
+        {
+          "type": "AudioSource",
+          "enabled": true,
+          "data": {
+            "cue": "win",
+            "sound": "Powerup",
+            "volume": 0.8,
+            "pitch": 1.0,
+            "playOnStart": false
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "format": 1,
+  "name": "CameraSway",
+  "duration": 6.0,
+  "frameRate": 30,
+  "tracks": [
+    {
+      "target": "",
+      "property": "transform.position.x",
+      "keys": [
+        {
+          "t": 0,
+          "v": -40,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3.0,
+          "v": 40,
+          "i": "BEZIER"
+        },
+        {
+          "t": 6.0,
+          "v": -40,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "",
+      "property": "transform.rotation.yaw",
+      "keys": [
+        {
+          "t": 0,
+          "v": 4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3.0,
+          "v": -4,
+          "i": "BEZIER"
+        },
+        {
+          "t": 6.0,
+          "v": 4,
+          "i": "BEZIER"
+        }
+      ]
+    }
+  ]
+}

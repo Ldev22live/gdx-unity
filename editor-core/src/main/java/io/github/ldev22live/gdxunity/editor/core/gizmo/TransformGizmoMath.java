@@ -1,9 +1,13 @@
 package io.github.ldev22live.gdxunity.editor.core.gizmo;
 
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.Ray;
 import io.github.ldev22live.gdxunity.editor.core.ToolMode;
 import io.github.ldev22live.gdxunity.engine.scene.Transform;
 
@@ -19,6 +23,12 @@ public final class TransformGizmoMath {
     public static final float DEFAULT_ROTATION_RADIUS = 50f;
     public static final float ROTATION_RING_TOLERANCE = 12f;
     public static final float MIN_SCALE = 0.001f;
+    /** Side length of the 3D planar move handles as a fraction of the axis length. */
+    public static final float PLANE_HANDLE_SIZE_RATIO = 0.35f;
+    /** In a perspective view the axis length is this fraction of the visible height at the gizmo's depth. */
+    public static final float PERSPECTIVE_VIEW_FRACTION = 0.15f;
+    /** Below this, a ray and an axis (or plane) are treated as parallel. */
+    private static final float PARALLEL_EPSILON = 1e-6f;
 
     private TransformGizmoMath() {}
 
@@ -203,6 +213,315 @@ public final class TransformGizmoMath {
         }
 
         return newLocalScale;
+    }
+
+    /**
+     * Hit-tests 3D gizmo handles using a world-space picking ray (see {@code ViewportPicker.getPickRay}).
+     *
+     * <p>Handle extents mirror what {@code TransformGizmoRenderer} draws in a perspective viewport:
+     * axis handles span from the origin to the tip box at {@code axisLen + handleRadius}, planar move
+     * handles are squares of side {@code axisLen * PLANE_HANDLE_SIZE_RATIO}, and rotation rings are
+     * circles of radius {@code DEFAULT_ROTATION_RADIUS} in the planes perpendicular to each world axis.
+     * Rotation mode has no center handle.
+     *
+     * @param toolMode    active tool mode (MOVE, ROTATE, SCALE)
+     * @param origin      world-space origin of the selected entity
+     * @param ray         world-space picking ray
+     * @param scaleFactor scaling factor to keep pixel-relative sizes
+     * @return GizmoHandle hit or GizmoHandle.NONE
+     */
+    public static GizmoHandle hitTest3D(ToolMode toolMode, Vector3 origin, Ray ray, float scaleFactor) {
+        if (toolMode == null || origin == null || ray == null || toolMode == ToolMode.SELECT) {
+            return GizmoHandle.NONE;
+        }
+
+        float effectiveScale = (scaleFactor <= 0f) ? 1.0f : scaleFactor;
+        float axisLen = DEFAULT_AXIS_LENGTH * effectiveScale;
+        float handleRadius = DEFAULT_HANDLE_RADIUS * effectiveScale;
+        float centerRadius = DEFAULT_CENTER_RADIUS * effectiveScale;
+        float rotRadius = DEFAULT_ROTATION_RADIUS * effectiveScale;
+        float rotTol = ROTATION_RING_TOLERANCE * effectiveScale;
+        float axisReach = axisLen + handleRadius;
+        float planeSize = axisLen * PLANE_HANDLE_SIZE_RATIO;
+        float planeHalfThickness = handleRadius * 0.5f;
+
+        switch (toolMode) {
+            case MOVE -> {
+                if (rayHitsBox(ray, origin, -centerRadius, -centerRadius, -centerRadius, centerRadius, centerRadius, centerRadius)) {
+                    return GizmoHandle.MOVE_CENTER;
+                }
+                if (rayHitsBox(ray, origin, 0f, 0f, -planeHalfThickness, planeSize, planeSize, planeHalfThickness)) {
+                    return GizmoHandle.MOVE_PLANE_XY;
+                }
+                if (rayHitsBox(ray, origin, 0f, -planeHalfThickness, 0f, planeSize, planeHalfThickness, planeSize)) {
+                    return GizmoHandle.MOVE_PLANE_XZ;
+                }
+                if (rayHitsBox(ray, origin, -planeHalfThickness, 0f, 0f, planeHalfThickness, planeSize, planeSize)) {
+                    return GizmoHandle.MOVE_PLANE_YZ;
+                }
+                if (rayHitsBox(ray, origin, 0f, -handleRadius, -handleRadius, axisReach, handleRadius, handleRadius)) {
+                    return GizmoHandle.MOVE_X;
+                }
+                if (rayHitsBox(ray, origin, -handleRadius, 0f, -handleRadius, handleRadius, axisReach, handleRadius)) {
+                    return GizmoHandle.MOVE_Y;
+                }
+                if (rayHitsBox(ray, origin, -handleRadius, -handleRadius, 0f, handleRadius, handleRadius, axisReach)) {
+                    return GizmoHandle.MOVE_Z;
+                }
+            }
+            case ROTATE -> {
+                if (rayHitsRing(ray, origin, Vector3.Z, rotRadius, rotTol)) {
+                    return GizmoHandle.ROTATE_Z;
+                }
+                if (rayHitsRing(ray, origin, Vector3.Y, rotRadius, rotTol)) {
+                    return GizmoHandle.ROTATE_Y;
+                }
+                if (rayHitsRing(ray, origin, Vector3.X, rotRadius, rotTol)) {
+                    return GizmoHandle.ROTATE_X;
+                }
+            }
+            case SCALE -> {
+                if (rayHitsBox(ray, origin, -centerRadius, -centerRadius, -centerRadius, centerRadius, centerRadius, centerRadius)) {
+                    return GizmoHandle.SCALE_UNIFORM;
+                }
+                if (rayHitsBox(ray, origin, 0f, -handleRadius, -handleRadius, axisReach, handleRadius, handleRadius)) {
+                    return GizmoHandle.SCALE_X;
+                }
+                if (rayHitsBox(ray, origin, -handleRadius, 0f, -handleRadius, handleRadius, axisReach, handleRadius)) {
+                    return GizmoHandle.SCALE_Y;
+                }
+                if (rayHitsBox(ray, origin, -handleRadius, -handleRadius, 0f, handleRadius, handleRadius, axisReach)) {
+                    return GizmoHandle.SCALE_Z;
+                }
+            }
+            default -> {}
+        }
+
+        return GizmoHandle.NONE;
+    }
+
+    /** Tests the ray against an axis-aligned box given as min/max offsets from {@code origin}. */
+    private static boolean rayHitsBox(
+        Ray ray, Vector3 origin,
+        float minX, float minY, float minZ,
+        float maxX, float maxY, float maxZ
+    ) {
+        BoundingBox box = new BoundingBox(
+            new Vector3(origin.x + minX, origin.y + minY, origin.z + minZ),
+            new Vector3(origin.x + maxX, origin.y + maxY, origin.z + maxZ)
+        );
+        return Intersector.intersectRayBoundsFast(ray, box);
+    }
+
+    /** Tests whether the ray crosses the ring of {@code radius} around {@code origin} in the plane with {@code normal}. */
+    private static boolean rayHitsRing(Ray ray, Vector3 origin, Vector3 normal, float radius, float tolerance) {
+        Vector3 hitPoint = new Vector3();
+        if (!Intersector.intersectRayPlane(ray, new Plane(normal, origin), hitPoint)) {
+            return false;
+        }
+        return Math.abs(hitPoint.dst(origin) - radius) <= tolerance;
+    }
+
+    /**
+     * Calculates the new local position during a 3D MOVE gizmo drag.
+     */
+    public static Vector3 calculateMoved3DLocalPosition(
+        TransformSnapshot snapshot,
+        GizmoHandle handle,
+        Vector3 startWorldPos,
+        Vector3 currentWorldPos
+    ) {
+        if (snapshot == null || handle == null || startWorldPos == null || currentWorldPos == null) {
+            return snapshot != null ? snapshot.localPosition() : new Vector3();
+        }
+
+        Vector3 delta = new Vector3(currentWorldPos).sub(startWorldPos);
+        Vector3 targetWorldPos = new Vector3(snapshot.worldPosition());
+
+        switch (handle) {
+            case MOVE_X -> targetWorldPos.x += delta.x;
+            case MOVE_Y -> targetWorldPos.y += delta.y;
+            case MOVE_Z -> targetWorldPos.z += delta.z;
+            case MOVE_CENTER, MOVE_PLANE_XY -> {
+                targetWorldPos.x += delta.x;
+                targetWorldPos.y += delta.y;
+            }
+            case MOVE_PLANE_XZ -> {
+                targetWorldPos.x += delta.x;
+                targetWorldPos.z += delta.z;
+            }
+            case MOVE_PLANE_YZ -> {
+                targetWorldPos.y += delta.y;
+                targetWorldPos.z += delta.z;
+            }
+            default -> {
+                return snapshot.localPosition();
+            }
+        }
+
+        return worldToLocalPosition(targetWorldPos, snapshot);
+    }
+
+    /**
+     * Calculates the new local rotation during a 3D ROTATE gizmo drag around an axis.
+     */
+    public static Quaternion calculateRotated3DLocalRotation(
+        TransformSnapshot snapshot,
+        GizmoHandle handle,
+        float deltaAngleDeg
+    ) {
+        if (snapshot == null || handle == null) {
+            return snapshot != null ? snapshot.localRotation() : new Quaternion();
+        }
+
+        Vector3 axis;
+        switch (handle) {
+            case ROTATE_X -> axis = Vector3.X;
+            case ROTATE_Y -> axis = Vector3.Y;
+            case ROTATE_Z -> axis = Vector3.Z;
+            default -> {
+                return snapshot.localRotation();
+            }
+        }
+
+        Quaternion deltaRot = new Quaternion().setFromAxis(axis, deltaAngleDeg);
+        Quaternion newWorldRot = new Quaternion(deltaRot).mul(snapshot.worldRotation());
+        return worldToLocalRotation(newWorldRot, snapshot);
+    }
+
+    /**
+     * Calculates the new local scale during a 3D SCALE gizmo drag.
+     */
+    public static Vector3 calculateScaled3DLocalScale(
+        TransformSnapshot snapshot,
+        GizmoHandle handle,
+        Vector3 delta,
+        float scaleFactor
+    ) {
+        if (snapshot == null || handle == null || delta == null) {
+            return snapshot != null ? snapshot.localScale() : new Vector3(1f, 1f, 1f);
+        }
+
+        float effectiveScale = (scaleFactor <= 0f) ? 1.0f : scaleFactor;
+        float axisLen = DEFAULT_AXIS_LENGTH * effectiveScale;
+        if (axisLen == 0f) axisLen = 1f;
+
+        Vector3 newLocalScale = new Vector3(snapshot.localScale());
+
+        switch (handle) {
+            case SCALE_X -> {
+                float factor = 1.0f + (delta.x / axisLen);
+                newLocalScale.x = sanitizeScale(snapshot.localScale().x * factor);
+            }
+            case SCALE_Y -> {
+                float factor = 1.0f + (delta.y / axisLen);
+                newLocalScale.y = sanitizeScale(snapshot.localScale().y * factor);
+            }
+            case SCALE_Z -> {
+                float factor = 1.0f + (delta.z / axisLen);
+                newLocalScale.z = sanitizeScale(snapshot.localScale().z * factor);
+            }
+            case SCALE_UNIFORM -> {
+                float deltaUniform = (delta.x + delta.y + delta.z) / 3f;
+                float factor = 1.0f + (deltaUniform / axisLen);
+                newLocalScale.x = sanitizeScale(snapshot.localScale().x * factor);
+                newLocalScale.y = sanitizeScale(snapshot.localScale().y * factor);
+                newLocalScale.z = sanitizeScale(snapshot.localScale().z * factor);
+            }
+            default -> {}
+        }
+
+        return newLocalScale;
+    }
+
+    /**
+     * Scale factor that keeps a 3D gizmo a constant size on screen (TD-016 extension for perspective cameras):
+     * the axis length becomes {@link #PERSPECTIVE_VIEW_FRACTION} of the visible height at the gizmo's distance.
+     *
+     * @param fieldOfViewDegrees vertical field of view of the perspective camera
+     */
+    public static float orthographicScaleFactor(float visibleHeight) {
+        return Math.max(MIN_SCALE, Math.abs(visibleHeight) * PERSPECTIVE_VIEW_FRACTION / DEFAULT_AXIS_LENGTH);
+    }
+
+    /**
+     * Gizmo size factor for a perspective camera; see {@link #orthographicScaleFactor(float)} for orthographic views.
+     */
+    public static float perspectiveScaleFactor(Vector3 cameraPosition, Vector3 origin, float fieldOfViewDegrees) {
+        float distance = cameraPosition.dst(origin);
+        float visibleHeight = 2f * distance * (float) Math.tan(Math.toRadians(fieldOfViewDegrees) * 0.5);
+        return Math.max(MIN_SCALE, visibleHeight * PERSPECTIVE_VIEW_FRACTION / DEFAULT_AXIS_LENGTH);
+    }
+
+    /**
+     * Point on the infinite line {@code origin + s * axis} closest to the ray, or {@code null} when the ray is
+     * parallel to the axis.
+     */
+    public static Vector3 closestPointOnAxis(Ray ray, Vector3 origin, Vector3 axis) {
+        Vector3 w0 = new Vector3(origin).sub(ray.origin);
+        float a = axis.dot(axis);
+        float b = axis.dot(ray.direction);
+        float c = ray.direction.dot(ray.direction);
+        float d = axis.dot(w0);
+        float e = ray.direction.dot(w0);
+        float denominator = a * c - b * b;
+        if (Math.abs(denominator) < PARALLEL_EPSILON) {
+            return null;
+        }
+        float s = (b * e - c * d) / denominator;
+        return new Vector3(axis).scl(s).add(origin);
+    }
+
+    /**
+     * Where a 3D drag of {@code handle} is measured: the closest point on the handle's axis for axis handles,
+     * otherwise the ray's intersection with the handle's plane through {@code origin}. Returns {@code null}
+     * when the ray is parallel to that axis or plane.
+     */
+    public static Vector3 dragPoint3D(GizmoHandle handle, Ray ray, Vector3 origin) {
+        Vector3 axis = handleAxis(handle);
+        if (axis != null) {
+            return closestPointOnAxis(ray, origin, axis);
+        }
+        Vector3 normal = handlePlaneNormal(handle);
+        if (normal == null) {
+            return null;
+        }
+        Vector3 hit = new Vector3();
+        if (Math.abs(ray.direction.dot(normal)) < PARALLEL_EPSILON
+            || !Intersector.intersectRayPlane(ray, new Plane(normal, origin), hit)) {
+            return null;
+        }
+        return hit;
+    }
+
+    /** World axis an axis handle moves or scales along, or {@code null} for plane, ring and center handles. */
+    public static Vector3 handleAxis(GizmoHandle handle) {
+        return switch (handle) {
+            case MOVE_X, SCALE_X -> Vector3.X;
+            case MOVE_Y, SCALE_Y -> Vector3.Y;
+            case MOVE_Z, SCALE_Z -> Vector3.Z;
+            default -> null;
+        };
+    }
+
+    /**
+     * Normal of the plane a plane, ring or center handle is dragged in. Center handles use the XY plane, matching
+     * {@link #calculateMoved3DLocalPosition}.
+     */
+    public static Vector3 handlePlaneNormal(GizmoHandle handle) {
+        return switch (handle) {
+            case MOVE_PLANE_XY, MOVE_CENTER, SCALE_UNIFORM, ROTATE_Z -> Vector3.Z;
+            case MOVE_PLANE_XZ, ROTATE_Y -> Vector3.Y;
+            case MOVE_PLANE_YZ, ROTATE_X -> Vector3.X;
+            default -> null;
+        };
+    }
+
+    /** Signed angle in degrees from {@code from} to {@code to}, counter-clockwise around {@code normal}. */
+    public static float signedAngleDegrees(Vector3 from, Vector3 to, Vector3 normal) {
+        float sine = new Vector3(from).crs(to).dot(normal);
+        float cosine = from.dot(to);
+        return (float) Math.toDegrees(Math.atan2(sine, cosine));
     }
 
     public static float sanitizeScale(float scale) {

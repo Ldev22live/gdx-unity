@@ -1,0 +1,115 @@
+import { readdirSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import { buildScene } from "../src/runtime/SceneBuilder";
+import { parseSceneFile } from "../src/scene/types";
+import { createHeadlessEngine, loadSample, SAMPLES_DIR } from "./support";
+
+const sampleFiles = readdirSync(SAMPLES_DIR).filter((name) => name.endsWith(".json"));
+
+/**
+ * Samples that use components this player does not simulate yet. None are left: rigid bodies and box, sphere and capsule colliders
+ * run since TD-059 step 1, hull and mesh colliders and joints since TD-064 step 2, and character controllers and camera rigs since
+ * step 3. The list stays so a component added to the desktop without a web version fails this test.
+ * Engine Sound (TD-080) is desktop only for now: the racing sample's three cars carry one and the web player makes no engine noise.
+ */
+const KNOWN_UNSUPPORTED: Readonly<Record<string, string[]>> = {
+  "racing-3d.json": ["EngineSound"],
+  "platformer-profile-25d.json": ["PlayerComponent"],
+  // Roadmap MP.3: the terrain copy of the profile sample has the same gap as its original
+  "platformer-profile-terrain-25d.json": ["PlayerComponent"],
+  // Roadmap M3b.7: Platformer + 3D, played by its genre profile, which the web player does not run
+  "platformer-profile-3d.json": ["PlayerComponent"],
+  // Roadmap M3b.7: First-person Shooter + 3D, played by its genre profile
+  "first-person-range-3d.json": ["PlayerComponent"],
+  "action-rpg-valley-3d.json": ["PlayerComponent"],
+  "action-rpg-iso-25d.json": ["PlayerComponent", "SpawnPointComponent"],
+  // Roadmap M3.10: the landscapes' terrain copies have a Hero played by the Action RPG profile
+  "landscape-terrain-3d.json": ["PlayerComponent"],
+  // Roadmap M2b.6: the CC0 refresh of the valley has its terrain copy's gap; its prefab links are only the editor's
+  "landscape-cc0-terrain-3d.json": ["PlayerComponent"],
+  "landscape-desert-terrain-3d.json": ["PlayerComponent"],
+  "landscape-alpine-terrain-3d.json": ["PlayerComponent"],
+  "landscape-island-terrain-3d.json": ["PlayerComponent"],
+  "landscape-autumn-terrain-3d.json": ["PlayerComponent"],
+};
+
+describe("parseSceneFile", () => {
+  it("shouldRejectAFileWithAnUnknownSchemaVersion", () => {
+    expect(() => parseSceneFile(JSON.stringify({ schemaVersion: 2, entities: [] }))).toThrow(/schemaVersion 2/);
+  });
+
+  it("shouldRejectAFileWithoutEntities", () => {
+    expect(() => parseSceneFile(JSON.stringify({ schemaVersion: 1 }))).toThrow(/entities/);
+  });
+});
+
+describe("buildScene", () => {
+  it("shouldBuildEverySampleSceneOfTheDesktopEditor", () => {
+    expect(sampleFiles.length).toBeGreaterThan(0);
+    for (const file of sampleFiles) {
+      const engine = createHeadlessEngine();
+      const sceneFile = loadSample(file);
+      const built = buildScene(engine, sceneFile);
+      expect(built.game.entities.length, file).toBe(sceneFile.entities.length);
+      built.scene.dispose();
+      engine.dispose();
+    }
+  });
+
+  it("shouldSupportEveryComponentTypeUsedByTheSamples", () => {
+    for (const file of sampleFiles) {
+      const engine = createHeadlessEngine();
+      const built = buildScene(engine, loadSample(file));
+      expect([...built.unsupported.keys()].sort(), file).toEqual(KNOWN_UNSUPPORTED[file] ?? []);
+      built.scene.dispose();
+      engine.dispose();
+    }
+  });
+
+  it("shouldLookAlongMinusZLikeTheDesktopCameraWhenTheRotationIsIdentity", () => {
+    const engine = createHeadlessEngine();
+    const built = buildScene(engine, loadSample("collector-3d.json"));
+    const camera = built.gameCamera!;
+    // The sample's camera is turned by its script; reset it to identity to test the base convention
+    camera.entity.node.rotationQuaternion!.copyFromFloats(0, 0, 0, 1);
+    camera.sync(16 / 9);
+    camera.camera.getViewMatrix(true);
+    const forward = camera.camera.getForwardRay(1).direction;
+    expect(forward.x).toBeCloseTo(0, 5);
+    expect(forward.y).toBeCloseTo(0, 5);
+    expect(forward.z).toBeCloseTo(-1, 5);
+    engine.dispose();
+  });
+
+  it("shouldPlaceAnOrthographicCameraInFrontOfTheZeroPlane", () => {
+    const engine = createHeadlessEngine();
+    const built = buildScene(engine, loadSample("platformer-2d.json"));
+    const camera = built.gameCamera!;
+    expect(camera.orthographic).toBe(true);
+    camera.sync(2);
+    expect(camera.camera.position.z).toBeGreaterThan(100);
+    expect(camera.camera.orthoTop).toBe(240);
+    expect(camera.camera.orthoRight).toBe(480);
+    engine.dispose();
+  });
+
+  it("shouldFailNamingTheEntityWhenAParentIsMissing", () => {
+    const file = loadSample("physics-sandbox-2d.json");
+    file.entities[0]!.parentId = "no-such-entity";
+    const engine = createHeadlessEngine();
+    expect(() => buildScene(engine, file)).toThrow(/Background.*no-such-entity/);
+    engine.dispose();
+  });
+
+  it("shouldKeepChildrenInTheirParentsSpace", () => {
+    const file = loadSample("arena-fps-3d.json");
+    const childIndex = file.entities.findIndex((entity) => entity.parentId !== null);
+    expect(childIndex).toBeGreaterThanOrEqual(0);
+    const engine = createHeadlessEngine();
+    const built = buildScene(engine, file);
+    const child = built.game.entities[childIndex]!;
+    expect(child.parent).not.toBeNull();
+    expect(child.node.parent).toBe(child.parent!.node);
+    engine.dispose();
+  });
+});

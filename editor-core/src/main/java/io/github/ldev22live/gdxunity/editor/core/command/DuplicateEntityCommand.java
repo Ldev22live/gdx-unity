@@ -1,23 +1,38 @@
 package io.github.ldev22live.gdxunity.editor.core.command;
 
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.JsonValue;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
  * Command to duplicate an entity in the active scene with independent identity,
  * copied transform offset, and undo/redo support.
+ * <p>
+ * Components are copied through the scene serializer, so every component type that can be saved in a scene file is
+ * copied with all its saved fields, and a new component type is covered as soon as it has a serializer (the same
+ * path the prefab system uses). A component without a serializer cannot be copied; the status message says how many
+ * were left out.
  */
 public class DuplicateEntityCommand implements EditorCommand {
+    /** How far, in scene units on x and y, the copy is placed from the original. */
+    private static final float COPY_OFFSET = 20f;
+
     private final EditorState editorState;
     private final UUID sourceEntityId;
     private Entity duplicatedEntity;
     private UUID duplicatedId;
+    private int uncopiedComponents;
+    /** Components detached by Scene.removeEntity on undo; re-attached on redo. */
+    private List<Component> componentsToRestore = List.of();
 
     public DuplicateEntityCommand(EditorState editorState, UUID sourceEntityId) {
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
@@ -41,72 +56,42 @@ public class DuplicateEntityCommand implements EditorCommand {
             duplicatedId = duplicatedEntity.getId();
 
             Vector3 pos = source.getTransform().getLocalPosition();
-            duplicatedEntity.getTransform().setLocalPosition(pos.x + 20f, pos.y + 20f, pos.z);
+            duplicatedEntity.getTransform().setLocalPosition(pos.x + COPY_OFFSET, pos.y + COPY_OFFSET, pos.z);
             duplicatedEntity.getTransform().setLocalRotation(source.getTransform().getLocalRotation());
             duplicatedEntity.getTransform().setLocalScale(source.getTransform().getLocalScale());
 
-            // Clone components where supported
-            for (Component comp : source.getAllComponents()) {
-                if (comp instanceof io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent shape) {
-                    duplicatedEntity.addComponent(new io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent(
-                        shape.getWidth(), shape.getHeight(), shape.getColor()
-                    ));
-                } else if (comp instanceof io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent sprite) {
-                    duplicatedEntity.addComponent(new io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent(
-                        sprite.getAssetReference(), sprite.getWidth(), sprite.getHeight()
-                    ));
-                } else if (comp instanceof io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent scriptBinding) {
-                    io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent clone =
-                        new io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent(
-                            scriptBinding.getScriptPath(), scriptBinding.getScriptClassName(), scriptBinding.getLanguage()
-                        );
-                    clone.setEnabled(scriptBinding.isEnabled());
-                    duplicatedEntity.addComponent(clone);
-                } else if (comp instanceof io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent rb) {
-                    io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent clone =
-                        new io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent(rb.getBodyType());
-                    clone.setGravityScale(rb.getGravityScale());
-                    clone.setLinearDamping(rb.getLinearDamping());
-                    clone.setAngularDamping(rb.getAngularDamping());
-                    clone.setFixedRotation(rb.isFixedRotation());
-                    clone.setBullet(rb.isBullet());
-                    clone.setInitialLinearVelocity(rb.getInitialLinearVelocity());
-                    clone.setInitialAngularVelocity(rb.getInitialAngularVelocity());
-                    clone.setEnabled(rb.isEnabled());
-                    duplicatedEntity.addComponent(clone);
-                } else if (comp instanceof io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent box) {
-                    io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent clone =
-                        new io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent(box.getWidth(), box.getHeight(), box.getOffset());
-                    clone.setDensity(box.getDensity());
-                    clone.setFriction(box.getFriction());
-                    clone.setRestitution(box.getRestitution());
-                    clone.setSensor(box.isSensor());
-                    clone.setCategoryBits(box.getCategoryBits());
-                    clone.setMaskBits(box.getMaskBits());
-                    clone.setEnabled(box.isEnabled());
-                    duplicatedEntity.addComponent(clone);
-                } else if (comp instanceof io.github.ldev22live.gdxunity.engine.scene.physics.CircleCollider2DComponent circle) {
-                    io.github.ldev22live.gdxunity.engine.scene.physics.CircleCollider2DComponent clone =
-                        new io.github.ldev22live.gdxunity.engine.scene.physics.CircleCollider2DComponent(circle.getRadius(), circle.getOffset());
-                    clone.setDensity(circle.getDensity());
-                    clone.setFriction(circle.getFriction());
-                    clone.setRestitution(circle.getRestitution());
-                    clone.setSensor(circle.isSensor());
-                    clone.setCategoryBits(circle.getCategoryBits());
-                    clone.setMaskBits(circle.getMaskBits());
-                    clone.setEnabled(circle.isEnabled());
-                    duplicatedEntity.addComponent(clone);
-                }
-            }
+            copyComponents(source, duplicatedEntity);
         } else {
-            // Redo: re-add existing entity instance into scene
+            // Redo: re-add the existing entity instance with the components undo detached
             scene.addEntity(duplicatedEntity);
+            for (Component component : componentsToRestore) {
+                duplicatedEntity.addComponent(component);
+            }
         }
 
         editorState.setSelectedEntity(duplicatedEntity);
         editorState.notifyHierarchyModified();
-        editorState.setStatusMessage("Duplicated: " + duplicatedEntity.getName(), false);
+        boolean incomplete = uncopiedComponents > 0;
+        editorState.setStatusMessage("Duplicated: " + duplicatedEntity.getName()
+            + (incomplete ? " (" + uncopiedComponents + " component(s) without a serializer were not copied)" : ""), incomplete);
         return true;
+    }
+
+    /** Copies every component of {@code source} that the scene serializer can save onto {@code target}. */
+    private void copyComponents(Entity source, Entity target) {
+        SceneSerializer serializer = editorState.getSerializer();
+        JsonValue saved = serializer.entityToJsonValue(source).get("components");
+        int copied = 0;
+        if (saved != null) {
+            for (JsonValue entry = saved.child; entry != null; entry = entry.next) {
+                Component copy = serializer.readComponent(entry);
+                if (copy != null) {
+                    target.addComponent(copy);
+                    copied++;
+                }
+            }
+        }
+        uncopiedComponents = source.getAllComponents().size() - copied;
     }
 
     @Override
@@ -118,6 +103,8 @@ public class DuplicateEntityCommand implements EditorCommand {
         if (Objects.equals(editorState.getSelectedEntityId(), duplicatedId)) {
             editorState.clearSelection();
         }
+        // Scene.removeEntity detaches all components; remember them for redo
+        componentsToRestore = new ArrayList<>(duplicatedEntity.getAllComponents());
         boolean removed = scene.removeEntity(duplicatedEntity, false);
         if (removed) {
             editorState.notifyHierarchyModified();

@@ -1,0 +1,12 @@
+{
+format: 1
+gender: 1
+ageYears: 30
+muscle: 0.7
+weight: 0.5
+heightScale: 1.08
+skinColor: [ 0.78, 0.58, 0.45 ]
+sliders: {
+	head/head-square: 0.5
+}
+}

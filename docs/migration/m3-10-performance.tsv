@@ -1,0 +1,15 @@
+# Roadmap M3.10: the five landscape samples against their terrain copies, measured 2026-11-20 with ./gradlew :engine-desktop:perfBaseline -PperfScenes=... -PperfRuns=1 (one run per scene, so a first look, not a baseline; same machine as docs/performance/baseline-windows.tsv). The terrain copies also start Jolt physics and play the Action RPG follow camera, which the originals do not
+# Forgeroom performance baseline (roadmap M9.5); medians of 1 run(s) per scene, 330 frames each, the first 30 not measured
+# Machine: Windows 11 10.0 amd64, 8 processors; Java 21.0.11; the GPU is in each row
+# Frame times wait for the GPU to finish (glFinish), so vsync does not hide them; heap is the Java heap only, not native memory
+scene	frames	parseMs	startMs	firstFrameMs	frameMeanMs	frameP50Ms	frameP95Ms	frameMaxMs	terrainTriangles	heapPeakMb	heapRetainedMb	audioLatencyMs	audioBlockMs	audioBlockMaxMs	gpu
+samples/landscape-3d.json	300	182.60	100.66	448.94	3.84	3.60	4.99	8.68	0	142.01	5.11	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/landscape-terrain-3d.json	300	235.56	481.33	482.28	6.27	5.93	8.10	17.39	25088	150.48	6.29	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/landscape-desert-3d.json	300	170.95	119.54	515.96	4.26	3.33	7.19	62.97	0	137.17	5.11	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/landscape-desert-terrain-3d.json	300	246.83	463.53	670.48	5.17	4.84	7.31	10.49	27648	94.02	6.26	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/landscape-alpine-3d.json	300	154.88	86.34	537.12	3.40	3.26	4.41	14.70	0	58.09	5.01	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/landscape-alpine-terrain-3d.json	300	130.73	377.76	543.85	5.97	5.96	7.19	8.90	25088	142.76	6.20	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/landscape-island-3d.json	300	144.04	78.67	524.16	3.45	3.32	4.51	9.96	0	133.77	5.04	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/landscape-island-terrain-3d.json	300	162.10	426.58	458.93	4.35	4.31	5.11	6.16	19200	143.70	6.40	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/landscape-autumn-3d.json	300	159.46	73.75	389.49	3.77	3.53	5.47	6.97	0	142.25	5.15	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/landscape-autumn-terrain-3d.json	300	180.02	401.26	384.19	5.55	5.32	6.76	8.65	23296	150.91	6.47	-	-	-	Intel(R) Iris(R) Xe Graphics

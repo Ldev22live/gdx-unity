@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Ruins Runner",
+  "variables": [],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.tick",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "input.axis",
+      "x": 270,
+      "y": 150,
+      "literals": [],
+      "properties": [
+        {
+          "name": "negative",
+          "type": "STRING",
+          "value": "A,LEFT"
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "value": "D,RIGHT"
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "type": "math.multiply",
+      "x": 540,
+      "y": 150,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n4",
+      "type": "math.multiply",
+      "x": 810,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "b",
+          "type": "FLOAT",
+          "value": 300.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n5",
+      "type": "vector.make",
+      "x": 1080,
+      "y": 150,
+      "literals": [
+        {
+          "pin": "y",
+          "type": "FLOAT",
+          "value": 0.0
+        },
+        {
+          "pin": "z",
+          "type": "FLOAT",
+          "value": 0.0
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n6",
+      "type": "action.moveBy",
+      "x": 1350,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n7",
+      "type": "event.trigger",
+      "x": 0,
+      "y": 450,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n8",
+      "type": "action.destroy",
+      "x": 540,
+      "y": 450,
+      "literals": [],
+      "properties": []
+    }
+  ],
+  "links": [
+    {
+      "from": "n2",
+      "fromPin": "value",
+      "to": "n3",
+      "toPin": "a"
+    },
+    {
+      "from": "n1",
+      "fromPin": "deltaTime",
+      "to": "n3",
+      "toPin": "b"
+    },
+    {
+      "from": "n3",
+      "fromPin": "result",
+      "to": "n4",
+      "toPin": "a"
+    },
+    {
+      "from": "n4",
+      "fromPin": "result",
+      "to": "n5",
+      "toPin": "x"
+    },
+    {
+      "from": "n5",
+      "fromPin": "vector",
+      "to": "n6",
+      "toPin": "offset"
+    },
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n6",
+      "toPin": "exec"
+    },
+    {
+      "from": "n7",
+      "fromPin": "other",
+      "to": "n8",
+      "toPin": "target"
+    },
+    {
+      "from": "n7",
+      "fromPin": "then",
+      "to": "n8",
+      "toPin": "exec"
+    }
+  ]
+}

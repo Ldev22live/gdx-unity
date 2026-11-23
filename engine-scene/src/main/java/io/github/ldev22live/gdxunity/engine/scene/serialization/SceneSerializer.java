@@ -6,10 +6,12 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
+import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.Transform;
+import io.github.ldev22live.gdxunity.engine.scene.play.RuntimeOnlyComponent;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -44,20 +46,27 @@ public class SceneSerializer {
     }
 
     /**
-     * Serializes a scene into a formatted JSON string.
+     * Serializes a scene into JSON laid out by {@link SceneTextFormat}: the same scene always gives the same text, and a small
+     * edit changes few lines.
      */
     public String toJson(Scene scene) {
         Objects.requireNonNull(scene, "scene cannot be null");
 
         StringWriter stringWriter = new StringWriter();
-        JsonWriter jsonWriter = new JsonWriter(stringWriter);
-        jsonWriter.setOutputType(JsonWriter.OutputType.json);
-        Json json = new Json();
+        JsonWriter jsonWriter = SceneTextFormat.newWriter(stringWriter);
+        Json json = new Json(JsonWriter.OutputType.json);
         json.setWriter(jsonWriter);
 
         json.writeObjectStart();
         json.writeValue("schemaVersion", CURRENT_SCHEMA_VERSION);
         json.writeValue("name", scene.getName());
+        // gameMode and gameGenre before active: the order most bundled scene files already have (M9.3)
+        if (scene.getGameMode() != null) {
+            json.writeValue("gameMode", scene.getGameMode().getFileValue());
+        }
+        if (scene.getGameGenre() != null) {
+            json.writeValue("gameGenre", scene.getGameGenre());
+        }
         json.writeValue("active", scene.isActive());
 
         // Entities array
@@ -70,9 +79,42 @@ public class SceneSerializer {
 
         json.writeObjectEnd();
 
-        com.badlogic.gdx.utils.JsonValue.PrettyPrintSettings settings = new com.badlogic.gdx.utils.JsonValue.PrettyPrintSettings();
-        settings.outputType = JsonWriter.OutputType.json;
-        return json.prettyPrint(stringWriter.toString(), settings);
+        // A fixed layout, so a small edit gives a small diff (M9.3, TD-093)
+        return SceneTextFormat.format(stringWriter.toString());
+    }
+
+    /**
+     * One entity in the scene file format (id, name, active, parentId, transform, components), parsed back into
+     * a tree. Used by the prefab system to compare and copy entity state. Numbers keep the text a scene file would have
+     * ({@code 1.0}, see {@link SceneTextFormat#newWriter}), so a prefab written from the tree matches the scene's layout.
+     */
+    public JsonValue entityToJsonValue(Entity entity) {
+        Objects.requireNonNull(entity, "entity cannot be null");
+        StringWriter stringWriter = new StringWriter();
+        JsonWriter jsonWriter = SceneTextFormat.newWriter(stringWriter);
+        Json json = new Json(JsonWriter.OutputType.json);
+        json.setWriter(jsonWriter);
+        writeEntity(entity, json);
+        return new JsonReader().parse(stringWriter.toString());
+    }
+
+    /**
+     * Creates the component described by one entry of an entity's {@code components} array
+     * ({@code type}, {@code enabled}, {@code data}), or null when the type is not registered.
+     */
+    @SuppressWarnings("unchecked")
+    public Component readComponent(JsonValue componentVal) {
+        Objects.requireNonNull(componentVal, "componentVal cannot be null");
+        String typeId = componentVal.getString("type", null);
+        ComponentSerializer serializer = typeId != null ? registry.getByTypeId(typeId) : null;
+        if (serializer == null) {
+            return null;
+        }
+        Component component = serializer.deserialize(componentVal.get("data"), new Json());
+        if (component != null) {
+            component.setEnabled(componentVal.getBoolean("enabled", true));
+        }
+        return component;
     }
 
     @SuppressWarnings("unchecked")
@@ -119,6 +161,10 @@ public class SceneSerializer {
         // Components
         json.writeArrayStart("components");
         for (Component component : entity.getAllComponents()) {
+            if (component instanceof RuntimeOnlyComponent) {
+                throw new SceneSerializationException("'" + entity.getName() + "' has " + component.getClass().getSimpleName()
+                    + ", which only exists while the game plays (TD-088) and is never saved. Save the scene from the editor, not from Play.");
+            }
             ComponentSerializer serializer = registry.getByClass(component.getClass());
             if (serializer != null) {
                 json.writeObjectStart();
@@ -173,6 +219,22 @@ public class SceneSerializer {
 
         Scene scene = new Scene(sceneName);
         scene.setActive(active);
+        String modeValue = root.getString("gameMode", null);
+        if (modeValue != null) {
+            GameMode mode = GameMode.fromFileValue(modeValue);
+            if (mode == null) {
+                throw new SceneSerializationException("Unknown gameMode in scene JSON: " + modeValue);
+            }
+            scene.setGameMode(mode);
+        }
+        String genreValue = root.getString("gameGenre", null);
+        if (genreValue != null) {
+            try {
+                scene.setGameGenre(genreValue);
+            } catch (IllegalArgumentException e) {
+                throw new SceneSerializationException("Invalid gameGenre in scene JSON: " + e.getMessage(), e);
+            }
+        }
 
         JsonValue entitiesArray = root.get("entities");
         if (entitiesArray == null || !entitiesArray.isArray()) {
@@ -246,7 +308,8 @@ public class SceneSerializer {
         return scene;
     }
 
-    private void readTransform(JsonValue transformVal, Transform transform) {
+    /** Applies a {@code transform} object (position, rotation, scale) to {@code transform}. */
+    public void readTransform(JsonValue transformVal, Transform transform) {
         JsonValue posVal = transformVal.get("position");
         if (posVal != null) {
             transform.setLocalPosition(

@@ -1,0 +1,6 @@
+# Build context excludes for editor-desktop/deploy/stream/Dockerfile (BuildKit reads <Dockerfile>.dockerignore)
+.git
+.gradle
+**/build
+.idea
+*.iml

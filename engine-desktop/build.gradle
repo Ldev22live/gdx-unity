@@ -3,7 +3,14 @@ eclipse.project.name = appName + '-engine-desktop'
 
 apply plugin: 'application'
 
-sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+// Game runtime (TD-035): plays a scene file from a project folder; assets are read from that folder, not the classpath
+sourceSets {
+  // The project's scripts, compiled ahead of time for :engine-desktop:run (the runtime has no compiler)
+  gameScripts {
+    java.srcDirs = [ rootProject.file('assets/scripts') ]
+    compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+  }
+}
 application.mainClass = 'io.github.ldev22live.gdxunity.engine.desktop.DesktopLauncher'
 application.applicationName = appName
 java.sourceCompatibility = 21
@@ -16,27 +23,86 @@ dependencies {
   implementation project(':engine-core')
   implementation project(':engine-scene')
   implementation project(':engine-render')
+  implementation project(':engine-visualscript')
+  implementation project(':engine-animation')
+  implementation project(':engine-audio')
+  // Jolt 3D physics (TD-028)
+  implementation project(':engine-physics')
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+  // Native message box for an exported game's startup failures (TD-046); same version as the editor's file dialogs
+  implementation "org.lwjgl:lwjgl-tinyfd:$backendLwjglVersion"
+  ["natives-windows", "natives-linux", "natives-linux-arm64", "natives-macos", "natives-macos-arm64"].each { platform ->
+    runtimeOnly "org.lwjgl:lwjgl-tinyfd:$backendLwjglVersion:$platform"
+  }
 
   testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"
   testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.0"
+  testImplementation "org.mockito:mockito-core:$mockitoVersion"
   testRuntimeOnly "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
 }
 
 test {
   useJUnitPlatform()
+  // BackendSupportMatrixTest (roadmap M9.4) reads these, so editing either reruns it
+  inputs.file(rootProject.file('docs/BACKEND_SUPPORT_MATRIX.md')).withPropertyName('backendSupportMatrix')
+  inputs.file(rootProject.file('engine-babylon/src/runtime/SceneBuilder.ts')).withPropertyName('babylonSceneBuilder')
 }
 
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+// Plays a sample by default; pass --args="--scene <file>" for another scene of assets/
 run {
+  dependsOn gameScriptsClasses
   workingDir = rootProject.file('assets').path
+  args = ['--scene', 'samples/platformer-2d.json']
+  systemProperty 'gdxunity.scripts', sourceSets.gameScripts.java.destinationDirectory.get().asFile.path
   jvmArgs += "--enable-native-access=ALL-UNNAMED"
   def os = System.properties['os.name'].toLowerCase(Locale.ROOT)
   if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
+}
+
+// Roadmap M9.5: performance baselines (docs/PERFORMANCE_BASELINES.md). Each scene plays in a fresh game runtime; the medians go to
+// -PperfOut (default build/perf/current.tsv), -PperfRuns runs per scene (default 3), -PperfScenes a subset. The large map is written by
+// `./gradlew :engine-desktop:test --tests "*LargeTerrainMapTest"`; run that first.
+def perfScenes = ['samples/platformer-2d.json', 'samples/tilemap-platformer-2d.json', 'samples/hopper-3d.json',
+                  'samples/racing-3d.json', 'samples/landscape-3d.json', 'samples/materials-3d.json',
+                  'samples/humanoid-animations-3d.json', 'samples/physics-mesh-3d.json', 'samples/terrain-3d.json',
+                  'samples/action-rpg-valley-3d.json']
+def perfLargeMap = file('build/m3-8-large-map')
+tasks.register('perfBaseline', JavaExec) {
+  group = 'verification'
+  description = 'Plays the baseline scenes in the game runtime and writes their performance (roadmap M9.5)'
+  dependsOn gameScriptsClasses
+  classpath = sourceSets.main.runtimeClasspath
+  mainClass = 'io.github.ldev22live.gdxunity.engine.desktop.PerformanceBaseline'
+  workingDir = rootProject.file('assets').path
+  systemProperty 'gdxunity.scripts', sourceSets.gameScripts.java.destinationDirectory.get().asFile.path
+  jvmArgs += "--enable-native-access=ALL-UNNAMED"
+  def out = project.findProperty('perfOut') ?: file('build/perf/current.tsv').path
+  // -PperfScenes=a.json,b.json measures only those scenes of assets/ (and not the large map)
+  def only = project.findProperty('perfScenes')
+  args = ['record', file(out).path, '--runs', (project.findProperty('perfRuns') ?: '3').toString()] +
+    (only ? only.toString().split(',').toList() : perfScenes + ['--project', perfLargeMap.path, 'scenes/Large.json'])
+  doFirst {
+    if (!only && !new File(perfLargeMap, 'scenes/Large.json').isFile()) {
+      throw new GradleException("The large map is missing: run ./gradlew :engine-desktop:test --tests \"*LargeTerrainMapTest\" first")
+    }
+  }
+}
+// Compares -PperfCurrent (default build/perf/current.tsv) with -PperfBaselineFile (default this OS's file in docs/performance)
+tasks.register('perfCompare', JavaExec) {
+  group = 'verification'
+  description = 'Lists what got slower or bigger than the recorded performance baseline (roadmap M9.5)'
+  classpath = sourceSets.main.runtimeClasspath
+  mainClass = 'io.github.ldev22live.gdxunity.engine.desktop.PerformanceBaseline'
+  def os = System.properties['os.name'].toLowerCase(Locale.ROOT)
+  def osName = os.contains('win') ? 'windows' : os.contains('mac') ? 'macos' : 'linux'
+  def baseline = project.findProperty('perfBaselineFile') ?: rootProject.file("docs/performance/baseline-${osName}.tsv").path
+  def current = project.findProperty('perfCurrent') ?: file('build/perf/current.tsv').path
+  args = ['compare', file(baseline).path, file(current).path]
 }

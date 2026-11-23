@@ -64,11 +64,13 @@ public class AgentPlanExecutor {
 
             // Execute tool
             try {
-                if (tool.isReadOnly()) {
+                if (tool.isReadOnly() || tool.actsOutsideUndoHistory()) {
+                    // Inspections, and actions the editor never records as undo steps (Play, Stop, the game genre)
                     AgentToolResult result = tool.execute(resolvedParams, context);
                     if (!result.isSuccess()) {
                         rollback(executedCommands);
-                        return AgentPlanExecutionResult.rolledBack(stepId, "Read-only tool failed at step '" + stepId + "': " + result.getMessage(), result.getError());
+                        return AgentPlanExecutionResult.rolledBack(stepId, (tool.isReadOnly() ? "Read-only tool" : "Tool")
+                            + " failed at step '" + stepId + "': " + result.getMessage(), result.getError());
                     }
                     stepOutputs.put(stepId, result.getOutputs());
                 } else {

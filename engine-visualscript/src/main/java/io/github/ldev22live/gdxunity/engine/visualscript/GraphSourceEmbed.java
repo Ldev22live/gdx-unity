@@ -1,0 +1,112 @@
+package io.github.ldev22live.gdxunity.engine.visualscript;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Carries a graph inside the source generated from it, so Java, Kotlin and TypeScript scripts can travel between the
+ * desktop and the web editor (TD-045). The graph is the {@code .graph} JSON as base64 in {@code //} comment lines at the
+ * end of the file, which all three languages accept. Importing reads the graph back and the other editor can generate its
+ * own language from it. The web editor writes and reads the same block ({@code sourceEmbed.ts}).
+ * <p>
+ * Only the embedded graph is read back: edits made to the code itself are not converted, but {@link #findEdit} names the first one.
+ */
+public final class GraphSourceEmbed {
+
+    /** First line of the block; the version lets a later format change be told apart. */
+    public static final String BEGIN = "// forgeroom-graph:begin v1";
+    /** Last line of the block. */
+    public static final String END = "// forgeroom-graph:end";
+    /** Prefix of each base64 line. */
+    private static final String LINE_PREFIX = "// ";
+    /** Base64 characters per comment line. */
+    private static final int LINE_WIDTH = 100;
+
+    private GraphSourceEmbed() {}
+
+    /** {@code source} with the block for {@code graph} appended. */
+    public static String append(String source, Graph graph) {
+        Objects.requireNonNull(source, "source cannot be null");
+        Objects.requireNonNull(graph, "graph cannot be null");
+        String encoded = Base64.getEncoder().encodeToString(GraphSerializer.toJson(graph).getBytes(StandardCharsets.UTF_8));
+        StringBuilder out = new StringBuilder(source);
+        if (!source.endsWith("\n")) {
+            out.append('\n');
+        }
+        out.append('\n')
+            .append("// The block below lets Forgeroom (desktop or web) turn this script back into a graph. Keep it to be able to\n")
+            .append("// import the script into the other editor; changes made to the code above are not read back.\n")
+            .append(BEGIN).append('\n');
+        for (int i = 0; i < encoded.length(); i += LINE_WIDTH) {
+            out.append(LINE_PREFIX).append(encoded, i, Math.min(encoded.length(), i + LINE_WIDTH)).append('\n');
+        }
+        return out.append(END).append('\n').toString();
+    }
+
+    /** A line of a script that is not what its embedded graph generates (see {@link #findEdit}); {@code line} counts from 1. */
+    public record Edit(int line, String text) {}
+
+    /**
+     * Finds the first place where {@code source} differs from {@code generated}, the script the embedded graph generates now (TD-065,
+     * part B). Importing a script reads only the embedded graph, so a line changed by hand is not read back; this tells the user which
+     * line, so the edit is not lost without notice. Line endings and trailing spaces do not count.
+     *
+     * @return the first differing line of {@code source} (a missing or extra line is reported as such), or null when they are the same
+     */
+    public static Edit findEdit(String source, String generated) {
+        Objects.requireNonNull(source, "source cannot be null");
+        Objects.requireNonNull(generated, "generated cannot be null");
+        // A file ends with a newline whether or not it has more lines: compare the lines, not the ending
+        String[] actual = source.replace("\r\n", "\n").stripTrailing().split("\n", -1);
+        String[] expected = generated.replace("\r\n", "\n").stripTrailing().split("\n", -1);
+        int shared = Math.min(actual.length, expected.length);
+        for (int i = 0; i < shared; i++) {
+            if (!actual[i].stripTrailing().equals(expected[i].stripTrailing())) {
+                return new Edit(i + 1, actual[i].strip());
+            }
+        }
+        if (actual.length > expected.length) {
+            return new Edit(shared + 1, "(an extra line: " + actual[shared].strip() + ")");
+        }
+        if (actual.length < expected.length) {
+            return new Edit(shared + 1, "(a line is missing: " + expected[shared].strip() + ")");
+        }
+        return null;
+    }
+
+    /** Whether {@code source} holds a block written by {@link #append}. */
+    public static boolean hasGraph(String source) {
+        return source != null && source.contains(BEGIN) && source.contains(END);
+    }
+
+    /**
+     * Reads the graph out of the block.
+     *
+     * @throws IllegalArgumentException when the source has no block, or the block is damaged
+     */
+    public static Graph extract(String source) {
+        Objects.requireNonNull(source, "source cannot be null");
+        int begin = source.indexOf(BEGIN);
+        int end = begin < 0 ? -1 : source.indexOf(END, begin);
+        if (begin < 0 || end < 0) {
+            throw new IllegalArgumentException("This file has no embedded graph. Only scripts generated by Forgeroom can be imported.");
+        }
+        List<String> lines = new ArrayList<>(List.of(source.substring(begin + BEGIN.length(), end).split("\\R")));
+        StringBuilder encoded = new StringBuilder();
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.startsWith("//")) {
+                encoded.append(trimmed.substring(2).trim());
+            }
+        }
+        try {
+            String json = new String(Base64.getDecoder().decode(encoded.toString()), StandardCharsets.UTF_8);
+            return GraphSerializer.fromJson(json);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("The embedded graph is damaged: " + e.getMessage(), e);
+        }
+    }
+}

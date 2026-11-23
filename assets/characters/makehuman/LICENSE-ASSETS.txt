@@ -1,0 +1,5 @@
+The files in this folder are converted from the MakeHuman community project's bundled assets (base mesh, morph
+targets, game_engine rig and skin weights), which MakeHuman releases under CC0 1.0 Universal
+(https://creativecommons.org/publicdomain/zero/1.0/). Authors named in the sources: MakeHuman Team,
+Data Collection AB, Joel Palmius, Jonas Hauquier. Only data was used; none of MakeHuman's AGPL program code.
+Source: https://www.makehumancommunity.org/

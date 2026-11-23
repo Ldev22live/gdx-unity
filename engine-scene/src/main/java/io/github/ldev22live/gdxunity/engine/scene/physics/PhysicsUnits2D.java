@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 /**
- * Single source of truth for converting between GdxUnity scene coordinates (pixels)
+ * Single source of truth for converting between Forgeroom scene coordinates (pixels)
  * and Box2D physics coordinates (meters).
  */
 public final class PhysicsUnits2D {

@@ -1,0 +1,61 @@
+body.editor { height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+.editor #bar { flex-wrap: wrap; }
+.editor .sep { width: 1px; align-self: stretch; background: #2a2e3a; margin: 0 4px; }
+.editor .title { margin-left: auto; font-size: 12px; opacity: 0.8; }
+.editor .link { color: #5aa0ff; font-size: 12px; text-decoration: none; }
+.editor button.active { background: #3b5b8f; border-color: #5aa0ff; }
+.editor button.primary { background: #2f6f3f; border-color: #3f9a56; }
+#dirty { color: #ffb347; }
+
+#workspace[hidden] { display: none; }
+#workspace { display: grid; grid-template-columns: 260px 1fr 320px; min-height: 0; }
+#left, #right { background: #1a1d25; overflow: auto; min-height: 0; }
+#left { border-right: 1px solid #2a2e3a; }
+#right { border-left: 1px solid #2a2e3a; }
+#workspace h2 { margin: 0; padding: 6px 10px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; border-bottom: 1px solid #2a2e3a; }
+#stage { position: relative; min-width: 0; min-height: 0; }
+#stage canvas { width: 100%; height: 100%; display: block; outline: none; }
+
+#hierarchy { padding: 4px 0; }
+#hierarchy .row { display: flex; align-items: center; gap: 4px; padding: 2px 6px; cursor: default; user-select: none; font-size: 13px; }
+#hierarchy .row:hover { background: #242836; }
+#hierarchy .row.selected { background: #2d4a78; }
+#hierarchy .row.inactive .name { opacity: 0.45; }
+#hierarchy .row.drop { outline: 1px dashed #5aa0ff; }
+#hierarchy .toggle { width: 12px; text-align: center; opacity: 0.7; cursor: pointer; }
+#hierarchy .kind { width: 16px; text-align: center; opacity: 0.7; font-size: 11px; }
+.empty { padding: 12px; opacity: 0.6; font-size: 12px; }
+
+#inspector { padding-bottom: 24px; }
+#inspector .section { padding: 8px 10px; border-bottom: 1px solid #262a36; }
+#inspector h3 { margin: 0 0 6px; font-size: 12px; display: flex; align-items: center; gap: 6px; }
+#inspector h3 button { margin-left: auto; }
+#inspector label { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 3px 0; font-size: 12px; }
+#inspector label.inline { justify-content: flex-start; }
+#inspector input[type="text"], #inspector input[type="number"], #inspector select { width: 150px; background: #12141a; color: inherit; border: 1px solid #343949; border-radius: 3px; padding: 2px 4px; font: inherit; }
+#inspector .vec { display: flex; align-items: center; gap: 4px; margin: 3px 0; }
+#inspector .vec .label { width: 56px; font-size: 12px; }
+#inspector .vec input { width: 62px; }
+#inspector .group { margin: 4px 0 4px 8px; padding-left: 8px; border-left: 2px solid #2a2e3a; }
+#inspector .group .label { font-size: 11px; opacity: 0.7; }
+#inspector button.small { padding: 0 6px; font-size: 11px; }
+
+body.editor #status { margin-left: 0; }
+#status { padding: 4px 10px; font-size: 12px; background: #1d2029; border-top: 1px solid #2a2e3a; min-height: 1.4em; }
+#status.error { color: #ff8585; }
+
+/* Sculpt mode: a brush panel over the view */
+#sculpt-bar { position: absolute; top: 8px; left: 8px; width: 230px; background: rgba(26, 29, 37, 0.92); border: 1px solid #2a2e3a; border-radius: 6px; padding: 8px; font-size: 12px; z-index: 5; }
+#sculpt-bar[hidden] { display: none; }
+#sculpt-bar .row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 6px; }
+#sculpt-bar .row.title { justify-content: space-between; font-weight: bold; }
+#sculpt-bar label { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 0; }
+#sculpt-bar label.inline { justify-content: flex-start; gap: 4px; margin: 0; }
+#sculpt-bar input[type="range"] { width: 130px; }
+#sculpt-bar select { background: #12141a; color: inherit; border: 1px solid #343949; border-radius: 3px; }
+#sculpt-bar button { padding: 2px 6px; font-size: 12px; }
+#sculpt-bar button.active { background: #3b5b8f; border-color: #5aa0ff; }
+body.sculpting #tool-sculpt { background: #3b5b8f; border-color: #5aa0ff; }
+
+/* While a game plays the editing panels are visible but read-only */
+body.playing #left, body.playing #right { opacity: 0.45; pointer-events: none; }

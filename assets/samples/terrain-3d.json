@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "name": "Terrain Valley",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "4816a558-c5d3-5da0-ae7e-1a5782781d0e",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "64db399f-7e0f-5709-ad5e-a6ac5200342a",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.76,
+            "skyB": 0.94,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "42e4d4f3-25ac-5b2b-acde-17bcf275e59e",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 1700.0,
+          "z": 4300.0
+        },
+        "rotation": {
+          "x": -0.2164,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9763
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        },
+        {
+          "type": "CameraRigComponent",
+          "enabled": true,
+          "data": {
+            "mode": "FOLLOW",
+            "targetName": "Hero",
+            "followOffsetX": 0.0,
+            "followOffsetY": 420.0,
+            "followOffsetZ": 560.0,
+            "followRate": 6.0,
+            "pivotHeight": 0.0,
+            "eyeHeight": 70.0,
+            "yaw": 0.0,
+            "pitch": -20.0,
+            "minPitch": -80.0,
+            "maxPitch": 60.0,
+            "distance": 400.0,
+            "minDistance": 100.0,
+            "maxDistance": 1200.0,
+            "occlusionEnabled": false,
+            "occlusionMargin": 20.0,
+            "occlusionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "e9ce2f97-328a-574a-baaf-4b87ae599881",
+      "name": "Valley",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "Terrain",
+          "enabled": true,
+          "data": {
+            "terrainPath": "terrains/Valley.terrain"
+          }
+        },
+        {
+          "type": "TerrainCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "3d5adb5d-2b65-55ac-8de4-2bad25246f54",
+      "name": "Hero",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 70.81593738941751,
+          "z": 1500.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 140.0,
+            "sizeZ": 60.0,
+            "colorR": 0.9,
+            "colorG": 0.35,
+            "colorB": 0.3,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "CharacterController3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 30.0,
+            "height": 80.0,
+            "slopeLimitDegrees": 45.0,
+            "stepHeight": 30.0,
+            "mass": 70.0,
+            "gravityScale": 1.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "GraphScriptComponent",
+          "enabled": true,
+          "data": {
+            "graph": "graphs/samples/ValleyWalker.graph"
+          }
+        }
+      ]
+    },
+    {
+      "id": "33b11580-fc86-5639-bc48-7c57d0bff191",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Select Valley and open Details: Paint turns on the terrain brush. Drag to reshape, Ctrl inverts, Shift smooths, Alt-drag orbits. Every stroke is undoable and saved. Press Play: WASD or the arrows walk Hero, Space jumps; slopes steeper than 45 degrees cannot be climbed, and Hero slides down them.",
+            "colorR": 0.9,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 24.0
+          }
+        }
+      ]
+    }
+  ]
+}

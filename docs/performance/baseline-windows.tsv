@@ -1,0 +1,16 @@
+# Forgeroom performance baseline (roadmap M9.5); medians of 3 run(s) per scene, 330 frames each, the first 30 not measured
+# Machine: Windows 11 Pro 10.0.26300 amd64, 8 processors; Java 21 (Gradle toolchain); the GPU is in each row
+# Frame times wait for the GPU to finish (glFinish), so vsync does not hide them; heap is the Java heap only, not native memory
+# Recorded 2026-11-18 in three sessions the same way (the first was stopped by the host for low memory after 7 scenes); scenes/Large.json is the M3.8 large map, engine-desktop/build/m3-8-large-map
+scene	frames	parseMs	startMs	firstFrameMs	frameMeanMs	frameP50Ms	frameP95Ms	frameMaxMs	terrainTriangles	heapPeakMb	heapRetainedMb	audioLatencyMs	audioBlockMs	audioBlockMaxMs	gpu
+samples/platformer-2d.json	300	114.87	154.29	210.35	2.00	1.64	3.66	4.90	0	15.80	4.84	37.73	0.19	3.65	Intel(R) Iris(R) Xe Graphics
+samples/tilemap-platformer-2d.json	300	94.89	86.27	350.28	1.90	1.70	2.99	3.80	0	98.03	4.46	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/hopper-3d.json	300	187.92	141.89	436.84	2.44	2.01	4.06	5.41	0	103.45	5.21	37.73	0.01	0.27	Intel(R) Iris(R) Xe Graphics
+samples/racing-3d.json	300	184.93	174.66	384.84	6.36	6.19	8.29	16.87	0	93.56	7.12	37.73	1.01	10.33	Intel(R) Iris(R) Xe Graphics
+samples/landscape-3d.json	300	131.08	74.39	453.43	3.70	3.59	4.63	5.98	0	138.12	5.07	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/materials-3d.json	300	144.60	72.84	509.74	4.45	4.29	5.47	18.82	0	101.98	5.35	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/humanoid-animations-3d.json	300	195.10	111.58	427.27	3.56	3.12	5.96	13.58	0	135.45	5.00	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/physics-mesh-3d.json	300	125.52	284.52	746.79	3.20	2.61	4.14	65.08	0	119.71	5.93	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/terrain-3d.json	300	102.36	211.17	459.01	5.27	5.15	6.68	12.44	21504	116.30	5.85	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/action-rpg-valley-3d.json	300	145.38	369.31	432.42	5.05	4.92	6.29	8.86	21504	115.15	6.10	-	-	-	Intel(R) Iris(R) Xe Graphics
+scenes/Large.json	300	147.13	84.11	1610.19	14.89	11.54	32.28	71.56	94784	84.65	27.52	-	-	-	Intel(R) Iris(R) Xe Graphics

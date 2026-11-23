@@ -1,0 +1,787 @@
+{
+  "schemaVersion": 1,
+  "name": "Physics Mesh Colliders 3D",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "32dbb77c-80b6-5abc-9fcf-a30bf6e122c5",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "721155ca-6626-583c-996f-52c7dd3f1803",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 520.0,
+          "z": 1100.0
+        },
+        "rotation": {
+          "x": -0.17364956078872135,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9848075091295172
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 60.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6a4620e4-6453-5e37-b149-1ea7d1532199",
+      "name": "Terrain",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/physics-mesh-terrain.gltf",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "MeshCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "STATIC",
+            "mass": 1.0,
+            "linearDamping": 0.05,
+            "angularDamping": 0.05,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "1c3ed304-1590-50e1-91cc-180fb57cf5ac",
+      "name": "Ball 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 20.0,
+          "y": 146.66666666666669,
+          "z": -80.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.25,
+            "colorG": 0.55,
+            "colorB": 1.0,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 20.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.5,
+            "angularDamping": 0.5,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.1,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "444ef502-1dce-503d-8fe5-55e8ee6e2265",
+      "name": "Ball 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 55.0,
+          "y": 168.33333333333331,
+          "z": -25.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.45,
+            "colorG": 0.55,
+            "colorB": 0.8,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 20.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.5,
+            "angularDamping": 0.5,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.1,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "eed0bffc-eb80-55bc-9b4f-5ee012cc05f6",
+      "name": "Ball 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 90.0,
+          "y": 190.0,
+          "z": 30.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.65,
+            "colorG": 0.55,
+            "colorB": 0.6,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 20.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.5,
+            "angularDamping": 0.5,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.1,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "975142b8-e419-590d-afcf-b1366ca7304b",
+      "name": "Ball 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 125.0,
+          "y": 211.66666666666666,
+          "z": 85.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 40.0,
+            "sizeY": 40.0,
+            "sizeZ": 40.0,
+            "colorR": 0.8500000000000001,
+            "colorG": 0.55,
+            "colorB": 0.3999999999999999,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "SphereCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "radius": 20.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 1.0,
+            "linearDamping": 0.5,
+            "angularDamping": 0.5,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.1,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "bb38a9ef-69bd-5722-950b-699da1500b0d",
+      "name": "Box 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 440.0,
+          "y": 330.0,
+          "z": -10.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 50.0,
+            "sizeY": 50.0,
+            "sizeZ": 50.0,
+            "colorR": 0.95,
+            "colorG": 0.65,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 50.0,
+            "sizeY": 50.0,
+            "sizeZ": 50.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.2,
+            "angularDamping": 0.2,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.1,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "48c72586-ecf6-5ccc-bab1-b4f38283309e",
+      "name": "Box 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 458.0,
+          "y": 450.0,
+          "z": 4.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 50.0,
+            "sizeY": 50.0,
+            "sizeZ": 50.0,
+            "colorR": 0.95,
+            "colorG": 0.5,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 50.0,
+            "sizeY": 50.0,
+            "sizeZ": 50.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.2,
+            "angularDamping": 0.2,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.1,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "3ac690f8-0dc8-5280-b661-f697e2e9774e",
+      "name": "Box 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 476.0,
+          "y": 570.0,
+          "z": 18.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 50.0,
+            "sizeY": 50.0,
+            "sizeZ": 50.0,
+            "colorR": 0.95,
+            "colorG": 0.35000000000000003,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 50.0,
+            "sizeY": 50.0,
+            "sizeZ": 50.0
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 2.0,
+            "linearDamping": 0.2,
+            "angularDamping": 0.2,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.1,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "bd4c502d-129a-5b74-8166-2adb819e496c",
+      "name": "Hull Rock 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -330.0,
+          "y": 500.0,
+          "z": 60.0
+        },
+        "rotation": {
+          "x": 0.201374031110059,
+          "y": 0.3020610466650885,
+          "z": 0.1006870155550295,
+          "w": 0.9263205431062713
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 50.0,
+            "sizeZ": 60.0,
+            "colorR": 0.6,
+            "colorG": 0.6,
+            "colorB": 0.65,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "ConvexHullCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 3.0,
+            "linearDamping": 0.2,
+            "angularDamping": 0.2,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.1,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "08e21bd2-1d53-5cd3-962c-6b2a4db9f158",
+      "name": "Hull Rock 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -210.0,
+          "y": 580.0,
+          "z": -60.0
+        },
+        "rotation": {
+          "x": 0.201374031110059,
+          "y": 0.3020610466650885,
+          "z": 0.1006870155550295,
+          "w": 0.9263205431062713
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 50.0,
+            "sizeZ": 60.0,
+            "colorR": 0.6,
+            "colorG": 0.6,
+            "colorB": 0.65,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "ConvexHullCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        },
+        {
+          "type": "RigidBody3DComponent",
+          "enabled": true,
+          "data": {
+            "motionType": "DYNAMIC",
+            "mass": 3.0,
+            "linearDamping": 0.2,
+            "angularDamping": 0.2,
+            "gravityFactor": 1.0,
+            "friction": 0.6,
+            "restitution": 0.1,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        }
+      ]
+    },
+    {
+      "id": "5b734ba7-a9db-5d4f-a242-36b856b809bc",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Mesh colliders: a glTF terrain with a ramp and a bowl as a Mesh Collider 3D; balls, boxes and convex hull rocks fall on it",
+            "colorR": 0.8,
+            "colorG": 0.85,
+            "colorB": 0.95,
+            "colorA": 1,
+            "scale": 1.2,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 32.0
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3019 @@
+{
+  "schemaVersion": 1,
+  "name": "Autumn Forest",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "366605c7-72f2-5bb5-9924-d04202a38fc3",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 4000.0,
+          "z": 2000.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.5,
+            "directionY": -0.7,
+            "directionZ": -0.4,
+            "colorR": 1.0,
+            "colorG": 0.84,
+            "colorB": 0.58,
+            "colorA": 1.0,
+            "intensity": 1.15,
+            "castShadows": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "eee51d95-bec3-575e-b499-5d6605e46e61",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.8,
+            "skyG": 0.83,
+            "skyB": 0.88,
+            "groundR": 0.45,
+            "groundG": 0.34,
+            "groundB": 0.2,
+            "intensity": 0.8
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "70f985bf-19d5-5705-a50a-3e65386da8f7",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 2300.0,
+          "z": 4400.0
+        },
+        "rotation": {
+          "x": -0.20791169081775934,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9781476007338057
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 62.0,
+            "nearPlane": 1.0,
+            "farPlane": 60000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b2d16aee-7e1e-53c5-abfa-b3ad052440aa",
+      "name": "Terrain",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-terrain.gltf",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "df1cde0a-0d1a-508f-a5bc-5515c23d76c1",
+      "name": "Pond",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 900.0,
+          "y": -114.99999999999999,
+          "z": -300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/lake.gltf",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "341e4136-a78e-5517-a197-c9d501cfba15",
+      "name": "Red Oak 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -666.28413602368,
+          "y": 93.59978484802096,
+          "z": -1507.972556661339
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.267406250172876,
+          "z": 0.0,
+          "w": -0.9635838818538225
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-red.gltf",
+            "importScale": 92.47165259413607,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f57c2edb-b4c8-55e7-ab3c-4bd16f0e88ff",
+      "name": "Red Oak 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 436.458541601219,
+          "y": 22.491809491339396,
+          "z": 1064.7428809654962
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9338174721460315,
+          "z": 0.0,
+          "w": 0.35774981301853365
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-red.gltf",
+            "importScale": 109.88767640631929,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "196342aa-1065-5390-9ea5-01cc8d776ac5",
+      "name": "Red Oak 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1574.7735783070063,
+          "y": 39.370745823568434,
+          "z": 904.8534452015609
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9819290370508337,
+          "z": 0.0,
+          "w": 0.18924948136368172
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-red.gltf",
+            "importScale": 122.76841078568263,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8cf54276-4c44-5626-86ca-e8ed1363f9e9",
+      "name": "Red Oak 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1931.7232435544947,
+          "y": 64.58240407441725,
+          "z": -1960.9236785185544
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5022948165558415,
+          "z": 0.0,
+          "w": 0.8646964306975793
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-red.gltf",
+            "importScale": 117.54263523481627,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f2768dd0-f64a-5064-8b34-f6ccfbf498c3",
+      "name": "Red Oak 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1909.8568686474018,
+          "y": 174.29485646088708,
+          "z": -1591.1092608629333
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7452290823840712,
+          "z": 0.0,
+          "w": -0.6668085293163213
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-red.gltf",
+            "importScale": 117.68070933378678,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1c1d41cc-bea3-5f04-8f17-5927dc52025c",
+      "name": "Red Oak 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2099.9787814219035,
+          "y": 166.5979035022106,
+          "z": 951.7328985319416
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.269257987938475,
+          "z": 0.0,
+          "w": -0.9630680847849357
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-red.gltf",
+            "importScale": 90.56954100311543,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "95e42daf-0dbd-5473-a25d-c3d09cf79f0d",
+      "name": "Red Oak 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -519.7296431630125,
+          "y": 32.93125423597618,
+          "z": 914.7027468406677
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9459065844592351,
+          "z": 0.0,
+          "w": 0.3244391059608318
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-red.gltf",
+            "importScale": 107.19690463451693,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d298fe3a-2d8c-5a14-8bd4-1188961884a8",
+      "name": "Red Oak 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2097.712015878932,
+          "y": 118.7994896304305,
+          "z": 1407.6692692727975
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8755405803451359,
+          "z": 0.0,
+          "w": -0.4831445872292296
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-red.gltf",
+            "importScale": 89.91981673534377,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5eecb5f7-48b7-5ef7-8e89-e31f5c0547db",
+      "name": "Red Oak 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 870.4571185649841,
+          "y": 81.25676810337941,
+          "z": 1397.8590583635182
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9673056549837467,
+          "z": 0.0,
+          "w": 0.25361342597832803
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-red.gltf",
+            "importScale": 112.40754212292563,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0b009c72-114b-57fe-a1d7-513a4ca55ee5",
+      "name": "Orange Oak 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1446.1804536326779,
+          "y": 195.2554398897364,
+          "z": -350.62867079748264
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8444060818216435,
+          "z": 0.0,
+          "w": -0.5357036204680905
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 118.00395846876725,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "432f71cb-6cf8-5ef8-be4f-0e846901c395",
+      "name": "Orange Oak 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -500.56808279472875,
+          "y": 34.443768882622315,
+          "z": -279.91628300578526
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7623245549774968,
+          "z": 0.0,
+          "w": 0.6471949264930631
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 128.5433696216658,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "39116bda-5196-511f-9f26-247f846ada04",
+      "name": "Orange Oak 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -673.049333610782,
+          "y": 60.938238153454684,
+          "z": 2156.662649292914
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7459053955907232,
+          "z": 0.0,
+          "w": -0.6660519055063551
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 118.80054470037551,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "534e3685-ef99-57e6-b15e-3c6829b2f594",
+      "name": "Orange Oak 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1471.6345856576331,
+          "y": 226.10172996508004,
+          "z": 375.3997228079079
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.859251330582654,
+          "z": 0.0,
+          "w": 0.5115536637459834
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 91.98174597453634,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6572faf8-f013-5e72-8de3-1b91d05e31d1",
+      "name": "Orange Oak 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1521.1074370775198,
+          "y": 134.23314406221024,
+          "z": 986.0929015348702
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.007782822394119646,
+          "z": 0.0,
+          "w": -0.9999697133791511
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 90.33322488529254,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "115d08ae-6ece-5dc9-b71c-a663824157dd",
+      "name": "Orange Oak 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 838.3245494279934,
+          "y": 139.1187709130283,
+          "z": -1808.751327522366
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6284091705916185,
+          "z": 0.0,
+          "w": -0.777882969550275
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 117.74632777102596,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f1efc651-25e1-5615-ada8-9074a45c47ae",
+      "name": "Orange Oak 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2274.702219288151,
+          "y": 106.58413286556505,
+          "z": -1076.4929593348147
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.44294698885824196,
+          "z": 0.0,
+          "w": -0.8965478041138779
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 91.82906282435619,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8a09d835-3b97-5e90-bd6e-edf21b2c835b",
+      "name": "Orange Oak 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 627.0080185784182,
+          "y": 39.08720161461909,
+          "z": 1845.2965370495783
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7693999465674276,
+          "z": 0.0,
+          "w": 0.6387673459265427
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 124.10168716160659,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0580b196-1e3f-58f7-b99c-d20d3e3099f1",
+      "name": "Orange Oak 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 77.33356239817866,
+          "y": 83.75625478863256,
+          "z": -1968.4244740846489
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9953078818513709,
+          "z": 0.0,
+          "w": -0.0967585671893584
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 114.48192135659131,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "7787ad32-b32f-5b11-b1bf-dbaa900858b9",
+      "name": "Orange Oak 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -87.04475396099944,
+          "y": 18.742659826415263,
+          "z": 1423.1565571487508
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.44462231399712215,
+          "z": 0.0,
+          "w": -0.895718146458943
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 121.12604388663817,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3c73c895-54a3-5fa9-9ff1-18209fa03396",
+      "name": "Orange Oak 11",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1651.4987126206486,
+          "y": 197.69527460366623,
+          "z": -2323.879203183873
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.892167425153474,
+          "z": 0.0,
+          "w": 0.45170486547636435
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-orange.gltf",
+            "importScale": 101.67797712617836,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1c488c15-c6f0-55c7-bdcf-a5881add2f2a",
+      "name": "Yellow Oak 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2219.592607675851,
+          "y": 21.230438827410158,
+          "z": 2320.227051047388
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7612606951412887,
+          "z": 0.0,
+          "w": 0.6484459530546874
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-yellow.gltf",
+            "importScale": 128.3710658729016,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8f69d108-6e92-5132-96d5-24ea8bef8f0e",
+      "name": "Yellow Oak 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2237.9948086129184,
+          "y": 165.75990930864612,
+          "z": -154.67544555650647
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.3489067233703141,
+          "z": 0.0,
+          "w": -0.9371574565605244
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-yellow.gltf",
+            "importScale": 108.85476391573967,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5cb612fa-7993-5465-8ac6-562791a41c06",
+      "name": "Yellow Oak 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1284.6627771775466,
+          "y": 142.82775513660002,
+          "z": -2282.1649642486723
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.016129913364389986,
+          "z": 0.0,
+          "w": -0.9998699044850071
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-yellow.gltf",
+            "importScale": 123.04686707924841,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5dbe789d-8712-537e-9883-b847f587d6be",
+      "name": "Yellow Oak 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 658.1609517673634,
+          "y": 129.254189212726,
+          "z": -2316.0909802754923
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.29863000925976174,
+          "z": 0.0,
+          "w": -0.9543689630166703
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-yellow.gltf",
+            "importScale": 126.5295081337749,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "14053d8d-9189-5660-8be9-7a31e2eba1de",
+      "name": "Yellow Oak 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1290.2598465080102,
+          "y": 31.58249354226424,
+          "z": -1287.0829260500398
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.27377311224397594,
+          "z": 0.0,
+          "w": 0.9617943038988365
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-yellow.gltf",
+            "importScale": 107.15412738255523,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ab1385dd-b818-5bac-b040-8c1addd10b56",
+      "name": "Yellow Oak 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1612.880177989323,
+          "y": 80.33461973548441,
+          "z": 1684.0023382064514
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5213265821802732,
+          "z": 0.0,
+          "w": 0.8533572491707296
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-yellow.gltf",
+            "importScale": 127.99220155410846,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "538161d5-056e-581c-8fc4-9a63920e0c0c",
+      "name": "Yellow Oak 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1983.6355676090407,
+          "y": 70.47026445829697,
+          "z": -1125.523629286472
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7137646973669173,
+          "z": 0.0,
+          "w": -0.7003855772306515
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-yellow.gltf",
+            "importScale": 127.64732925036246,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "dc2743dc-386e-5750-9514-25a4476a7194",
+      "name": "Yellow Oak 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -859.1303200789014,
+          "y": 20.90832081939564,
+          "z": -636.6121329618867
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.448912234739558,
+          "z": 0.0,
+          "w": 0.8935758532442201
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-yellow.gltf",
+            "importScale": 119.37212406604351,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "50632475-f4ab-5e5a-aea0-9d80a7e27937",
+      "name": "Yellow Oak 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2376.528069285424,
+          "y": 32.55507511273566,
+          "z": 526.5250140276663
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6599277514750728,
+          "z": 0.0,
+          "w": 0.7513290642807947
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-oak-yellow.gltf",
+            "importScale": 107.65840605614191,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "09ece8ee-ab90-5c43-8698-f657fa55e280",
+      "name": "Pine 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -328.24538852407875,
+          "y": 91.8484535958886,
+          "z": -2010.7175542197347
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.4908781357000813,
+          "z": 0.0,
+          "w": -0.8712282455772498
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 103.37443193884069,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "78079a79-2ef1-5df6-8910-906cc3dd0b90",
+      "name": "Pine 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1101.931295368904,
+          "y": 264.86519019394444,
+          "z": 68.95707476596833
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8428710523178786,
+          "z": 0.0,
+          "w": -0.5381155908952573
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 93.34087839771983,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ce4e1a4f-9b99-5a70-9385-55a8d00416c5",
+      "name": "Pine 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -170.8489622460739,
+          "y": 23.576751182506804,
+          "z": -1452.7115755309778
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8595020221968105,
+          "z": 0.0,
+          "w": -0.5111323447401793
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 127.21693193582875,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d1197100-782b-534f-94b2-faecd0b1fbc7",
+      "name": "Pine 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2294.13319020076,
+          "y": 87.05820426686061,
+          "z": -2326.5035317456095
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8610633737588795,
+          "z": 0.0,
+          "w": -0.5084976562099143
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 87.2856655538572,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f5a2bf32-1c0d-5116-aed1-f4a85ec3bb67",
+      "name": "Pine 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -913.9794957848093,
+          "y": 193.18943800747311,
+          "z": -1998.974959292803
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6551282454866374,
+          "z": 0.0,
+          "w": 0.7555176913650666
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 101.71544405149034,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "60cac9e7-6241-57eb-b108-4028e92c0c55",
+      "name": "Pine 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1154.8539500264255,
+          "y": 69.54170413177071,
+          "z": -1332.8257292022215
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7867998835830597,
+          "z": 0.0,
+          "w": -0.6172081846457349
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 85.27417860152207,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "079fe8d6-f0e8-592a-8720-90d91980ccdf",
+      "name": "Pine 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2060.7779963762637,
+          "y": 171.304304776606,
+          "z": -657.3661758771304
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8361597617016304,
+          "z": 0.0,
+          "w": -0.5484859641878475
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 112.53484434927053,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "32158521-e1b0-5b3b-a225-8d4332610ac3",
+      "name": "Pine 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 779.3806034831341,
+          "y": 51.99822687184664,
+          "z": -1353.3347934992175
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.23016882238137457,
+          "z": 0.0,
+          "w": -0.9731507145368447
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 124.16698904081065,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ded39f47-3c28-565c-998c-ba72959f5c7c",
+      "name": "Pine 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1102.603426431658,
+          "y": 175.2829979694002,
+          "z": -319.23740418890105
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.15170474030531658,
+          "z": 0.0,
+          "w": -0.9884258554736903
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 118.74095411563897,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9dd01a36-db85-5f60-9221-8c4486579709",
+      "name": "Pine 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1963.3128332134206,
+          "y": 163.8842132183386,
+          "z": -841.3108663053748
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.03047504799713405,
+          "z": 0.0,
+          "w": 0.9995355278576007
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 97.22750652555044,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c06c128b-6cc7-545a-b203-c5224740ef1a",
+      "name": "Pine 11",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -833.8664226120819,
+          "y": 155.67971977664118,
+          "z": 366.41640338628963
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8288099302974563,
+          "z": 0.0,
+          "w": -0.5595302489055668
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 96.62500885041533,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "0c14ba4b-de63-5a87-95c2-5c0318d416fa",
+      "name": "Pine 12",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1314.8181653083113,
+          "y": 155.03614626411536,
+          "z": -1764.2504408314887
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.35149541251369254,
+          "z": 0.0,
+          "w": -0.9361896041838048
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 112.07485341129097,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8f904645-1530-5a5b-be31-f1000e6c4cc3",
+      "name": "Pine 13",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 277.1167555794925,
+          "y": 85.91453475268592,
+          "z": -2337.834798483278
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.3251085344204908,
+          "z": 0.0,
+          "w": 0.9456767105342927
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 91.84741230051775,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ab49ab17-1866-5dc3-821b-209d7d2becf8",
+      "name": "Pine 14",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2203.6575550732764,
+          "y": 229.3456293932656,
+          "z": -2127.929239016889
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9649376202372704,
+          "z": 0.0,
+          "w": -0.2624793116625259
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-pine.gltf",
+            "importScale": 105.81790972884984,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b8dd00ba-cb10-5b9a-8ade-848da5439e6b",
+      "name": "Bush 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2069.258338578951,
+          "y": 184.38665723151834,
+          "z": -1712.3028507609533
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9951986882583267,
+          "z": 0.0,
+          "w": 0.09787528231839708
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 129.90435966914035,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d6e0ae0c-9c1f-5222-ad28-20a678741048",
+      "name": "Bush 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 963.8762999323476,
+          "y": 65.44588896302093,
+          "z": 1104.1330653918621
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8078349488249501,
+          "z": 0.0,
+          "w": 0.5894087677130281
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 105.3635035865068,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "78a85746-439c-5b57-94d3-6ab3f9d9c0ee",
+      "name": "Bush 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -380.5183033107582,
+          "y": 44.02197933892471,
+          "z": 1325.8202030706534
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6061646287208341,
+          "z": 0.0,
+          "w": 0.7953391998938146
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 80.65204779420849,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "65362bc9-5911-5c4f-9e2c-1ab53a7260d7",
+      "name": "Bush 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2044.8849144856488,
+          "y": 101.53945557094244,
+          "z": 403.89935289642483
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.929630989823304,
+          "z": 0.0,
+          "w": 0.3684918218361758
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 133.39008214695556,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f2be1d8d-f664-56e9-80d3-9a157fbb6e1a",
+      "name": "Bush 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1622.5551825005696,
+          "y": 163.25230942088336,
+          "z": -1758.6740816318083
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5573611739836654,
+          "z": 0.0,
+          "w": -0.8302701498521733
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 129.30206191175935,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "00eb059f-fde7-5092-94fe-3a6f6d28d31b",
+      "name": "Bush 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1985.7111467607397,
+          "y": 98.09899245805306,
+          "z": 1230.3345797289296
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.28881888895714797,
+          "z": 0.0,
+          "w": 0.957383752411518
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 122.0673298447098,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "53761e93-4856-51de-bddd-3aa2f64d0d16",
+      "name": "Bush 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -887.591104414885,
+          "y": 228.1484033614495,
+          "z": 162.08037361791946
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6813572722860964,
+          "z": 0.0,
+          "w": 0.7319510007526803
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 104.6303315393486,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "55daf209-fc4b-54a1-ae8c-fae743e3b617",
+      "name": "Bush 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1829.6930797923644,
+          "y": 194.8902672406791,
+          "z": 887.012594548132
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.38817557759758603,
+          "z": 0.0,
+          "w": 0.921585438772109
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 138.05139168703266,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c45c3638-7b11-5311-8f76-d6947d0cf554",
+      "name": "Bush 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1024.4403981661537,
+          "y": 122.82473618223975,
+          "z": -483.68620231270717
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9603984757417806,
+          "z": 0.0,
+          "w": 0.2786301631066966
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 105.96869123895543,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "afec85cb-89da-591c-a537-64ee80a5b4f8",
+      "name": "Bush 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1658.5895094376099,
+          "y": 118.8575490862597,
+          "z": 1939.883630904336
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9280964305240706,
+          "z": 0.0,
+          "w": 0.37233991949357087
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 86.92382277843893,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5ff9cc05-c374-595e-89aa-5e5a8d40dd9c",
+      "name": "Bush 11",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1135.820058056817,
+          "y": 29.725827165349216,
+          "z": 2284.612589578918
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6777216682849441,
+          "z": 0.0,
+          "w": -0.7353185298474887
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 124.24123361236337,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "603607ec-d7c3-5b89-9482-aadd5aaecce3",
+      "name": "Bush 12",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1760.3378704037823,
+          "y": 67.37239719929487,
+          "z": -1858.2069951585936
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9410905203727012,
+          "z": 0.0,
+          "w": -0.3381547463287162
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 109.3508774264981,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "08b87e46-56dc-5d0b-a8dc-c0be94c27efc",
+      "name": "Bush 13",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2194.384535560629,
+          "y": 196.42259605652944,
+          "z": -540.7491869195638
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.4917890628786282,
+          "z": 0.0,
+          "w": -0.8707143720147041
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 96.53943983731695,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5fae052a-ba12-5405-a0ed-c28b5f9e6227",
+      "name": "Bush 14",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1928.307669165492,
+          "y": 193.50878442081523,
+          "z": -2286.7031183974545
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6360264095022874,
+          "z": 0.0,
+          "w": 0.7716672899738776
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 106.30339672841613,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4846d8f4-0fd0-5948-9cf1-3195703e8164",
+      "name": "Bush 15",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -399.9149121762716,
+          "y": 111.46541356350899,
+          "z": -1579.160333679213
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.3056664665819501,
+          "z": 0.0,
+          "w": -0.9521386512516471
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 87.26672019149622,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "11b72862-a26c-53cd-9372-1ee38047156c",
+      "name": "Bush 16",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -673.2033398421777,
+          "y": 26.28198357965772,
+          "z": 1320.6599574566503
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9985201098386153,
+          "z": 0.0,
+          "w": 0.05438373146336759
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 108.82545168766762,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4aa7daf6-70a9-5d40-9212-fb07fad3517e",
+      "name": "Bush 17",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1239.6780846404365,
+          "y": 81.35601573882829,
+          "z": -608.0697244710962
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.19001239723391528,
+          "z": 0.0,
+          "w": -0.981781691058364
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 123.0960573848583,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "52fe99a7-9bce-5ebb-a216-683393e16c05",
+      "name": "Bush 18",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -312.7352260697709,
+          "y": 30.675461368218482,
+          "z": 803.8473848850692
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.8348607699325584,
+          "z": 0.0,
+          "w": -0.5504611655944639
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 127.64439819407971,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "dff7e5ea-15d4-5a88-94a8-78d1f466bfa6",
+      "name": "Bush 19",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -723.4395431523965,
+          "y": 182.86225587751076,
+          "z": -2261.6064775812138
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9300755290916399,
+          "z": 0.0,
+          "w": 0.3673683576261107
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 104.32017577675023,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "053b3213-8093-584a-8d21-cbad6f6586c9",
+      "name": "Bush 20",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1964.1623922386443,
+          "y": 162.39375996723783,
+          "z": -304.2474603635714
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9826403691447415,
+          "z": 0.0,
+          "w": -0.18552063207925482
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 86.95012285197488,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ce9fb096-c6d9-5890-b53f-edb11655a2f9",
+      "name": "Bush 21",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 2407.386936299565,
+          "y": 67.38756164809132,
+          "z": 182.4367998236138
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.13028780190812117,
+          "z": 0.0,
+          "w": 0.9914762168977883
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 91.0688011829445,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "5e7ec065-1053-5981-b6a7-b240d5d9d1c6",
+      "name": "Bush 22",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1094.7475995448042,
+          "y": 173.02325599109253,
+          "z": -1816.6444477801865
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9386207603566036,
+          "z": 0.0,
+          "w": -0.344950820012928
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/autumn-bush.gltf",
+            "importScale": 93.77060089527951,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cfd6d29a-aabf-518e-81df-1f7b0093c329",
+      "name": "Rock 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1490.7350947609068,
+          "y": 97.97438241183906,
+          "z": 2230.371102058077
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.28405651621302497,
+          "z": 0.0,
+          "w": 0.9588075383500693
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/rock.gltf",
+            "importScale": 129.8642806166765,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e61e3011-18dc-5a39-807b-d6a420ef3bcc",
+      "name": "Rock 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1852.7861339395442,
+          "y": 53.820562215048376,
+          "z": 774.6513315443665
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9975467763239669,
+          "z": 0.0,
+          "w": 0.07000306454478566
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/rock.gltf",
+            "importScale": 94.02841070934775,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f7f890a5-035b-5307-aabe-e1dae13e7eeb",
+      "name": "Rock 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2134.0371865641473,
+          "y": 31.19740692934665,
+          "z": -1736.0653831109194
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5565599506886443,
+          "z": 0.0,
+          "w": -0.8308074513925918
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/rock.gltf",
+            "importScale": 94.1031635646149,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "59567036-6b2e-57e5-9194-890163b1eaab",
+      "name": "Rock 4",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -929.771373401773,
+          "y": 74.2111792775964,
+          "z": 1745.0120871196582
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9949303288783113,
+          "z": 0.0,
+          "w": -0.10056659822274634
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/rock.gltf",
+            "importScale": 111.5168327056684,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "49ccde81-9503-59bd-807c-ca6e200ac290",
+      "name": "Rock 5",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2111.6899313670715,
+          "y": 292.22025650351384,
+          "z": -296.8674497656451
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.6401707131818749,
+          "z": 0.0,
+          "w": -0.7682326847929667
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/rock.gltf",
+            "importScale": 97.3600794266766,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d8ea2c7d-e81a-5e52-abb6-79c85a7b7a3b",
+      "name": "Rock 6",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 510.8258018134485,
+          "y": 138.01537624558463,
+          "z": -1891.7928118672303
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7308429244095557,
+          "z": 0.0,
+          "w": 0.68254569066143
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/rock.gltf",
+            "importScale": 66.34634500343792,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "fc71c58a-b9c1-5988-aeff-773c394c3db3",
+      "name": "Rock 7",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -1503.0801956074645,
+          "y": 98.9427808633556,
+          "z": -1592.2309888598497
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9276930933213093,
+          "z": 0.0,
+          "w": -0.37334370840278064
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/rock.gltf",
+            "importScale": 120.09678310649205,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d3342746-1782-5842-bf6b-6658ef6a139b",
+      "name": "Rock 8",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2329.844285975862,
+          "y": 45.141219970101396,
+          "z": 1220.2265846285193
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.9629554152051065,
+          "z": 0.0,
+          "w": -0.26966065402123635
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/rock.gltf",
+            "importScale": 98.9756499854876,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c2af1b03-89b2-5ec8-80b4-dd3f609cf415",
+      "name": "Rock 9",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -2048.1117022243106,
+          "y": 335.43075265180147,
+          "z": 101.15424174271794
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.995512990240145,
+          "z": 0.0,
+          "w": -0.09462497695178092
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/rock.gltf",
+            "importScale": 60.24018917841089,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d01d21e0-4657-5eb3-9e86-e87792292e61",
+      "name": "Rock 10",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1017.1879660856973,
+          "y": 96.91581351889586,
+          "z": 1747.4175548350715
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.38463491296361785,
+          "z": 0.0,
+          "w": -0.9230687860227266
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/rock.gltf",
+            "importScale": 129.48156905205585,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f912d17b-4ba5-5164-9238-c03f1a02d98d",
+      "name": "Cabin",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -229.99999999999963,
+          "y": 8.157312090235722,
+          "z": 679.9999999999995
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/landscape/cabin.gltf",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}

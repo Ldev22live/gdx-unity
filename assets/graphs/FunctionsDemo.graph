@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "kind": "graph",
+  "name": "FunctionsDemo",
+  "variables": [],
+  "nodes": [
+    { "id": "n1", "type": "event.beginPlay", "x": 0, "y": 0, "literals": [], "properties": [] },
+    { "id": "n2", "type": "function.call", "x": 200, "y": 0,
+      "literals": [ { "pin": "x", "type": "FLOAT", "value": 14 } ],
+      "properties": [ { "name": "function", "type": "STRING", "value": "triple" } ] },
+    { "id": "n3", "type": "text.fromFloat", "x": 400, "y": 60, "literals": [], "properties": [] },
+    { "id": "n4", "type": "action.print", "x": 600, "y": 0, "literals": [], "properties": [] },
+    { "id": "n5", "type": "event.custom", "x": 0, "y": 300, "literals": [],
+      "properties": [ { "name": "name", "type": "STRING", "value": "hit" } ] },
+    { "id": "n6", "type": "text.fromFloat", "x": 200, "y": 360, "literals": [], "properties": [] },
+    { "id": "n7", "type": "text.append", "x": 400, "y": 360, "literals": [], "properties": [] },
+    { "id": "n8", "type": "action.print", "x": 600, "y": 300, "literals": [], "properties": [] },
+    { "id": "n9", "type": "event.fire", "x": 800, "y": 0,
+      "literals": [ { "pin": "damage", "type": "FLOAT", "value": 4 }, { "pin": "label", "type": "STRING", "value": "dmg " } ],
+      "properties": [ { "name": "name", "type": "STRING", "value": "hit" } ] },
+    { "id": "n10", "type": "action.print", "x": 1000, "y": 0,
+      "literals": [ { "pin": "message", "type": "STRING", "value": "fired" } ], "properties": [] }
+  ],
+  "links": [
+    { "from": "n1", "fromPin": "then", "to": "n2", "toPin": "exec" },
+    { "from": "n2", "fromPin": "result", "to": "n3", "toPin": "value" },
+    { "from": "n3", "fromPin": "text", "to": "n4", "toPin": "message" },
+    { "from": "n2", "fromPin": "then", "to": "n4", "toPin": "exec" },
+    { "from": "n4", "fromPin": "then", "to": "n9", "toPin": "exec" },
+    { "from": "n5", "fromPin": "damage", "to": "n6", "toPin": "value" },
+    { "from": "n5", "fromPin": "label", "to": "n7", "toPin": "a" },
+    { "from": "n6", "fromPin": "text", "to": "n7", "toPin": "b" },
+    { "from": "n7", "fromPin": "result", "to": "n8", "toPin": "message" },
+    { "from": "n5", "fromPin": "then", "to": "n8", "toPin": "exec" },
+    { "from": "n9", "fromPin": "then", "to": "n10", "toPin": "exec" }
+  ],
+  "events": [
+    { "name": "hit", "params": [ { "name": "damage", "type": "FLOAT" }, { "name": "label", "type": "STRING" } ] }
+  ],
+  "functions": [
+    { "name": "triple",
+      "inputs": [ { "name": "x", "type": "FLOAT" } ],
+      "outputs": [ { "name": "result", "type": "FLOAT" } ],
+      "nodes": [
+        { "id": "n1", "type": "function.entry", "x": 0, "y": 0, "literals": [], "properties": [] },
+        { "id": "n2", "type": "math.multiply", "x": 200, "y": 60,
+          "literals": [ { "pin": "b", "type": "FLOAT", "value": 3 } ], "properties": [] },
+        { "id": "n3", "type": "function.return", "x": 400, "y": 0, "literals": [], "properties": [] }
+      ],
+      "links": [
+        { "from": "n1", "fromPin": "x", "to": "n2", "toPin": "a" },
+        { "from": "n2", "fromPin": "result", "to": "n3", "toPin": "result" },
+        { "from": "n1", "fromPin": "then", "to": "n3", "toPin": "exec" }
+      ] }
+  ]
+}

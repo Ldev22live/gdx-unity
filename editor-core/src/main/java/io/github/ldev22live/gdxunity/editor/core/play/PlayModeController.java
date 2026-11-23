@@ -1,6 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.core.play;
 
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.engine.core.profile.FrameProfiler;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
@@ -25,9 +26,31 @@ public class PlayModeController {
         void onPlayModeStateChanged(PlayModeState oldState, PlayModeState newState);
     }
 
+    /**
+     * Runtime systems that live outside editor-core (for example visual scripting, TD-029) and must start and stop
+     * with play. {@link #onPlay} runs after scripts and 2D physics are ready, before the first update.
+     */
+    public interface Extension {
+        /**
+         * Called before the authored scene is copied for play, so temporary editor changes to it (such as a Timeline
+         * preview pose) can be undone first and are not carried into play.
+         */
+        default void beforePlay(Scene authoredScene) {
+        }
+
+        /** @return problems that prevent playing; empty to allow play */
+        List<String> onPlay(Scene runtimeScene, PlayModeController controller);
+
+        /** Called before the runtime scene is disposed, also after a failed {@link #onPlay}. */
+        void onStop(Scene runtimeScene);
+    }
+
     private final EditorState editorState;
     private final SceneSerializer serializer;
     private final List<Listener> listeners = new CopyOnWriteArrayList<>();
+    private final List<Extension> extensions = new CopyOnWriteArrayList<>();
+    /** The genre profile step (TD-088), always the first extension. */
+    private final ProfilePlayStep profileStep = new ProfilePlayStep();
 
     private PlayModeState state = PlayModeState.STOPPED;
 
@@ -37,8 +60,16 @@ public class PlayModeController {
     private Scene runtimeScene;
     // Runtime 2D physics system (only active during Play mode)
     private io.github.ldev22live.gdxunity.engine.scene.physics.PhysicsSystem2D physicsSystem;
+    // Runtime 3D physics (Jolt, TD-028); null for scenes without 3D colliders, which never load the native library
+    private io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D physicsSystem3D;
     // Selection state when entering play mode, used for reconciliation upon stop
     private UUID prePlaySelectedId;
+    // The Profiler panel's sections for one Play step (roadmap M9.6); profiler is null when nothing profiles play
+    private FrameProfiler profiler;
+    private int playSection;
+    private int physics2DSection;
+    private int physics3DSection;
+    private int sceneSection;
 
     public PlayModeController(EditorState editorState) {
         this(editorState, editorState != null ? editorState.getSerializer() : new SceneSerializer());
@@ -47,6 +78,12 @@ public class PlayModeController {
     public PlayModeController(EditorState editorState, SceneSerializer serializer) {
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.serializer = Objects.requireNonNull(serializer, "serializer cannot be null");
+        extensions.add(profileStep);
+    }
+
+    /** The genre profile step (TD-088): its last problems and message, and the key source tests replace. */
+    public ProfilePlayStep getProfileStep() {
+        return profileStep;
     }
 
     public void addListener(Listener listener) {
@@ -55,11 +92,38 @@ public class PlayModeController {
         }
     }
 
+    public void addExtension(Extension extension) {
+        extensions.add(Objects.requireNonNull(extension, "extension cannot be null"));
+    }
+
     public void removeListener(Listener listener) {
         if (listener != null) {
             listeners.remove(listener);
         }
     }
+
+    /**
+     * Times each Play step in {@code profiler} (roadmap M9.6): a top-level section {@value #PROFILE_PLAY} with 2D physics, 3D physics
+     * and the scene update below it, and below that one section per component type (each script and graph on its own).
+     * {@code null} stops profiling.
+     */
+    public synchronized void setProfiler(FrameProfiler profiler) {
+        this.profiler = profiler;
+        if (profiler != null) {
+            playSection = profiler.section(PROFILE_PLAY, FrameProfiler.ROOT);
+            physics2DSection = profiler.section("2D physics", playSection);
+            physics3DSection = profiler.section("3D physics", playSection);
+            sceneSection = profiler.section(PROFILE_SCENE_UPDATE, playSection);
+        }
+        if (runtimeScene != null) {
+            runtimeScene.setProfiler(profiler, profiler != null ? sceneSection : FrameProfiler.ROOT);
+        }
+    }
+
+    /** The Profiler's section for one Play step. */
+    public static final String PROFILE_PLAY = "Play";
+    /** The Profiler's section for the scene's component updates, under {@link #PROFILE_PLAY}. */
+    public static final String PROFILE_SCENE_UPDATE = "Scene update";
 
     public PlayModeState getState() {
         return state;
@@ -89,6 +153,11 @@ public class PlayModeController {
         return physicsSystem;
     }
 
+    /** The scene's 3D physics while playing; null when the scene has no 3D colliders or is not playing. */
+    public io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D getPhysicsSystem3D() {
+        return physicsSystem3D;
+    }
+
     /**
      * Starts simulation from the current authored scene.
      * Validates that all entities and components can be safely serialized/cloned.
@@ -115,12 +184,19 @@ public class PlayModeController {
             return false;
         }
 
+        for (Extension extension : extensions) {
+            extension.beforePlay(currentAuthored);
+        }
+
         // Clone authored scene via versioned serializer
         Scene clonedRuntime;
         try {
             String json = serializer.toJson(currentAuthored);
             clonedRuntime = serializer.fromJson(json);
             clonedRuntime.setName(currentAuthored.getName() + " (Runtime)");
+            // The renderer gives the copy these once Play shows it; the Play step's ground check builds bodies before that (TD-088)
+            clonedRuntime.setColliderGeometry(currentAuthored.getColliderGeometry());
+            clonedRuntime.setHeightFields(currentAuthored.getHeightFields());
         } catch (Exception e) {
             editorState.setStatusMessage("Cannot play: Failed to clone authored scene: " + e.getMessage(), true);
             return false;
@@ -152,12 +228,54 @@ public class PlayModeController {
             return false;
         }
 
+        // 3D physics only for scenes that use it: the native library loads on first use
+        if (io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D.isUsedBy(clonedRuntime)) {
+            try {
+                this.physicsSystem3D = new io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D(clonedRuntime,
+                    new io.github.ldev22live.gdxunity.engine.physics.JoltPhysicsBackend3D());
+            } catch (Throwable t) {
+                editorState.setStatusMessage("Cannot play: Failed to initialize 3D physics: " + t.getMessage(), true);
+                physicsSystem.dispose();
+                physicsSystem = null;
+                if (editorState.getScriptManager() != null) {
+                    editorState.getScriptManager().cleanupSceneScripts(clonedRuntime);
+                }
+                clonedRuntime.dispose();
+                return false;
+            }
+        }
+
+        for (Extension extension : extensions) {
+            List<String> problems = extension.onPlay(clonedRuntime, this);
+            if (!problems.isEmpty()) {
+                editorState.setStatusMessage("Cannot play: " + problems.get(0)
+                    + (problems.size() > 1 ? " (+" + (problems.size() - 1) + " more)" : ""), true);
+                for (Extension started : extensions) {
+                    started.onStop(clonedRuntime);
+                }
+                physicsSystem.dispose();
+                physicsSystem = null;
+                if (physicsSystem3D != null) {
+                    physicsSystem3D.dispose();
+                    physicsSystem3D = null;
+                }
+                if (editorState.getScriptManager() != null) {
+                    editorState.getScriptManager().cleanupSceneScripts(clonedRuntime);
+                }
+                clonedRuntime.dispose();
+                return false;
+            }
+        }
+
         this.authoredScene = currentAuthored;
         this.runtimeScene = clonedRuntime;
+        if (profiler != null) {
+            runtimeScene.setProfiler(profiler, sceneSection);
+        }
         this.prePlaySelectedId = editorState.getSelectedEntityId();
 
         // Switch editor active scene to runtime scene
-        editorState.setActiveScene(runtimeScene);
+        editorState.swapSceneForPlay(runtimeScene); // the undo history survives Play (Appendix E3)
 
         // Reconcile selection to runtime entity if applicable
         if (prePlaySelectedId != null) {
@@ -166,7 +284,7 @@ public class PlayModeController {
         }
 
         changeState(PlayModeState.PLAYING);
-        editorState.setStatusMessage("Play mode started", false);
+        editorState.setStatusMessage(profileStep.getLastMessage().isEmpty() ? "Play mode started" : profileStep.getLastMessage(), false);
         return true;
     }
 
@@ -207,6 +325,16 @@ public class PlayModeController {
 
         Throwable disposalError = null;
 
+        if (runtimeScene != null) {
+            for (Extension extension : extensions) {
+                try {
+                    extension.onStop(runtimeScene);
+                } catch (Throwable t) {
+                    if (disposalError == null) disposalError = t;
+                }
+            }
+        }
+
         // Dispose runtime physics system
         if (physicsSystem != null) {
             try {
@@ -215,6 +343,16 @@ public class PlayModeController {
                 if (disposalError == null) disposalError = t;
             } finally {
                 physicsSystem = null;
+            }
+        }
+
+        if (physicsSystem3D != null) {
+            try {
+                physicsSystem3D.dispose();
+            } catch (Throwable t) {
+                if (disposalError == null) disposalError = t;
+            } finally {
+                physicsSystem3D = null;
             }
         }
 
@@ -233,11 +371,16 @@ public class PlayModeController {
         }
 
         // Restore authored scene
-        Scene restoredScene = (authoredScene != null) ? authoredScene : new Scene("Restored Scene");
+        boolean hadAuthored = authoredScene != null;
+        Scene restoredScene = hadAuthored ? authoredScene : new Scene("Restored Scene");
         this.authoredScene = null;
 
-        // Ensure editor points back to authored scene
-        editorState.setActiveScene(restoredScene);
+        // Back to the authored scene with its undo history; a stand-in scene has no history to keep
+        if (hadAuthored) {
+            editorState.swapSceneForPlay(restoredScene);
+        } else {
+            editorState.setActiveScene(restoredScene);
+        }
 
         // Reconcile selection back to authored entity
         if (prePlaySelectedId != null) {
@@ -275,12 +418,44 @@ public class PlayModeController {
             deltaTime = 0.1f; // clamp to 100ms max to prevent physics or simulation explosion
         }
 
-        // Advance 2D physics simulation first
-        if (physicsSystem != null) {
-            physicsSystem.update(deltaTime);
-        }
+        FrameProfiler timing = profiler;
+        try {
+            begin(timing, playSection);
+            // Advance 2D physics simulation first, then 3D (the same order as GameSession)
+            if (physicsSystem != null) {
+                begin(timing, physics2DSection);
+                physicsSystem.update(deltaTime);
+                end(timing, physics2DSection);
+            }
+            if (physicsSystem3D != null) {
+                begin(timing, physics3DSection);
+                physicsSystem3D.update(deltaTime);
+                end(timing, physics3DSection);
+            }
 
-        runtimeScene.update(deltaTime);
+            begin(timing, sceneSection);
+            runtimeScene.update(deltaTime);
+            end(timing, sceneSection);
+            end(timing, playSection);
+        } catch (RuntimeException e) {
+            // A scene that is set up wrongly (a joint with no collider, a script that throws) fails on its first step, after Play has
+            // started. Left alone the exception ends the editor and loses unsaved work, so Play stops and the reason is shown.
+            String reason = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            stop();
+            editorState.setStatusMessage("Play stopped: " + reason, true);
+        }
+    }
+
+    private static void begin(FrameProfiler timing, int section) {
+        if (timing != null) {
+            timing.begin(section);
+        }
+    }
+
+    private static void end(FrameProfiler timing, int section) {
+        if (timing != null) {
+            timing.end(section);
+        }
     }
 
     /**

@@ -1,19 +1,32 @@
 package io.github.ldev22live.gdxunity.editor.desktop.workspaces;
 
-import com.badlogic.gdx.graphics.Camera;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.ViewportMode;
 import io.github.ldev22live.gdxunity.editor.core.workspace.StudioWorkspace;
 import io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceContext;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.Collider3DRenderer;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.TransformGizmoRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.ViewportGridRenderer;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.ViewportGridRenderer3D;
+import io.github.ldev22live.gdxunity.engine.core.profile.FrameProfiler;
+import io.github.ldev22live.gdxunity.engine.render.HudRenderer;
 import io.github.ldev22live.gdxunity.engine.render.SceneRenderer2D;
+import io.github.ldev22live.gdxunity.engine.render.SceneRenderer3D;
+import io.github.ldev22live.gdxunity.engine.render.camera.Camera;
+import io.github.ldev22live.gdxunity.engine.render.camera.GameCameraRig;
 import io.github.ldev22live.gdxunity.engine.render.camera.OrthographicCamera2D;
+import io.github.ldev22live.gdxunity.engine.render.camera.PerspectiveCamera3D;
+import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
+import io.github.ldev22live.gdxunity.engine.scene.Scene;
 
 import java.util.Objects;
 
 /**
- * Concrete StudioWorkspace hosting the primary 2D scene editor, camera viewport,
- * background grid, and visual transform gizmos.
+ * Concrete StudioWorkspace hosting the primary scene editor, camera viewport,
+ * background grid, and visual transform gizmos. With a 3D view configured
+ * ({@link #configure3DView}), {@link ViewportMode#VIEW_3D} renders the same scene through a
+ * perspective camera over a ground grid.
  */
 public class SceneEditorWorkspace implements StudioWorkspace {
     public static final String ID = "scene-editor";
@@ -24,6 +37,29 @@ public class SceneEditorWorkspace implements StudioWorkspace {
     private final ViewportGridRenderer gridRenderer;
     private io.github.ldev22live.gdxunity.editor.desktop.ui.PhysicsDebugRenderer physicsDebugRenderer;
     private EditorState editorState;
+
+    private PerspectiveCamera3D camera3D;
+    private TransformGizmoRenderer gizmoRenderer3D;
+    private ViewportGridRenderer3D gridRenderer3D;
+    /** Draws the 3D grid over a Sky and Weather's sky (roadmap M3.9); made once, so a frame does not allocate it. */
+    private final Runnable gridOverSky = this::renderGridOverSky;
+
+    private SceneRenderer3D sceneRenderer3D;
+    private SelectionOutlineRenderer selectionOutline2D;
+    private SelectionOutlineRenderer selectionOutline3D;
+    private Collider3DRenderer colliderRenderer3D;
+    private io.github.ldev22live.gdxunity.editor.desktop.ui.SkeletonOverlayRenderer skeletonOverlay3D;
+
+    /** Game view while playing a scene with a camera (TD-034). */
+    private final GameCameraRig gameCameras = new GameCameraRig();
+    /** Screen-space text, drawn over the scene in every view. */
+    private final HudRenderer hudRenderer = new HudRenderer();
+    /** Times the 3D and 2D scene passes for the Profiler (roadmap M9.6); null when not profiled. */
+    private FrameProfiler profiler;
+    private int scene3DSection;
+    private int scene2DSection;
+    private int viewWidth;
+    private int viewHeight;
 
     public SceneEditorWorkspace(SceneRenderer2D sceneRenderer,
                                 OrthographicCamera2D sceneCamera,
@@ -72,6 +108,110 @@ public class SceneEditorWorkspace implements StudioWorkspace {
         this.physicsDebugRenderer = renderer;
     }
 
+    /** Enables the 3D view. The 3D grid follows the 2D grid's enabled flag. */
+    public void configure3DView(PerspectiveCamera3D camera3D, TransformGizmoRenderer gizmoRenderer3D,
+                                ViewportGridRenderer3D gridRenderer3D) {
+        this.camera3D = Objects.requireNonNull(camera3D, "camera3D cannot be null");
+        this.gizmoRenderer3D = Objects.requireNonNull(gizmoRenderer3D, "gizmoRenderer3D cannot be null");
+        this.gridRenderer3D = Objects.requireNonNull(gridRenderer3D, "gridRenderer3D cannot be null");
+    }
+
+    /** Renders 3D primitives in both views, before the 2D content; may be null to disable. */
+    public void setSceneRenderer3D(SceneRenderer3D sceneRenderer3D) {
+        this.sceneRenderer3D = sceneRenderer3D;
+        // Depth testing of 2D entities needs a 3D pass that cleared and filled the depth buffer first (Phase 13-D)
+        sceneRenderer.setDepthComposite(sceneRenderer3D != null);
+    }
+
+    /** Sets the selection outline renderers for the 2D and 3D views (either may be null to disable). */
+    public void setSelectionOutlines(SelectionOutlineRenderer outline2D, SelectionOutlineRenderer outline3D) {
+        this.selectionOutline2D = outline2D;
+        this.selectionOutline3D = outline3D;
+    }
+
+    /** Sets the 3D collider wireframe renderer (null to disable). */
+    /** Bones of selected imported models, drawn in the 3D view. */
+    public void setSkeletonOverlay3D(io.github.ldev22live.gdxunity.editor.desktop.ui.SkeletonOverlayRenderer overlay) {
+        this.skeletonOverlay3D = overlay;
+    }
+
+    public void setColliderRenderer3D(Collider3DRenderer renderer) {
+        this.colliderRenderer3D = renderer;
+    }
+
+    /** What a pane draws around the scene besides the scene itself (TD-039): its grid and its overlays. */
+    public interface PaneOverlays {
+        /** Draws the pane's grid, before the scene. */
+        void renderGrid(com.badlogic.gdx.graphics.glutils.ShapeRenderer shapeRenderer);
+
+        /** Draws colliders, the selection outline, skeletons and the gizmo, after the scene. */
+        void renderOverlays(com.badlogic.gdx.graphics.glutils.ShapeRenderer shapeRenderer);
+    }
+
+    /**
+     * Draws the 3D scene through any camera for one pane of the multi-view layout: grid, scene, 2D entities, overlays.
+     * The caller has set up the pane's frame buffer.
+     */
+    public void renderPane3D(Camera camera, PaneOverlays overlays, float deltaTime) {
+        Objects.requireNonNull(camera, "camera cannot be null");
+        Objects.requireNonNull(overlays, "overlays cannot be null");
+        camera.update();
+        sceneRenderer.setCamera(camera);
+        if (sceneRenderer.getShapeRenderer() != null && gridRenderer.isEnabled()) {
+            overlays.renderGrid(sceneRenderer.getShapeRenderer());
+        }
+        if (sceneRenderer3D != null) {
+            sceneRenderer3D.setCamera(camera);
+            renderScene3D(deltaTime);
+        }
+        renderScene2D(deltaTime);
+        if (sceneRenderer.getShapeRenderer() != null) {
+            overlays.renderOverlays(sceneRenderer.getShapeRenderer());
+        }
+    }
+
+    /**
+     * Times the scene passes in {@code profiler} under {@code parentSection} (roadmap M9.6): {@value #PROFILE_SCENE_3D} (models,
+     * terrain, sky) and {@value #PROFILE_SCENE_2D} (sprites, shapes, tilemaps). Grid, gizmos and overlays are the parent's remainder.
+     * {@code null} stops profiling.
+     */
+    public void setProfiler(FrameProfiler profiler, int parentSection) {
+        this.profiler = profiler;
+        if (profiler != null) {
+            scene3DSection = profiler.section(PROFILE_SCENE_3D, parentSection);
+            scene2DSection = profiler.section(PROFILE_SCENE_2D, parentSection);
+        }
+    }
+
+    /** The Profiler's section for the 3D scene pass. */
+    public static final String PROFILE_SCENE_3D = "3D scene";
+    /** The Profiler's section for the 2D scene pass. */
+    public static final String PROFILE_SCENE_2D = "2D scene";
+
+    private void renderScene3D(float deltaTime) {
+        if (profiler != null) {
+            profiler.begin(scene3DSection);
+        }
+        sceneRenderer3D.render(deltaTime);
+        if (profiler != null) {
+            profiler.end(scene3DSection);
+        }
+    }
+
+    private void renderScene2D(float deltaTime) {
+        if (profiler != null) {
+            profiler.begin(scene2DSection);
+        }
+        sceneRenderer.render(deltaTime);
+        if (profiler != null) {
+            profiler.end(scene2DSection);
+        }
+    }
+
+    private boolean is3DActive() {
+        return camera3D != null && editorState != null && editorState.getViewportMode() == ViewportMode.VIEW_3D;
+    }
+
     @Override
     public void initialize(WorkspaceContext context) {
         this.editorState = context.getEditorState();
@@ -79,6 +219,35 @@ public class SceneEditorWorkspace implements StudioWorkspace {
 
     @Override
     public void render(float deltaTime) {
+        Scene scene = editorState != null ? editorState.getActiveScene() : null;
+        CameraComponent gameCamera = editorState != null && editorState.isPlayModeActive()
+            ? GameCameraRig.findActiveCamera(scene) : null;
+        if (gameCamera != null && viewWidth > 0 && viewHeight > 0) {
+            renderGameView(gameCamera, deltaTime);
+        } else if (is3DActive()) {
+            render3D(deltaTime);
+        } else {
+            render2D(deltaTime);
+        }
+        hudRenderer.render(scene, viewWidth, viewHeight);
+    }
+
+    /**
+     * Playing a scene with a camera: the scene through the game camera, without grid, gizmos, selection or debug
+     * overlays, as the game will look.
+     */
+    private void renderGameView(CameraComponent gameCamera, float deltaTime) {
+        Camera camera = gameCameras.apply(gameCamera);
+        if (sceneRenderer3D != null) {
+            sceneRenderer3D.setCamera(camera);
+            renderScene3D(deltaTime);
+        }
+        sceneRenderer.setCamera(camera);
+        renderScene2D(deltaTime);
+    }
+
+    private void render2D(float deltaTime) {
+        sceneRenderer.setCamera(sceneCamera);
         if (sceneRenderer != null) {
             // 1. Render viewport background grid
             if (sceneRenderer.getShapeRenderer() != null && gridRenderer != null) {
@@ -86,8 +255,12 @@ public class SceneEditorWorkspace implements StudioWorkspace {
                 gridRenderer.render(sceneRenderer.getShapeRenderer(), zoom);
             }
 
-            // 2. Render scene entities and components
-            sceneRenderer.render(deltaTime);
+            // 2. Render 3D primitives (orthographic) and then 2D entities and components
+            if (sceneRenderer3D != null) {
+                sceneRenderer3D.setCamera(sceneCamera);
+                renderScene3D(deltaTime);
+            }
+            renderScene2D(deltaTime);
 
             // 3. Render physics debug visualization (Box2D or authored colliders)
             if (sceneRenderer.getShapeRenderer() != null && physicsDebugRenderer != null) {
@@ -95,7 +268,10 @@ public class SceneEditorWorkspace implements StudioWorkspace {
                 physicsDebugRenderer.render(sceneRenderer.getShapeRenderer(), zoom);
             }
 
-            // 4. Render transform gizmos on top
+            // 4. Selection outline, then transform gizmos on top
+            if (sceneRenderer.getShapeRenderer() != null && selectionOutline2D != null) {
+                selectionOutline2D.render(sceneRenderer.getShapeRenderer());
+            }
             if (sceneRenderer.getShapeRenderer() != null && gizmoRenderer != null) {
                 float zoom = sceneCamera.getZoom();
                 gizmoRenderer.render(sceneRenderer.getShapeRenderer(), zoom);
@@ -103,15 +279,60 @@ public class SceneEditorWorkspace implements StudioWorkspace {
         }
     }
 
+    /**
+     * 3D view: ground grid, then the scene's 2D renderables seen through the perspective camera, then the
+     * 3D collider wireframes, the selection outline and gizmos.
+     * The Box2D debug overlay is 2D-only; in 3D the physics debug toggle shows every 3D collider instead.
+     */
+    private void renderGridOverSky() {
+        gridRenderer3D.render(sceneRenderer.getShapeRenderer());
+    }
+
+    private void render3D(float deltaTime) {
+        camera3D.update();
+        sceneRenderer.setCamera(camera3D);
+        boolean grid = sceneRenderer.getShapeRenderer() != null && gridRenderer.isEnabled();
+        // A Sky and Weather draws its sky over the background (roadmap M3.9); the grid then goes on the sky instead
+        boolean gridOnSky = grid && sceneRenderer3D != null && sceneRenderer3D.getAtmosphere() != null;
+        if (grid && !gridOnSky) {
+            gridRenderer3D.render(sceneRenderer.getShapeRenderer());
+        }
+        if (sceneRenderer3D != null) {
+            sceneRenderer3D.setSkyOverlay(grid ? gridOverSky : null);
+            sceneRenderer3D.setCamera(camera3D);
+            renderScene3D(deltaTime);
+        }
+        renderScene2D(deltaTime);
+        if (sceneRenderer.getShapeRenderer() != null) {
+            if (colliderRenderer3D != null) {
+                colliderRenderer3D.render(sceneRenderer.getShapeRenderer());
+            }
+            if (selectionOutline3D != null) {
+                selectionOutline3D.render(sceneRenderer.getShapeRenderer());
+            }
+            if (skeletonOverlay3D != null) {
+                skeletonOverlay3D.render(sceneRenderer.getShapeRenderer());
+            }
+            gizmoRenderer3D.render(sceneRenderer.getShapeRenderer(), 1f);
+        }
+    }
+
     @Override
     public void resize(int width, int height) {
-        if (sceneRenderer != null) {
-            sceneRenderer.resize(width, height);
+        if (width > 0 && height > 0) {
+            viewWidth = width;
+            viewHeight = height;
+            gameCameras.resize(width, height);
+        }
+        sceneCamera.resize(width, height);
+        if (camera3D != null) {
+            camera3D.resize(width, height);
         }
     }
 
     @Override
     public void dispose() {
+        hudRenderer.dispose();
         if (physicsDebugRenderer != null) {
             physicsDebugRenderer.dispose();
         }

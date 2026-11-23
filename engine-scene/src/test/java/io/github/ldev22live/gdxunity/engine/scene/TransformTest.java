@@ -149,4 +149,27 @@ class TransformTest {
         assertEquals(0, parent.getTransform().getChildCount());
         assertNull(child.getTransform().getParent());
     }
+
+    @Test
+    void shouldHandle3DRotationAndEulerAngles() {
+        Entity entity = new Entity("Test3DEntity");
+        Transform t = entity.getTransform();
+
+        t.setLocalEulerAngles(45f, 30f, 15f);
+        Vector3 euler = t.getLocalEulerAngles();
+        assertEquals(45f, euler.x, 0.01f);
+        assertEquals(30f, euler.y, 0.01f);
+        assertEquals(15f, euler.z, 0.01f);
+
+        Vector3 worldEuler = t.getWorldEulerAngles();
+        assertEquals(45f, worldEuler.x, 0.01f);
+        assertEquals(30f, worldEuler.y, 0.01f);
+        assertEquals(15f, worldEuler.z, 0.01f);
+
+        // Clean single axis rotation test
+        Transform t2 = new Entity("PureYRot").getTransform();
+        t2.setLocalEulerAngles(45f, 0f, 0f);
+        t2.rotate(Vector3.Y, 45f);
+        assertEquals(90f, t2.getLocalEulerAngles().x, 0.05f);
+    }
 }

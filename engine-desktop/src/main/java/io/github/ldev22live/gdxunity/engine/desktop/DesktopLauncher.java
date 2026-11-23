@@ -2,69 +2,230 @@ package io.github.ldev22live.gdxunity.engine.desktop;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.Files.FileType;
 import io.github.ldev22live.gdxunity.engine.core.EngineApplication;
-import io.github.ldev22live.gdxunity.engine.render.SceneRenderer2D;
-import io.github.ldev22live.gdxunity.engine.render.camera.OrthographicCamera2D;
-import io.github.ldev22live.gdxunity.engine.render.components.ShapeRendererComponent;
-import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.core.EngineState;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.List;
+import java.util.Locale;
+
 /**
- * Launches the desktop (LWJGL3) application demonstrating camera-driven scene entity rendering.
+ * Game runtime (TD-035): plays one scene file in a window, with the same systems as the editor's Play button.
+ * See {@link GameLaunchOptions} for the command line.
  */
-public class DesktopLauncher {
+public final class DesktopLauncher {
+    /** Initial window size in pixels; the window can be resized. */
+    static final int WINDOW_WIDTH = 1280;
+    static final int WINDOW_HEIGHT = 720;
+    /** Forgeroom's icon in the sizes the window system picks from, bundled in this module's resources. */
+    private static final String[] DEFAULT_ICONS = {
+        "forgeroom-icon-256.png", "forgeroom-icon-128.png", "forgeroom-icon-64.png", "forgeroom-icon-32.png"};
+    /**
+     * Testing aid (roadmap M9.5): a file to append this run's {@link PerformanceRecord} to at the end of a {@code --smoke-test} run;
+     * switches the render statistics on.
+     */
+    static final String PERF_REPORT_VARIABLE = "GDXUNITY_PERF_REPORT";
+    static final int EXIT_OK = 0;
+    static final int EXIT_FAILURE = 1;
+
+    private DesktopLauncher() {
+    }
+
     public static void main(String[] args) {
-        if (StartupHelper.startNewJvmIfRequired()) return;
-        createApplication();
+        if (StartupHelper.startNewJvmIfRequired(args)) {
+            return;
+        }
+        int exitCode;
+        try {
+            exitCode = run(args);
+        } catch (Throwable failure) {
+            // Anything not handled in run: still leave a crash log, a packaged game has no console
+            GameFailureReporter.report(gameName(), "The game stopped with an error: " + failure.getMessage(), failure, args,
+                isSmokeTest(args));
+            exitCode = EXIT_FAILURE;
+        }
+        System.exit(exitCode);
     }
 
-    private static Lwjgl3Application createApplication() {
-        // Setup demonstration scene with multiple entities in a parent-child hierarchy
-        Scene demoScene = createDemoScene();
-
-        // Setup camera-driven renderer
-        OrthographicCamera2D camera = new OrthographicCamera2D(640, 480);
-        SceneRenderer2D renderer = new SceneRenderer2D(camera);
-        renderer.setActiveScene(demoScene);
-
-        return new Lwjgl3Application(new EngineApplication(renderer), getDefaultConfiguration());
+    /** True when the command line asks for a smoke test: automated runs get no message box. */
+    private static boolean isSmokeTest(String[] args) {
+        for (String arg : args) {
+            if (arg.startsWith("--smoke-test")) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public static Scene createDemoScene() {
-        Scene scene = new Scene("Milestone 3 Demo Scene");
-
-        // 1. Root Entity: Sun / Parent Core (Center of 640x480 screen = 320, 240)
-        Entity parentCore = scene.createEntity("ParentCore");
-        parentCore.getTransform().setLocalPosition(320f, 240f, 0f);
-        parentCore.addComponent(new ShapeRendererComponent(120f, 120f, new Color(0.2f, 0.7f, 0.9f, 1.0f))); // Cyan square
-
-        // 2. Child Entity 1: Orbiting Planet (Inherits parent transform + offset (100, 50))
-        Entity childPlanet = scene.createEntity("ChildPlanet");
-        childPlanet.getTransform().setLocalPosition(100f, 50f, 0f);
-        childPlanet.getTransform().setParent(parentCore.getTransform());
-        childPlanet.addComponent(new ShapeRendererComponent(50f, 50f, new Color(0.9f, 0.4f, 0.2f, 1.0f))); // Orange square
-
-        // 3. Child Entity 2: Moon (Child of planet, offset (40, 20), inherits multi-level world transform)
-        Entity moon = scene.createEntity("Moon");
-        moon.getTransform().setLocalPosition(40f, 20f, 0f);
-        moon.getTransform().setParent(childPlanet.getTransform());
-        moon.addComponent(new ShapeRendererComponent(20f, 20f, new Color(0.9f, 0.9f, 0.3f, 1.0f))); // Yellow square
-
-        // 4. Independent Entity: Ground Platform (Bottom center = 320, 40)
-        Entity ground = scene.createEntity("GroundPlatform");
-        ground.getTransform().setLocalPosition(320f, 40f, 0f);
-        ground.addComponent(new ShapeRendererComponent(400f, 30f, new Color(0.3f, 0.8f, 0.4f, 1.0f))); // Green bar
-
-        return scene;
+    /** The game's name from the project file, for log folders and message boxes. */
+    private static String gameName() {
+        String project = System.getProperty(GameLaunchOptions.PROJECT_PROPERTY);
+        try {
+            String name = GameProjectFile.read(new File(project == null || project.isBlank() ? "." : project)).name();
+            return name.isBlank() ? GameFailureReporter.DEFAULT_GAME_NAME : name;
+        } catch (IOException | RuntimeException e) {
+            return GameFailureReporter.DEFAULT_GAME_NAME;
+        }
     }
 
-    private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
+    /** Runs the game and returns the process exit code. */
+    static int run(String[] args) {
+        GameLaunchOptions options;
+        GameSession session;
+        long parseNanos;
+        try {
+            options = GameLaunchOptions.parse(args, new File("."), System.getProperty(GameLaunchOptions.SCRIPTS_PROPERTY),
+                System.getProperty(GameLaunchOptions.PROJECT_PROPERTY));
+            long parseStart = System.nanoTime();
+            Scene scene = GameSession.loadScene(options.scene());
+            parseNanos = System.nanoTime() - parseStart;
+            session = new GameSession(options.project(), scene,
+                new GameScripts(options.scripts(), DesktopLauncher.class.getClassLoader()), GameSession.CONSOLE);
+        } catch (IllegalArgumentException | IOException e) {
+            GameFailureReporter.report(gameName(), "Cannot start the game: " + e.getMessage(), e, args, isSmokeTest(args));
+            return EXIT_FAILURE;
+        }
+
+        long startStart = System.nanoTime();
+        List<String> problems = session.start();
+        long startNanos = System.nanoTime() - startStart;
+        if (!problems.isEmpty()) {
+            GameFailureReporter.report(gameName(), "Cannot play " + options.scene() + ":" + System.lineSeparator()
+                + String.join(System.lineSeparator(), problems), null, args, options.isSmokeTest());
+            disposeAfterFailedStart(session);
+            return EXIT_FAILURE;
+        }
+
+        GameRenderer renderer = new GameRenderer(session, options.project());
+        renderer.setExitAfterFrames(options.smokeTestFrames());
+        // Testing aid (TD-054): GDXUNITY_SCREENSHOT=<file.png> saves the frame at the end of a --smoke-test run
+        String screenshot = System.getenv("GDXUNITY_SCREENSHOT");
+        if (screenshot != null && !screenshot.isBlank()) {
+            renderer.setScreenshotFile(new File(screenshot));
+        }
+        // Testing aids (roadmap M3.8): GDXUNITY_RENDER_STATS=1 reports each frame's cost at the end of a --smoke-test run;
+        // GDXUNITY_TERRAIN_LOD=0 draws every terrain chunk at full detail, to compare
+        String perfReport = System.getenv(PERF_REPORT_VARIABLE);
+        boolean perf = perfReport != null && !perfReport.isBlank() && options.isSmokeTest();
+        renderer.setRenderStats(perf || "1".equals(System.getenv("GDXUNITY_RENDER_STATS")));
+        renderer.setTerrainLod(!"0".equals(System.getenv("GDXUNITY_TERRAIN_LOD")));
+        // GDXUNITY_OBJECT_CULLING=0 draws every shape and model in every pass, to compare (roadmap M3.6)
+        renderer.setObjectCulling(!"0".equals(System.getenv("GDXUNITY_OBJECT_CULLING")));
+        EngineApplication application = new EngineApplication(renderer);
+        try {
+            new Lwjgl3Application(application, configuration(session.getScene().getName(), windowIcon(options.project())));
+        } catch (RuntimeException e) {
+            GameFailureReporter.report(gameName(), "The game stopped with an error: " + e.getMessage(), e, args,
+                options.isSmokeTest());
+            return EXIT_FAILURE;
+        }
+        if (application.getState() == EngineState.FAILED) {
+            return EXIT_FAILURE;
+        }
+        if (options.isSmokeTest()) {
+            int result = smokeTestResult(options, renderer, session);
+            if (perf) {
+                PerformanceRecord record = performanceRecord(options, renderer, parseNanos, startNanos);
+                System.out.println("Performance: " + record.toRow());
+                try {
+                    appendRecord(new File(perfReport), record);
+                } catch (IOException e) {
+                    System.err.println("Cannot write the performance record to " + perfReport + ": " + e.getMessage());
+                    return EXIT_FAILURE;
+                }
+            }
+            return result;
+        }
+        return EXIT_OK;
+    }
+
+    private static int smokeTestResult(GameLaunchOptions options, GameRenderer renderer, GameSession session) {
+        List<String> errors = session.getRuntimeErrors();
+        boolean allFrames = renderer.getFramesRendered() >= options.smokeTestFrames();
+        System.out.println("Smoke test: " + renderer.getFramesRendered() + " of " + options.smokeTestFrames()
+            + " frames, " + errors.size() + " runtime error(s)");
+        errors.forEach(error -> System.out.println("  " + error));
+        if (renderer.getMeasuredFrames() > 0) {
+            System.out.println(String.format(Locale.ROOT, "Render stats: %.2f ms per frame (GPU finished), %d terrain triangles, over %d "
+                + "frames", renderer.getAverageFrameMillis(), renderer.getAverageTerrainTriangles(), renderer.getMeasuredFrames()));
+        }
+        return allFrames && errors.isEmpty() ? EXIT_OK : EXIT_FAILURE;
+    }
+
+    /** This run's measurements; the scene is named by its path inside the project when it is in it. */
+    static PerformanceRecord performanceRecord(GameLaunchOptions options, GameRenderer renderer, long parseNanos, long startNanos) {
+        Path project = options.project().toPath().toAbsolutePath().normalize();
+        Path scene = options.scene().toPath().toAbsolutePath().normalize();
+        String name = scene.startsWith(project) ? project.relativize(scene).toString().replace(File.separatorChar, '/') : scene.toString();
+        FrameTimeStats frames = renderer.getFrameTimes();
+        boolean measured = frames != null && frames.count() > 0;
+        AudioOutputStats audio = renderer.getAudioStats();
+        return new PerformanceRecord(name, renderer.getMeasuredFrames(), parseNanos / 1e6, startNanos / 1e6,
+            renderer.getFirstFrameMillis(), measured ? frames.meanMillis() : Double.NaN,
+            measured ? frames.percentileMillis(50) : Double.NaN, measured ? frames.percentileMillis(95) : Double.NaN,
+            measured ? frames.maxMillis() : Double.NaN, renderer.getAverageTerrainTriangles(),
+            PerformanceRecord.mebibytes(measured ? renderer.getPeakHeapBytes() : -1),
+            PerformanceRecord.mebibytes(renderer.getRetainedHeapBytes()),
+            audio == null ? Double.NaN : audio.latencyMillis(), audio == null ? Double.NaN : audio.meanRenderMillis(),
+            audio == null ? Double.NaN : audio.maxRenderMillis(), renderer.getGpuName().replace("\t", " "));
+    }
+
+    /** Appends {@code record} as a row, writing the header first when the file is new or empty. */
+    static void appendRecord(File file, PerformanceRecord record) throws IOException {
+        Path path = file.toPath();
+        if (path.getParent() != null) {
+            Files.createDirectories(path.getParent());
+        }
+        boolean fresh = !Files.isRegularFile(path) || Files.size(path) == 0;
+        String text = (fresh ? PerformanceRecord.HEADER + System.lineSeparator() : "") + record.toRow() + System.lineSeparator();
+        Files.writeString(path, text, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+    }
+
+    private static void disposeAfterFailedStart(GameSession session) {
+        try {
+            session.dispose();
+        } catch (RuntimeException e) {
+            System.err.println("Cleaning up after the failed start also failed: " + e.getMessage());
+        }
+    }
+
+    /** The project's own window icon when its project file names a PNG that exists; null for the Forgeroom icon. */
+    static File windowIcon(File project) {
+        try {
+            String icon = GameProjectFile.read(project).windowIcon();
+            File file = icon.isBlank() ? null : new File(project, icon);
+            return file != null && file.isFile() ? file : null;
+        } catch (IOException | RuntimeException e) {
+            return null;
+        }
+    }
+
+    /** Bits per colour channel of the window. */
+    private static final int COLOR_BITS = 8;
+    /** Bits of the window's depth buffer (see {@link #configuration}). */
+    static final int DEPTH_BITS = 24;
+
+    private static Lwjgl3ApplicationConfiguration configuration(String title, File projectIcon) {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("GdxUnity Engine — Milestone 3");
+        configuration.setTitle(title);
+        if (projectIcon != null) {
+            configuration.setWindowIcon(FileType.Absolute, projectIcon.getAbsolutePath());
+        } else {
+            configuration.setWindowIcon(DEFAULT_ICONS);
+        }
+        // 24 depth bits, not LibGDX's default 16: at the 1 to 50000 near and far planes of a terrain scene, 16 bits resolve only
+        // about 250 units at 4 km, so water and the ground it lies on drew in bands (roadmap M3.9)
+        configuration.setBackBufferConfig(COLOR_BITS, COLOR_BITS, COLOR_BITS, COLOR_BITS, DEPTH_BITS, 0, 0);
         configuration.useVsync(true);
         configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
-        configuration.setWindowedMode(640, 480);
+        configuration.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
         return configuration;
     }
 }

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "name": "RedBrick03",
+  "baseColor": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "metallic": 1.0,
+  "roughness": 1.0,
+  "emissive": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "emissiveStrength": 1.0,
+  "normalScale": 1.0,
+  "occlusionStrength": 1.0,
+  "alphaMode": "OPAQUE",
+  "alphaCutoff": 0.5,
+  "doubleSided": false,
+  "tiling": [
+    3.0,
+    1.5
+  ],
+  "offset": [
+    0.0,
+    0.0
+  ],
+  "textures": {
+    "BASE_COLOR": "textures/thirdparty/polyhaven/red_brick_03/red_brick_03_diff_1k.jpg",
+    "NORMAL": "textures/thirdparty/polyhaven/red_brick_03/red_brick_03_nor_gl_1k.jpg",
+    "METALLIC_ROUGHNESS": "textures/thirdparty/polyhaven/red_brick_03/red_brick_03_arm_1k.jpg",
+    "OCCLUSION": "textures/thirdparty/polyhaven/red_brick_03/red_brick_03_arm_1k.jpg"
+  }
+}

@@ -1,5 +1,7 @@
 package io.github.ldev22live.gdxunity.engine.core.asset;
 
+import com.badlogic.gdx.files.FileHandle;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +19,7 @@ import java.util.stream.Stream;
  * Scans a configured asset root directory on disk and maintains an inventory of discovered assets.
  * Pure filesystem metadata discovery without eager GPU memory allocation.
  */
-public class AssetCatalog {
+public class AssetCatalog implements AssetSource {
 
     private final File rootDir;
     private final Map<AssetReference, AssetMetadata> assetsByRef = new LinkedHashMap<>();
@@ -84,5 +86,17 @@ public class AssetCatalog {
     public synchronized File resolveFile(AssetReference reference) {
         if (reference == null) return null;
         return new File(rootDir, reference.getPath());
+    }
+
+    /**
+     * Resolves a reference against the catalog's root folder, whether or not the catalog has scanned it.
+     *
+     * @param reference the project-relative asset path
+     * @return the file handle; never null, but the file may not exist
+     */
+    @Override
+    public FileHandle resolve(AssetReference reference) {
+        Objects.requireNonNull(reference, "reference cannot be null");
+        return new FileHandle(new File(rootDir, reference.getPath()));
     }
 }

@@ -41,7 +41,7 @@ public class JavaScriptCompiler {
                     null,
                     0,
                     0,
-                    "No system Java compiler available. Make sure GdxUnity is running on a JDK (Java Development Kit), not a JRE."
+                    "No system Java compiler available. Make sure Forgeroom is running on a JDK (Java Development Kit), not a JRE."
                 )
             ));
         }
@@ -77,6 +77,7 @@ public class JavaScriptCompiler {
             options.add("-classpath");
             options.add(cpBuilder.toString());
             options.add("-proc:none"); // disable annotation processing for fast script compiles
+            options.add("-parameters"); // pins of method nodes show parameter names (TD-060)
 
             JavaCompiler.CompilationTask task = compiler.getTask(
                 compilerOutput,

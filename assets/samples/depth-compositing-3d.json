@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 1,
+  "name": "Depth - Flat 2D Shapes Among 3D Objects",
+  "gameMode": "3d",
+  "active": true,
+  "entities": [
+    {
+      "id": "f7ab3bc0-9b15-5e5b-8f7c-c5a626825fd7",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "62fd27d8-9fd0-55ba-966f-c15a33c8de4f",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.62,
+            "skyG": 0.72,
+            "skyB": 0.88,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "31924df0-3316-545d-bec6-b8a2abe3b57d",
+      "name": "Floor",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "PLANE",
+            "sizeX": 1600.0,
+            "sizeY": 1.0,
+            "sizeZ": 1600.0,
+            "colorR": 0.42,
+            "colorG": 0.55,
+            "colorB": 0.42,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9bee620f-5a1c-5e9a-be31-bee4f4a890d8",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 200,
+          "z": 700
+        },
+        "rotation": {
+          "x": -0.1,
+          "y": 0,
+          "z": 0,
+          "w": 0.995
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480,
+            "fieldOfView": 55,
+            "nearPlane": 1,
+            "farPlane": 50000
+          }
+        }
+      ]
+    },
+    {
+      "id": "e981314c-b688-5e12-a9c8-5042161f3080",
+      "name": "Green Panel",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -160,
+          "y": 110,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 260,
+            "height": 200,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 0.2,
+              "g": 0.8,
+              "b": 0.35,
+              "a": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "8f931c51-56ee-5887-a220-be1d95be0028",
+      "name": "Blue Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -230,
+          "y": 110,
+          "z": 150
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 160,
+            "sizeY": 220,
+            "sizeZ": 40,
+            "colorR": 0.25,
+            "colorG": 0.4,
+            "colorB": 0.9,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "95ca584d-045a-5644-bdb8-c05651bdd3a2",
+      "name": "Red Cube",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 200,
+          "y": 60,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 120,
+            "sizeY": 120,
+            "sizeZ": 120,
+            "colorR": 0.85,
+            "colorG": 0.2,
+            "colorB": 0.2,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "2ac51b33-3cec-5cdb-8048-686fbe96e852",
+      "name": "Orange Panel",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 200,
+          "y": 90,
+          "z": 300
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ShapeRendererComponent",
+          "enabled": true,
+          "data": {
+            "width": 180,
+            "height": 120,
+            "shapeType": "FILLED",
+            "centered": true,
+            "color": {
+              "r": 1.0,
+              "g": 0.6,
+              "b": 0.1,
+              "a": 1
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

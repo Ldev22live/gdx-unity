@@ -1,0 +1,86 @@
+{
+  "format": 1,
+  "name": "ColorPulse",
+  "duration": 3.0,
+  "frameRate": 30,
+  "tracks": [
+    {
+      "target": "",
+      "property": "mesh.color.r",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0.9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.0,
+          "v": 0.2,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 0.2,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3.0,
+          "v": 0.9,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "",
+      "property": "mesh.color.g",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0.2,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.0,
+          "v": 0.8,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 0.2,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3.0,
+          "v": 0.2,
+          "i": "BEZIER"
+        }
+      ]
+    },
+    {
+      "target": "",
+      "property": "mesh.color.b",
+      "keys": [
+        {
+          "t": 0,
+          "v": 0.2,
+          "i": "BEZIER"
+        },
+        {
+          "t": 1.0,
+          "v": 0.3,
+          "i": "BEZIER"
+        },
+        {
+          "t": 2.0,
+          "v": 0.9,
+          "i": "BEZIER"
+        },
+        {
+          "t": 3.0,
+          "v": 0.2,
+          "i": "BEZIER"
+        }
+      ]
+    }
+  ]
+}

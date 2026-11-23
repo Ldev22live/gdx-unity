@@ -1,0 +1,365 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "Cottage",
+  "rootId": "10bdc4ea-6688-54e8-badb-b85be95a8ae2",
+  "entities": [
+    {
+      "id": "10bdc4ea-6688-54e8-badb-b85be95a8ae2",
+      "parentId": null,
+      "name": "Cottage",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "ebf60fc2-8976-55e1-9fd3-63d4c4d44a47",
+      "parentId": "10bdc4ea-6688-54e8-badb-b85be95a8ae2",
+      "name": "Walls",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 110.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 400.0,
+            "sizeY": 220.0,
+            "sizeZ": 300.0,
+            "colorR": 0.86,
+            "colorG": 0.8,
+            "colorB": 0.68,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 400.0,
+            "sizeY": 220.0,
+            "sizeZ": 300.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "700a6e78-9487-50f8-bbb1-33b0b5a0f682",
+      "parentId": "10bdc4ea-6688-54e8-badb-b85be95a8ae2",
+      "name": "Roof Left",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100.0,
+          "y": 290.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3007057995042731,
+          "w": 0.9537169507482269
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 260.0,
+            "sizeY": 20.0,
+            "sizeZ": 330.0,
+            "colorR": 0.62,
+            "colorG": 0.24,
+            "colorB": 0.18,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 260.0,
+            "sizeY": 20.0,
+            "sizeZ": 330.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "99e90447-179e-56ee-8178-df6e173d6052",
+      "parentId": "10bdc4ea-6688-54e8-badb-b85be95a8ae2",
+      "name": "Roof Right",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100.0,
+          "y": 290.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.3007057995042731,
+          "w": 0.9537169507482269
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 260.0,
+            "sizeY": 20.0,
+            "sizeZ": 330.0,
+            "colorR": 0.62,
+            "colorG": 0.24,
+            "colorB": 0.18,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 260.0,
+            "sizeY": 20.0,
+            "sizeZ": 330.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8a30d6b2-8472-5fa8-bcb5-902a4b4b1ad4",
+      "parentId": "10bdc4ea-6688-54e8-badb-b85be95a8ae2",
+      "name": "Door",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 65.0,
+          "z": -152.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 70.0,
+            "sizeY": 130.0,
+            "sizeZ": 8.0,
+            "colorR": 0.42,
+            "colorG": 0.28,
+            "colorB": 0.16,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "b1ceb66b-0e96-5eff-af12-cb6695d8096e",
+      "parentId": "10bdc4ea-6688-54e8-badb-b85be95a8ae2",
+      "name": "Window Left",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -120.0,
+          "y": 140.0,
+          "z": -152.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 50.0,
+            "sizeZ": 8.0,
+            "colorR": 0.55,
+            "colorG": 0.7,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a9629cea-5abc-5de8-a523-50f31fcd03a7",
+      "parentId": "10bdc4ea-6688-54e8-badb-b85be95a8ae2",
+      "name": "Window Right",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 120.0,
+          "y": 140.0,
+          "z": -152.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 50.0,
+            "sizeZ": 8.0,
+            "colorR": 0.55,
+            "colorG": 0.7,
+            "colorB": 0.85,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "55690bd7-c134-5345-9283-0416ee389ea5",
+      "parentId": "10bdc4ea-6688-54e8-badb-b85be95a8ae2",
+      "name": "Chimney",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 120.0,
+          "y": 330.0,
+          "z": 60.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0,
+            "colorR": 0.58,
+            "colorG": 0.56,
+            "colorB": 0.52,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 40.0,
+            "sizeY": 120.0,
+            "sizeZ": 40.0
+          }
+        }
+      ]
+    }
+  ]
+}

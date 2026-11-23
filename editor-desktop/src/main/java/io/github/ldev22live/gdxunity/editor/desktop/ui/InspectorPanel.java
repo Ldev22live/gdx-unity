@@ -1,8 +1,10 @@
 package io.github.ldev22live.gdxunity.editor.desktop.ui;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -10,22 +12,32 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.command.ModifyComponentPropertyCommand;
+import io.github.ldev22live.gdxunity.editor.core.command.RemoveComponentCommand;
+import io.github.ldev22live.gdxunity.editor.core.component.ComponentCatalog;
 import io.github.ldev22live.gdxunity.editor.core.inspector.ComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.core.inspector.ComponentEditorRegistry;
 import io.github.ldev22live.gdxunity.editor.core.inspector.EntityInspectorModel;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.BoxCollider2DComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.CircleCollider2DComponentEditorProvider;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.Physics3DComponentEditorProviders;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.PlayerComponentEditorProvider;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.SpawnPointComponentEditorProvider;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.TerrainPathComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.RigidBody2DComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.ScriptBindingComponentEditorProvider;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.SpriteRendererComponentEditorProvider;
-import io.github.ldev22live.gdxunity.engine.render.components.SpriteRendererComponent;
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabState;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.ContextMenu;
+import io.github.ldev22live.gdxunity.engine.scene.prefab.PrefabInstanceComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
-import io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent;
-import io.github.ldev22live.gdxunity.engine.scene.scripting.EntityScriptBindingComponent;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,6 +53,10 @@ public class InspectorPanel extends Table {
     private final EditorState editorState;
     private final Skin skin;
     private final ComponentEditorRegistry<Table> componentRegistry;
+    private final ComponentCatalog componentCatalog;
+    private final ContextMenu addComponentMenu;
+    /** Component class names whose sections are collapsed; kept across selection changes. */
+    private final Set<String> collapsedSections = new HashSet<>();
 
     private final Table contentTable;
     private final ScrollPane scrollPane;
@@ -50,7 +66,14 @@ public class InspectorPanel extends Table {
     }
 
     public InspectorPanel(EditorState editorState, Skin skin, ComponentEditorRegistry<Table> componentRegistry) {
+        this(editorState, skin, componentRegistry, ComponentCatalog.createDefault());
+    }
+
+    public InspectorPanel(EditorState editorState, Skin skin, ComponentEditorRegistry<Table> componentRegistry,
+                          ComponentCatalog componentCatalog) {
         super(skin);
+        this.componentCatalog = Objects.requireNonNull(componentCatalog, "componentCatalog cannot be null");
+        this.addComponentMenu = new ContextMenu(skin);
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.skin = Objects.requireNonNull(skin, "skin cannot be null");
         this.componentRegistry = Objects.requireNonNull(componentRegistry, "componentRegistry cannot be null");
@@ -62,7 +85,7 @@ public class InspectorPanel extends Table {
         Table headerBar = new Table(skin);
         headerBar.setBackground("subheader-bg");
         headerBar.left();
-        Label titleLabel = new Label("Inspector", skin);
+        Label titleLabel = new Label("DETAILS", skin);
         if (skin.has("text-primary", Color.class)) {
             titleLabel.setColor(skin.getColor("text-primary"));
         } else {
@@ -107,14 +130,53 @@ public class InspectorPanel extends Table {
         return componentRegistry;
     }
 
-    private static ComponentEditorRegistry<Table> createDefaultRegistry() {
+    /** Details editors for the built-in components; the desktop shell adds editors for other modules. */
+    public static ComponentEditorRegistry<Table> createDefaultRegistry() {
         ComponentEditorRegistry<Table> reg = new ComponentEditorRegistry<>();
         reg.register(new SpriteRendererComponentEditorProvider());
         reg.register(new ScriptBindingComponentEditorProvider());
         reg.register(new RigidBody2DComponentEditorProvider());
         reg.register(new BoxCollider2DComponentEditorProvider());
         reg.register(new CircleCollider2DComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.MeshPrimitiveComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Directional());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Point());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.Sky());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.LightComponentEditorProviders.ToneMapping());
+        // Sky, weather and water presets (roadmap M3.9, TD-090)
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.EnvironmentComponentEditorProviders.Sky());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.EnvironmentComponentEditorProviders.Water());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.EnvironmentComponentEditorProviders.PostProcess());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.NavigationComponentEditorProviders.Bounds());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.NavigationComponentEditorProviders.Agent());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.GameComponentEditorProviders.Camera());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.CameraRigComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.Joint3DComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.GameComponentEditorProviders.Text());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.AudioSourceComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.EngineSoundComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.AudioListenerComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.ShapeRendererComponentEditorProvider());
+        reg.register(new io.github.ldev22live.gdxunity.editor.desktop.ui.inspector.MusicSourceComponentEditorProvider());
+        reg.register(new Physics3DComponentEditorProviders.RigidBody());
+        reg.register(new Physics3DComponentEditorProviders.Box());
+        reg.register(new Physics3DComponentEditorProviders.Sphere());
+        reg.register(new Physics3DComponentEditorProviders.Capsule());
+        reg.register(new Physics3DComponentEditorProviders.ConvexHull());
+        reg.register(new Physics3DComponentEditorProviders.Mesh());
+        reg.register(new Physics3DComponentEditorProviders.TerrainCollider());
+        reg.register(new PlayerComponentEditorProvider());
+        reg.register(new SpawnPointComponentEditorProvider());
+        reg.register(new TerrainPathComponentEditorProvider());
+        reg.register(new Physics3DComponentEditorProviders.CharacterController());
         return reg;
+    }
+
+    /** Adds the hint shown when no entity is selected; it wraps at the panel edge instead of running past it. */
+    private void addNothingSelectedNote() {
+        Label note = new Label("Nothing selected. Click an entity in the outline or the view.", skin, "muted");
+        note.setWrap(true);
+        contentTable.add(note).pad(16).growX().left().row();
     }
 
     public void refresh() {
@@ -122,8 +184,7 @@ public class InspectorPanel extends Table {
 
         Set<UUID> selection = editorState.getSelectedEntityIds();
         if (selection.isEmpty()) {
-            Label noSelection = new Label("No GameObject selected", skin, "muted");
-            contentTable.add(noSelection).pad(16).left().row();
+            addNothingSelectedNote();
             return;
         }
 
@@ -134,8 +195,7 @@ public class InspectorPanel extends Table {
 
         Entity selected = editorState.getSelectedEntity();
         if (selected == null) {
-            Label noSelection = new Label("No GameObject selected", skin, "muted");
-            contentTable.add(noSelection).pad(16).left().row();
+            addNothingSelectedNote();
             return;
         }
 
@@ -177,6 +237,12 @@ public class InspectorPanel extends Table {
         String uuidStr = selected.getId().toString();
         Label idLabel = new Label("ID: " + uuidStr.substring(0, Math.min(uuidStr.length(), 18)) + "...", skin, "muted");
         contentTable.add(idLabel).left().padLeft(6).padBottom(6).row();
+
+        PrefabService prefabs = editorState.getPrefabService();
+        Set<String> overrides = prefabs != null ? prefabs.getOverrides(selected) : Set.of();
+        if (prefabs != null && PrefabService.instanceRootOf(selected) != null) {
+            addPrefabBar(prefabs, selected, overrides);
+        }
 
         // 2. Transform Section
         addSectionHeader("Transform");
@@ -222,114 +288,188 @@ public class InspectorPanel extends Table {
         Label wPosLabel = new Label(String.format("World: (%.1f, %.1f, %.1f)", wPos.x, wPos.y, wPos.z), skin, "muted");
         contentTable.add(wPosLabel).left().padLeft(6).padTop(2).padBottom(6).row();
 
-        // 3. Extensible Component Sections from registry
+        // 3. Component sections (collapsible, with enable toggle and Remove)
         List<Component> components = selected.getAllComponents();
         for (Component comp : components) {
-            renderRegisteredComponent(selected, comp);
+            if (comp instanceof PrefabInstanceComponent) {
+                continue; // shown as the prefab bar
+            }
+            renderComponentSection(selected, comp, overrides);
         }
 
-        // 4. Add Component button rows
-        addSectionHeader("Add Component");
-        Table addCompBar1 = new Table(skin);
-        addCompBar1.left();
-        TextButton addSpriteBtn = new TextButton("+ Sprite Renderer", skin);
-        addSpriteBtn.addListener(new ChangeListener() {
+        // 4. Searchable Add Component
+        TextButton addComponentBtn = new TextButton("Add Component", skin, "primary");
+        addComponentBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                io.github.ldev22live.gdxunity.engine.core.asset.AssetReference selectedAsset = editorState.getSelectedAsset();
-                SpriteRendererComponent newSprite = (selectedAsset != null)
-                    ? new SpriteRendererComponent(selectedAsset, 100f, 100f)
-                    : new SpriteRendererComponent(100f, 100f);
-                editorState.executeCommand(new io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand(
-                    editorState, selected.getId(), newSprite
-                ));
-                refresh();
+                showAddComponentMenu(selected, addComponentBtn);
             }
         });
+        contentTable.add(addComponentBtn).growX().height(28).pad(8).row();
+    }
 
-        TextButton addScriptBtn = new TextButton("+ Script...", skin);
-        addScriptBtn.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                io.github.ldev22live.gdxunity.editor.core.scripting.ScriptManager sm = editorState.getScriptManager();
-                String defaultClass = "SamplePlayerScript";
-                if (sm != null && !sm.getDiscoveredScriptClasses().isEmpty()) {
-                    defaultClass = sm.getDiscoveredScriptClasses().keySet().iterator().next();
+    private void showAddComponentMenu(Entity entity, Actor anchor) {
+        Stage stage = getStage();
+        if (stage == null) {
+            return;
+        }
+        Table popup = new Table(skin);
+        TextField search = new TextField("", skin);
+        search.setMessageText("Search components...");
+        Table results = new Table(skin);
+        results.top().left();
+        Runnable fillResults = () -> {
+            results.clear();
+            List<ComponentCatalog.Entry> matches = componentCatalog.search(search.getText(), editorState.getGameMode());
+            if (matches.isEmpty()) {
+                results.add(new Label("No matching components", skin, "muted")).left().pad(4).row();
+            }
+            for (ComponentCatalog.Entry entry : matches) {
+                TextButton item = new TextButton(entry.displayName() + "   (" + entry.category() + ")", skin, "flat");
+                item.getLabel().setAlignment(Align.left);
+                boolean allowed = componentCatalog.canAdd(entity, entry);
+                item.setDisabled(!allowed);
+                if (!allowed) {
+                    item.getLabel().setColor(skin.getColor("text-muted"));
                 }
-                EntityScriptBindingComponent binding =
-                    new EntityScriptBindingComponent(
-                        "scripts/" + defaultClass + ".java",
-                        defaultClass,
-                        io.github.ldev22live.gdxunity.engine.scene.scripting.ScriptLanguage.JAVA
-                    );
-                editorState.executeCommand(new io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand(
-                    editorState, selected.getId(), binding
-                ));
-                refresh();
+                item.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        addComponentMenu.close();
+                        componentCatalog.addTo(editorState, entity, entry);
+                        refresh();
+                    }
+                });
+                results.add(item).growX().height(24).row();
             }
-        });
-
-        addCompBar1.add(addSpriteBtn).height(24).pad(2);
-        addCompBar1.add(addScriptBtn).height(24).pad(2);
-        contentTable.add(addCompBar1).growX().padTop(4).row();
-
-        Table addCompBar2 = new Table(skin);
-        addCompBar2.left();
-        TextButton addRbBtn = new TextButton("+ RigidBody 2D", skin);
-        addRbBtn.addListener(new ChangeListener() {
+        };
+        search.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (selected.getComponent(RigidBody2DComponent.class) == null) {
-                    editorState.executeCommand(new io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand(
-                        editorState, selected.getId(), new io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent()
-                    ));
-                    refresh();
-                } else {
-                    editorState.setStatusMessage("Entity already has a RigidBody2DComponent", true);
-                }
+                fillResults.run();
             }
         });
+        fillResults.run();
 
-        TextButton addBoxColBtn = new TextButton("+ Box Collider", skin);
-        addBoxColBtn.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                editorState.executeCommand(new io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand(
-                    editorState, selected.getId(), new io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent(100f, 100f)
-                ));
-                refresh();
-            }
-        });
-
-        TextButton addCircleColBtn = new TextButton("+ Circle Collider", skin);
-        addCircleColBtn.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                editorState.executeCommand(new io.github.ldev22live.gdxunity.editor.core.command.AddComponentCommand(
-                    editorState, selected.getId(), new io.github.ldev22live.gdxunity.engine.scene.physics.CircleCollider2DComponent(50f)
-                ));
-                refresh();
-            }
-        });
-
-        addCompBar2.add(addRbBtn).height(24).pad(2);
-        addCompBar2.add(addBoxColBtn).height(24).pad(2);
-        addCompBar2.add(addCircleColBtn).height(24).pad(2);
-        contentTable.add(addCompBar2).growX().padTop(2).padBottom(8).row();
+        popup.add(search).growX().height(24).padBottom(4).row();
+        popup.add(results).growX().row();
+        Vector2 anchorPos = anchor.localToStageCoordinates(new Vector2(0f, 0f));
+        addComponentMenu.showContent(stage, anchorPos.x, anchorPos.y, popup);
+        stage.setKeyboardFocus(search);
     }
 
     @SuppressWarnings("unchecked")
-    private <C extends Component> void renderRegisteredComponent(Entity entity, C comp) {
+    /** Prefab asset, override count and Apply / Revert / Unpack for an entity of a prefab instance (TD-027). */
+    private void addPrefabBar(PrefabService prefabs, Entity selected, Set<String> overrides) {
+        Table bar = new Table(skin);
+        bar.setBackground("subheader-bg");
+        bar.left();
+        PrefabInstanceComponent link = PrefabService.linkOf(selected);
+        Label title = new Label("Prefab  " + link.getPrefabPath(), skin, "section");
+        title.setColor(HierarchyPanel.PREFAB_TEXT_COLOR);
+        bar.add(title).padLeft(6).left().expandX();
+        bar.add(prefabButton("Apply", () -> prefabs.applyAll(selected))).height(22);
+        bar.add(prefabButton("Revert", () -> prefabs.revertAll(selected))).height(22);
+        bar.add(prefabButton("Unpack", () -> prefabs.unpack(selected))).height(22).padRight(4);
+        contentTable.add(bar).growX().height(24).padBottom(2).row();
+
+        int instanceOverrides = prefabs.countInstanceOverrides(selected);
+        String summary = instanceOverrides == 0 ? "Matches the prefab"
+            : instanceOverrides + " overridden " + (instanceOverrides == 1 ? "property" : "properties") + " in this instance"
+                + (overrides.isEmpty() ? "" : " (" + overrides.size() + " on this entity)");
+        contentTable.add(new Label(summary, skin, "muted")).left().padLeft(6).padBottom(6).row();
+    }
+
+    private TextButton prefabButton(String text, Runnable action) {
+        TextButton button = new TextButton(text, skin, "flat");
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                action.run();
+                refresh();
+            }
+        });
+        return button;
+    }
+
+    private <C extends Component> void renderComponentSection(Entity entity, C comp, Set<String> overrides) {
         Class<C> compClass = (Class<C>) comp.getClass();
         Optional<ComponentEditorProvider<C, Table>> providerOpt = componentRegistry.getProvider(compClass);
-        if (providerOpt.isPresent()) {
-            ComponentEditorProvider<C, Table> provider = providerOpt.get();
-            addSectionHeader(provider.getDisplayName());
-            Table compCard = new Table(skin);
-            compCard.left();
-            provider.buildEditor(compCard, entity, comp, editorState, skin);
-            contentTable.add(compCard).growX().pad(4).row();
+        String title = providerOpt.map(ComponentEditorProvider::getDisplayName).orElse(displayNameOf(compClass));
+        String sectionKey = compClass.getName();
+        boolean collapsed = collapsedSections.contains(sectionKey);
+
+        Table bar = new Table(skin);
+        bar.setBackground("subheader-bg");
+        bar.left();
+
+        TextButton collapseToggle = new TextButton(collapsed ? "+" : "-", skin, "flat");
+        collapseToggle.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (!collapsedSections.remove(sectionKey)) {
+                    collapsedSections.add(sectionKey);
+                }
+                refresh();
+            }
+        });
+        bar.add(collapseToggle).width(22).height(22);
+
+        TextButton enabledToggle = new TextButton(comp.isEnabled() ? "[x]" : "[ ]", skin, "flat");
+        enabledToggle.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                boolean oldValue = comp.isEnabled();
+                editorState.executeCommand(new ModifyComponentPropertyCommand<>(editorState, entity.getId(), comp,
+                    oldValue, !oldValue, comp::setEnabled, (oldValue ? "Disable " : "Enable ") + title));
+                refresh();
+            }
+        });
+        bar.add(enabledToggle).width(30).height(22);
+        String componentKey = overrides.isEmpty() ? null
+            : PrefabState.componentKey(editorState.getSerializer(), entity, comp);
+        boolean overridden = componentKey != null
+            && overrides.stream().anyMatch(p -> componentKey.equals(PrefabState.componentKeyOf(p)));
+        Label titleLabel = new Label(overridden ? title + "  (overridden)" : title, skin, "section");
+        if (overridden) {
+            titleLabel.setColor(HierarchyPanel.PREFAB_TEXT_COLOR);
         }
+        bar.add(titleLabel).padLeft(4).left().expandX();
+        if (overridden) {
+            bar.add(prefabButton("Revert", () -> editorState.getPrefabService().revertComponent(entity, comp))).height(22);
+        }
+
+        TextButton removeButton = new TextButton("Remove", skin, "flat");
+        removeButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                editorState.executeCommand(new RemoveComponentCommand(editorState, entity.getId(), comp));
+                refresh();
+            }
+        });
+        bar.add(removeButton).height(22).padRight(4);
+        contentTable.add(bar).growX().height(24).padTop(8).padBottom(4).row();
+
+        if (collapsed) {
+            return;
+        }
+        Table compCard = new Table(skin);
+        compCard.left();
+        if (providerOpt.isPresent()) {
+            providerOpt.get().buildEditor(compCard, entity, comp, editorState, skin);
+        } else {
+            compCard.add(new Label("No editable properties", skin, "muted")).left().padLeft(6);
+        }
+        contentTable.add(compCard).growX().pad(4).row();
+    }
+
+    /** "ShapeRendererComponent" -> "Shape Renderer". */
+    static String displayNameOf(Class<?> componentClass) {
+        String name = componentClass.getSimpleName();
+        if (name.endsWith("Component") && name.length() > "Component".length()) {
+            name = name.substring(0, name.length() - "Component".length());
+        }
+        return name.replaceAll("(?<=[a-z])(?=[A-Z])", " ");
     }
 
     private void buildMultiSelectionView(Set<UUID> selection) {

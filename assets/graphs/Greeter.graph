@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph",
+  "name": "Greeter",
+  "variables": [],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "event.beginPlay",
+      "x": 0,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n2",
+      "type": "action.print",
+      "x": 260,
+      "y": 0,
+      "literals": [
+        {
+          "pin": "message",
+          "type": "STRING",
+          "value": "Hello from a visual script!"
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n3",
+      "type": "data.getName",
+      "x": 260,
+      "y": 200,
+      "literals": [],
+      "properties": []
+    },
+    {
+      "id": "n4",
+      "type": "text.append",
+      "x": 520,
+      "y": 200,
+      "literals": [
+        {
+          "pin": "a",
+          "type": "STRING",
+          "value": "I am "
+        }
+      ],
+      "properties": []
+    },
+    {
+      "id": "n5",
+      "type": "action.print",
+      "x": 780,
+      "y": 0,
+      "literals": [],
+      "properties": []
+    }
+  ],
+  "links": [
+    {
+      "from": "n1",
+      "fromPin": "then",
+      "to": "n2",
+      "toPin": "exec"
+    },
+    {
+      "from": "n2",
+      "fromPin": "then",
+      "to": "n5",
+      "toPin": "exec"
+    },
+    {
+      "from": "n3",
+      "fromPin": "name",
+      "to": "n4",
+      "toPin": "b"
+    },
+    {
+      "from": "n4",
+      "fromPin": "result",
+      "to": "n5",
+      "toPin": "message"
+    }
+  ]
+}

@@ -1,7 +1,11 @@
 package io.github.ldev22live.gdxunity.editor.desktop.ui;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -9,6 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.action.EditorActionRegistry;
+import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.ContextMenu;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.Transform;
@@ -22,6 +29,8 @@ import java.util.UUID;
  * Styled with clear parent-child indentation, selection highlights, and accessible controls.
  */
 public class HierarchyPanel extends Table {
+    /** Text color of entities that belong to a prefab instance. */
+    static final Color PREFAB_TEXT_COLOR = new Color(0.45f, 0.72f, 1f, 1f);
     private final EditorState editorState;
     private final Skin skin;
 
@@ -32,8 +41,23 @@ public class HierarchyPanel extends Table {
 
     private final com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop dragAndDrop;
 
+    private final EditorActionRegistry contextActions;
+    private final List<String> contextActionIds;
+    private final ContextMenu contextMenu;
+
     public HierarchyPanel(EditorState editorState, Skin skin) {
+        this(editorState, skin, null, List.of());
+    }
+
+    /**
+     * @param contextActions   actions offered in the right-click menu of an entity; may be null for no menu
+     * @param contextActionIds ids of those actions, in menu order
+     */
+    public HierarchyPanel(EditorState editorState, Skin skin, EditorActionRegistry contextActions, List<String> contextActionIds) {
         super(skin);
+        this.contextActions = contextActions;
+        this.contextActionIds = List.copyOf(Objects.requireNonNull(contextActionIds, "contextActionIds cannot be null"));
+        this.contextMenu = new ContextMenu(skin);
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.skin = Objects.requireNonNull(skin, "skin cannot be null");
         this.dragAndDrop = new com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop();
@@ -47,7 +71,7 @@ public class HierarchyPanel extends Table {
         headerBar.setBackground("subheader-bg");
         headerBar.left();
 
-        Label titleLabel = new Label("Hierarchy", skin);
+        Label titleLabel = new Label("OUTLINE", skin);
         if (skin.has("text-primary", Color.class)) {
             titleLabel.setColor(skin.getColor("text-primary"));
         } else {
@@ -246,10 +270,28 @@ public class HierarchyPanel extends Table {
             normalColor = accentActiveColor;
         } else if (!entity.isActiveSelf()) {
             normalColor = textMutedColor;
+        } else if (PrefabService.linkOf(entity) != null) {
+            normalColor = PREFAB_TEXT_COLOR;
         } else {
             normalColor = textPrimaryColor;
         }
         itemBtn.setColor(normalColor);
+
+        // Right-click: select the entity and open its context menu
+        itemBtn.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if (button != Input.Buttons.RIGHT || contextActions == null || getStage() == null) {
+                    return false;
+                }
+                Vector2 menuPosition = itemBtn.localToStageCoordinates(new Vector2(x, y));
+                if (!editorState.isSelected(entity.getId())) {
+                    editorState.setSelectedEntity(entity);
+                }
+                contextMenu.show(getStage(), menuPosition.x, menuPosition.y, ContextMenu.itemsFor(contextActions, contextActionIds));
+                return true;
+            }
+        });
 
         // Click selection listener
         itemBtn.addListener(new ChangeListener() {

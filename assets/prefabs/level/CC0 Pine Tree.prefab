@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "CC0 Pine Tree",
+  "rootId": "b16eb9db-8343-52dd-a23d-79cf51c8fde3",
+  "entities": [
+    {
+      "id": "b16eb9db-8343-52dd-a23d-79cf51c8fde3",
+      "parentId": null,
+      "name": "CC0 Pine Tree",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "4acb78cf-7b2b-543e-8fe1-a9444b3e97aa",
+      "parentId": "b16eb9db-8343-52dd-a23d-79cf51c8fde3",
+      "name": "Tall Pine (Kenney Nature Kit)",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 4.25,
+          "y": 4.25,
+          "z": 4.25
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/nature-kit/Models/GLTF format/tree_pineTallA.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "CapsuleCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 7.0,
+            "height": 49.0,
+            "offsetX": 0.0,
+            "offsetY": 26.5,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        }
+      ]
+    }
+  ]
+}

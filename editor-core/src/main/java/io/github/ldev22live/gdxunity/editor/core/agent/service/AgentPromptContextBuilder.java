@@ -14,7 +14,7 @@ public class AgentPromptContextBuilder {
 
     public static String buildSystemInstruction(AgentToolRegistry registry) {
         StringBuilder sb = new StringBuilder();
-        sb.append("You are an AI assistant integrated into the GdxUnity game engine editor.\n");
+        sb.append("You are an AI assistant integrated into the Forgeroom game engine editor.\n");
         sb.append("Your role is to help users construct, organize, modify, and inspect scenes by generating a structured AgentPlan JSON.\n\n");
         sb.append("CRITICAL RULES:\n");
         sb.append("1. Always output ONLY a valid AgentPlan JSON object conforming to version 1.\n");

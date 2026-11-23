@@ -1,0 +1,310 @@
+{
+"schemaVersion": 1,
+"name": "Tilemap Platformer 2D",
+"active": true,
+"gameMode": "2d",
+"entities": [
+	{
+		"id": "41ef7079-bebb-4a4b-aa83-0c1e1312e63b",
+		"name": "Sky",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 320,
+				"y": 192,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "ShapeRendererComponent",
+				"enabled": true,
+				"data": {
+					"width": 640,
+					"height": 384,
+					"shapeType": "FILLED",
+					"centered": true,
+					"color": {
+						"r": 0.1,
+						"g": 0.11,
+						"b": 0.15,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "6ad89a23-e625-49e5-a7da-aa4b6dac5444",
+		"name": "Main Camera",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 320,
+				"y": 192,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "CameraComponent",
+				"enabled": true,
+				"data": {
+					"projection": "ORTHOGRAPHIC",
+					"orthographicHeight": 384,
+					"fieldOfView": 60,
+					"nearPlane": 1,
+					"farPlane": 50000
+				}
+			}
+		]
+	},
+	{
+		"id": "46da2589-414a-4142-b95e-f14ffe444fe3",
+		"name": "Level",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 0,
+				"y": 0,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "TilemapComponent",
+				"enabled": true,
+				"data": {
+					"tileSet": "sprites/tiles.sprite",
+					"tileWidth": 32,
+					"tileHeight": 32,
+					"collides": true,
+					"cols": 20,
+					"rows": 12,
+					"solid": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ],
+					"layers": [
+						{
+							"name": "Background",
+							"visible": true,
+							"cells": [ 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+						},
+						{
+							"name": "Ground",
+							"visible": true,
+							"cells": [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 11, 11, 11, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 3, 11, 11, 11, 9, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 13, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 10 ]
+						}
+					],
+					"rules": [
+						{
+							"name": "ground",
+							"tiles": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ]
+						}
+					],
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			}
+		]
+	},
+	{
+		"id": "af213c59-e09e-4bb7-ab13-2b04ac7c5bc6",
+		"name": "Idle Hero",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 200,
+				"y": 300,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/hero.sprite",
+					"tag": "idle",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 64,
+					"height": 64,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			},
+			{
+				"type": "RigidBody2DComponent",
+				"enabled": true,
+				"data": {
+					"bodyType": "DYNAMIC",
+					"gravityScale": 1,
+					"linearDamping": 0,
+					"angularDamping": 0.05,
+					"fixedRotation": true,
+					"bullet": false,
+					"initialLinearVelocityX": 0,
+					"initialLinearVelocityY": 0,
+					"initialAngularVelocity": 0
+				}
+			},
+			{
+				"type": "BoxCollider2DComponent",
+				"enabled": true,
+				"data": {
+					"width": 36,
+					"height": 60,
+					"offsetX": 0,
+					"offsetY": 0,
+					"density": 1,
+					"friction": 0.2,
+					"restitution": 0,
+					"isSensor": false,
+					"categoryBits": 1,
+					"maskBits": -1
+				}
+			}
+		]
+	},
+	{
+		"id": "6055ff6d-edcc-41cb-aa45-47bd3748d7f8",
+		"name": "Walking Hero",
+		"active": true,
+		"parentId": null,
+		"transform": {
+			"position": {
+				"x": 470,
+				"y": 330,
+				"z": 0
+			},
+			"rotation": {
+				"x": 0,
+				"y": 0,
+				"z": 0,
+				"w": 1
+			},
+			"scale": {
+				"x": 1,
+				"y": 1,
+				"z": 1
+			}
+		},
+		"components": [
+			{
+				"type": "SpriteAnimatorComponent",
+				"enabled": true,
+				"data": {
+					"assetPath": "sprites/hero.sprite",
+					"tag": "walk",
+					"slice": null,
+					"speed": 1,
+					"loop": true,
+					"playOnStart": true,
+					"flipX": false,
+					"flipY": false,
+					"width": 64,
+					"height": 64,
+					"centered": true,
+					"tint": {
+						"r": 1,
+						"g": 1,
+						"b": 1,
+						"a": 1
+					}
+				}
+			},
+			{
+				"type": "RigidBody2DComponent",
+				"enabled": true,
+				"data": {
+					"bodyType": "DYNAMIC",
+					"gravityScale": 1,
+					"linearDamping": 0,
+					"angularDamping": 0.05,
+					"fixedRotation": true,
+					"bullet": false,
+					"initialLinearVelocityX": 0,
+					"initialLinearVelocityY": 0,
+					"initialAngularVelocity": 0
+				}
+			},
+			{
+				"type": "BoxCollider2DComponent",
+				"enabled": true,
+				"data": {
+					"width": 36,
+					"height": 60,
+					"offsetX": 0,
+					"offsetY": 0,
+					"density": 1,
+					"friction": 0.2,
+					"restitution": 0,
+					"isSensor": false,
+					"categoryBits": 1,
+					"maskBits": -1
+				}
+			}
+		]
+	}
+]
+}

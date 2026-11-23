@@ -1,5 +1,7 @@
 package io.github.ldev22live.gdxunity.engine.scene;
 
+import io.github.ldev22live.gdxunity.engine.core.profile.FrameProfiler;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -249,16 +251,25 @@ public final class Entity {
             return;
         }
 
+        // While the scene is profiled (roadmap M9.6) each component's start and update count towards its type's section
+        FrameProfiler profiler = scene != null ? scene.recordingProfiler() : null;
         // Use indexed loop over snapshot copy in case components are added/removed during update
         for (int i = 0; i < componentList.size(); i++) {
             Component c = componentList.get(i);
             if (c.isEnabled()) {
+                int section = profiler != null ? scene.profilerSection(c) : -1;
+                if (section >= 0) {
+                    profiler.begin(section);
+                }
                 if (c instanceof BaseComponent baseComp) {
                     if (!baseComp.isStarted()) {
                         baseComp.onStart();
                     }
                 }
                 c.onUpdate(deltaTime);
+                if (section >= 0) {
+                    profiler.end(section);
+                }
             }
         }
     }

@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "kind": "prefab",
+  "name": "Pine Tree",
+  "rootId": "feca00a4-c3a5-5d5e-a6d7-0365153e6444",
+  "entities": [
+    {
+      "id": "feca00a4-c3a5-5d5e-a6d7-0365153e6444",
+      "parentId": null,
+      "name": "Pine Tree",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": []
+    },
+    {
+      "id": "c104b9bf-315c-5972-92fb-e55797f257ab",
+      "parentId": "feca00a4-c3a5-5d5e-a6d7-0365153e6444",
+      "name": "Trunk",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 55.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 30.0,
+            "sizeY": 110.0,
+            "sizeZ": 30.0,
+            "colorR": 0.38,
+            "colorG": 0.25,
+            "colorB": 0.14,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 30.0,
+            "sizeY": 110.0,
+            "sizeZ": 30.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "eeb49e0b-5cad-5ebb-86c3-e08e5e3b9dfc",
+      "parentId": "feca00a4-c3a5-5d5e-a6d7-0365153e6444",
+      "name": "Lower Tier",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 130.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 170.0,
+            "sizeY": 110.0,
+            "sizeZ": 170.0,
+            "colorR": 0.1,
+            "colorG": 0.32,
+            "colorB": 0.18,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "29a500b5-518b-5151-a44f-7f36fe60cfb2",
+      "parentId": "feca00a4-c3a5-5d5e-a6d7-0365153e6444",
+      "name": "Middle Tier",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 205.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 125.0,
+            "sizeY": 100.0,
+            "sizeZ": 125.0,
+            "colorR": 0.1,
+            "colorG": 0.32,
+            "colorB": 0.18,
+            "colorA": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "ecd2045a-1fad-57b8-891b-f8b52ed7766c",
+      "parentId": "feca00a4-c3a5-5d5e-a6d7-0365153e6444",
+      "name": "Top Tier",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 275.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "SPHERE",
+            "sizeX": 80.0,
+            "sizeY": 90.0,
+            "sizeZ": 80.0,
+            "colorR": 0.1,
+            "colorG": 0.32,
+            "colorB": 0.18,
+            "colorA": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+[Editor] Profiler:
+Frame 1 back (of 300): 3.72 ms work, 16.82 ms to the next frame (59 fps), 13.10 ms waiting; average 7.07 ms, slowest 247.91 ms; Entities 222
+  Scene view 2.358 ms (63.4%, average 3.807 ms, Draw calls 419, Vertices 340950, Texture binds 4, Shader switches 3, GL errors 0)
+    3D scene 2.133 ms (57.3%, average 3.322 ms, Draw calls 418, Vertices 340068, Texture binds 3, Shader switches 2, GL errors 0)
+    2D scene 0.032 ms (0.9%, average 0.072 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+    Other 0.193 ms (5.2%, average 0.000 ms)
+  Editor UI 1.053 ms (28.3%, average 1.884 ms, Draw calls 83, Vertices 9336, Texture binds 81, Shader switches 4, GL errors 0)
+  Play 0.265 ms (7.1%, average 0.482 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+    Scene update 0.216 ms (5.8%, average 0.398 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      Script RaceGame 0.055 ms (1.5%, average 0.131 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      Script ChaseCamera3D 0.018 ms (0.5%, average 0.044 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      MeshPrimitiveComponent 0.009 ms (0.3%, average 0.008 ms, 209 calls, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      DirectionalLightComponent 0.001 ms (0.0%, average 0.001 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      TextComponent 0.001 ms (0.0%, average 0.000 ms, 7 calls, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      EngineSoundComponent 0.000 ms (0.0%, average 0.000 ms, 3 calls, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      AudioSourceComponent 0.000 ms (0.0%, average 0.000 ms, 4 calls, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      AudioListenerComponent 0.000 ms (0.0%, average 0.000 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      CameraComponent 0.000 ms (0.0%, average 0.000 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      SkyLightComponent 0.000 ms (0.0%, average 0.000 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      ToneMappingComponent 0.000 ms (0.0%, average 0.000 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      MusicSourceComponent 0.000 ms (0.0%, average 0.000 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+      Other 0.132 ms (3.6%, average 0.000 ms)
+    2D physics 0.042 ms (1.1%, average 0.066 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+  Editor update 0.018 ms (0.5%, average 0.835 ms, Draw calls 0, Vertices 0, Texture binds 0, Shader switches 0, GL errors 0)
+  Untimed 0.027 ms (0.7%, average 0.000 ms)
+
+[Editor] Smoke test rendered 300 frames, 0 error(s) in the Output Log

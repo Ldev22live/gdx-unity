@@ -1,0 +1,212 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "GdxUnity sample (make_sample.py)"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0,
+    1
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "mesh": 0,
+   "skin": 0,
+   "name": "Strip"
+  },
+  {
+   "name": "Root",
+   "children": [
+    2
+   ]
+  },
+  {
+   "name": "Tip",
+   "translation": [
+    0,
+    1,
+    0
+   ]
+  }
+ ],
+ "skins": [
+  {
+   "inverseBindMatrices": 5,
+   "joints": [
+    1,
+    2
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Orange",
+   "doubleSided": true,
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.95,
+     0.55,
+     0.15,
+     1
+    ],
+    "metallicFactor": 0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "meshes": [
+  {
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "JOINTS_0": 1,
+      "WEIGHTS_0": 2,
+      "NORMAL": 3
+     },
+     "indices": 4,
+     "material": 0
+    }
+   ]
+  }
+ ],
+ "animations": [
+  {
+   "name": "Bend",
+   "channels": [
+    {
+     "sampler": 0,
+     "target": {
+      "node": 2,
+      "path": "rotation"
+     }
+    }
+   ],
+   "samplers": [
+    {
+     "input": 6,
+     "output": 7,
+     "interpolation": "LINEAR"
+    }
+   ]
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "data:application/octet-stream;base64,AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAACAPwAAgD8AAAAAAAAAAAAAAEAAAAAAAACAPwAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAABAAAAAAAAAAEAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAA/AAAAPwAAAAAAAAAAAAAAPwAAAD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAABAAMAAAADAAIAAgADAAUAAgAFAAQAAACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIC/AAAAAAAAgD8AAAAAAAAAPwAAgD8AAMA/AAAAQAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAABXvwz5eg2w/AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAFe/Dvl6DbD8AAAAAAAAAAAAAAAAAAIA/",
+   "byteLength": 540
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 72
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 72,
+   "byteLength": 48
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 120,
+   "byteLength": 96
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 216,
+   "byteLength": 72
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 288,
+   "byteLength": 24
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 312,
+   "byteLength": 128
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 440,
+   "byteLength": 20
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 460,
+   "byteLength": 80
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 6,
+   "type": "VEC3",
+   "min": [
+    0,
+    0,
+    0
+   ],
+   "max": [
+    1,
+    2,
+    0
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5123,
+   "count": 6,
+   "type": "VEC4"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5126,
+   "count": 6,
+   "type": "VEC4"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 6,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5123,
+   "count": 12,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5126,
+   "count": 2,
+   "type": "MAT4"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 5,
+   "type": "SCALAR",
+   "min": [
+    0
+   ],
+   "max": [
+    2
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 5,
+   "type": "VEC4"
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "name": "Water",
+  "baseColor": [
+    0.1,
+    0.35,
+    0.6,
+    0.55
+  ],
+  "metallic": 0.0,
+  "roughness": 0.05,
+  "emissive": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "emissiveStrength": 1.0,
+  "normalScale": 1.0,
+  "occlusionStrength": 1.0,
+  "alphaMode": "BLEND",
+  "alphaCutoff": 0.5,
+  "doubleSided": true,
+  "tiling": [
+    1.0,
+    1.0
+  ],
+  "offset": [
+    0.0,
+    0.0
+  ],
+  "textures": {}
+}
