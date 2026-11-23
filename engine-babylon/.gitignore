@@ -18,3 +18,5 @@ public/terrains/
 # Copied from ../assets/materials and ../assets/textures by the same script (roadmap M2.5)
 public/materials/
 public/textures/
+# Copied from ../assets/thirdparty (the packs' Models folders) by the same script (roadmap M2b.7)
+public/thirdparty/

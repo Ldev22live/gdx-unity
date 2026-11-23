@@ -1,5 +1,6 @@
-"""Writes the curated CC0 starter pack (roadmap M2b.2): a tree and a rock for the World strip's Objects
-(assets/prefabs/level/) and a house for Buildings (assets/prefabs/buildings/), made from Kenney's Nature Kit and Building Kit.
+"""Writes the curated CC0 starter pack (roadmap M2b.2): an oak, a rock, and (since M2b.6, for the first refreshed sample) a pine and a bush
+for the World strip's Objects (assets/prefabs/level/), and a house for Buildings (assets/prefabs/buildings/), made from Kenney's Nature
+Kit and Building Kit.
 
 Run from the repository root, after the two packs were imported through the editor's Assets > Import (they are in
 assets/thirdparty/kenney/ and recorded in assets/licenses/manifest.json):  python tools/make_starter_pack.py
@@ -30,6 +31,10 @@ UNITS_PER_METRE = 100.0
 TREE_SCALE = 5.0
 # The tall rock is 1 kit unit; at 1.5 it is a 1.5 m boulder
 ROCK_SCALE = 1.5
+# The tall pine is 1.53 kit units; at 4.25 it stands 6.5 m, like the landscape samples' generated pine (M2b.6)
+PINE_SCALE = 4.25
+# The large bush is 0.24 kit units high and 0.37 across; at 5 it is 1.2 m high and 1.9 m across, like the generated bush (M2b.6)
+BUSH_SCALE = 5.0
 # The Building Kit's grid: floor tiles and wall pieces are 2 m
 CELL = 2.0
 WALL_HEIGHT = 2.4
@@ -40,6 +45,9 @@ NATURE_FOOT = -0.05
 # The oak's bark: 0.1 m round up the trunk (0.2 m where it flares at the ground), up to 0.5 m in the mesh where the crown begins
 TRUNK_RADIUS = 0.11
 TRUNK_TOP = 0.45
+# The tall pine's bark: 0.066 m round at the foot, up to 0.58 m in the mesh where the needles begin
+PINE_TRUNK_RADIUS = 0.07
+PINE_TRUNK_TOP = 0.58
 # The tall rock: 0.984 m by 0.684 m, 0.996 m high in the mesh
 ROCK_SIZE = (0.984, 0.996, 0.684)
 # Building Kit pieces: a floor tile is 0.1 m thick; walls are 0.1 m (plain) or 0.2 m (with an opening) thick; the doorway's opening is
@@ -121,6 +129,20 @@ def tree():
     p.write()
 
 
+def pine():
+    p = Prefab("CC0 Pine Tree", LEVEL)
+    p.piece("model", "Tall Pine (Kenney Nature Kit)", NATURE + "tree_pineTallA.glb", (0, 0, 0), scale=PINE_SCALE,
+            colliders=[capsule(PINE_TRUNK_RADIUS, NATURE_FOOT, PINE_TRUNK_TOP)])
+    p.write()
+
+
+def bush():
+    """A bush is walked through, like the shape-built Bush: no collider."""
+    p = Prefab("CC0 Bush", LEVEL)
+    p.piece("model", "Large Bush (Kenney Nature Kit)", NATURE + "plant_bushLarge.glb", (0, 0, 0), scale=BUSH_SCALE)
+    p.write()
+
+
 def rock():
     p = Prefab("CC0 Rock", LEVEL)
     p.piece("model", "Tall Rock (Kenney Nature Kit)", NATURE + "rock_tallA.glb", (0, 0, 0), scale=ROCK_SCALE,
@@ -179,6 +201,8 @@ def house():
 
 if __name__ == "__main__":
     tree()
+    pine()
+    bush()
     rock()
     house()
-    print("Wrote CC0 Oak Tree and CC0 Rock (prefabs/level) and CC0 House (prefabs/buildings)")
+    print("Wrote CC0 Oak Tree, CC0 Pine Tree, CC0 Bush and CC0 Rock (prefabs/level) and CC0 House (prefabs/buildings)")

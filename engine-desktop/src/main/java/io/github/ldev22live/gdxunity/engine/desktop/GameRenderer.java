@@ -178,6 +178,11 @@ public final class GameRenderer implements EngineRenderer {
         renderer3D.setTerrainLod(enabled);
     }
 
+    /** Draws only the objects in view and in the shadow map's area (on by default); off draws every one (roadmap M3.6). */
+    public void setObjectCulling(boolean enabled) {
+        renderer3D.setObjectCulling(enabled);
+    }
+
     /** The measured frames' average cost in milliseconds, or NaN when none were measured. */
     public double getAverageFrameMillis() {
         return frameTimes == null ? Double.NaN : frameTimes.meanMillis();

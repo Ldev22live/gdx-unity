@@ -16,11 +16,13 @@ import java.nio.file.StandardCopyOption;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -163,6 +165,21 @@ public final class TemplateProject {
         }
         java.util.Collections.sort(files);
         return new Result(folder.toFile(), startScene, files);
+    }
+
+    /**
+     * The project-relative paths of every file {@code path} needs (itself included), by following its references the way a new
+     * project copies them: a scene's prefabs, models and materials, a glTF's buffers and images, a script's helpers. Used by the asset
+     * support matrix (roadmap M2b.7) to tell which shipped files the samples use and which models stand alone.
+     *
+     * @param root the asset or project root
+     * @param path a file under {@code root}, with forward slashes
+     * @throws IOException if a file on the way cannot be read or followed
+     */
+    public static Set<String> dependenciesOf(File root, String path) throws IOException {
+        Objects.requireNonNull(root, "root cannot be null");
+        Objects.requireNonNull(path, "path cannot be null");
+        return Collections.unmodifiableSet(findDependencies(root.toPath(), path.replace('\\', '/')));
     }
 
     /** The project-relative paths of every file the scene needs (the scene itself included), by following the references. */

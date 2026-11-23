@@ -1,5 +1,6 @@
 package io.github.ldev22live.gdxunity.editor.terrain;
 
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.JsonValue;
@@ -10,6 +11,7 @@ import io.github.ldev22live.gdxunity.editor.core.command.CreateEntityCommand;
 import io.github.ldev22live.gdxunity.editor.core.command.DeleteEntityCommand;
 import io.github.ldev22live.gdxunity.editor.core.command.EditorCommand;
 import io.github.ldev22live.gdxunity.editor.core.command.ModifyComponentPropertyCommand;
+import io.github.ldev22live.gdxunity.editor.core.command.SceneSnapshotCommand;
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabDocument;
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
@@ -19,6 +21,7 @@ import io.github.ldev22live.gdxunity.engine.render.components.TerrainPathCompone
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.TerrainCollider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.play.PlayerComponent;
 import io.github.ldev22live.gdxunity.engine.scene.play.SpawnPointComponent;
@@ -65,7 +68,12 @@ public final class LevelSession {
         /** Drops the chosen object where the mouse is clicked. */
         PLACE("Place"),
         /** Removes the placed object nearest the click. */
-        ERASE("Erase");
+        ERASE("Erase"),
+        /**
+         * Drag over the ground to scatter the chosen object inside the brush, up to a density, on ground the slope and height limits
+         * allow; Ctrl-drag removes copies of it. One stroke is one undo step (roadmap M3.6, TD-097).
+         */
+        SCATTER("Scatter");
 
         private final String label;
 
@@ -79,7 +87,7 @@ public final class LevelSession {
 
         /** True for the tools that are brush strokes on the terrain. */
         public boolean isBrush() {
-            return this != PLACE && this != ERASE && this != PATH;
+            return this != PLACE && this != ERASE && this != PATH && this != SCATTER;
         }
 
         /** True for the tools that shape the ground: the brushes and the Path tool (roadmap M3.7). */
@@ -113,7 +121,8 @@ public final class LevelSession {
             return switch (this) {
                 case ALL -> true;
                 case TERRAIN -> tool.isGround();
-                case OBJECTS, BUILDINGS -> tool == Tool.PLACE || tool == Tool.ERASE;
+                case OBJECTS -> tool == Tool.PLACE || tool == Tool.ERASE || tool == Tool.SCATTER;
+                case BUILDINGS -> tool == Tool.PLACE || tool == Tool.ERASE;
                 case CHARACTERS -> tool == Tool.PLACE;
             };
         }
@@ -139,11 +148,24 @@ public final class LevelSession {
     public static final float SCALE_JITTER = 0.2f;
     /** How far from the click, in world units, the erase tool looks for an object. */
     public static final float ERASE_RADIUS = 160f;
+    /** A scatter dab is skipped until the mouse has moved this fraction of the brush radius from the last one. */
+    public static final float SCATTER_DAB_SPACING = 0.5f;
+    /** Nothing is scattered this near the player or the spawn point, in world units, so the start stays clear. */
+    public static final float CHARACTER_KEEP_OUT = 150f;
 
     private final EditorState editorState;
     private final TerrainSession terrainSession;
     private final File assetRoot;
     private final Random random = new Random(1234);
+    private final ScatterSettings scatterSettings = new ScatterSettings();
+    /** The scatter stroke in progress, recorded as one undo step; null between strokes. */
+    private SceneSnapshotCommand.Recording scatterRecording;
+    private boolean scatterErasing;
+    private boolean scatterHasDab;
+    private float lastDabX;
+    private float lastDabZ;
+    /** Objects placed (or removed) by the stroke in progress. */
+    private int scatterCount;
     private boolean active;
     private Tool tool = Tool.RAISE;
     private Focus focus = Focus.ALL;
@@ -739,6 +761,205 @@ public final class LevelSession {
         editorState.setSelectedEntity(placed);
         editorState.setStatusMessage("Placed " + name + " " + where + ". Move or turn it with the tools.", false);
         return placed;
+    }
+
+    // ---- scatter (roadmap M3.6, TD-097) ------------------------------------------------------------------------------------
+
+    /** The Scatter tool's density, scale, slope, height and spacing; the brush radius is the terrain brush's. */
+    public ScatterSettings getScatterSettings() {
+        return scatterSettings;
+    }
+
+    /** True while a scatter stroke is in progress. */
+    public boolean isScattering() {
+        return scatterRecording != null;
+    }
+
+    /**
+     * Starts a scatter stroke with the chosen object: objects appear as the mouse drags and the stroke becomes one undo step at
+     * {@link #endScatter()}.
+     *
+     * @param erase true to remove copies of the chosen object inside the brush instead (Ctrl)
+     * @return false when there is nothing to scatter, no ground, or Play is on (the status bar says why)
+     */
+    public boolean beginScatter(boolean erase) {
+        if (editorState.isPlayModeActive()) {
+            editorState.setStatusMessage("Cannot scatter during Play/Pause mode", true);
+            return false;
+        }
+        if (objectPath.isEmpty() || !objectPath.startsWith(OBJECT_FOLDER + "/")) {
+            editorState.setStatusMessage("Choose an object from Objects to scatter first", true);
+            return false;
+        }
+        if (findGround() == null || findTerrain() == null || editorState.getPrefabService() == null) {
+            editorState.setStatusMessage("There is no ground yet: press New Level", true);
+            return false;
+        }
+        scatterRecording = SceneSnapshotCommand.begin(editorState);
+        scatterErasing = erase;
+        scatterHasDab = false;
+        scatterCount = 0;
+        return true;
+    }
+
+    /**
+     * One dab of the stroke at a point of the ground's own space. A dab nearer the last than {@link #SCATTER_DAB_SPACING} of the brush
+     * radius is skipped, so a slow drag does not test the same circle again and again.
+     *
+     * @return how many objects this dab placed or removed
+     */
+    public int scatterAt(float localX, float localZ) {
+        if (scatterRecording == null) {
+            return 0;
+        }
+        float radius = terrainSession.getBrush().getRadius();
+        float step = radius * SCATTER_DAB_SPACING;
+        if (scatterHasDab && Vector2.dst2(localX, localZ, lastDabX, lastDabZ) < step * step) {
+            return 0;
+        }
+        scatterHasDab = true;
+        lastDabX = localX;
+        lastDabZ = localZ;
+        Entity ground = findGround();
+        Terrain terrain = findTerrain();
+        int changed = scatterErasing ? eraseCopies(ground, localX, localZ, radius) : scatterCopies(ground, terrain, localX, localZ, radius);
+        scatterCount += changed;
+        if (changed > 0) {
+            editorState.notifyHierarchyModified();
+        }
+        return changed;
+    }
+
+    /**
+     * Ends the stroke: when it changed anything it goes on the undo stack as one step.
+     *
+     * @return how many objects the stroke placed (or removed)
+     */
+    public int endScatter() {
+        SceneSnapshotCommand.Recording recording = scatterRecording;
+        scatterRecording = null;
+        if (recording == null) {
+            return 0;
+        }
+        String label = objectLabel(objectPath);
+        if (scatterCount == 0) {
+            editorState.setStatusMessage(scatterErasing ? "No " + label + " to remove there"
+                : "Nothing scattered: the ground there is too steep, too high or low, under water, or already full", false);
+            return 0;
+        }
+        String what = (scatterErasing ? "Remove " : "Scatter ") + label + " x " + scatterCount;
+        editorState.executeCommand(recording.finish(what));
+        editorState.setStatusMessage((scatterErasing ? "Removed " : "Scattered ") + scatterCount + " " + label
+            + (scatterCount == 1 ? "" : "s") + ". Ctrl+Z undoes the stroke.", false);
+        return scatterCount;
+    }
+
+    private int scatterCopies(Entity ground, Terrain terrain, float localX, float localZ, float radius) {
+        Matrix4 toWorld = ground.getTransform().getWorldMatrix();
+        ScatterPlanner.Plan plan = ScatterPlanner.plan(terrain, localX, localZ, radius, scatterSettings, obstacles(ground), random);
+        PrefabService prefabs = editorState.getPrefabService();
+        AssetReference prefab = new AssetReference(objectPath);
+        int placed = 0;
+        for (ScatterPlanner.Placement placement : plan.placements()) {
+            Vector3 world = new Vector3(placement.x(), placement.y(), placement.z()).mul(toWorld);
+            try {
+                prefabs.placeUnrecorded(prefab, world, placement.yawDegrees(), placement.scale());
+                placed++;
+            } catch (IOException | RuntimeException e) {
+                editorState.setStatusMessage("Cannot scatter " + objectLabel(objectPath) + ": " + e.getMessage(), true);
+                break;
+            }
+        }
+        return placed;
+    }
+
+    private int eraseCopies(Entity ground, float localX, float localZ, float radius) {
+        Scene scene = editorState.getActiveScene();
+        Matrix4 toLocal = new Matrix4(ground.getTransform().getWorldMatrix()).inv();
+        List<Entity> inside = new ArrayList<>();
+        Vector3 at = new Vector3();
+        for (Entity entity : scene.getAllEntities()) {
+            PrefabInstanceComponent link = PrefabService.linkOf(entity);
+            if (link == null || !link.isRoot() || !link.getPrefabPath().equals(objectPath)) {
+                continue;
+            }
+            at.set(entity.getTransform().getWorldPosition()).mul(toLocal);
+            if (Vector2.dst2(at.x, at.z, localX, localZ) <= radius * radius) {
+                inside.add(entity);
+            }
+        }
+        for (Entity entity : inside) {
+            scene.removeEntity(entity, true);
+        }
+        if (!inside.isEmpty() && editorState.getSelectedEntityId() != null
+            && scene.findEntityById(editorState.getSelectedEntityId()) == null) {
+            editorState.clearSelection();
+        }
+        return inside.size();
+    }
+
+    /**
+     * What already stands on the ground, in its own space: placed objects (copies of the chosen one count towards the density), and
+     * keep-out circles around buildings (their colliders' footprint) and the player and spawn point.
+     */
+    private List<ScatterPlanner.Obstacle> obstacles(Entity ground) {
+        Scene scene = editorState.getActiveScene();
+        Matrix4 toLocal = new Matrix4(ground.getTransform().getWorldMatrix()).inv();
+        List<ScatterPlanner.Obstacle> found = new ArrayList<>();
+        Vector3 at = new Vector3();
+        for (Entity entity : scene.getAllEntities()) {
+            PrefabInstanceComponent link = PrefabService.linkOf(entity);
+            boolean character = entity.getComponent(PlayerComponent.class) != null || entity.getComponent(SpawnPointComponent.class) != null;
+            if (!character && (link == null || !link.isRoot())) {
+                continue;
+            }
+            at.set(entity.getTransform().getWorldPosition()).mul(toLocal);
+            if (character) {
+                found.add(new ScatterPlanner.Obstacle(at.x, at.z, CHARACTER_KEEP_OUT, false));
+            } else if (link.getPrefabPath().startsWith(BUILDING_FOLDER + "/")) {
+                found.add(new ScatterPlanner.Obstacle(at.x, at.z, footprint(scene, entity), false));
+            } else if (link.getPrefabPath().startsWith(OBJECT_FOLDER + "/")) {
+                found.add(new ScatterPlanner.Obstacle(at.x, at.z, 0f, link.getPrefabPath().equals(objectPath)));
+            }
+        }
+        return found;
+    }
+
+    /**
+     * How far a building reaches across the ground from its origin: the farthest corner of any of its box colliders, or of its parts
+     * when it has none, in world units.
+     */
+    private static float footprint(Scene scene, Entity building) {
+        Vector3 origin = building.getTransform().getWorldPosition();
+        float reach = 0f;
+        Vector3 at = new Vector3();
+        Vector3 scale = new Vector3();
+        for (Entity entity : scene.getAllEntities()) {
+            if (!isWithin(entity, building)) {
+                continue;
+            }
+            at.set(entity.getTransform().getWorldPosition());
+            float centre = Vector2.dst(at.x, at.z, origin.x, origin.z);
+            BoxCollider3DComponent box = entity.getComponent(BoxCollider3DComponent.class);
+            float half = 0f;
+            if (box != null) {
+                Vector3 size = box.getSize().scl(scale.set(entity.getTransform().getWorldScale()));
+                Vector3 offset = box.getOffset().scl(scale);
+                centre += Vector2.len(offset.x, offset.z);
+                half = Vector2.len(size.x, size.z) / 2f;
+            }
+            reach = Math.max(reach, centre + half);
+        }
+        return reach;
+    }
+
+    private static boolean isWithin(Entity entity, Entity ancestor) {
+        for (var at = entity.getTransform(); at != null; at = at.getParent()) {
+            if (at == ancestor.getTransform()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ---- objects ----------------------------------------------------------------------------------------------------------

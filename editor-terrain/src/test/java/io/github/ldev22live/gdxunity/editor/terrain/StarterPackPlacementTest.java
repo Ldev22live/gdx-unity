@@ -120,7 +120,8 @@ class StarterPackPlacementTest {
 
         Entity house = place(HOUSE, 0f, 0f);
 
-        assertEquals(before + 17, scene.getAllEntities().size(), "the house and its 16 pieces");
+        // The root, 16 pieces, and the doorway's two jambs and lintel as collision-only children (TD-096)
+        assertEquals(before + 20, scene.getAllEntities().size(), "the house, its 16 pieces and its 3 doorway colliders");
         assertTrue(editorState.undo());
         assertEquals(before, scene.getAllEntities().size(), "one undo takes the whole house away");
         assertTrue(scene.getAllEntities().stream().noneMatch(e -> e.getId().equals(house.getId())));

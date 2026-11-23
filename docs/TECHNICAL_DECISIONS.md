@@ -3059,8 +3059,167 @@ Opening one of the 38 bundled samples written in the other layout (two spaces, `
 **Not built here, and planned:**
 - **Scene-aware transforms** already exist: the level editor puts an object's foot on the ground under the cursor (TD-083). Aligning to the ground's slope and random scale and rotation belong to scatter (M3.6), where they are needed.
 - **Prefab overrides** already exist at instance level (TD-027: `PrefabInstanceComponent` records overridden properties). Nothing new was needed for colliders: a collider edited on one copy is an override like any other property.
-- **Instancing (for M3.6).** The game runtime draws each placed model as its own `ModelInstance`, one draw call per mesh part. The measurement in the report sets the starting point. Scatter adds one entity holding many transforms of one prefab, drawn by grouping its copies per mesh (LibGDX has no hardware instancing in `ModelBatch`; GL ES 2.0 has none, so the first step is batching by mesh and material with frustum culling, not GPU instancing), with colliders created per copy from the prefab's simple shapes.
+- **Instancing (for M3.6).** The game runtime draws each placed model as its own `ModelInstance`, one draw call per mesh part. Measured on 2026-11-20 (Windows 11, Intel Iris Xe, one run each): a level of 223 placed objects (81 CC0 oaks, 45 CC0 rocks, 45 pines, 44 boulders, 8 CC0 houses; 822 entities, 448 with colliders) draws in 14.9 ms a frame against 3.5 ms for the same level without them, while its physics costs 0.8 ms a step (median) after 0.6 s to start. Drawing, not collision, is what limits object counts. Scatter adds one entity holding many transforms of one prefab, drawn by grouping its copies per mesh (LibGDX has no hardware instancing in `ModelBatch`; GL ES 2.0 has none, so the first step is batching by mesh and material with frustum culling, not GPU instancing), with colliders created per copy from the prefab's simple shapes.
 - **Level of detail (for M3.6 and imported high-detail assets).** A prefab may name lower-detail models by distance; until then the guidance stays: heavy assets such as Poly Haven's 124,000-triangle boulder are for stress tests only. Distance culling of small objects comes first, because it needs no new asset.
 
 **Consequences.** Levels play as they look: players stop at trunks, rocks and walls. A project has its own copies of the palette's prefab files (`StarterPalette`, at creation), and placed copies follow the project's prefab when a scene opens (`PrefabService.syncScene`). So new projects get the colliders; a project made before this keeps its old prefab files, and its objects stay without colliders until those files are updated (copy the new prefab files in, or add colliders with Edit Shared Prefab). A scene with placed objects now creates 3D physics at Play, which it already did for any 3D level with a terrain collider.
 
+### TD-097: The Scatter Tool, Strokes Recorded as One Undo Step, and Object Culling (Roadmap M3.6)
+
+**Status:** **Recorded as built under milestone M3.6 on 2026-11-20, for the owner's review.** The chart lists no approval gate for M3.6. This record exists because the milestone adds a level-editor tool, a new way of recording undo steps (`SceneSnapshotCommand.begin`), and a change to how the 3D renderer chooses what to draw. [Report](reports/m3-6-scatter-tools.md).
+
+**Context.** The level editor placed one object per click (TD-083). The chart asks for scatter tools ("foliage and rocks with density, random scale and rotation, slope and height limits, exclusion zones, instanced rendering, from prefabs"), done when pines are scattered on a slope with a measured frame cost and one undo step. TD-096 measured that drawing, not physics, limits object counts, and planned culling first.
+
+**Decision.**
+- **A Scatter tool in Objects** (`LevelSession.Tool.SCATTER`; not in Buildings, which stand square one at a time). A left drag over the ground scatters the chosen Objects prefab inside the brush; Ctrl-drag removes copies of it inside the brush. The brush radius is the terrain brush's.
+- **Settings** (`ScatterSettings`, checked when set):
+  - density in objects per 10 m by 10 m;
+  - a scale range, and a random turn;
+  - a slope limit, and an optional height range;
+  - a spacing between objects.
+- **Where objects go** (`ScatterPlanner`, headless, a seeded random):
+  - **Filling:** each dab fills its circle up to the density, counting copies already there, so going over the same ground tops it up instead of piling objects up. A dab runs only after the mouse moves half a brush radius.
+  - **What is refused:** off the terrain, holes, under water, outside the height range, steeper than the limit (the grid normal), and nearer than the spacing to any placed object.
+  - **Keep-out zones:** a building's footprint (its box colliders' reach, plus the spacing), and 1.5 m around the player and the spawn point. Exclusion zones are these automatic ones. There is no painted exclusion volume.
+- **Live, then one undo step.** Objects appear while the mouse drags, outside the undo history, through `PrefabService.placeUnrecorded`. `SceneSnapshotCommand.begin` records the scene when the stroke starts. On release, `Recording.finish` records it again, and the result goes on the undo stack as one step, "Scatter Pine Tree x 37". Executing it the first time changes nothing. A stroke that changed nothing leaves no step. This is the one place the editor changes the scene outside a command while the change is in progress; the change is recorded as a whole before anything else can run.
+- **Scattered objects are ordinary prefab instances**, so they save, follow their prefab (`syncScene`), collide (TD-096), play, export and erase like placed ones. The scene format does not change.
+- **Object culling instead of instancing (first step).**
+  - `SceneRenderer3D` gives every shape and model a bounding sphere from its model's rest pose (`ObjectCulling`). The lit and depth passes draw only those in the camera's view, and the shadow pass only those inside the shadow map's area.
+  - Animated or skinned models are always drawn.
+  - On by default. `GDXUNITY_OBJECT_CULLING=0` turns it off in the game runtime, to compare.
+  - GPU instancing is not built: GL ES 2.0 and `ModelBatch` have none. Batching by mesh and material, and lower-detail models, stay planned (TD-096).
+
+**Consequences.** Forests and rock fields are a few strokes, each undoable. The renderer skips objects out of view. The gain depends on the view: a camera looking into a forest still draws most of it. Scattered trees can stand between the follow camera and the player; the keep-out around the player covers the start, not the camera's line of sight.
+
+### TD-098: The Landscape Samples Migrated to Terrains, Beside Their Originals (Roadmap M3.10)
+
+**Status:** **Recorded as built under milestone M3.10 on 2026-11-20, for the owner's review.** The chart lists no approval gate for M3.10. This record exists because it adds five shipped samples and five terrains, and five template-gallery entries. [Report](reports/m3-10-landscape-terrains.md).
+
+**Context.** The five landscape samples (Landscape Valley, Desert Canyon, Alpine Valley, Tropical Island, Autumn Forest) stand on a baked glTF ground. It cannot be reshaped, painted or walked on, and nothing collides with it. The chart asks that they "use terrain assets", done when a person opens the valley, reshapes it, repaints a slope, scatters pines, saves, plays and walks on it.
+
+**There is a conflict to report.** The chart's done-when says "opens `landscape-3d`". The sample migration plan (`docs/migration/sample-migrations.json`, MC.7, guarded by `SampleMigrationsTest`) says "a migrated landscape is a new file", with the original kept as a fixture and both offered. The repository's actual state wins (AGENTS.md), so the plan is followed: `landscape-3d.json` is unchanged, and the journey runs on its migrated copy.
+
+**Decision.**
+- **Five new samples beside the originals**, written by `tools/make_migrated_landscapes.py`: `landscape-terrain-3d.json`, `landscape-desert-terrain-3d.json`, `landscape-alpine-terrain-3d.json`, `landscape-island-terrain-3d.json` and `landscape-autumn-terrain-3d.json`. Each has its ground in `terrains/<title>.terrain`.
+- **The same ground.**
+  - **Heights:** the height functions the baked meshes were built from, sampled on a 129 by 129 grid over the same 60 m square (46.875 units apart).
+  - **Paint:** each point gets the ground (Grass, Sand, Snow, Gravel, Rock, Dirt) nearest in colour to the baked mesh's colour there.
+  - **Objects:** every tree, rock, building and water surface of the original keeps its id and place, and stands on the new ground as it stood on the old.
+- **Playable.**
+  - The `Terrain` entity gets a Terrain Collider 3D.
+  - Each scene gets a Hero (a Player with a Character Controller 3D) on gentle, dry, open ground in front of the camera.
+  - The genre is Action RPG.
+- **Kept as they were:**
+  - the water surfaces stay models at their own level, not the terrain's water level, because the grounds' edges dip below the lakes and would flood;
+  - the trees and rocks stay models without colliders.
+- **The registry and the gallery.**
+  - **Registry:** five slices, with their evidence (screenshots, behaviour, collision, load, undo and redo, export, performance).
+  - **Gallery:** the migrated scenes as "<title> (Terrain)" under Landscape, next to the originals.
+- **The baked ground models stay** in `models/landscape/`: the originals use them.
+
+**Consequences.** The landscapes can be reshaped, painted, scattered on and walked in the editor and the game, and on the web (terrain since M3.11). Each migrated ground looks plainer than its baked original, since the six grounds replace hand-tuned colour bands such as the mesas' red stripes. The gallery offers five more templates. Replacing the generated cabins, huts and rocks with downloaded models is still planned (the registry's landscape group).
+
+### TD-099: A Licence Record for Every Shipped 2D File, and the Appendix B1 Sources Behind the Legal Gate (Roadmap M2b.5)
+
+**Status:** **Recorded as built under milestone M2b.5 on 2026-11-20, for the owner's review.** M2b.5 carries the chart's **Legal** gate. This record **approves no new source**: the Appendix B1 sources the owner has not approved are recorded as awaiting them, and nothing new was downloaded. [Report](reports/m2b-5-2d-cc0-catalog.md).
+
+**Context.** The chart asks for "Kenney, OpenGameArt and other 2D sources per Appendix B1, with per-asset license checks", done when "each shipped sprite has a manifest entry". On 2026-11-20:
+- **Downloaded 2D art:** the Kenney Nature Kit's 1,638 isometric and side renders, imported in M2b.2 and recorded in `licenses/manifest.json` (`ThirdPartyManifest`).
+- **2D art made here:** 71 files with no record: the hand-made `.sprite` files, the material showroom's textures, the palette thumbnails, the template previews and the template's `libgdx.png`. `ThirdPartyManifest` accepts CC0 only, so they cannot go there.
+- **No B1 source can be fetched by an agent.** Kenney's and OpenGameArt's `robots.txt` disallow AI agents (asset integration report, section 3). The owner's shortlist of 2026-11-19 approved three Kenney 2D packs (Pixel Platformer, UI Pack, Game Icons); none has been downloaded yet.
+- **The editor package ships all of `assets/`** (`editor-desktop/build.gradle`: the classpath and the sample project). So the raw Kenney downloads left at the top of `assets/` (3,366 2D files, all byte-for-byte copies of recorded files) would ship too.
+
+**Decision.**
+- **A second record for art made here:** `assets/licenses/originals.json` (kind `project-originals`), read by `OriginalAssets` in `engine-core`.
+  - **Each entry:** path, size, SHA-256, licence and how the file was made (`madeWith`).
+  - **`derivedFrom`:** the manifest ids of the downloads a picture shows, for example a thumbnail of the CC0 House.
+  - **Licence:** the repository's own (`Apache-2.0`, the root `LICENSE`) is the only one accepted.
+  - **Written by `tools/record_original_assets.py`** from an explicit rule per origin. A file no rule covers stops the tool; there is no catch-all. `derivedFrom` comes from following the prefab's or sample's references. `--check` reports a stale record.
+- **`AssetProvenance` (`engine-core`)** answers, for any path, which record it is in and one line for a person. A file in neither record is said to have no licence record, never guessed.
+- **The Content Browser** adds that line to the status message when a file is selected (`AssetLicences`, `editor-core`). This also provides M2b.1's missing licence detail for files already in a project.
+- **The B1 sources as checked data:** `SpriteSources` (`editor-core`). The check differs by source:
+  - **Kenney:** the provider's CC0 statement, plus a licence file in the pack (already enforced by `PackImporter`).
+  - **OpenGameArt:** every listing on its own, CC0 alone. A collection is not a licence.
+  - **itch.io:** discovery only, never a source, even if approved.
+- **The Legal gate in code.** Approval comes only from the owner's shortlist, and a test holds `KenneyPacks` (the import list) to exactly the approved Kenney sources. Waiting on the owner: New Platformer Pack, Platformer Pack Remastered, Brick Pack and the four OpenGameArt listings.
+- **The done-when as a test:** `ShippedSpritesProvenanceTest`.
+  - **Recorded:** every 2D file under `assets/` (not `build/`) has a record at its own path, with the checksum it has now.
+  - **The one exception:** a byte-for-byte copy of a recorded download at an unrecorded path. Its licence is known from the same bytes' record, and it is counted and reported, not hidden.
+- **The raw downloads are left where they are.** Deleting or moving them is the owner's decision, already open (progress note, section 4).
+
+**Consequences.**
+- **Every shipped 2D file has a licence record** that the Content Browser shows.
+- **Regenerating a preview or thumbnail now means re-running `tools/record_original_assets.py`.** The audit test fails until it is run, and says so.
+- **Not carried into new projects.** A copied original keeps no record there, because a project's files are the user's to edit, and a checksum would go stale.
+- **No new 2D source until the owner acts.** It needs the owner's approval of a B1 source, and a person's download for Kenney and OpenGameArt.
+- **OpenGameArt listings usually come without a licence file**, which `PackImporter` refuses. Importing them needs a recorded listing licence, still to be built once a listing is approved.
+
+
+### TD-100: The First Sample Refresh Places the CC0 Prefabs as Linked Instances in a Copy of the Terrain Valley (Roadmap M2b.6)
+
+**Status:** **Recorded as built under milestone M2b.6 on 2026-11-21, for the owner's review.** The chart lists no gate. No new download: the four models used were imported in M2b.2 and are recorded in `licenses/manifest.json`. [Report](reports/m2b-6-first-sample-refresh.md).
+
+**Context.**
+- **What the chart asks:** "one opt-in sample refreshed; originals preserved". Done when "before and after screenshots, frame times, undo, reopen and Play isolation recorded".
+- **What Appendix A3 asks:** start with a single landscape. Convert its ground to a `.terrain` (done in M3.10), replace its primitive trees and rocks with licensed realistic prefabs, and keep transforms and gameplay.
+- **The starter pack had no pine and no bush.** It had a CC0 oak, a CC0 rock and a CC0 house. Landscape Valley has 26 pines and 16 bushes, more than its 11 oaks and 12 rocks.
+
+**Decision.**
+- **The refreshed sample is a copy of the M3.10 terrain copy.** `tools/make_refreshed_landscape.py` reads `landscape-terrain-3d.json` and writes `landscape-cc0-terrain-3d.json` (gallery: "Landscape Valley (CC0)"). Both earlier files are unchanged.
+- **Two prefabs join the starter pack** (`tools/make_starter_pack.py`):
+  - **CC0 Pine Tree:** Kenney's `tree_pineTallA`, 6.5 m, with a trunk capsule.
+  - **CC0 Bush:** `plant_bushLarge`, 1.2 m, no collider, walked through like the shape-built Bush.
+  - **Sizes:** both are scaled to the generated models they replace, and both get palette thumbnails.
+- **Each replacement is a linked prefab instance, written as the editor saves a placed prefab:**
+  - **The root keeps the original entity's id, name, position and turn.** So the ledger's rule "every kept entity keeps its id" holds, and nothing is listed as removed.
+  - **The original's import scale over 100 becomes the root's even scale:** the object's size against the generated model. It is the instance's only override (`transform/scale/*`). Without it, the prefab sync on opening would reset the size.
+  - **The prefab's members follow as children,** with ids derived from the original's id, so the file is the same each run.
+- **Kept as they are:** the cabin (a house slice needs R7a), the lake, the mountains, the lights, the camera and the Hero.
+- **The ledger may now name downloaded assets.** `SampleMigrationsTest` used to refuse any (M2b.1 was missing). It now requires each to have a manifest record with its current checksum, and to be named by the scene or by a prefab the scene places.
+- **The web player accepts `PrefabInstance`.** It is the editor's link to the prefab file, and the entity's own components are what play. Reporting it as unsupported would be wrong.
+- **The inventory's Appendix A3 columns are generated.** `SampleInventory.replacements` reads each scene and its group's plan in the ledger. The ledger groups gained `sources`, `visual` and `collision`.
+
+**Consequences.**
+- **New 3D projects get two more starter objects,** with their models and licence records.
+- **The refreshed objects collide:** 49 trunks and rocks block, 16 bushes do not. The originals' generated trees never collided, so a walk through the valley in Play now goes around them.
+- **It costs more to draw.** 4.64 to 5.40 ms a frame (mean), and 150 to 180 MB of peak Java heap, on the Iris Xe laptop (`docs/migration/m2b-6-performance.tsv`).
+- **Kenney's look replaces the generated look:** teal leaves, and tall rock spires where there were wide grey boulders.
+- **Not done:** the other four landscapes and their cabins and huts.
+
+### TD-101: A Recorded Desktop and Web Status for Every Shipped File, and the Downloaded Packs' Models in the Web Build (Roadmap M2b.7)
+
+**Status:** **Recorded as built under milestone M2b.7 on 2026-11-21, for the owner's review.** The chart lists no gate. No download, no new dependency. [Report](reports/m2b-7-asset-support-matrix.md).
+
+**Context.**
+- **What the chart asks:** "a support matrix for desktop and web per asset", done when "every shipped asset has a recorded web status".
+- **What ships:** the editor package carries all of `assets/` except `build/` and three preference files: **10,101 files**. Most are downloads and copies of downloads.
+- **What the web build gets is decided by `engine-babylon/scripts/sync-samples.mjs`, not by the scenes.** It copied scenes, models, songs, clips, graphs, characters, sprites, terrains, materials and textures, but **not `thirdparty/`**. So the Kenney models of the starter pack (M2b.2) and the refreshed valley (M2b.6) never reached the web player.
+- **`BACKEND_SUPPORT_MATRIX.md` (M9.4) is per component, not per file.**
+
+**Decision.**
+- **`AssetSupportMatrix` (`editor-desktop`, audit package)** gives each shipped file:
+  - its format;
+  - its licence record: download, original, "copy of a recorded download" (found by checksum), or none;
+  - whether the samples or the starter palette use it (`TemplateProject.dependenciesOf`, now public);
+  - a desktop and a web status, in the backend matrix's words.
+  - **No catch-all:** a format it has no rule for stops it, so a person decides.
+- **Recorded in two places, both checked by `AssetSupportMatrixTest`:**
+  - every file in `docs/migration/asset-support.tsv` (1.7 MB, 10,101 rows);
+  - a summary by folder in `docs/ASSET_SUPPORT_MATRIX.md`.
+  - Like the other audits, the test fails when either is stale and refreshes them with `GDXUNITY_UPDATE_AUDIT=1`.
+- **The web column follows the web build.** `AssetSupportMatrix.WEB_RULES` mirrors the sync script's copy rules, and the test checks the two name the same folders.
+- **"Works" on the web for a model means a test loaded it.** The new `engine-babylon/test/modelFiles.test.ts` loads every served model that names no outside file, one per distinct content. A served model that names outside files (Poly Haven's `.bin` and textures, the Building Kit's colormap) is **Unchecked**, as is each file it names.
+- **Scenes take the web status of the sample inventory (MP.1):**
+  - "yes" is Works;
+  - "components supported" is Unchecked;
+  - anything else is Partial (drawn, with the gap).
+- **The sync script now copies the downloaded packs' `Models` folders.** That is glTF and GLB with the images and buffers they name; their 2D renders and source formats stay out. 412 files, 4.8 MB. A test checks that nothing a sample or the palette uses, in a format the web reads, is left out.
+- **The editability audit counts a prefab link (`PrefabInstance`) as edited,** by the Inspector's prefab bar (TD-027). The refreshed valley (M2b.6) is the first shipped sample with prefab instances, and the audit had failed it.
+
+**Consequences.**
+- **The refreshed valley's Kenney trees, rocks and bushes now draw on the web.** Its Hero still does not walk there (no genre profiles on the web).
+- **The matrix makes the raw downloads visible:**
+  - 4,106 shipped files are unrecorded copies of recorded downloads (the top-level `Isometric/`, `Side/`, `kenney_*` folders and `models/<format> format/`);
+  - 3,527 files are model source formats neither backend reads.
+  - Deleting them is the owner's open decision (M2b.5). The matrix will shrink when they go.
+- **A new shipped file fails the test until the matrix is regenerated.** That is intended, as for `originals.json`.

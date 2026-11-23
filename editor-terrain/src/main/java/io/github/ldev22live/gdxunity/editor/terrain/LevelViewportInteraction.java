@@ -17,7 +17,8 @@ import java.util.Objects;
 /**
  * Places and erases level objects with the mouse while the level editor's Place or Erase tool is in hand (TD-083). A left click on the
  * ground places (or erases) one object at that point; everything else, including the brush tools, goes to the wrapped interaction
- * unchanged. Alt with the left button is camera orbit and never places.
+ * unchanged. Alt with the left button is camera orbit and never places. With Scatter (roadmap M3.6) a left drag scatters the chosen
+ * object along the way, Ctrl-drag removes it, and releasing the button ends the stroke as one undo step.
  */
 public final class LevelViewportInteraction implements ViewportInteraction {
     private final LevelSession level;
@@ -38,25 +39,39 @@ public final class LevelViewportInteraction implements ViewportInteraction {
     public boolean touchDown(float localX, float localY, float panelWidth, float panelHeight, int button, int modifiers) {
         boolean wanted = level.isActive() && !level.getTool().isBrush() && button == Input.Buttons.LEFT
             && (modifiers & EditorKeyboardDispatcher.MOD_ALT) == 0;
-        if (wanted && act(localX, localY, panelWidth, panelHeight)) {
+        if (wanted && level.getTool() == LevelSession.Tool.SCATTER) {
+            Terrain.Hit at = groundHit(localX, localY, panelWidth, panelHeight);
+            if (at != null && level.beginScatter((modifiers & EditorKeyboardDispatcher.MOD_CTRL) != 0)) {
+                level.scatterAt(at.x, at.z);
+                consuming = true;
+                return true;
+            }
+        }
+        if (wanted && level.getTool() != LevelSession.Tool.SCATTER && act(localX, localY, panelWidth, panelHeight)) {
             consuming = true;
             return true;
         }
         return delegate.touchDown(localX, localY, panelWidth, panelHeight, button, modifiers);
     }
 
-    /** @return true when the click landed on the ground and was used */
-    private boolean act(float localX, float localY, float panelWidth, float panelHeight) {
+    /** Where the mouse points on the ground, in the ground's own space; null when it misses the ground or there is none. */
+    private Terrain.Hit groundHit(float localX, float localY, float panelWidth, float panelHeight) {
         Entity ground = level.findGround();
         Terrain terrain = level.findTerrain();
         if (ground == null || terrain == null) {
-            return false;
+            return null;
         }
         Matrix4 inverse = new Matrix4(ground.getTransform().getWorldMatrix()).inv();
         camera.update();
         Ray ray = ViewportCoordinates3D.panelToRay(localX, localY, panelWidth, panelHeight, camera.getGdxCamera());
         ray.mul(inverse);
-        if (!terrain.raycast(ray, Float.MAX_VALUE, hit)) {
+        return terrain.raycast(ray, Float.MAX_VALUE, hit) ? hit : null;
+    }
+
+    /** @return true when the click landed on the ground and was used */
+    private boolean act(float localX, float localY, float panelWidth, float panelHeight) {
+        Entity ground = level.findGround();
+        if (groundHit(localX, localY, panelWidth, panelHeight) == null) {
             return false;
         }
         if (level.getTool() == LevelSession.Tool.PLACE) {
@@ -72,6 +87,13 @@ public final class LevelViewportInteraction implements ViewportInteraction {
 
     @Override
     public boolean touchDragged(float localX, float localY, float panelWidth, float panelHeight) {
+        if (consuming && level.isScattering()) {
+            Terrain.Hit at = groundHit(localX, localY, panelWidth, panelHeight);
+            if (at != null) {
+                level.scatterAt(at.x, at.z);
+            }
+            return true;
+        }
         return consuming || delegate.touchDragged(localX, localY, panelWidth, panelHeight);
     }
 
@@ -79,6 +101,9 @@ public final class LevelViewportInteraction implements ViewportInteraction {
     public boolean touchUp(int button) {
         if (consuming && button == Input.Buttons.LEFT) {
             consuming = false;
+            if (level.isScattering()) {
+                level.endScatter();
+            }
             return true;
         }
         return delegate.touchUp(button);

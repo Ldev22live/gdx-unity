@@ -190,6 +190,15 @@ public class SceneRenderer3D implements EngineRenderer {
      */
     private final List<ModelInstance> terrainChunkDraws = new ArrayList<>();
     private float[] terrainChunkBounds = new float[4 * 64];
+    /**
+     * Shapes and models that may be culled (roadmap M3.6, TD-097), kept apart from {@link #drawList} with a world bounding sphere each
+     * in {@link #objectBounds}: the lit and depth passes draw those in the camera's view, the shadow pass those in the shadow map's area.
+     */
+    private final List<ModelInstance> objectDraws = new ArrayList<>();
+    private float[] objectBounds = new float[ObjectCulling.STRIDE * 64];
+    private final ObjectCulling objectCulling = new ObjectCulling();
+    private boolean objectCullingEnabled = true;
+    private int objectsDrawn;
     private IntBuffer glQuery;
     private int savedFrameBuffer;
     /** x, y, width, height of the viewport saved by {@link #saveRenderTarget()}. */
@@ -708,6 +717,7 @@ public class SceneRenderer3D implements EngineRenderer {
         List<ModelDraw> modelDraws = modelAssets != null ? collectModels(activeScene) : List.of();
         drawList.clear();
         terrainChunkDraws.clear();
+        objectDraws.clear();
         for (PrimitiveDraw draw : draws) {
             ModelInstance instance = instanceFor(draw.component());
             instance.transform.set(draw.transform());
@@ -716,13 +726,13 @@ public class SceneRenderer3D implements EngineRenderer {
                 toLinear(draw.component().getColor(), 1f);
                 baseColor.color.set(linearColor.r, linearColor.g, linearColor.b, draw.component().getColor().a);
             }
-            drawList.add(instance);
+            addObject(instance);
         }
         for (ModelDraw draw : modelDraws) {
             ModelInstance instance = posedInstanceFor(draw.component());
             if (instance != null) {
                 instance.transform.set(draw.transform());
-                drawList.add(instance);
+                addObject(instance);
             }
         }
         terrainTriangles = 0;
@@ -743,7 +753,8 @@ public class SceneRenderer3D implements EngineRenderer {
 
         // 6. Shadow pass, then the sky, then the lit pass with depth testing (water last); depth test is switched off again for
         //    later 2D passes
-        if (environment.shadowMap != null && Gdx.gl != null && (!drawList.isEmpty() || !terrainChunkDraws.isEmpty())) {
+        if (environment.shadowMap != null && Gdx.gl != null
+            && (!drawList.isEmpty() || !objectDraws.isEmpty() || !terrainChunkDraws.isEmpty())) {
             renderShadowPass();
         }
         // With post-processing (roadmap M6.2) the sky, scene and weather are drawn off-screen, then the effects put the frame back
@@ -788,7 +799,7 @@ public class SceneRenderer3D implements EngineRenderer {
                 skyOverlay.run();
             }
         }
-        if (!drawList.isEmpty() || !terrainChunkDraws.isEmpty() || !waterDraws.isEmpty()) {
+        if (!drawList.isEmpty() || !objectDraws.isEmpty() || !terrainChunkDraws.isEmpty() || !waterDraws.isEmpty()) {
             if (Gdx.gl != null) {
                 Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
                 Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
@@ -798,6 +809,14 @@ public class SceneRenderer3D implements EngineRenderer {
                 try {
                     for (ModelInstance instance : drawList) {
                         modelBatch.render(instance, environment);
+                    }
+                    Frustum view = camera.getGdxCamera().frustum;
+                    objectsDrawn = 0;
+                    for (int i = 0; i < objectDraws.size(); i++) {
+                        if (ObjectCulling.touches(view, objectBounds, i * ObjectCulling.STRIDE)) {
+                            modelBatch.render(objectDraws.get(i), environment);
+                            objectsDrawn++;
+                        }
                     }
                     for (int i = 0; i < terrainChunkDraws.size(); i++) {
                         modelBatch.render(terrainChunkDraws.get(i), environment);
@@ -823,7 +842,7 @@ public class SceneRenderer3D implements EngineRenderer {
     /** Draws the scene's depth, packed into colours, for the post-processing effects and the host's depth buffer. */
     private void renderPostProcessDepth() {
         postProcessor.beginDepth();
-        if (drawList.isEmpty() && terrainChunkDraws.isEmpty() && waterDraws.isEmpty()) {
+        if (drawList.isEmpty() && objectDraws.isEmpty() && terrainChunkDraws.isEmpty() && waterDraws.isEmpty()) {
             return;
         }
         if (postDepthBatch == null) {
@@ -836,6 +855,12 @@ public class SceneRenderer3D implements EngineRenderer {
             try {
                 for (ModelInstance instance : drawList) {
                     postDepthBatch.render(instance);
+                }
+                Frustum view = camera.getGdxCamera().frustum;
+                for (int i = 0; i < objectDraws.size(); i++) {
+                    if (ObjectCulling.touches(view, objectBounds, i * ObjectCulling.STRIDE)) {
+                        postDepthBatch.render(objectDraws.get(i));
+                    }
                 }
                 for (int i = 0; i < terrainChunkDraws.size(); i++) {
                     postDepthBatch.render(terrainChunkDraws.get(i));
@@ -1016,6 +1041,41 @@ public class SceneRenderer3D implements EngineRenderer {
         return terrainLod;
     }
 
+    /**
+     * Draws only the shapes and models in view, and in the shadow pass only those in the shadow map's area (roadmap M3.6, TD-097; on
+     * by default). Off draws every one in every pass, for comparison. Animated and skinned models are always drawn.
+     */
+    public void setObjectCulling(boolean enabled) {
+        this.objectCullingEnabled = enabled;
+    }
+
+    public boolean isObjectCulling() {
+        return objectCullingEnabled;
+    }
+
+    /** Shapes and models that could be culled and were drawn in the last frame's lit pass, for statistics. */
+    public int getObjectsDrawn() {
+        return objectsDrawn;
+    }
+
+    /** Shapes and models that could be culled in the last frame, drawn or not. */
+    public int getCullableObjects() {
+        return objectDraws.size();
+    }
+
+    /** An object to draw: culled by its bounding sphere when culling is on and it cannot move outside its rest pose. */
+    private void addObject(ModelInstance instance) {
+        int at = objectDraws.size() * ObjectCulling.STRIDE;
+        if (at + ObjectCulling.STRIDE > objectBounds.length) {
+            objectBounds = Arrays.copyOf(objectBounds, objectBounds.length * 2);
+        }
+        if (objectCullingEnabled && objectCulling.worldSphere(instance, objectBounds, at)) {
+            objectDraws.add(instance);
+        } else {
+            drawList.add(instance);
+        }
+    }
+
     /** Triangles of terrain drawn in the last frame (roadmap M3.8), for statistics. */
     public int getTerrainTriangles() {
         return terrainTriangles;
@@ -1115,8 +1175,14 @@ public class SceneRenderer3D implements EngineRenderer {
                     shadowBatch.render(instance);
                 }
                 // Only the terrain chunks inside the shadow map's area cast into it (roadmap M3.8); the map covers a small area
-                // around the camera, and drawing every chunk in view into it cost a draw call each for nothing
+                // around the camera, and drawing every chunk in view into it cost a draw call each for nothing. Objects likewise
+                // (roadmap M3.6): one behind the camera still casts into the view when it is inside the map's area
                 Frustum shadowFrustum = shadowLight.getCamera().frustum;
+                for (int i = 0; i < objectDraws.size(); i++) {
+                    if (ObjectCulling.touches(shadowFrustum, objectBounds, i * ObjectCulling.STRIDE)) {
+                        shadowBatch.render(objectDraws.get(i));
+                    }
+                }
                 for (int i = 0; i < terrainChunkDraws.size(); i++) {
                     int at = i * 4;
                     if (shadowFrustum.sphereInFrustum(terrainChunkBounds[at], terrainChunkBounds[at + 1], terrainChunkBounds[at + 2],
@@ -1395,6 +1461,7 @@ public class SceneRenderer3D implements EngineRenderer {
         modelInstances.clear();
         drawList.clear();
         terrainChunkDraws.clear();
+        objectDraws.clear();
         ResourceManager owned = new ResourceManager();
         terrainMeshes.values().forEach(owned::register);
         terrainMeshes.clear();

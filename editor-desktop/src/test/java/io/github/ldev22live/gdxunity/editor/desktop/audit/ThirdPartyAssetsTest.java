@@ -44,7 +44,7 @@ class ThirdPartyAssetsTest {
                 assertEquals(record.bytes(), data.length, record.path());
                 String sha256 = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(data));
                 assertEquals(record.sha256(), sha256, record.path() + " is not the file that was downloaded");
-                assertTrue(record.path().contains(THIRD_PARTY_FOLDER), record.path() + " is kept in a thirdparty folder");
+                assertTrue(("/" + record.path()).contains(THIRD_PARTY_FOLDER), record.path() + " is kept in a thirdparty folder");
             }
         }
     }

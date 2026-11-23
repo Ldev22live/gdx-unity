@@ -91,20 +91,20 @@ The reference templates MT.1 to MT.5 come after stages 1 to 5 for the samples th
 <!-- template-audit:counts:begin -->
 | Gate | PASS | FAIL | BLOCKED | n/a |
 |---|---|---|---|---|
-| Source present | 41 | 7 | 0 | 0 |
-| Editors open (M1.1) | 19 | 29 | 0 | 0 |
-| No hardcoded-only logic | 2 | 20 | 0 | 26 |
-| No baked-only content | 2 | 7 | 0 | 39 |
-| Editors registered | 48 | 0 | 0 | 0 |
-| References resolve | 48 | 0 | 0 | 0 |
-| Graphs valid | 6 | 0 | 0 | 42 |
-| Save and reopen | 48 | 0 | 0 | 0 |
-| Play | 48 | 0 | 0 | 0 |
-| Duplicate and export | 48 | 0 | 0 | 0 |
-| Exported game launches | 0 | 0 | 48 | 0 |
-| Edit, undo and redo per domain | 0 | 0 | 48 | 0 |
-| Licence verified | 0 | 0 | 48 | 0 |
-| Seen and heard | 0 | 0 | 48 | 0 |
+| Source present | 47 | 7 | 0 | 0 |
+| Editors open (M1.1) | 19 | 35 | 0 | 0 |
+| No hardcoded-only logic | 2 | 20 | 0 | 32 |
+| No baked-only content | 8 | 7 | 0 | 39 |
+| Editors registered | 54 | 0 | 0 | 0 |
+| References resolve | 54 | 0 | 0 | 0 |
+| Graphs valid | 6 | 0 | 0 | 48 |
+| Save and reopen | 54 | 0 | 0 | 0 |
+| Play | 54 | 0 | 0 | 0 |
+| Duplicate and export | 54 | 0 | 0 | 0 |
+| Exported game launches | 0 | 0 | 54 | 0 |
+| Edit, undo and redo per domain | 0 | 0 | 54 | 0 |
+| Licence verified | 0 | 0 | 54 | 0 |
+| Seen and heard | 0 | 0 | 54 | 0 |
 <!-- template-audit:counts:end -->
 
 ## 7. Samples
@@ -131,9 +131,15 @@ One row per sample, one column per gate. The label is the gallery's (M1.7). "Not
 | `humanoid-animations-3d.json` | Not yet rated (checks pending) | PASS | PASS | n/a | n/a | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
 | `landscape-3d.json` | INCOMPLETE | FAIL: baked glTF ground (terrain-hills) | FAIL: Terrain; 3D models | n/a | FAIL: baked glTF ground (terrain-hills): no editable replacement in the template; glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
 | `landscape-alpine-3d.json` | INCOMPLETE | FAIL: baked glTF ground (alpine-terrain) | FAIL: Terrain; 3D models | n/a | FAIL: baked glTF ground (alpine-terrain): no editable replacement in the template; glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
+| `landscape-alpine-terrain-3d.json` | Technical Demo / Partially Editable | PASS | FAIL: 3D models | n/a | PASS: glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
 | `landscape-autumn-3d.json` | INCOMPLETE | FAIL: baked glTF ground (autumn-terrain) | FAIL: Terrain; 3D models | n/a | FAIL: baked glTF ground (autumn-terrain): no editable replacement in the template; glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
+| `landscape-autumn-terrain-3d.json` | Technical Demo / Partially Editable | PASS | FAIL: 3D models | n/a | PASS: glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
+| `landscape-cc0-terrain-3d.json` | Technical Demo / Partially Editable | PASS | FAIL: 3D models | n/a | PASS: glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
 | `landscape-desert-3d.json` | INCOMPLETE | FAIL: baked glTF ground (desert-terrain) | FAIL: Terrain; 3D models | n/a | FAIL: baked glTF ground (desert-terrain): no editable replacement in the template; glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
+| `landscape-desert-terrain-3d.json` | Technical Demo / Partially Editable | PASS | FAIL: 3D models | n/a | PASS: glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
 | `landscape-island-3d.json` | INCOMPLETE | FAIL: baked glTF ground (island-terrain) | FAIL: Terrain; 3D models | n/a | FAIL: baked glTF ground (island-terrain): no editable replacement in the template; glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
+| `landscape-island-terrain-3d.json` | Technical Demo / Partially Editable | PASS | FAIL: 3D models | n/a | PASS: glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
+| `landscape-terrain-3d.json` | Technical Demo / Partially Editable | PASS | FAIL: 3D models | n/a | PASS: glTF models: Customize > Edit in 3D sculpts a project-owned copy | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
 | `materials-3d.json` | Not yet rated (checks pending) | PASS | PASS | n/a | n/a | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
 | `obby-3d.json` | Technical Demo / Partially Editable | PASS | FAIL: Logic; Gameplay, physics | FAIL: Java source: ObbyGame | n/a | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |
 | `physics-joints-3d.json` | Not yet rated (checks pending) | PASS | PASS | n/a | n/a | PASS | PASS | n/a | PASS: every-sample tests | PASS: 2 s in the game session, every-sample test | PASS: project made and exported by test | BLOCKED: not launched | BLOCKED: not run per domain | BLOCKED: project-made, no licence record (owner) | BLOCKED: pending a person |

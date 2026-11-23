@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import io.github.ldev22live.gdxunity.editor.core.asset.AssetOpening;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
+import io.github.ldev22live.gdxunity.engine.core.asset.OriginalAssets;
 import io.github.ldev22live.gdxunity.engine.core.asset.ThirdPartyManifest;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
@@ -43,7 +44,11 @@ import java.util.stream.Stream;
  * <p>
  * Licences are reported as the repository records them. Only the MakeHuman data has a licence file of its own (CC0 1.0); every other
  * file was made in this repository and has no per-asset licence record, so its licence is the owner's to confirm (the repository's
- * {@code LICENSE} is Apache 2.0 for the code). Nothing here downloads or proposes a replacement: that is M2b.6 and MC.1.
+ * {@code LICENSE} is Apache 2.0 for the code). Nothing here downloads anything.
+ * <p>
+ * The replacement plan of Appendix A3 (roadmap M2b.6, {@link #replacements}): for each scene, what it shows now, and from the migration
+ * ledger ({@code docs/migration/sample-migrations.json}, MC.7) the proposed replacement, its sources and licences, the conversion,
+ * dependencies, the expected visual result, collision, the rollback path and how far its migration has gone.
  */
 public final class SampleInventory {
     /** Licence basis of the MakeHuman base data. */
@@ -59,7 +64,11 @@ public final class SampleInventory {
         "sculpts", "prefabs", "animations", "graphs", "music", "scripts");
     /** The inventory's own test, which names samples to check the inventory, not to test them. */
     static final String SELF_TEST = "SampleInventoryTest";
-    private static final Pattern TOOL_IN_GENERATOR = Pattern.compile("(tools/)?(make_[a-z_]+\\.(py|mjs))");
+    /** How an editable part that fails is written in a scene row ("Logic FAIL"). */
+    private static final String FAIL_SUFFIX = " FAIL";
+    /** The folder downloaded files are imported under (M2b.1), at the asset root or inside a type's folder. */
+    private static final String THIRD_PARTY_FOLDER = "thirdparty/";
+    private static final Pattern TOOL_IN_GENERATOR =Pattern.compile("(tools/)?(make_[a-z_]+\\.(py|mjs))");
 
     /**
      * One sample scene.
@@ -115,10 +124,33 @@ public final class SampleInventory {
         }
     }
 
+    /**
+     * One scene's replacement plan (Appendix A3, roadmap M2b.6).
+     *
+     * @param sample       file name in {@code samples/}
+     * @param group        the migration ledger's group for it
+     * @param current      what it shows now: prefab instances, downloaded and project-made models, shapes, terrains, tile maps
+     * @param replacement  the proposed replacement (the group's)
+     * @param sources      the replacement's sources and their licences
+     * @param conversion   the source format and the exported format
+     * @param dependencies what the replacement waits on
+     * @param visual       the expected visual result
+     * @param editability  its editability today, from the M1.1 matrix: the parts that fail, or that every part passes
+     * @param collision    the collision after the replacement
+     * @param rollback     the rollback path
+     * @param status       for a migrated copy, what it was migrated from; for an original, its copies; otherwise the group's plan
+     */
+    public record ReplacementRow(String sample, String group, String current, String replacement, String sources, String conversion,
+                                 String dependencies, String visual, String editability, String collision, String rollback,
+                                 String status) {
+    }
+
     private final Sources sources;
     private final SceneSerializer serializer;
     /** The downloaded files and their licences (docs/asset-integration-report.md); empty when nothing was downloaded. */
     private final ThirdPartyManifest manifest;
+    /** The 2D art made in this repository (TD-099); empty when the project records none. */
+    private final OriginalAssets originals;
     private final Map<String, String> testSources = new TreeMap<>();
     private final Map<String, String> toolSources = new TreeMap<>();
     private final Map<String, JsonValue> gallery = new LinkedHashMap<>();
@@ -130,6 +162,7 @@ public final class SampleInventory {
         this.sources = Objects.requireNonNull(sources, "sources cannot be null");
         this.serializer = Objects.requireNonNull(serializer, "serializer cannot be null");
         this.manifest = ThirdPartyManifest.read(sources.assetsRoot());
+        this.originals = OriginalAssets.read(sources.assetsRoot());
         File root = sources.repositoryRoot();
         for (Path file : files(root.toPath(), "src" + File.separator + "test", ".java")) {
             testSources.put(file.getFileName().toString().replace(".java", ""), Files.readString(file, StandardCharsets.UTF_8));
@@ -409,6 +442,10 @@ public final class SampleInventory {
             return "downloaded from " + downloaded.get().source() + " on " + downloaded.get().retrieved() + " (" + ThirdPartyManifest.PATH
                 + ")";
         }
+        Optional<OriginalAssets.FileRecord> made = originals.find(path);
+        if (made.isPresent()) {
+            return "made with " + made.get().madeWith() + " (" + OriginalAssets.PATH + ")";
+        }
         if (path.startsWith(MAKEHUMAN)) {
             return "converted from MakeHuman 1.x by tools/convert_makehuman_assets.py";
         }
@@ -443,6 +480,10 @@ public final class SampleInventory {
         if (downloaded.isPresent()) {
             ThirdPartyManifest.Entry entry = downloaded.get();
             return entry.licence() + " (" + String.join(", ", entry.authors()) + "; " + entry.licenceEvidence() + ")";
+        }
+        Optional<OriginalAssets.FileRecord> made = originals.find(path);
+        if (made.isPresent()) {
+            return made.get().licence() + " (this repository; " + OriginalAssets.PATH + ")";
         }
         return licence(path);
     }
@@ -497,6 +538,118 @@ public final class SampleInventory {
             }
         }
         return scenes;
+    }
+
+    /**
+     * The replacement plan of every scene (Appendix A3), from the migration ledger ({@code docs/migration/sample-migrations.json}).
+     *
+     * @throws IllegalArgumentException when the ledger plans a scene in no group, so the plan is incomplete
+     * @throws IOException              when a scene cannot be read
+     */
+    public List<ReplacementRow> replacements(List<SceneRow> scenes, JsonValue ledger) throws IOException {
+        Objects.requireNonNull(scenes, "scenes cannot be null");
+        Objects.requireNonNull(ledger, "ledger cannot be null");
+        List<ReplacementRow> rows = new ArrayList<>();
+        for (SceneRow scene : scenes) {
+            JsonValue group = null;
+            for (JsonValue g = ledger.get("groups").child; g != null; g = g.next) {
+                if (Arrays.asList(g.get("samples").asStringArray()).contains(scene.sample())) {
+                    group = g;
+                }
+            }
+            if (group == null) {
+                throw new IllegalArgumentException("The migration ledger plans " + scene.sample() + " in no group");
+            }
+            List<String> fails = scene.editable().stream().filter(part -> part.endsWith(FAIL_SUFFIX))
+                .map(part -> part.substring(0, part.length() - FAIL_SUFFIX.length())).toList();
+            String editability = fails.isEmpty() ? "every part passes" : "fails: " + String.join(", ", fails);
+            String[] blockers = group.get("blockers").asStringArray();
+            rows.add(new ReplacementRow(scene.sample(), group.getString("id"), currentAssets(scene.sample()),
+                group.getString("replacement"), group.getString("sources"),
+                group.getString("sourceFormat") + " to " + group.getString("exportFormat"),
+                blockers.length == 0 ? "none" : String.join(", ", blockers),
+                group.getString("visual"), editability, group.getString("collision"), group.getString("rollback"),
+                migrationStatus(scene.sample(), group, ledger)));
+        }
+        return rows;
+    }
+
+    /** What a scene shows, counted from its file: prefab instances, models by where they come from, shapes, grounds and maps. */
+    private String currentAssets(String sample) throws IOException {
+        JsonValue scene = new JsonReader().parse(Files.readString(new File(sources.assetsRoot(), "samples/" + sample).toPath(),
+            StandardCharsets.UTF_8));
+        int downloaded = 0;
+        int made = 0;
+        TreeSet<String> downloadedFiles = new TreeSet<>();
+        TreeSet<String> madeFiles = new TreeSet<>();
+        int prefabs = 0;
+        Map<String, Integer> kinds = new TreeMap<>();
+        for (JsonValue entity = scene.get("entities").child; entity != null; entity = entity.next) {
+            for (JsonValue component = entity.get("components").child; component != null; component = component.next) {
+                JsonValue data = component.get("data");
+                switch (component.getString("type", "")) {
+                    case "ModelComponent" -> {
+                        String model = data.getString("model", "");
+                        if (model.startsWith(THIRD_PARTY_FOLDER) || model.contains("/" + THIRD_PARTY_FOLDER)) {
+                            downloaded++;
+                            downloadedFiles.add(model);
+                        } else {
+                            made++;
+                            madeFiles.add(model);
+                        }
+                    }
+                    case "PrefabInstance" -> prefabs += data.getBoolean("root", false) ? 1 : 0;
+                    case "MeshPrimitiveComponent", "ShapeRendererComponent" -> kinds.merge("shapes", 1, Integer::sum);
+                    case "Terrain" -> kinds.merge("terrains", 1, Integer::sum);
+                    case "TilemapComponent" -> kinds.merge("tile maps", 1, Integer::sum);
+                    case "SpriteAnimatorComponent" -> kinds.merge("sprites", 1, Integer::sum);
+                    case "SculptMeshComponent" -> kinds.merge("sculpts", 1, Integer::sum);
+                    default -> { }
+                }
+            }
+        }
+        List<String> parts = new ArrayList<>();
+        if (prefabs > 0) {
+            parts.add(prefabs + " prefab instances");
+        }
+        if (downloaded > 0) {
+            parts.add(downloaded + " downloaded models (" + downloadedFiles.size() + " files)");
+        }
+        if (made > 0) {
+            parts.add(made + " project-made models (" + madeFiles.size() + " files)");
+        }
+        kinds.forEach((kind, n) -> parts.add(n + " " + kind));
+        return parts.isEmpty() ? "none" : String.join("; ", parts);
+    }
+
+    private static String migrationStatus(String sample, JsonValue group, JsonValue ledger) {
+        List<String> notes = new ArrayList<>();
+        for (JsonValue slice = ledger.get("slices").child; slice != null; slice = slice.next) {
+            if (slice.getString("migrated").equals(sample)) {
+                notes.add("migrated copy of `" + slice.getString("original") + "` (" + slice.getString("milestone") + ")");
+            }
+            if (slice.getString("original").equals(sample)) {
+                notes.add("original kept; copy `" + slice.getString("migrated") + "` (" + slice.getString("milestone") + ")");
+            }
+        }
+        return notes.isEmpty() ? group.getString("status") : String.join("; ", notes);
+    }
+
+    /** The replacement plan as Markdown; the same rows always give the same text. */
+    public static String replacementsMarkdown(List<ReplacementRow> rows) {
+        StringBuilder out = new StringBuilder();
+        out.append("| Sample | Plan group | Shows now | Proposed replacement | Sources and licences | Conversion | Dependencies "
+            + "| Expected visual result | Editability now (M1.1) | Collision | Rollback | Migration |\n");
+        out.append("|---|---|---|---|---|---|---|---|---|---|---|---|\n");
+        for (ReplacementRow row : rows) {
+            out.append("| `").append(row.sample()).append("` | ").append(row.group());
+            for (String cell : List.of(row.current(), row.replacement(), row.sources(), row.conversion(), row.dependencies(),
+                row.visual(), row.editability(), row.collision(), row.rollback(), row.status())) {
+                out.append(" | ").append(cell.replace("|", "\\|"));
+            }
+            out.append(" |\n");
+        }
+        return out.toString();
     }
 
     /** The scene table as Markdown; the same rows always give the same text. */

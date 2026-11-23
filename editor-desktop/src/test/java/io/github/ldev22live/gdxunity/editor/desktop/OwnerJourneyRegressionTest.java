@@ -147,7 +147,9 @@ class OwnerJourneyRegressionTest {
         assertTrue(files.openFile(sceneFile), editor.getStatusMessage());
         TerrainLibrary terrains = new TerrainLibrary(AssetSource.directory(root));
         Scene scene = editor.getActiveScene();
-        scene.setHeightFields(new TerrainHeightFields(terrains)); // what the editor's renderer gives the open scene
+        // What the editor's renderer gives the open scene: the ground's heights, and the meshes of hull colliders (the Boulder's, TD-096)
+        scene.setHeightFields(new TerrainHeightFields(terrains));
+        scene.setColliderGeometry(new ColliderGeometry(null));
         RecordingView view = new RecordingView();
         WorkspaceNavigator navigator = new WorkspaceNavigator(editor, view);
         assertEquals(Workspace.WORLD, navigator.current());
@@ -283,6 +285,7 @@ class OwnerJourneyRegressionTest {
         assertTrue(reopenedFiles.openFile(sceneFile), reopened.getStatusMessage());
         Scene back = reopened.getActiveScene();
         back.setHeightFields(new TerrainHeightFields(new TerrainLibrary(AssetSource.directory(root))));
+        back.setColliderGeometry(new ColliderGeometry(null));
         for (String name : List.of("Level Ground", "Oak Tree", "Boulder", "Player", "Spawn Point", "House", "Main Camera")) {
             assertNotNull(back.findEntityByName(name), name + " survives save and reopen");
         }

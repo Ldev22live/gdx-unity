@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Scaling;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.asset.AssetBrowserFilterModel;
+import io.github.ldev22live.gdxunity.editor.core.asset.AssetLicences;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetCatalog;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetMetadata;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
@@ -262,7 +263,8 @@ public class AssetBrowserPanel extends Table {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     editorState.setSelectedAsset(ref);
-                    editorState.setStatusMessage("Selected asset: " + ref.getPath() + " (" + usedBy(ref) + ")", false);
+                    editorState.setStatusMessage("Selected asset: " + ref.getPath() + " (" + usedBy(ref) + "; "
+                        + AssetLicences.describe(catalog.getRootDir(), ref.getPath()) + ")", false);
                 }
             });
             itemBtn.addListener(new ClickListener() {

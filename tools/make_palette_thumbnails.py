@@ -7,6 +7,9 @@ Each prefab is staged alone in a scene (a sun, a sky light and a camera framed o
 game runtime draws it once (--smoke-test with GDXUNITY_SCREENSHOT), and the centre of the picture is cut to a square and scaled to
 THUMBNAIL pixels. The scenes are written to a temporary folder, never into assets/. Every prefab gets its thumbnail the same way, so
 the shape-built originals and the CC0 starter pack look alike in the palette. Run it again after changing a prefab.
+
+Then run  python tools/record_original_assets.py  so the pictures' licence record (licenses/originals.json, TD-099) has
+their new checksums; ShippedSpritesProvenanceTest fails until it does.
 """
 import json
 import math

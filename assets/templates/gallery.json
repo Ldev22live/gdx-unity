@@ -240,10 +240,31 @@
       "web": false
     },
     {
+      "scene": "samples/landscape-terrain-3d.json",
+      "title": "Landscape Valley (Terrain)",
+      "genre": "Landscape",
+      "summary": "The Landscape Valley on an editable terrain: reshape the valley and paint it in World: Terrain, scatter pines from Objects, and walk the hero over it in Play.",
+      "web": false
+    },
+    {
+      "scene": "samples/landscape-cc0-terrain-3d.json",
+      "title": "Landscape Valley (CC0)",
+      "genre": "Landscape",
+      "summary": "The Landscape Valley on its editable terrain, with Kenney's CC0 oaks, pines, rocks and bushes in place of the generated ones: each one a prefab you can move, place more of from Objects, and walk around in Play.",
+      "web": false
+    },
+    {
       "scene": "samples/landscape-desert-3d.json",
       "title": "Desert Canyon",
       "genre": "Landscape",
       "summary": "Dunes, red rock mesas, an oasis and cacti under a warm sun.",
+      "web": false
+    },
+    {
+      "scene": "samples/landscape-desert-terrain-3d.json",
+      "title": "Desert Canyon (Terrain)",
+      "genre": "Landscape",
+      "summary": "The Desert Canyon on an editable terrain you can reshape, repaint and scatter on; the hero walks the dunes in Play.",
       "web": false
     },
     {
@@ -254,6 +275,13 @@
       "web": false
     },
     {
+      "scene": "samples/landscape-alpine-terrain-3d.json",
+      "title": "Alpine Valley (Terrain)",
+      "genre": "Landscape",
+      "summary": "The Alpine Valley on an editable terrain you can reshape, repaint and scatter on; the hero walks the snow in Play.",
+      "web": false
+    },
+    {
       "scene": "samples/landscape-island-3d.json",
       "title": "Tropical Island",
       "genre": "Landscape",
@@ -261,10 +289,24 @@
       "web": false
     },
     {
+      "scene": "samples/landscape-island-terrain-3d.json",
+      "title": "Tropical Island (Terrain)",
+      "genre": "Landscape",
+      "summary": "The Tropical Island on an editable terrain you can reshape, repaint and scatter on; the hero walks the beach in Play.",
+      "web": false
+    },
+    {
       "scene": "samples/landscape-autumn-3d.json",
       "title": "Autumn Forest",
       "genre": "Landscape",
       "summary": "Rolling hills with red, orange and yellow oaks, a pond and a cabin.",
+      "web": false
+    },
+    {
+      "scene": "samples/landscape-autumn-terrain-3d.json",
+      "title": "Autumn Forest (Terrain)",
+      "genre": "Landscape",
+      "summary": "The Autumn Forest on an editable terrain you can reshape, repaint and scatter on; the hero walks the hills in Play.",
       "web": false
     },
     {

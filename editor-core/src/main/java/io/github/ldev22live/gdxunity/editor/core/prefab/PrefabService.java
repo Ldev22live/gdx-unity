@@ -214,24 +214,46 @@ public class PrefabService {
         }
         Vector3 at = new Vector3(position);
         return new SceneSnapshotCommand(editorState, "Place Prefab '" + document.getName() + "'", () -> {
-            Scene scene = editorState.getActiveScene();
-            Map<UUID, Entity> bySource = new HashMap<>();
-            for (UUID sourceId : document.getEntityIds()) {
-                Entity parent = bySource.get(document.getParent(sourceId));
-                bySource.put(sourceId, createMember(scene, document, prefab.getPath(), sourceId, parent));
-            }
-            Entity root = bySource.get(document.getRootId());
-            root.getTransform().setLocalPosition(at);
-            if (yawDegrees != 0f) {
-                root.getTransform().setLocalEulerAngles(yawDegrees, 0f, 0f);
-            }
-            if (scale != 1f) {
-                root.getTransform().setLocalScale(scale, scale, scale);
-            }
-            linkOf(root).setKnownSourceIds(new LinkedHashSet<>(document.getEntityIds()));
-            created[0] = root;
+            created[0] = createInstance(editorState.getActiveScene(), document, prefab.getPath(), at, yawDegrees, scale);
             return true;
         });
+    }
+
+    /**
+     * Adds an instance of the prefab to the active scene directly, outside the undo history: only for changes recorded as a whole by
+     * the caller, such as a scatter stroke inside a {@link SceneSnapshotCommand#begin} recording (roadmap M3.6, TD-097).
+     *
+     * @return the instance root
+     * @throws IOException                 when the prefab cannot be read
+     * @throws SceneSerializationException when the prefab file is not valid
+     * @throws IllegalStateException       when there is no active scene
+     */
+    public Entity placeUnrecorded(AssetReference prefab, Vector3 position, float yawDegrees, float scale) throws IOException {
+        Objects.requireNonNull(prefab, "prefab cannot be null");
+        Objects.requireNonNull(position, "position cannot be null");
+        Scene scene = editorState.getActiveScene();
+        if (scene == null) {
+            throw new IllegalStateException("There is no scene to place " + prefab.getFileName() + " in");
+        }
+        return createInstance(scene, getDocument(prefab.getPath()), prefab.getPath(), position, yawDegrees, scale);
+    }
+
+    private Entity createInstance(Scene scene, PrefabDocument document, String prefabPath, Vector3 at, float yawDegrees, float scale) {
+        Map<UUID, Entity> bySource = new HashMap<>();
+        for (UUID sourceId : document.getEntityIds()) {
+            Entity parent = bySource.get(document.getParent(sourceId));
+            bySource.put(sourceId, createMember(scene, document, prefabPath, sourceId, parent));
+        }
+        Entity root = bySource.get(document.getRootId());
+        root.getTransform().setLocalPosition(at);
+        if (yawDegrees != 0f) {
+            root.getTransform().setLocalEulerAngles(yawDegrees, 0f, 0f);
+        }
+        if (scale != 1f) {
+            root.getTransform().setLocalScale(scale, scale, scale);
+        }
+        linkOf(root).setKnownSourceIds(new LinkedHashSet<>(document.getEntityIds()));
+        return root;
     }
 
     public Entity instantiate(AssetReference prefab, Vector3 position, float yawDegrees, float scale, boolean select) {

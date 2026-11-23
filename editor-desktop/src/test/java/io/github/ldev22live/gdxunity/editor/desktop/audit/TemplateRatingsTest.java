@@ -63,9 +63,10 @@ class TemplateRatingsTest {
         }
         // 45 with the two MP.3 copies: the tiled platformer keeps its Java player (Partially Editable), the terrain one has no FAIL;
         // 46 with Platformer Profile 3D and 47 with First-person Range (M3b.7), made of shapes with no scripts
-        // 48 with the Poly Haven Showcase (downloaded CC0 assets), Partially Editable: its glTF models have no mesh editor (R7a)
-        assertEquals(48, samples);
-        assertEquals(Map.of(TemplateMatrix.Label.INCOMPLETE, 7, TemplateMatrix.Label.PARTIALLY_EDITABLE, 22,
+        // 48 with the Poly Haven Showcase (downloaded CC0 assets), Partially Editable: its glTF models have no mesh editor (R7a);
+        // 53 with the five landscape terrain copies (M3.10), 54 with the CC0 refresh of the valley (M2b.6)
+        assertEquals(54, samples);
+        assertEquals(Map.of(TemplateMatrix.Label.INCOMPLETE, 7, TemplateMatrix.Label.PARTIALLY_EDITABLE, 28,
             TemplateMatrix.Label.CHECKS_PENDING, 19), counts, "no template is Fully Customizable while the gates are unchecked");
     }
 

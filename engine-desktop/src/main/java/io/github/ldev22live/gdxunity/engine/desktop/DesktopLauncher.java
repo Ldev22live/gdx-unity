@@ -116,6 +116,8 @@ public final class DesktopLauncher {
         boolean perf = perfReport != null && !perfReport.isBlank() && options.isSmokeTest();
         renderer.setRenderStats(perf || "1".equals(System.getenv("GDXUNITY_RENDER_STATS")));
         renderer.setTerrainLod(!"0".equals(System.getenv("GDXUNITY_TERRAIN_LOD")));
+        // GDXUNITY_OBJECT_CULLING=0 draws every shape and model in every pass, to compare (roadmap M3.6)
+        renderer.setObjectCulling(!"0".equals(System.getenv("GDXUNITY_OBJECT_CULLING")));
         EngineApplication application = new EngineApplication(renderer);
         try {
             new Lwjgl3Application(application, configuration(session.getScene().getName(), windowIcon(options.project())));

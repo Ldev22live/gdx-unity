@@ -1,0 +1,550 @@
+{
+ "schemaVersion": 1,
+ "kind": "project-originals",
+ "note": "Written by tools/record_original_assets.py (TD-099); licence of the repository: LICENSE",
+ "files": [
+  {
+   "path": "libgdx.png",
+   "bytes": 2456,
+   "sha256": "e71a5f3bda8e7daf2df6d32f6189d2d118100f3b62f4dfc13ec8691859923fd1",
+   "licence": "Apache-2.0",
+   "madeWith": "the gdx-liftoff project template (the libGDX logo); used only by the unbuilt core/ module"
+  },
+  {
+   "path": "prefabs/buildings/CC0 House.png",
+   "bytes": 9474,
+   "sha256": "957b9fe155edd8bc1c3d953e08a4c1daeac91af50188714511f24d8f63653fa9",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)",
+   "derivedFrom": [
+    "kenney-building-kit"
+   ]
+  },
+  {
+   "path": "prefabs/buildings/Cottage.png",
+   "bytes": 7080,
+   "sha256": "48b00329e8c0ec744e5a0dea8ae2ae67e7a089d5d917736d390b3faf76e3d4f4",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)"
+  },
+  {
+   "path": "prefabs/buildings/Watchtower.png",
+   "bytes": 5140,
+   "sha256": "3b61763df36695947c06db7c2b4d02494cd659e3989bb0e2140de0fff616b7fe",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)"
+  },
+  {
+   "path": "prefabs/level/Boulder.png",
+   "bytes": 5953,
+   "sha256": "3434f403bd47162191dea0038452fd114818fbe7d781ce4e030fc329b34bb637",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)"
+  },
+  {
+   "path": "prefabs/level/Bush.png",
+   "bytes": 5426,
+   "sha256": "bd2e41ec433823a66c58432b6310e4cbd2201389af366fd47b65d84f0d0c5af0",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)"
+  },
+  {
+   "path": "prefabs/level/CC0 Bush.png",
+   "bytes": 5599,
+   "sha256": "6646e562703590398a21167548f4f48b405b4ae53dc3906e920e4c017bca6efc",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)",
+   "derivedFrom": [
+    "kenney-nature-kit"
+   ]
+  },
+  {
+   "path": "prefabs/level/CC0 Oak Tree.png",
+   "bytes": 4430,
+   "sha256": "d948c279956ec77bd7e9d5a812662cafdc00c47aa76ff8714f070bced0f6b61b",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)",
+   "derivedFrom": [
+    "kenney-nature-kit"
+   ]
+  },
+  {
+   "path": "prefabs/level/CC0 Pine Tree.png",
+   "bytes": 3467,
+   "sha256": "92402f52055742572ade228029a3450bb6ea193b6d377d24278c12beb97387fe",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)",
+   "derivedFrom": [
+    "kenney-nature-kit"
+   ]
+  },
+  {
+   "path": "prefabs/level/CC0 Rock.png",
+   "bytes": 4219,
+   "sha256": "71876998b296912c364c67a3db992ad8a0153b5b9e03c7dc1c50080d5845b476",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)",
+   "derivedFrom": [
+    "kenney-nature-kit"
+   ]
+  },
+  {
+   "path": "prefabs/level/Oak Tree.png",
+   "bytes": 5285,
+   "sha256": "697b9db0b44638f20ff0028f62f0e6b9dc9b99f9a4fc95124cde6062f052de37",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)"
+  },
+  {
+   "path": "prefabs/level/Pine Tree.png",
+   "bytes": 5034,
+   "sha256": "324257b75f192a59235f61a06addd48bd5a834e192c10a7d3b977ebbc254a958",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)"
+  },
+  {
+   "path": "prefabs/level/Rock.png",
+   "bytes": 5518,
+   "sha256": "0a4ad1a915ccdbef5007c08075e183ee6f0f8bbf2cf570d1a9ea89040d4ab743",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_palette_thumbnails.py (the game runtime's drawing of the prefab)"
+  },
+  {
+   "path": "sprites/coin.sprite",
+   "bytes": 1020,
+   "sha256": "445181de16474a175e5cc139e80ebd3dc3269d11b2492cf1165bf8708375bfa8",
+   "licence": "Apache-2.0",
+   "madeWith": "by hand in this repository (the pixels are in the file; no generator)"
+  },
+  {
+   "path": "sprites/hero.sprite",
+   "bytes": 1740,
+   "sha256": "a36fd5fd122860243de52684703772b1841d92818f68678281194510878aba76",
+   "licence": "Apache-2.0",
+   "madeWith": "by hand in this repository (the pixels are in the file; no generator)"
+  },
+  {
+   "path": "sprites/tiles.sprite",
+   "bytes": 3269,
+   "sha256": "28bfa5966bb841553064051358ca752660c9f252bd7de0598118691011c30871",
+   "licence": "Apache-2.0",
+   "madeWith": "by hand in this repository (the pixels are in the file; no generator)"
+  },
+  {
+   "path": "templates/previews/action-rpg-iso-25d.png",
+   "bytes": 20163,
+   "sha256": "a683b00ff7d92f0e8318de11f294450fce8f63ebc3b9d23eb482b5ebcbf98421",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/action-rpg-valley-3d.png",
+   "bytes": 20255,
+   "sha256": "14ac4f7a996e110273d0226d570bbd43a598060ec7cef46cfc80cdafbfc9c1e3",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/animation-samples-3d.png",
+   "bytes": 18609,
+   "sha256": "c0c411b02db2d5427c42f538d995b60304dcdc2f59cf09c73dcf19ad214476a2",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/arena-fps-3d.png",
+   "bytes": 25591,
+   "sha256": "bd815463a2026d2635a4bd108a58ae9208ee7ea8e4f2403bbb7d2e04dd8a9998",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/blockworld-3d.png",
+   "bytes": 34256,
+   "sha256": "89ad2c842c882af6676ca02d0946825182e650c3be634fd4086ed64240c12e58",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/breakout-2d.png",
+   "bytes": 11964,
+   "sha256": "dc32df224a2eb13acddff61818fa109d57c0bc7dcbd0f7c5f3d8862e4a3ed71a",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/character-creator-3d.png",
+   "bytes": 21054,
+   "sha256": "552e2e484fba6e348e3c34d2519cc84ff382cefcc884ba58b2a0c201e2fbccb3",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/character-playground-3d.png",
+   "bytes": 22262,
+   "sha256": "faa3166a187152d025cef0205bc0b010e9a6cf1ba2fe10ca34f5826133f133de",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/collector-3d.png",
+   "bytes": 18527,
+   "sha256": "9dc0c99984c01335b64ccd204c7870b02316bf89b860ba02d85c0c4d42f5149e",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/depth-compositing-3d.png",
+   "bytes": 7385,
+   "sha256": "a11120d8b6d3619cb10bb53344266ebf7d1ed242ccab51b54151b8d4baeeb071",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/fighter-25d.png",
+   "bytes": 19668,
+   "sha256": "34ae947f8804bb4153018a72c9d612c91aede5373570f92e254c65e583ba3777",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/first-person-range-3d.png",
+   "bytes": 11368,
+   "sha256": "42dc79c792b99d02d7414985b63b9cd6d8aba13be6cfd0b0661c670d3a33d3be",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/grapple-gorge-25d.png",
+   "bytes": 17318,
+   "sha256": "e48731d747e31ca0b4ef0aa8824c86ae88cebec0ba8b0b6b6d9b5a0686a23889",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/hopper-3d.png",
+   "bytes": 13630,
+   "sha256": "8b9827e2c31693461d7eddbe6db7a2152ce3abcd658beb2fc9c4fcd0d82f4622",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/humanoid-animations-3d.png",
+   "bytes": 14566,
+   "sha256": "934ce4799966efa29eab16f16261eb82bd536c74086ca0c2f35cd77f75b76587",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/landscape-3d.png",
+   "bytes": 77044,
+   "sha256": "8a695ecc436e46a0bbf78766ced7b0e80976aed181e1415d740e689fa2d14cb1",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/landscape-alpine-3d.png",
+   "bytes": 54037,
+   "sha256": "e49ee850441d3128db00e58abb0fefbd15133756efdeabdfecfb3faf5744750c",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/landscape-alpine-terrain-3d.png",
+   "bytes": 42722,
+   "sha256": "9fe48ea4d922952bed10e8223b7ad3774b088368499fdfb465908616e8e0ac69",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/landscape-autumn-3d.png",
+   "bytes": 53925,
+   "sha256": "6219d02a7ecf94b5fafb03330a49ea5c5ef162920e1787f69a5eac40b893a5b3",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/landscape-autumn-terrain-3d.png",
+   "bytes": 57949,
+   "sha256": "619280bc714ebd3f8a9b27f1bc7f80cb92496ce8b3d94830a40885725a645e94",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/landscape-cc0-terrain-3d.png",
+   "bytes": 74137,
+   "sha256": "cdfb7533b321375737c6969225afdbbbac311fac2588daffef49c9a44c6a3bdb",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)",
+   "derivedFrom": [
+    "kenney-nature-kit"
+   ]
+  },
+  {
+   "path": "templates/previews/landscape-desert-3d.png",
+   "bytes": 54074,
+   "sha256": "60434d6302ef5ef70fd07652623b7351cb3834de891440d08171934b441157a2",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/landscape-desert-terrain-3d.png",
+   "bytes": 64006,
+   "sha256": "cd07ebf3d0e7203844337b750cc3fc80704993e559e25c12b4c14bdea516794c",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/landscape-island-3d.png",
+   "bytes": 34684,
+   "sha256": "4d9983955baeaece9947dd3c5e063d31b67411a9b611b949f189b716816d50f6",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/landscape-island-terrain-3d.png",
+   "bytes": 64882,
+   "sha256": "e56fb2f4ee0fa86f350dd62297717f3173d0bf6f1f5e77c1ad5ca5ea462e307c",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/landscape-terrain-3d.png",
+   "bytes": 63635,
+   "sha256": "2bfcd70c8b2f1089f9612248229b7e2524afcf5ad3cf22a841b4532cdeee64c4",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/materials-3d.png",
+   "bytes": 25262,
+   "sha256": "4add0adc3f7b56e01f2fecd530693a9c21323f39007073b1a25d165b9df64f15",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/obby-3d.png",
+   "bytes": 15050,
+   "sha256": "28b15cd7d6fdd84eb05e304c4c93d784c1389f2c9f19bbce3b6bf8b6c8ae4f81",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/physics-joints-3d.png",
+   "bytes": 11336,
+   "sha256": "8fc3ab66ff327bd84187655756b1eeb3056b9a7eaa985f7f6368fd2f560a22fd",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/physics-mesh-3d.png",
+   "bytes": 17898,
+   "sha256": "9897021f6e65fb63e148bb52551f5397b0b52c6c7bad6faa4671fc06f305d01d",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/physics-sandbox-2d.png",
+   "bytes": 16714,
+   "sha256": "82227f0029163bd005111eb8f419aa42734848238381970d3df3bf1179ac71dd",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/physics-sandbox-3d.png",
+   "bytes": 23442,
+   "sha256": "5e2c0b86c5b75cc616d25ad9099c8eae095907328c08ac1ec0e0d68918a55616",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/pixel-adventure-2d.png",
+   "bytes": 9738,
+   "sha256": "d393da715675be8dd6123e73bbe7a2b0ba011de78f5b3034c984317a99173a99",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/platformer-2d.png",
+   "bytes": 5277,
+   "sha256": "591909cc243cecde4e0c1ec56d407cac7d7188a31878707b4e552fc4925fb7b4",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/platformer-profile-25d.png",
+   "bytes": 11892,
+   "sha256": "028c1b47db90be13ec756eb48348fc7ae17dfb3a1a4e1dddf429d7f92e960902",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/platformer-profile-3d.png",
+   "bytes": 12193,
+   "sha256": "75cc3e3c8cc8ad6b705fa98ddd7deb286960d13e23cd5906ec89be231317307b",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/platformer-profile-terrain-25d.png",
+   "bytes": 11889,
+   "sha256": "377e53cd3e2d6e2ac0318eb55bb313c72ecedd6edcf1f96f955ae6e6328cb266",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/platformer-tiles-2d.png",
+   "bytes": 5570,
+   "sha256": "895c74e2c715267d9342d53a6272f36fd931ec478200c9094e6f39a754b02d6d",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/polyhaven-showcase-3d.png",
+   "bytes": 95859,
+   "sha256": "6407fd9876623c17f14ce20f9fafa88368648cb69146c998ead950513b75e439",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)",
+   "derivedFrom": [
+    "polyhaven-red-brick-03",
+    "polyhaven-rocky-terrain-02",
+    "polyhaven-rollershutter-door",
+    "polyhaven-stone-fire-pit",
+    "polyhaven-wood-floor-deck"
+   ]
+  },
+  {
+   "path": "templates/previews/puzzle-3d.png",
+   "bytes": 29751,
+   "sha256": "3c96032b4c570afd0e2312e34dfef5a997194357c25b3811e688f67b7645e8c4",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/racing-3d.png",
+   "bytes": 34786,
+   "sha256": "e0d21b939440338af7c90a72a9e338f0fa043cd9bbc49ef336ef31923867306b",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/ruins-runner-25d.png",
+   "bytes": 18018,
+   "sha256": "9ccf4f125e0346f7278151f8e03186067d3cec43739ff663f7c1204089a358e8",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/runner-3d.png",
+   "bytes": 14651,
+   "sha256": "f4902fbe15dca67d0c69963505cc91990227821651d6d12a3f66a0338ee759e9",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/sculpted-rock-3d.png",
+   "bytes": 12859,
+   "sha256": "9a745c82f46aec77f60e3915c980e93934739d212c663434c0aea1b840b4ae7d",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/shooter-2d.png",
+   "bytes": 7406,
+   "sha256": "6c3cd990bf40391ae7431ee9a337a5d6e20ebb1164ada47a5757ffb164e03427",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/skeleton-tentacle-3d.png",
+   "bytes": 8651,
+   "sha256": "ba2962119fb7d1a8a62a255c89c65a01278aeb30365eb9b4b71001a52f3a6b12",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/skeleton-walk-3d.png",
+   "bytes": 9056,
+   "sha256": "24790f08e3d61cceb9e51dfc2d6046ba9bb8a05543de75c27a103cb1e4212637",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/skeleton-wave-3d.png",
+   "bytes": 8285,
+   "sha256": "ad6a83c1a329221d2a6a50a454eacc9b56cdd29b10397e7e11c16cd936ed1998",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/sprite-25d.png",
+   "bytes": 13526,
+   "sha256": "f633ae4a5106644b7e0a58a0ed6e6dc15743c82666e88241c776f00c5d3f951e",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/sprite-animation-2d.png",
+   "bytes": 3268,
+   "sha256": "73c3d9e02908051307330009b377e3c5bc838b533cb3d5f437a90b3f14a0fda7",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/terrain-3d.png",
+   "bytes": 16166,
+   "sha256": "5bb3f475fc67d75f41950cf14580f757906792f42c1c2aaa8a675cda206db389",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/three-heroes-25d.png",
+   "bytes": 17146,
+   "sha256": "4cabe234213a373d3b491307b151091b085122e70f21a1ef0a42d278214232df",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/tilemap-platformer-2d.png",
+   "bytes": 6861,
+   "sha256": "31c5ecd4d63062ee56df3091b068c04d0c586efe74dc02743ecb6e34d95d5779",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "templates/previews/visual-scripting-3d.png",
+   "bytes": 9936,
+   "sha256": "22391e8a6269730b8dd46975117fc067b2222c0a9ea9c26b37ef7832c9d70e0f",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_template_previews.py (the game runtime's drawing of the sample)"
+  },
+  {
+   "path": "textures/brick.png",
+   "bytes": 1036,
+   "sha256": "36b76f3b512878d4cb91a1414851823c0f21c6e5936e61ef6d816da35fd93447",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_material_samples.py (drawn with Pillow)"
+  },
+  {
+   "path": "textures/brick_normal.png",
+   "bytes": 875,
+   "sha256": "190e3fe8c0ce089e40d2e51859b6f09acf12150d574e1088190f03b018bb5b70",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_material_samples.py (drawn with Pillow)"
+  },
+  {
+   "path": "textures/checker.png",
+   "bytes": 867,
+   "sha256": "e02a921ea26c6b3c7519d1a12781d4ef5ef7b97e0dedab6e0e7415c841ed36c6",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_material_samples.py (drawn with Pillow)"
+  },
+  {
+   "path": "textures/neon.png",
+   "bytes": 474,
+   "sha256": "c6c17f7e6cc3c3434b40558ee8f7eb41baaa2cf991a183929ea3031bd91debce",
+   "licence": "Apache-2.0",
+   "madeWith": "tools/make_material_samples.py (drawn with Pillow)"
+  }
+ ]
+}

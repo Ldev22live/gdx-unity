@@ -23,6 +23,14 @@ const KNOWN_UNSUPPORTED: Readonly<Record<string, string[]>> = {
   "first-person-range-3d.json": ["PlayerComponent"],
   "action-rpg-valley-3d.json": ["PlayerComponent"],
   "action-rpg-iso-25d.json": ["PlayerComponent", "SpawnPointComponent"],
+  // Roadmap M3.10: the landscapes' terrain copies have a Hero played by the Action RPG profile
+  "landscape-terrain-3d.json": ["PlayerComponent"],
+  // Roadmap M2b.6: the CC0 refresh of the valley has its terrain copy's gap; its prefab links are only the editor's
+  "landscape-cc0-terrain-3d.json": ["PlayerComponent"],
+  "landscape-desert-terrain-3d.json": ["PlayerComponent"],
+  "landscape-alpine-terrain-3d.json": ["PlayerComponent"],
+  "landscape-island-terrain-3d.json": ["PlayerComponent"],
+  "landscape-autumn-terrain-3d.json": ["PlayerComponent"],
 };
 
 describe("parseSceneFile", () => {

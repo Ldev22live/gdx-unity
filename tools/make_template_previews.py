@@ -10,6 +10,8 @@ Build the runtime first, then run from the repository root:
     python tools/make_template_previews.py [scene name ...]
 
 Needs a display and Pillow. With scene names (for example racing-3d), only those previews are made.
+Then run  python tools/record_original_assets.py  so the pictures' licence record (licenses/originals.json, TD-099) has
+their new checksums; ShippedSpritesProvenanceTest fails until it does.
 """
 import json
 import os

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher;
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
 import io.github.ldev22live.gdxunity.editor.core.viewport.OrthographicViewCamera;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ViewKind;
@@ -362,7 +363,8 @@ class LevelEditingTest {
         assertEquals(LevelSession.Tool.PLACE, level.getTool());
         assertFalse(terrainSession.isPaintMode(), "no brush strokes while placing objects");
         for (LevelSession.Tool tool : LevelSession.Tool.values()) {
-            assertEquals(tool == LevelSession.Tool.PLACE || tool == LevelSession.Tool.ERASE, LevelSession.Focus.OBJECTS.offers(tool), tool.name());
+            assertEquals(tool == LevelSession.Tool.PLACE || tool == LevelSession.Tool.ERASE || tool == LevelSession.Tool.SCATTER,
+                LevelSession.Focus.OBJECTS.offers(tool), tool.name());
             // The ground tools: the brushes and the Path tool (roadmap M3.7)
             assertEquals(tool.isBrush() || tool == LevelSession.Tool.PATH, LevelSession.Focus.TERRAIN.offers(tool), tool.name());
             assertTrue(LevelSession.Focus.ALL.offers(tool));
@@ -373,5 +375,145 @@ class LevelEditingTest {
 
         level.setActive(false);
         assertEquals(LevelSession.Focus.ALL, level.getFocus(), "turned off, the Level button's full palette comes back next time");
+    }
+
+    // ---- Scatter (roadmap M3.6, TD-097) ----------------------------------------------------------------------------------
+
+    /** The gentle slope's angle, and where it turns steep: x 0 to {@link #STEEP_FROM} rises at it, beyond at {@link #STEEP_DEGREES}. */
+    private static final float GENTLE_DEGREES = 25f;
+    private static final float STEEP_DEGREES = 55f;
+    private static final float STEEP_FROM = 1200f;
+    private static final float SCATTER_RADIUS = 400f;
+
+    /** A new level whose ground is flat for x below 0, then a 25 degree slope, then from x 1200 a 55 degree one. */
+    private Terrain slopedLevel() {
+        assertNotNull(level.createLevel(Surface.GRASS));
+        Terrain terrain = level.findTerrain();
+        float gentle = (float) Math.tan(Math.toRadians(GENTLE_DEGREES));
+        float steep = (float) Math.tan(Math.toRadians(STEEP_DEGREES));
+        for (int iz = 0; iz < terrain.getResolutionZ(); iz++) {
+            for (int ix = 0; ix < terrain.getResolutionX(); ix++) {
+                float x = -terrain.getSizeX() / 2f + ix * terrain.getCellSize();
+                float h = x <= 0f ? 0f : x <= STEEP_FROM ? x * gentle : STEEP_FROM * gentle + (x - STEEP_FROM) * steep;
+                terrain.setHeight(ix, iz, h);
+            }
+        }
+        level.setFocus(LevelSession.Focus.OBJECTS);
+        level.setTool(LevelSession.Tool.SCATTER);
+        level.setObjectPath(OBJECT);
+        terrainSession.getBrush().setRadius(SCATTER_RADIUS);
+        return terrain;
+    }
+
+    /** One stroke along z = 0 from {@code fromX} to {@code toX}, in 50 unit steps. */
+    private int stroke(float fromX, float toX, boolean erase) {
+        assertTrue(level.beginScatter(erase), editorState.getStatusMessage());
+        for (float x = fromX; x <= toX; x += 50f) {
+            level.scatterAt(x, 0f);
+        }
+        return level.endScatter();
+    }
+
+    /** The slope in degrees at the grid point nearest a point of the ground. */
+    private static float slopeAt(Terrain terrain, float x, float z) {
+        int ix = Math.round((x + terrain.getSizeX() / 2f) / terrain.getCellSize());
+        int iz = Math.round((z + terrain.getSizeZ() / 2f) / terrain.getCellSize());
+        return (float) Math.toDegrees(Math.acos(terrain.normalAt(ix, iz, new Vector3()).y));
+    }
+
+    @Test
+    void shouldScatterPinesOnASlopeWithinTheSlopeLimitAsOneUndoStep() {
+        Terrain terrain = slopedLevel();
+        level.getScatterSettings().setDensity(10f);
+        level.getScatterSettings().setSpacing(100f);
+        level.getScatterSettings().setMaxSlopeDegrees(35f);
+        int undoBefore = editorState.getCommandHistory().getUndoCount();
+
+        int scattered = stroke(100f, 1000f, false);
+
+        List<Entity> trees = placed();
+        assertEquals(scattered, trees.size());
+        assertTrue(scattered >= 10, "a stroke over 9 m of slope scatters many: " + scattered);
+        for (Entity tree : trees) {
+            Vector3 at = tree.getTransform().getWorldPosition();
+            assertEquals(terrain.heightAt(at.x, at.z), at.y, 0.5f, "standing on the slope: " + at);
+            // The brush reaches the flat ground below x 0 too; nothing stands on the steep ground beyond x 1200
+            assertTrue(at.x < STEEP_FROM + terrain.getCellSize(), "off the steep slope: " + at);
+            assertTrue(slopeAt(terrain, at.x, at.z) <= 35.5f, "within the slope limit: " + at);
+            float scale = tree.getTransform().getLocalScale().x;
+            assertTrue(scale >= 0.8f - 1e-4f && scale <= 1.2f + 1e-4f, "scaled in range: " + scale);
+        }
+        long onSlope = trees.stream().filter(tree -> tree.getTransform().getWorldPosition().x > 0f).count();
+        assertTrue(onSlope >= 10, "most stand on the 25 degree slope: " + onSlope + " of " + scattered);
+        assertEquals(undoBefore + 1, editorState.getCommandHistory().getUndoCount(), "the whole stroke is one undo step");
+        assertTrue(editorState.getCommandHistory().getUndoDescription().contains("Scatter Tree x " + scattered));
+
+        assertTrue(editorState.undo());
+        assertTrue(placed().isEmpty(), "one undo removes the whole stroke");
+        assertTrue(editorState.redo());
+        assertEquals(scattered, placed().size(), "and redo brings it back");
+    }
+
+    @Test
+    void shouldRefuseSteepGroundAndTopUpRatherThanPileUp() {
+        slopedLevel();
+        level.getScatterSettings().setDensity(10f);
+        level.getScatterSettings().setSpacing(0f);
+        int undoBefore = editorState.getCommandHistory().getUndoCount();
+
+        assertEquals(0, stroke(1800f, 1800f, false), "55 degrees is over the 35 degree limit");
+        assertEquals(undoBefore, editorState.getCommandHistory().getUndoCount(), "a stroke that placed nothing leaves no undo step");
+        assertTrue(editorState.getStatusMessage().contains("too steep"), editorState.getStatusMessage());
+
+        int first = stroke(-1000f, -1000f, false);
+        int expected = Math.round(10f * (float) Math.PI * SCATTER_RADIUS * SCATTER_RADIUS / ScatterSettings.DENSITY_AREA);
+        assertEquals(expected, first, "one dab fills the circle to the density");
+        assertEquals(0, stroke(-1000f, -1000f, false), "going over it again adds nothing: it is already full");
+    }
+
+    @Test
+    void shouldScatterByDraggingAndRemoveWithCtrlDragEachAsOneUndoStep() {
+        assertNotNull(level.createLevel(Surface.GRASS));
+        level.setFocus(LevelSession.Focus.OBJECTS);
+        level.setTool(LevelSession.Tool.SCATTER);
+        level.setObjectPath(OBJECT);
+        terrainSession.getBrush().setRadius(SCATTER_RADIUS);
+        int undoBefore = editorState.getCommandHistory().getUndoCount();
+
+        interaction.touchDown(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, Input.Buttons.LEFT, 0);
+        for (int i = 1; i <= 10; i++) {
+            interaction.touchDragged(WIDTH / 2 + i * 20f, HEIGHT / 2, WIDTH, HEIGHT);
+        }
+        interaction.touchUp(Input.Buttons.LEFT);
+
+        int scattered = placed().size();
+        assertTrue(scattered > 0, editorState.getStatusMessage());
+        assertFalse(level.isScattering());
+        assertEquals(undoBefore + 1, editorState.getCommandHistory().getUndoCount());
+        assertTrue(normal.calls.isEmpty(), "the drag did not reach the terrain brushes or the camera: " + normal.calls);
+
+        interaction.touchDown(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, Input.Buttons.LEFT, EditorKeyboardDispatcher.MOD_CTRL);
+        for (int i = 1; i <= 10; i++) {
+            interaction.touchDragged(WIDTH / 2 + i * 20f, HEIGHT / 2, WIDTH, HEIGHT);
+        }
+        interaction.touchUp(Input.Buttons.LEFT);
+
+        assertTrue(placed().size() < scattered, "Ctrl-drag removed copies: " + placed().size() + " of " + scattered);
+        assertEquals(undoBefore + 2, editorState.getCommandHistory().getUndoCount(), "the removal is one more undo step");
+        assertTrue(editorState.undo());
+        assertEquals(scattered, placed().size(), "undo puts the removed copies back");
+    }
+
+    @Test
+    void shouldOfferScatterInObjectsOnlyAndRefuseItWithoutAnObjectOrDuringPlay() {
+        assertTrue(LevelSession.Focus.OBJECTS.offers(LevelSession.Tool.SCATTER));
+        assertFalse(LevelSession.Focus.BUILDINGS.offers(LevelSession.Tool.SCATTER), "buildings stand square, one at a time");
+        assertFalse(LevelSession.Focus.TERRAIN.offers(LevelSession.Tool.SCATTER));
+        assertFalse(LevelSession.Tool.SCATTER.isBrush(), "the level editor's own drag, not a terrain brush");
+
+        assertNotNull(level.createLevel(Surface.GRASS));
+        level.setObjectPath("");
+        assertFalse(level.beginScatter(false));
+        assertTrue(editorState.getStatusMessage().contains("Choose an object"), editorState.getStatusMessage());
     }
 }

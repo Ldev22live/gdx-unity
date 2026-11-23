@@ -1,6 +1,6 @@
 // Copies the sample scenes of the desktop editor (../assets/samples/*.json) into public/samples, with an index.json
 // listing them, so the web player plays exactly the files the desktop editor and game runtime use.
-import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -168,3 +168,24 @@ function copyTextures(from, to) {
 }
 copyTextures(textureSource, textureTarget);
 console.log(`Copied ${textureCount} textures to ${textureTarget}`);
+
+// The downloaded packs' models (../assets/thirdparty/<provider>/<pack>/**/Models/**: glTF, GLB and the images and buffers they name, roadmap
+// M2b.7) go to public/thirdparty, keeping their folders: the starter pack's prefabs, and so the scenes that place them, name them by
+// project path (`thirdparty/kenney/nature-kit/Models/GLTF format/tree_oak.glb`). The packs' 2D renders and source formats stay out.
+const thirdPartySource = join(root, "..", "assets", "thirdparty");
+const thirdPartyTarget = join(root, "public", "thirdparty");
+rmSync(thirdPartyTarget, { recursive: true, force: true });
+let thirdPartyCount = 0;
+function copyThirdParty(from, to, relative) {
+  for (const entry of readdirSync(from, { withFileTypes: true })) {
+    const path = `${relative}/${entry.name}`;
+    if (entry.isDirectory()) copyThirdParty(join(from, entry.name), join(to, entry.name), path);
+    else if (path.includes("/Models/") && /\.(gltf|glb|bin|png|jpg)$/i.test(entry.name)) {
+      mkdirSync(to, { recursive: true });
+      copyFileSync(join(from, entry.name), join(to, entry.name));
+      thirdPartyCount++;
+    }
+  }
+}
+if (existsSync(thirdPartySource)) copyThirdParty(thirdPartySource, thirdPartyTarget, "thirdparty");
+console.log(`Copied ${thirdPartyCount} downloaded model files to ${thirdPartyTarget}`);

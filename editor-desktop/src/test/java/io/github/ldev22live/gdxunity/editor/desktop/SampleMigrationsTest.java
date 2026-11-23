@@ -10,6 +10,7 @@ import io.github.ldev22live.gdxunity.editor.terrain.LevelSession;
 import io.github.ldev22live.gdxunity.editor.terrain.TerrainEditTool;
 import io.github.ldev22live.gdxunity.editor.terrain.TerrainSession;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetSource;
+import io.github.ldev22live.gdxunity.engine.core.asset.ThirdPartyManifest;
 import io.github.ldev22live.gdxunity.engine.desktop.GameComponentSerializers;
 import io.github.ldev22live.gdxunity.engine.render.components.TilemapComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
@@ -29,9 +30,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +58,8 @@ class SampleMigrationsTest {
     private static final File ASSETS = new File("../assets");
     private static final File LEDGER = new File("../docs/migration/sample-migrations.json");
     private static final List<String> EVIDENCE_TESTS = List.of("behaviour", "collision", "load", "undoRedo", "export");
+    /** Evidence a slice may name besides, checked the same way when it does (M2b.6's done-when: reopen and Play isolation). */
+    private static final List<String> OPTIONAL_EVIDENCE_TESTS = List.of("reopen", "playIsolation", "provenance");
 
     @TempDir
     Path project;
@@ -105,6 +111,12 @@ class SampleMigrationsTest {
     void shouldKeepEveryOriginalAsAFixtureBesideItsMigratedSliceWithItsIds() throws IOException {
         Set<String> gallery = gallery();
         Set<String> originals = new HashSet<>();
+        Map<String, ThirdPartyManifest.FileRecord> downloads = new HashMap<>();
+        for (ThirdPartyManifest.Entry entry : ThirdPartyManifest.read(ASSETS).entries()) {
+            for (ThirdPartyManifest.FileRecord record : entry.files()) {
+                downloads.put(record.path(), record);
+            }
+        }
         int slices = 0;
         for (JsonValue slice = ledger().get("slices").child; slice != null; slice = slice.next) {
             slices++;
@@ -119,8 +131,13 @@ class SampleMigrationsTest {
             for (String file : slice.get("newFiles").asStringArray()) {
                 assertTrue(new File(ASSETS, file).isFile(), file);
             }
-            assertEquals(0, slice.get("downloadedAssets").size(),
-                "a downloaded asset needs its manifest entry (M2b.1) before a slice may use it");
+            // A downloaded asset needs its manifest entry (M2b.1) before a slice may use it (M2b.6: the first slice that does)
+            for (String file : slice.get("downloadedAssets").asStringArray()) {
+                assertTrue(downloads.containsKey(file), migrated + " uses " + file + ", which has no licence record");
+                assertEquals(downloads.get(file).sha256(), sha256(new File(ASSETS, file)), file + " is the file that was downloaded");
+                assertTrue(Files.readString(new File(ASSETS, "samples/" + migrated).toPath()).contains(file)
+                        || namedByAPrefabTheSliceUses(migrated, file), migrated + " uses " + file);
+            }
 
             Scene before = load(original);
             Scene after = load(migrated);
@@ -148,7 +165,9 @@ class SampleMigrationsTest {
                 assertTrue(new File(REPOSITORY, screenshot).isFile(), screenshot);
             }
             assertTrue(new File(REPOSITORY, evidence.getString("performance")).isFile(), evidence.getString("performance"));
-            for (String kind : EVIDENCE_TESTS) {
+            List<String> kinds = new ArrayList<>(EVIDENCE_TESTS);
+            OPTIONAL_EVIDENCE_TESTS.stream().filter(evidence::has).forEach(kinds::add);
+            for (String kind : kinds) {
                 String reference = evidence.getString(kind);
                 String[] parts = reference.split("#");
                 Path source = tests.stream().filter(p -> p.getFileName().toString().equals(parts[0] + ".java")).findFirst()
@@ -156,6 +175,33 @@ class SampleMigrationsTest {
                 assertTrue(Files.readString(source).contains("void " + parts[1] + "("),
                     slice.getString("id") + " " + kind + ": " + parts[0] + " has no test " + parts[1]);
             }
+        }
+    }
+
+    /** Whether a prefab the migrated scene places names {@code file}: a refreshed object's model is in its prefab, not the scene. */
+    private static boolean namedByAPrefabTheSliceUses(String migrated, String file) throws IOException {
+        JsonValue scene = new JsonReader().parse(Files.readString(new File(ASSETS, "samples/" + migrated).toPath(), StandardCharsets.UTF_8));
+        Set<String> prefabs = new TreeSet<>();
+        for (JsonValue entity = scene.get("entities").child; entity != null; entity = entity.next) {
+            for (JsonValue component = entity.get("components").child; component != null; component = component.next) {
+                if ("PrefabInstance".equals(component.getString("type"))) {
+                    prefabs.add(component.get("data").getString("prefab"));
+                }
+            }
+        }
+        for (String prefab : prefabs) {
+            if (Files.readString(new File(ASSETS, prefab).toPath(), StandardCharsets.UTF_8).contains(file)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String sha256(File file) throws IOException {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(file.toPath())));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 is part of every Java runtime", e);
         }
     }
 

@@ -28,11 +28,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** The curated CC0 starter pack (roadmap M2b.2): Kenney's tree, rock and house, recorded, and carried into new projects with their licences. */
+/**
+ * The curated CC0 starter pack (roadmap M2b.2): Kenney's tree, rock and house, and since M2b.6 a pine and a bush, recorded, and carried
+ * into new projects with their licences.
+ */
 class StarterPackTest {
     private static final File SHIPPED = new File("../assets");
     private static final String TREE = "prefabs/level/CC0 Oak Tree.prefab";
     private static final String ROCK = "prefabs/level/CC0 Rock.prefab";
+    private static final String PINE = "prefabs/level/CC0 Pine Tree.prefab";
+    private static final String BUSH = "prefabs/level/CC0 Bush.prefab";
     private static final String HOUSE = "prefabs/buildings/CC0 House.prefab";
     private static final String COLORMAP = "thirdparty/kenney/building-kit/Models/GLB format/Textures/colormap.png";
 
@@ -56,11 +61,11 @@ class StarterPackTest {
     @Test
     void shouldOfferTheCuratedTreeRockAndHouseWhoseEveryFileIsARecordedCc0Download() throws IOException {
         List<String> prefabs = StarterPalette.prefabs(SHIPPED);
-        assertTrue(prefabs.containsAll(List.of(TREE, ROCK, HOUSE)), prefabs.toString());
+        assertTrue(prefabs.containsAll(List.of(TREE, ROCK, PINE, BUSH, HOUSE)), prefabs.toString());
 
         ThirdPartyManifest manifest = ThirdPartyManifest.read(SHIPPED);
         Set<String> needed = new TreeSet<>();
-        for (String prefab : List.of(TREE, ROCK, HOUSE)) {
+        for (String prefab : List.of(TREE, ROCK, PINE, BUSH, HOUSE)) {
             List<String> models = modelsOf(prefab);
             assertFalse(models.isEmpty(), prefab + " places a model");
             needed.addAll(models);
@@ -76,6 +81,8 @@ class StarterPackTest {
         }
         assertEquals(1, modelsOf(TREE).size());
         assertEquals(1, modelsOf(ROCK).size());
+        assertEquals(1, modelsOf(PINE).size());
+        assertEquals(1, modelsOf(BUSH).size());
         assertEquals(16, modelsOf(HOUSE).size(), "4 floor tiles, 8 walls, 4 roof corners");
     }
 
@@ -86,7 +93,7 @@ class StarterPackTest {
 
         TemplateProject.Result withPalette = StarterPalette.addTo(SHIPPED, made, GameMode.MODE_3D);
 
-        for (String prefab : List.of(TREE, ROCK, HOUSE)) {
+        for (String prefab : List.of(TREE, ROCK, PINE, BUSH, HOUSE)) {
             assertTrue(new File(project, prefab).isFile(), prefab);
             for (String model : modelsOf(prefab)) {
                 assertTrue(new File(project, model).isFile(), model);
@@ -98,7 +105,7 @@ class StarterPackTest {
         assertTrue(withPalette.files().contains(ThirdPartyManifest.PATH));
         ThirdPartyManifest copied = ThirdPartyManifest.read(project);
         ThirdPartyManifest.Entry nature = copied.entry("kenney-nature-kit").orElseThrow();
-        assertEquals(Set.copyOf(List.of(modelsOf(TREE).get(0), modelsOf(ROCK).get(0))),
+        assertEquals(Set.copyOf(List.of(modelsOf(TREE).get(0), modelsOf(ROCK).get(0), modelsOf(PINE).get(0), modelsOf(BUSH).get(0))),
             Set.copyOf(nature.files().stream().map(ThirdPartyManifest.FileRecord::path).toList()), "only the files copied");
         assertEquals("https://kenney.nl/assets/nature-kit", nature.source());
         for (ThirdPartyManifest.Entry entry : copied.entries()) {

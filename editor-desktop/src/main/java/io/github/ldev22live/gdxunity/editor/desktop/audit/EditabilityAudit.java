@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import io.github.ldev22live.gdxunity.editor.core.inspector.ComponentEditorRegistry;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
+import io.github.ldev22live.gdxunity.engine.scene.prefab.PrefabInstanceComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSerializerRegistry;
 
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -33,6 +35,11 @@ import java.util.TreeSet;
  * not audited yet. {@link #toMarkdown} renders the result as the table kept in {@code docs/FEATURE_TEST_MATRIX.md}.
  */
 public final class EditabilityAudit {
+    /**
+     * Component types the Inspector edits with a bar of its own rather than a Details section: a placed prefab's link is shown as
+     * the prefab bar, with Apply, Revert and Unpack (TD-027; first in a shipped sample with M2b.6).
+     */
+    private static final Set<String> INSPECTOR_BARS = Set.of(PrefabInstanceComponentSerializer.TYPE_ID);
     /** Where behaviour lives in a scene. */
     public enum Logic {
         /** No script or graph: the scene only shows things. */
@@ -159,6 +166,9 @@ public final class EditabilityAudit {
     }
 
     private boolean hasEditor(String typeId) {
+        if (INSPECTOR_BARS.contains(typeId)) {
+            return true;
+        }
         ComponentSerializer<?> serializer = serializers.getByTypeId(typeId);
         if (serializer == null) {
             return false;

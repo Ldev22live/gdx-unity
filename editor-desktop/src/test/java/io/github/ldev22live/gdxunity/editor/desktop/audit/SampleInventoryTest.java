@@ -1,5 +1,7 @@
 package io.github.ldev22live.gdxunity.editor.desktop.audit;
 
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import io.github.ldev22live.gdxunity.engine.desktop.GameComponentSerializers;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSerializerRegistry;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
@@ -19,6 +21,8 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -34,6 +38,9 @@ class SampleInventoryTest {
     private static final String SCENES_END = "<!-- sample-inventory:scenes:end -->";
     private static final String ASSETS_BEGIN = "<!-- sample-inventory:assets:begin -->";
     private static final String ASSETS_END = "<!-- sample-inventory:assets:end -->";
+    private static final String REPLACEMENTS_BEGIN = "<!-- sample-inventory:replacements:begin -->";
+    private static final String REPLACEMENTS_END = "<!-- sample-inventory:replacements:end -->";
+    private static final File LEDGER = new File("../docs/migration/sample-migrations.json");
 
     @TempDir
     Path project;
@@ -160,6 +167,25 @@ class SampleInventoryTest {
         assertEquals(SampleInventory.LICENCE_UNRECORDED, rows.get("textures/own.png").licence(), "made in the project");
     }
 
+    /** Roadmap M2b.5 (TD-099): 2D art made in the repository takes its origin and licence from licenses/originals.json. */
+    @Test
+    void shouldTakeAnOriginalFilesOriginAndLicenceFromTheOriginalsRecord() throws IOException {
+        write("assets/textures/own.png", "x");
+        write("assets/textures/other.png", "x");
+        write("assets/samples/a-3d.json", scene("3d"));
+        write("assets/licenses/originals.json", "{\"schemaVersion\":1,\"kind\":\"project-originals\",\"files\":[{\"path\":"
+            + "\"textures/own.png\",\"bytes\":1,\"sha256\":\"" + "0".repeat(64) + "\",\"licence\":\"Apache-2.0\","
+            + "\"madeWith\":\"tools/make_material_samples.py\"}]}");
+        SampleInventory inventory = inventory(Set.of());
+
+        Map<String, SampleInventory.AssetRow> rows = inventory.assets(scenes(inventory)).stream()
+            .collect(Collectors.toMap(SampleInventory.AssetRow::path, r -> r, (x, y) -> x, TreeMap::new));
+
+        assertEquals("Apache-2.0 (this repository; licenses/originals.json)", rows.get("textures/own.png").licence());
+        assertEquals("made with tools/make_material_samples.py (licenses/originals.json)", rows.get("textures/own.png").origin());
+        assertEquals(SampleInventory.LICENCE_UNRECORDED, rows.get("textures/other.png").licence(), "not in the record");
+    }
+
     @Test
     void shouldCallAScenePlayableOnTheWebOnlyWhenEveryComponentIsSupported() throws IOException {
         write("assets/samples/a-3d.json", scene("3d", component("CameraComponent", ""), component("TerrainComponent", "")));
@@ -180,7 +206,7 @@ class SampleInventoryTest {
         }
         Map<String, Long> byDimension = rows.stream().collect(Collectors.groupingBy(SampleInventory.SceneRow::dimension,
             TreeMap::new, Collectors.counting()));
-        assertEquals(Map.of("2d", 8L, "2.5d", 8L, "3d", 32L), byDimension);
+        assertEquals(Map.of("2d", 8L, "2.5d", 8L, "3d", 38L), byDimension);
     }
 
     @Test
@@ -190,6 +216,8 @@ class SampleInventoryTest {
         String report = Files.readString(REPORT.toPath(), StandardCharsets.UTF_8);
         String updated = replace(report, SCENES_BEGIN, SCENES_END, SampleInventory.scenesMarkdown(scenes));
         updated = replace(updated, ASSETS_BEGIN, ASSETS_END, SampleInventory.assetsMarkdown(inventory.assets(scenes)));
+        updated = replace(updated, REPLACEMENTS_BEGIN, REPLACEMENTS_END,
+            SampleInventory.replacementsMarkdown(inventory.replacements(scenes, ledger())));
 
         if ("1".equals(System.getenv(EditabilityAuditTest.UPDATE_VARIABLE)) && !updated.equals(report)) {
             Files.writeString(REPORT.toPath(), updated, StandardCharsets.UTF_8);
@@ -197,6 +225,42 @@ class SampleInventoryTest {
         }
         assertEquals(updated, report, "the tables in sample-asset-migration-inventory.md are stale: run this test with "
             + EditabilityAuditTest.UPDATE_VARIABLE + "=1");
+    }
+
+    private static JsonValue ledger() throws IOException {
+        return new JsonReader().parse(Files.readString(LEDGER.toPath(), StandardCharsets.UTF_8));
+    }
+
+    /** Appendix A3 (roadmap M2b.6): every scene has its replacement plan, and the refreshed valley says what it was made from. */
+    @Test
+    void shouldGiveEverySceneAReplacementPlanAndTheRefreshedValleyItsOrigin() throws IOException {
+        SampleInventory inventory = realInventory();
+        List<SampleInventory.SceneRow> scenes = realScenes(inventory);
+        List<SampleInventory.ReplacementRow> rows = inventory.replacements(scenes, ledger());
+        assertEquals(scenes.size(), rows.size());
+        for (SampleInventory.ReplacementRow row : rows) {
+            for (String cell : List.of(row.replacement(), row.sources(), row.visual(), row.collision(), row.rollback(), row.status())) {
+                assertFalse(cell.isBlank(), row.sample() + " has every A3 column");
+            }
+        }
+        SampleInventory.ReplacementRow refreshed = rows.stream().filter(r -> r.sample().equals("landscape-cc0-terrain-3d.json"))
+            .findFirst().orElseThrow();
+        assertEquals("landscapes-3d", refreshed.group());
+        assertTrue(refreshed.current().startsWith("65 prefab instances"), refreshed.current());
+        assertEquals("migrated copy of `landscape-terrain-3d.json` (M2b.6)", refreshed.status());
+        SampleInventory.ReplacementRow terrainCopy = rows.stream().filter(r -> r.sample().equals("landscape-terrain-3d.json"))
+            .findFirst().orElseThrow();
+        assertEquals("migrated copy of `landscape-3d.json` (M3.10); original kept; copy `landscape-cc0-terrain-3d.json` (M2b.6)",
+            terrainCopy.status());
+    }
+
+    @Test
+    void shouldRefuseAReplacementPlanThatLeavesASceneOut() throws IOException {
+        write("assets/samples/a-3d.json", scene("3d"));
+        SampleInventory inventory = inventory(Set.of());
+        List<SampleInventory.SceneRow> rows = scenes(inventory);
+        JsonValue empty = new JsonReader().parse("{\"groups\":[],\"slices\":[]}");
+        assertThrows(IllegalArgumentException.class, () -> inventory.replacements(rows, empty));
     }
 
     private static String replace(String text, String begin, String end, String table) {

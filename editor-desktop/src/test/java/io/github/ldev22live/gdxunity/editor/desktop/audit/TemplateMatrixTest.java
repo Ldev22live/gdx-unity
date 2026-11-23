@@ -246,17 +246,25 @@ class TemplateMatrixTest {
     }
 
     @Test
-    void shouldFailTheGroundOfTheFiveLandscapeScenesAndPassTheTerrainSample() throws IOException {
+    void shouldFailTheGroundOfTheFiveLandscapeOriginalsAndPassTheirTerrainCopiesAndTheTerrainSample() throws IOException {
         List<TemplateMatrix.Entry> entries = TemplateMatrix.evaluateAll(ASSETS, new File(ASSETS, "samples"), audit());
 
+        int originals = 0;
+        int terrainCopies = 0;
         for (TemplateMatrix.Entry entry : entries) {
-            if (entry.sample().startsWith("landscape-")) {
+            if (entry.sample().startsWith("landscape-") && entry.sample().endsWith("-terrain-3d.json")) {
+                assertEquals(Status.PASS, status(entry, Domain.TERRAIN), entry.sample() + ": its ground is a .terrain (M3.10)");
+                terrainCopies++;
+            } else if (entry.sample().startsWith("landscape-")) {
                 assertEquals(Status.FAIL, status(entry, Domain.TERRAIN), entry.sample() + ": its ground is a generated model");
+                originals++;
             }
             if (entry.sample().equals("terrain-3d.json")) {
                 assertEquals(Status.PASS, status(entry, Domain.TERRAIN), "the terrain sample has a .terrain");
             }
         }
+        assertEquals(5, originals, "the five originals keep their baked ground");
+        assertEquals(6, terrainCopies, "each original has a terrain copy (M3.10), and the valley's copy its CC0 refresh (M2b.6)");
     }
 
     @Test

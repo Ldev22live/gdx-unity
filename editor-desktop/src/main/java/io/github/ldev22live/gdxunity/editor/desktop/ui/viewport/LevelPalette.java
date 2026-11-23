@@ -25,11 +25,13 @@ import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.environment.EnvironmentPresets;
 import io.github.ldev22live.gdxunity.editor.terrain.LevelActions;
 import io.github.ldev22live.gdxunity.editor.terrain.LevelSession;
+import io.github.ldev22live.gdxunity.editor.terrain.ScatterSettings;
 import io.github.ldev22live.gdxunity.engine.render.components.TerrainPathComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.environment.AtmospherePreset;
 import io.github.ldev22live.gdxunity.engine.terrain.Surface;
+import io.github.ldev22live.gdxunity.engine.terrain.Terrain;
 import io.github.ldev22live.gdxunity.engine.terrain.TerrainBrush;
 import io.github.ldev22live.gdxunity.engine.terrain.TerrainPath;
 
@@ -42,7 +44,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * The level editor's palette (TD-083), floating over the 3D view while the level editor is on: New Level, the base ground, the tools,
@@ -68,6 +72,12 @@ public class LevelPalette extends Table {
     private static final float STRENGTH_STEP = 0.1f;
     private static final float MIN_RADIUS = 40f;
     private static final float MAX_RADIUS = 4000f;
+    /** The Scatter sliders' steps and the ends the palette offers (roadmap M3.6); the settings allow more when set from code. */
+    private static final float DENSITY_STEP = 0.1f;
+    private static final float SPACING_STEP = 10f;
+    private static final float MAX_SPACING_SLIDER = 1000f;
+    private static final float SCALE_STEP = 0.05f;
+    private static final float MAX_SCALE_SLIDER = 3f;
     /** The grounds offered as the base and as paint; Rock and Dirt joined with the paint layers (roadmap M3.4, TD-089). */
     /** Width of the Sky row's menu. */
     private static final float SKY_WIDTH = 140f;
@@ -322,6 +332,9 @@ public class LevelPalette extends Table {
             context.add(beside).colspan(TerrainPath.Kind.values().length + 4).left().row();
         } else if (tool == LevelSession.Tool.PLACE && level.getFocus() != LevelSession.Focus.CHARACTERS) {
             buildObjectBrowser();
+        } else if (tool == LevelSession.Tool.SCATTER) {
+            buildObjectBrowser();
+            buildScatterSettings();
         } else if (tool == LevelSession.Tool.PLACE) {
             List<String> objects = level.listObjects();
             boolean characters = level.getFocus() == LevelSession.Focus.CHARACTERS;
@@ -428,7 +441,10 @@ public class LevelPalette extends Table {
                     : String.format(Locale.ROOT, "%s: size %.0f, strength %.1f. Ctrl inverts, Shift smooths.", level.getTool().getLabel(),
                         brush.getRadius(), brush.getStrength())
                 : level.getTool() == LevelSession.Tool.PATH ? pathStatus()
-                : level.getTool() == LevelSession.Tool.PLACE ? "Click the ground to place" : "Click an object to remove it";
+                : level.getTool() == LevelSession.Tool.PLACE ? "Click the ground to place"
+                : level.getTool() == LevelSession.Tool.SCATTER
+                    ? String.format(Locale.ROOT, "Scatter: drag, size %.0f. Ctrl-drag removes.", brush.getRadius())
+                : "Click an object to remove it";
         if (!text.contentEquals(status.getText())) {
             status.setText(text);
         }
@@ -648,6 +664,78 @@ public class LevelPalette extends Table {
     static float sizeToSlider(float radius) {
         float clamped = Math.max(MIN_RADIUS, Math.min(MAX_RADIUS, radius));
         return (float) (Math.log(clamped / MIN_RADIUS) / Math.log(MAX_RADIUS / MIN_RADIUS));
+    }
+
+    /**
+     * The Scatter tool's settings as sliders (roadmap M3.6): the brush size it shares with the terrain brushes, then density, spacing,
+     * slope limit, scale range and height range. The height range runs over the ground's own lowest to highest point; at either end
+     * there is no limit.
+     */
+    private void buildScatterSettings() {
+        ScatterSettings settings = level.getScatterSettings();
+        TerrainBrush brush = level.getTerrainSession().getBrush();
+        Table rows = new Table(skin);
+        settingRow(rows, "Brush Size", sizeToSlider(brush.getRadius()), 0f, 1f, 0.001f,
+            v -> brush.setRadius(sliderToSize(v)), () -> Integer.toString(Math.round(brush.getRadius())));
+        settingRow(rows, "Density", settings.getDensity(), DENSITY_STEP, ScatterSettings.MAX_DENSITY, DENSITY_STEP,
+            settings::setDensity, () -> String.format(Locale.ROOT, "%.1f", settings.getDensity()));
+        settingRow(rows, "Spacing", settings.getSpacing(), 0f, MAX_SPACING_SLIDER, SPACING_STEP,
+            settings::setSpacing, () -> Integer.toString(Math.round(settings.getSpacing())));
+        settingRow(rows, "Max Slope", settings.getMaxSlopeDegrees(), 0f, 90f, 1f,
+            settings::setMaxSlopeDegrees, () -> Math.round(settings.getMaxSlopeDegrees()) + "\u00b0");
+        settingRow(rows, "Scale Min", settings.getMinScale(), SCALE_STEP, MAX_SCALE_SLIDER, SCALE_STEP,
+            v -> settings.setScaleRange(v, Math.max(v, settings.getMaxScale())),
+            () -> String.format(Locale.ROOT, "%.2f", settings.getMinScale()));
+        settingRow(rows, "Scale Max", settings.getMaxScale(), SCALE_STEP, MAX_SCALE_SLIDER, SCALE_STEP,
+            v -> settings.setScaleRange(Math.min(v, settings.getMinScale()), v),
+            () -> String.format(Locale.ROOT, "%.2f", settings.getMaxScale()));
+        float[] range = heightRange();
+        settingRow(rows, "Lowest", fractionOf(settings.getMinHeight(), range, 0f), 0f, 1f, 0.01f,
+            v -> settings.setHeightRange(v <= 0f ? Float.NEGATIVE_INFINITY : heightAt(v, range),
+                Math.max(v <= 0f ? Float.NEGATIVE_INFINITY : heightAt(v, range), settings.getMaxHeight())),
+            () -> heightLabel(settings.getMinHeight()));
+        settingRow(rows, "Highest", fractionOf(settings.getMaxHeight(), range, 1f), 0f, 1f, 0.01f,
+            v -> settings.setHeightRange(Math.min(settings.getMinHeight(), v >= 1f ? Float.POSITIVE_INFINITY : heightAt(v, range)),
+                v >= 1f ? Float.POSITIVE_INFINITY : heightAt(v, range)),
+            () -> heightLabel(settings.getMaxHeight()));
+        context.add(rows).left().row();
+    }
+
+    /** One labelled slider whose value label follows it. */
+    private void settingRow(Table rows, String name, float value, float min, float max, float step,
+                            Consumer<Float> apply, Supplier<String> shown) {
+        rows.add(new Label(name, skin, "muted")).width(LABEL_WIDTH).left();
+        Label valueLabel = new Label(shown.get(), skin);
+        Slider slider = new Slider(min, max, step, false, skin);
+        slider.setValue(Math.max(min, Math.min(max, value)));
+        slider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                apply.accept(slider.getValue());
+                valueLabel.setText(shown.get());
+            }
+        });
+        rows.add(slider).width(SLIDER_WIDTH).padRight(6);
+        rows.add(valueLabel).width(VALUE_WIDTH).left().row();
+    }
+
+    /** The ground's lowest and highest point, or 0 to 1 when there is no ground. */
+    private float[] heightRange() {
+        Terrain terrain = level.findTerrain();
+        float[] range = terrain != null ? terrain.heightRange() : new float[] {0f, 1f};
+        return range[1] > range[0] ? range : new float[] {range[0], range[0] + 1f};
+    }
+
+    private static float heightAt(float fraction, float[] range) {
+        return range[0] + fraction * (range[1] - range[0]);
+    }
+
+    private static float fractionOf(float height, float[] range, float unlimited) {
+        return Float.isInfinite(height) ? unlimited : (height - range[0]) / (range[1] - range[0]);
+    }
+
+    private static String heightLabel(float height) {
+        return Float.isInfinite(height) ? "any" : Integer.toString(Math.round(height));
     }
 
     private static String percent(float strength) {

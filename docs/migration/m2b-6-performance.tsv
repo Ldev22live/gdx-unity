@@ -1,0 +1,6 @@
+# Forgeroom performance baseline (roadmap M9.5); medians of 3 run(s) per scene, 330 frames each, the first 30 not measured
+# Machine: Windows 11 10.0 amd64, 8 processors; Java 21.0.11; the GPU is in each row
+# Frame times wait for the GPU to finish (glFinish), so vsync does not hide them; heap is the Java heap only, not native memory
+scene	frames	parseMs	startMs	firstFrameMs	frameMeanMs	frameP50Ms	frameP95Ms	frameMaxMs	terrainTriangles	heapPeakMb	heapRetainedMb	audioLatencyMs	audioBlockMs	audioBlockMaxMs	gpu
+samples/landscape-terrain-3d.json	300	133.36	339.54	487.32	4.64	4.58	5.70	6.76	25088	150.50	6.32	-	-	-	Intel(R) Iris(R) Xe Graphics
+samples/landscape-cc0-terrain-3d.json	300	163.23	380.97	412.83	5.40	5.32	6.75	9.75	25088	179.96	6.13	-	-	-	Intel(R) Iris(R) Xe Graphics

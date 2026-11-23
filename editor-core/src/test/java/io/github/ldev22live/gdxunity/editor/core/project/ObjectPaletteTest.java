@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ObjectPaletteTest {
     private static final File SHIPPED = new File("../assets");
     /** Objects a character walks through on purpose (TD-096): plants, so a bush never snags the player. */
-    private static final Set<String> WALK_THROUGH = Set.of("Bush");
+    private static final Set<String> WALK_THROUGH = Set.of("Bush", "CC0 Bush");
     /** The collider types a placed object may carry (TD-096): cheap static shapes, never a triangle mesh. */
     private static final Set<String> PLACED_COLLIDERS = Set.of("BoxCollider3DComponent", "CapsuleCollider3DComponent",
         "SphereCollider3DComponent", "ConvexHullCollider3DComponent");
@@ -53,6 +53,8 @@ class ObjectPaletteTest {
         assertEquals(ObjectPalette.Category.TREES, groups.get("Oak Tree"));
         assertEquals(ObjectPalette.Category.TREES, groups.get("Pine Tree"));
         assertEquals(ObjectPalette.Category.TREES, groups.get("CC0 Oak Tree"));
+        assertEquals(ObjectPalette.Category.TREES, groups.get("CC0 Pine Tree"));
+        assertEquals(ObjectPalette.Category.PLANTS, groups.get("CC0 Bush"));
         assertEquals(ObjectPalette.Category.ROCKS, groups.get("Rock"));
         assertEquals(ObjectPalette.Category.ROCKS, groups.get("Boulder"));
         assertEquals(ObjectPalette.Category.ROCKS, groups.get("CC0 Rock"));
@@ -87,7 +89,7 @@ class ObjectPaletteTest {
         List<ObjectPalette.Item> items = shipped();
 
         assertEquals(List.of("CC0 Oak Tree", "Oak Tree"), labels(ObjectPalette.filter(items, null, "oak")));
-        assertEquals(List.of("CC0 Oak Tree"), labels(ObjectPalette.filter(items, ObjectPalette.Category.TREES, "cc0")));
+        assertEquals(List.of("CC0 Oak Tree", "CC0 Pine Tree"), labels(ObjectPalette.filter(items, ObjectPalette.Category.TREES, "cc0")));
         assertEquals(List.of("CC0 Rock"), labels(ObjectPalette.filter(items, null, "CC0 rock")), "every word must match");
         assertEquals(labels(ObjectPalette.filter(items, ObjectPalette.Category.ROCKS, "")),
             labels(ObjectPalette.filter(items, null, "rocks")), "a group's name is searchable");

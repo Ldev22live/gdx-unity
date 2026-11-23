@@ -73,6 +73,52 @@ public class SceneSnapshotCommand implements EditorCommand {
         return true;
     }
 
+    /**
+     * Starts recording a change made live, one step at a time while the mouse drags (roadmap M3.6, TD-097): the scene as it is now is
+     * the state undo returns to. Make the changes, then call {@link Recording#finish()} and execute the command it returns to put the
+     * whole drag on the undo stack as one step; executing it the first time changes nothing.
+     *
+     * @throws IllegalStateException when there is no active scene
+     */
+    public static Recording begin(EditorState editorState) {
+        Objects.requireNonNull(editorState, "editorState cannot be null");
+        Scene scene = editorState.getActiveScene();
+        if (scene == null) {
+            throw new IllegalStateException("There is no scene to record a change in");
+        }
+        return new Recording(editorState, scene, capture(scene));
+    }
+
+    /** A change being made live, started by {@link #begin}. */
+    public static final class Recording {
+        private final EditorState editorState;
+        private final Scene scene;
+        private final List<EntityRecord> before;
+
+        private Recording(EditorState editorState, Scene scene, List<EntityRecord> before) {
+            this.editorState = editorState;
+            this.scene = scene;
+            this.before = before;
+        }
+
+        /** Puts the scene back as it was when the recording began, for a change that is abandoned. */
+        public void cancel() {
+            new SceneSnapshotCommand(editorState, "Cancel", () -> false).restore(scene, before);
+        }
+
+        /**
+         * The finished change as one command, whose undo puts the scene back as it was when the recording began.
+         *
+         * @param description what the undo list calls it
+         */
+        public SceneSnapshotCommand finish(String description) {
+            SceneSnapshotCommand command = new SceneSnapshotCommand(editorState, description, () -> true);
+            command.before = before;
+            command.after = capture(scene);
+            return command;
+        }
+    }
+
     @Override
     public boolean undo() {
         Scene scene = editorState.getActiveScene();
