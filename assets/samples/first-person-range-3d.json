@@ -165,7 +165,8 @@
             "colorR": 0.42,
             "colorG": 0.5,
             "colorB": 0.4,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/HexPaverBRange.material"
           }
         },
         {
@@ -430,7 +431,8 @@
             "colorR": 0.45,
             "colorG": 0.36,
             "colorB": 0.28,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RockyTerrain02.material"
           }
         },
         {
@@ -483,7 +485,8 @@
             "colorR": 0.8,
             "colorG": 0.58,
             "colorB": 0.3,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/WoodFloorDeck.material"
           }
         },
         {
@@ -551,7 +554,8 @@
             "colorR": 0.8,
             "colorG": 0.58,
             "colorB": 0.3,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/WoodFloorDeck.material"
           }
         },
         {
@@ -619,7 +623,8 @@
             "colorR": 0.8,
             "colorG": 0.58,
             "colorB": 0.3,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/WoodFloorDeck.material"
           }
         },
         {
@@ -791,6 +796,274 @@
             "anchor": "BOTTOM_LEFT",
             "offsetX": 16.0,
             "offsetY": 24.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "087b4879-65d4-55cd-a7f5-9269c1c06650",
+      "name": "Sci-fi service bay",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 196.0,
+          "z": -1430.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-room.glb",
+            "importScale": 265.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7d7d871-0144-5347-ac4d-737127160c79",
+      "name": "Thin Zombie observer",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 510.0,
+          "y": 301.0,
+          "z": -1300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/thin-zombie/thin-zombie.glb",
+            "importScale": 19.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0,
+            "animation": "idle"
+          }
+        }
+      ]
+    },
+    {
+      "id": "6eff3209-1c55-5ded-ab50-cbacfd02f8a8",
+      "name": "Asset Credits",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Sci-fi map kit and Thin Zombie by Rosswet Mobile (CC BY 3.0)\nF1 for full asset credits in the desktop game",
+            "colorR": 0.93,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1.0,
+            "scale": 1.0,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "64361880-69e9-5ff7-80d0-741802c739fc",
+      "name": "Service bay panel 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -780.0,
+          "y": 170.0,
+          "z": -969.0
+        },
+        "rotation": {
+          "x": -0.7071067811865476,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.7071067811865476
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-cover.glb",
+            "importScale": 430.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "4ba7c208-b4d7-5f58-b90d-04a4a93ce54f",
+      "name": "Service bay panel 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 170.0,
+          "z": -969.0
+        },
+        "rotation": {
+          "x": -0.7071067811865476,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.7071067811865476
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-cover.glb",
+            "importScale": 430.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "9ffd860f-6796-5aea-8710-c58fb749d856",
+      "name": "Service bay panel 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 780.0,
+          "y": 170.0,
+          "z": -969.0
+        },
+        "rotation": {
+          "x": -0.7071067811865476,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.7071067811865476
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-cover.glb",
+            "importScale": 430.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "beae70b5-6587-5fe8-945b-fac3ebc700da",
+      "name": "Service bay light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 280.0,
+          "y": 530.0,
+          "z": -1040.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "PointLightComponent",
+          "enabled": true,
+          "data": {
+            "positionX": 0.0,
+            "positionY": 0.0,
+            "positionZ": 0.0,
+            "colorR": 0.65,
+            "colorG": 0.84,
+            "colorB": 1.0,
+            "colorA": 1.0,
+            "intensity": 5.0,
+            "range": 1600.0
           }
         }
       ]

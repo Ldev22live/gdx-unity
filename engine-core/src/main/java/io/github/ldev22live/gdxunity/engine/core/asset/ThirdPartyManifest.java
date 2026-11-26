@@ -26,8 +26,8 @@ import java.util.Set;
 public final class ThirdPartyManifest {
     /** Where the manifest lives, relative to the asset root. */
     public static final String PATH = "licenses/manifest.json";
-    /** The licences a shipped third-party file may have: CC0 only, until a decision allows others (attribution would need a credits screen). */
-    public static final Set<String> ACCEPTED_LICENCES = Set.of("CC0-1.0");
+    /** The licences a shipped third-party file may have under TD-094 and TD-103. */
+    public static final Set<String> ACCEPTED_LICENCES = Set.of("CC0-1.0", "CC-BY-3.0");
     private static final int SCHEMA_VERSION = 1;
     private static final String KIND = "third-party-assets";
 
@@ -119,7 +119,10 @@ public final class ThirdPartyManifest {
             throw new IllegalArgumentException("Third-party asset '" + id + "' names no author");
         }
         for (JsonValue author = authorList.child; author != null; author = author.next) {
-            authors.add(author.asString());
+            if (!author.isString() || author.asString().isBlank()) {
+                throw new IllegalArgumentException("Third-party asset '" + id + "' has an invalid author");
+            }
+            authors.add(author.asString().trim());
         }
         JsonValue fileList = asset.get("files");
         if (fileList == null || !fileList.isArray() || fileList.size == 0) {

@@ -251,6 +251,9 @@ public final class AssetSupportMatrix {
         if (path.startsWith("characters/")) {
             return path.startsWith("characters/makehuman/") ? "Character Creator body data" : "saved character";
         }
+        if (path.equals("asset-classification.json")) {
+            return "Content Browser classification";
+        }
         if (path.equals("templates/gallery.json")) {
             return "template gallery";
         }

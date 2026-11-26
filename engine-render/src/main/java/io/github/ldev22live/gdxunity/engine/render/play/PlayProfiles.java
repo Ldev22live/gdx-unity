@@ -10,6 +10,8 @@ import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.Transform;
+import io.github.ldev22live.gdxunity.engine.scene.physics.Collider2DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.CharacterController3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.Collider3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsLayers3D;
@@ -120,6 +122,9 @@ public final class PlayProfiles {
         if (players.size() == 1 && profile.requirements().contains(GameTestProfile.Requirement.CHARACTER_3D)) {
             characterProblem(players.get(0)).ifPresent(problems::add);
         }
+        if (players.size() == 1 && profile.requirements().contains(GameTestProfile.Requirement.CHARACTER_2D)) {
+            character2DProblem(players.get(0)).ifPresent(problems::add);
+        }
         List<Entity> spawns = spawnPoints(scene);
         if (spawns.size() > 1) {
             problems.add(new ProfileProblem("More than one spawn point: " + names(spawns) + ". Remove Spawn Point from all but one.",
@@ -226,6 +231,7 @@ public final class PlayProfiles {
         if (plan.addMovement()) {
             switch (profile.movement().kind()) {
                 case PLANE_RUN -> player.addComponent(new PlaneRunMover(profile.movement(), profile.input(), input));
+                case RUN_2D -> player.addComponent(new Run2DMover(profile.movement(), profile.input(), input));
                 case GROUND_WALK -> player.addComponent(new GroundWalkMover(profile.movement(), profile.input(), input));
                 case FIRST_PERSON_WALK -> player.addComponent(new FirstPersonMover(profile.movement(), profile.input(), input));
             }
@@ -385,6 +391,26 @@ public final class PlayProfiles {
         return Optional.of(new ProfileProblem(player.getName() + " cannot walk: it needs a Character Controller 3D.", player.getName(),
             new ProfileFix(ProfileFix.Kind.ADD_CHARACTER_CONTROLLER_3D, player.getId(), "Add a Character Controller 3D to "
                 + player.getName())));
+    }
+
+    /** A Platformer + 2D player (TD-105): a dynamic Rigid Body 2D and a 2D collider, offered one at a time as fixes. */
+    private static Optional<ProfileProblem> character2DProblem(Entity player) {
+        RigidBody2DComponent body = player.getComponent(RigidBody2DComponent.class);
+        if (body == null) {
+            return Optional.of(new ProfileProblem(player.getName() + " cannot run and jump: it needs a Rigid Body 2D (Dynamic) and a "
+                + "2D collider.", player.getName(), new ProfileFix(ProfileFix.Kind.ADD_RIGID_BODY_2D, player.getId(),
+                "Add a Rigid Body 2D to " + player.getName())));
+        }
+        if (body.getBodyType() != RigidBody2DComponent.BodyType.DYNAMIC) {
+            return Optional.of(new ProfileProblem(player.getName() + "'s Rigid Body 2D is " + body.getBodyType() + "; a player that "
+                + "runs and falls needs Dynamic. Change its Body Type in Details.", player.getName(), null));
+        }
+        if (player.getComponents(Collider2DComponent.class).isEmpty()) {
+            return Optional.of(new ProfileProblem(player.getName() + " has no 2D collider, so it would fall through the level.",
+                player.getName(), new ProfileFix(ProfileFix.Kind.ADD_BOX_COLLIDER_2D, player.getId(), "Add a Box Collider 2D to "
+                    + player.getName())));
+        }
+        return Optional.empty();
     }
 
     private static String names(List<Entity> entities) {

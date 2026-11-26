@@ -194,6 +194,19 @@ public class SceneViewportWidget extends Widget implements Disposable {
         }
 
         @Override
+        public boolean mouseMoved(InputEvent event, float x, float y) {
+            interaction.hovered(x, y, getWidth(), getHeight());
+            return false;
+        }
+
+        @Override
+        public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+            if (pointer == -1 && (toActor == null || !toActor.isDescendantOf(SceneViewportWidget.this))) {
+                interaction.hoverEnded();
+            }
+        }
+
+        @Override
         public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
             // pointer == -1 means mouse hover rather than a touch; scroll the viewport under the mouse
             Stage stage = getStage();

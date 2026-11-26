@@ -5,6 +5,8 @@ import io.github.ldev22live.gdxunity.engine.render.components.DynamicMeshCompone
 import io.github.ldev22live.gdxunity.engine.render.components.MeshPrimitiveComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.Transform;
+import io.github.ldev22live.gdxunity.engine.scene.prefab.PrefabInstanceComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +15,7 @@ import java.util.Objects;
 /**
  * What the 3D Modeling workspace can do for the selected object today (roadmap M3c.4, Appendix E2 and R3c): the capability notice the
  * workspace shows, the same facts the agent's {@code model_edit_check} tool reports, and whether Customize's <b>Edit 3D Model</b> hands
- * the object over. Until mesh editing exists (roadmap R7a) a model or shape is opened in context with a clear notice that its vertices,
- * edges and faces cannot be edited yet; transforming it is never presented as editing its mesh.
+ * the object over. Static model sources support detached editing, while procedural shapes use sculpt copies.
  */
 public final class ModelingHandOff {
     /** Label of the Customize entry, before the object's name (the roadmap's own words). */
@@ -26,6 +27,8 @@ public final class ModelingHandOff {
     public enum Capability {
         /** A sculpt: the brushes reshape it here. */
         SCULPT,
+        /** A model source can be opened for detached triangle editing. */
+        MESH_SOURCE,
         /** A glTF model or a shape: shown here in context; mesh editing is planned (R7a), a sculpt copy is offered. */
         MESH_PLANNED,
         /** An object with no 3D mesh (a light, a camera, a sprite, an empty). */
@@ -40,7 +43,7 @@ public final class ModelingHandOff {
      * @param capability   the kind of case
      * @param title        one line, the notice's heading
      * @param lines        the notice's sentences, most important first
-     * @param meshEditing  whether vertices, edges and faces can be edited (false until R7a)
+     * @param meshEditing  whether vertices, edges and faces can be edited in a supported source
      * @param sculptCopy   whether a project-owned sculpt copy can be made from its mesh
      * @param materialSlot whether its material can be changed in Details
      * @param modelPath    the glTF file it shows, or null when it shows none
@@ -68,13 +71,40 @@ public final class ModelingHandOff {
 
     /** Whether Customize offers {@link #EDIT_3D_MODEL} for {@code entity}: a glTF model or a shape that is not a sculpt. */
     public static boolean offersEdit3DModel(Entity entity) {
-        return entity != null && capabilityOf(entity) == Capability.MESH_PLANNED;
+        if (entity == null) return false;
+        Capability capability = capabilityOf(entity);
+        return capability == Capability.MESH_PLANNED || capability == Capability.MESH_SOURCE;
     }
 
     /** The Customize label for {@code entity}, which says mesh editing is planned, so a transform is never taken for it. */
     public static String edit3DModelLabel(Entity entity) {
         Objects.requireNonNull(entity, "entity cannot be null");
-        return EDIT_3D_MODEL + " of " + entity.getName() + " (opens 3D Modeling; mesh editing is planned)";
+        return EDIT_3D_MODEL + " of " + entity.getName() + (modelParts(entity).isEmpty() ? " (opens 3D Modeling; mesh editing is planned)" : " (opens mesh source)");
+    }
+
+    /** The selected model, or the model-bearing parts of a selected prefab assembly, in hierarchy order. */
+    public static List<Entity> modelParts(Entity entity) {
+        if (entity == null) {
+            return List.of();
+        }
+        List<Entity> parts = new ArrayList<>();
+        PrefabInstanceComponent link = entity.getComponent(PrefabInstanceComponent.class);
+        if (link != null && link.isRoot()) {
+            collectModelParts(entity.getTransform(), parts);
+        } else if (entity.getComponent(ModelComponent.class) != null) {
+            parts.add(entity);
+        }
+        return List.copyOf(parts);
+    }
+
+    private static void collectModelParts(Transform transform, List<Entity> parts) {
+        Entity entity = transform.getEntity();
+        if (entity.getComponent(ModelComponent.class) != null) {
+            parts.add(entity);
+        }
+        for (Transform child : transform.getChildren()) {
+            collectModelParts(child, parts);
+        }
     }
 
     /** The notice for {@code entity}, or for no selection when it is null. */
@@ -88,6 +118,11 @@ public final class ModelingHandOff {
         String modelPath = model == null || model.getModelPath() == null || model.getModelPath().isBlank() ? null : model.getModelPath();
         boolean slot = MaterialAssignment.hasSlot(entity);
         switch (capabilityOf(entity)) {
+            case MESH_SOURCE -> {
+                return new Notice(Capability.MESH_SOURCE, model == null ? "Prefab mesh sources" : "Mesh source",
+                    List.of("Open a supported static model part to edit its geometry in the session preview."),
+                    true, modelPath != null, slot, modelPath);
+            }
             case SCULPT -> {
                 return new Notice(Capability.SCULPT, "Sculpting " + name,
                     List.of("The brushes reshape " + name + "; Save Sculpts writes the change."), false, false, false, modelPath);
@@ -115,7 +150,8 @@ public final class ModelingHandOff {
         if (entity.getComponent(DynamicMeshComponent.class) != null) {
             return Capability.SCULPT;
         }
-        if (entity.getComponent(ModelComponent.class) != null || entity.getComponent(MeshPrimitiveComponent.class) != null) {
+        if (!modelParts(entity).isEmpty()) return Capability.MESH_SOURCE;
+        if (entity.getComponent(MeshPrimitiveComponent.class) != null) {
             return Capability.MESH_PLANNED;
         }
         return Capability.NO_MESH;

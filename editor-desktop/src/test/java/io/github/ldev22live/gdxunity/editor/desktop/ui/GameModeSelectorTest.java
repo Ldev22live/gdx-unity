@@ -19,7 +19,9 @@ class GameModeSelectorTest {
 
         assertEquals("accent", GameModeSelector.colourOf(GameMode.MODE_3D, GameMode.MODE_3D, true, platformer), "the scene's mode");
         assertEquals("text-primary", GameModeSelector.colourOf(GameMode.MODE_2_5D, GameMode.MODE_3D, true, platformer), "plays in 2.5D");
-        assertEquals("text-muted", GameModeSelector.colourOf(GameMode.MODE_2D, GameMode.MODE_3D, true, platformer), "planned in 2D");
+        assertEquals("text-primary", GameModeSelector.colourOf(GameMode.MODE_2D, GameMode.MODE_3D, true, platformer), "plays in 2D (TD-105)");
+        List<GameMode> actionRpg = GenreChoices.playableModes(genres, GameGenres.ACTION_RPG);
+        assertEquals("text-muted", GameModeSelector.colourOf(GameMode.MODE_2D, GameMode.MODE_3D, true, actionRpg), "planned in 2D");
     }
 
     @Test

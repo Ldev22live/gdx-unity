@@ -1,0 +1,5 @@
+format=2
+name=Contract Valley
+startScene=scenes/valley.json
+projectId=b505f242-6d3b-5539-a5ce-53f4fc776d79
+manifest=project-manifest.json

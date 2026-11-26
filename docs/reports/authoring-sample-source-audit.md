@@ -1,5 +1,8 @@
 # Authoring Sample Source Audit
 
+**2026-11-24 follow-up.** The M7a.6 check verified Cube Diorama against both the official item listing and its bundled Blender README. The three fixtures, source records and conversion evidence are in the [M7a.6 report](m7a-6-source-preservation.md). The original audit below records the information available at the time.
+
+
 Roadmap MC.1 (Appendix C7). **Date:** 2026-11-18. **Branch:** `phase-12-3d-foundation`. **HEAD at start and end:** `0469ceb` (nothing committed).
 
 This is the audit Appendix C7 asks for before anything is downloaded: candidate open-content sources for the 3D Modeling, 2D and Music/SFX workspaces. For each candidate it records:

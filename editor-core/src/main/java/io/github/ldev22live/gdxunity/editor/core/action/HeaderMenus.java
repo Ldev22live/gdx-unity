@@ -27,6 +27,19 @@ public final class HeaderMenus {
     public static final List<String> SETTINGS_APPEARANCE = List.of(WINDOW_TOGGLE_THEME);
     /** Settings > about. */
     public static final List<String> SETTINGS_ABOUT = List.of(DefaultEditorActions.HELP_ABOUT);
+    /** Switches the World screen between the TD-107 layout and the classic one (registered by the desktop shell). */
+    public static final String LAYOUT_TOGGLE_CLASSIC = "layout.toggle-classic";
+    /** Compiles the project's scripts now (Play also compiles them; registered by the desktop shell). */
+    public static final String SCRIPTS_COMPILE = "scripts.compile";
+    /**
+     * Settings → Panels (TD-107 point 7): every panel the World layout hides by default, one toggle each, and the layout switch.
+     * Ids the shell has not registered are left out.
+     */
+    public static final List<String> SETTINGS_PANELS = List.of("window.toggle-outliner", "window.cycle-details",
+        "window.toggle-bottom-panel", "window.toggle-console", "window.toggle-assistant", LAYOUT_TOGGLE_CLASSIC);
+    /** Settings → Tools: what left the tool rail and the header (TD-107 points 2 and 7). */
+    public static final List<String> SETTINGS_TOOLS = List.of(SCRIPTS_COMPILE, "window.toggle-grid", "window.toggle-physics-debug",
+        "view.reset", DefaultEditorActions.VIEW_TOGGLE_2D_3D);
 
     private HeaderMenus() { }
 
@@ -45,7 +58,7 @@ public final class HeaderMenus {
         Objects.requireNonNull(menu, "menu cannot be null");
         List<List<String>> wanted = switch (menu) {
             case PROJECT -> List.of(registry.getMenuActions(DefaultEditorActions.MENU_FILE).stream().map(EditorAction::getId).toList());
-            case SETTINGS -> List.of(SETTINGS_GRAPHICS, SETTINGS_APPEARANCE, SETTINGS_ABOUT);
+            case SETTINGS -> List.of(SETTINGS_PANELS, SETTINGS_TOOLS, SETTINGS_GRAPHICS, SETTINGS_APPEARANCE, SETTINGS_ABOUT);
             default -> throw new IllegalArgumentException("not a header menu: " + menu + " (expected one of " + names() + ")");
         };
         List<List<String>> sections = new ArrayList<>();

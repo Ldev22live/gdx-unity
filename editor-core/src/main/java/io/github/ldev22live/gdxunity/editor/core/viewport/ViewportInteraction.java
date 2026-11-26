@@ -35,6 +35,15 @@ public interface ViewportInteraction {
     /** Per-frame update for continuous navigation such as fly movement. */
     default void update(float deltaTime) {}
 
+    /**
+     * The mouse moved over the view with no button held (roadmap A03: the Place tool's ghost preview). An interaction that wraps
+     * another must pass this on to it. The default does nothing.
+     */
+    default void hovered(float localX, float localY, float panelWidth, float panelHeight) {}
+
+    /** The mouse left the view. An interaction that wraps another must pass this on to it. The default does nothing. */
+    default void hoverEnded() {}
+
     /** World position under the pointer, used to place dropped assets. Never null. */
     Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight);
 

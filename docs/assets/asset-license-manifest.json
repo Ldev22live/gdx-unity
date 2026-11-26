@@ -1,0 +1,449 @@
+{
+  "schemaVersion": 1,
+  "kind": "third-party-assets",
+  "assets": [
+    {
+      "id": "polyhaven-red-brick-03",
+      "name": "Red Brick 03",
+      "category": "texture",
+      "source": "https://polyhaven.com/a/red_brick_03",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://polyhaven.com/license",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "retrieved": "2026-11-19",
+      "retrievedWith": "tools/thirdparty_assets.py fetch-polyhaven (Poly Haven public API, MD5 checked)",
+      "format": "jpg",
+      "dependencies": [],
+      "conversion": "none",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "textures/thirdparty/polyhaven/red_brick_03/red_brick_03_diff_1k.jpg",
+          "original": "red_brick_03_diff_1k.jpg",
+          "bytes": 694500,
+          "sha256": "9c58254c099b2d211478f50a427fcdde622af24249ff2e94da41fb836f8c857f"
+        },
+        {
+          "path": "textures/thirdparty/polyhaven/red_brick_03/red_brick_03_nor_gl_1k.jpg",
+          "original": "red_brick_03_nor_gl_1k.jpg",
+          "bytes": 955430,
+          "sha256": "9bfd45e24720d851017c1e1678b70219c72239b2ac6b25e11d57d458bdab8503"
+        },
+        {
+          "path": "textures/thirdparty/polyhaven/red_brick_03/red_brick_03_arm_1k.jpg",
+          "original": "red_brick_03_arm_1k.jpg",
+          "bytes": 162734,
+          "sha256": "31d8d33a9c44af49cd082eae8f49016aaca6d55f2fd80be2183e2ba9185bd8cf"
+        }
+      ],
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attribution": "CC0 waiver. Voluntary credit listed in asset-attribution.md.",
+      "genre": [
+        "platformer",
+        "action-rpg",
+        "isometric-rpg"
+      ],
+      "samples": [
+        "action-rpg-iso-25d",
+        "platformer-profile-terrain-25d"
+      ],
+      "technicalStatus": "Recorded files matched manifest size and SHA-256"
+    },
+    {
+      "id": "polyhaven-rocky-terrain-02",
+      "name": "Rocky Terrain 02",
+      "category": "texture",
+      "source": "https://polyhaven.com/a/rocky_terrain_02",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://polyhaven.com/license",
+      "authors": [
+        "Amal Kumar"
+      ],
+      "retrieved": "2026-11-19",
+      "retrievedWith": "tools/thirdparty_assets.py fetch-polyhaven (Poly Haven public API, MD5 checked)",
+      "format": "jpg",
+      "dependencies": [],
+      "conversion": "none",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "textures/thirdparty/polyhaven/rocky_terrain_02/rocky_terrain_02_diff_1k.jpg",
+          "original": "rocky_terrain_02_diff_1k.jpg",
+          "bytes": 843188,
+          "sha256": "d570c10b1d5302f4fde9e0e94f4cbab0d5e112fc3fe2b3b91c38a98bd3ddaf4b"
+        },
+        {
+          "path": "textures/thirdparty/polyhaven/rocky_terrain_02/rocky_terrain_02_nor_gl_1k.jpg",
+          "original": "rocky_terrain_02_nor_gl_1k.jpg",
+          "bytes": 993692,
+          "sha256": "f4f9d9671c660f4e509e96d5da3091887dfd557e1353e313fa2d1dc789499ffd"
+        },
+        {
+          "path": "textures/thirdparty/polyhaven/rocky_terrain_02/rocky_terrain_02_arm_1k.jpg",
+          "original": "rocky_terrain_02_arm_1k.jpg",
+          "bytes": 524868,
+          "sha256": "1894a2b068c006b27087703b8b8ffb9ac67af469481897d395f54735d699a8a1"
+        }
+      ],
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attribution": "CC0 waiver. Voluntary credit listed in asset-attribution.md.",
+      "genre": [
+        "platformer",
+        "action-rpg",
+        "isometric-rpg"
+      ],
+      "samples": [
+        "action-rpg-valley-3d",
+        "action-rpg-iso-25d",
+        "platformer-profile-3d",
+        "platformer-profile-terrain-25d"
+      ],
+      "technicalStatus": "Recorded files matched manifest size and SHA-256"
+    },
+    {
+      "id": "polyhaven-wood-floor-deck",
+      "name": "Wood Floor Deck",
+      "category": "texture",
+      "source": "https://polyhaven.com/a/wood_floor_deck",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://polyhaven.com/license",
+      "authors": [
+        "Dimitrios Savva"
+      ],
+      "retrieved": "2026-11-19",
+      "retrievedWith": "tools/thirdparty_assets.py fetch-polyhaven (Poly Haven public API, MD5 checked)",
+      "format": "jpg",
+      "dependencies": [],
+      "conversion": "none",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "textures/thirdparty/polyhaven/wood_floor_deck/wood_floor_deck_diff_1k.jpg",
+          "original": "wood_floor_deck_diff_1k.jpg",
+          "bytes": 925789,
+          "sha256": "1f2c623e87b0ee905f6f4ec8664dd19b4b135207c96e86198ff2919770b47166"
+        },
+        {
+          "path": "textures/thirdparty/polyhaven/wood_floor_deck/wood_floor_deck_nor_gl_1k.jpg",
+          "original": "wood_floor_deck_nor_gl_1k.jpg",
+          "bytes": 665094,
+          "sha256": "2fa427b9196099c0ff72d1a1ab472e2a79ca2a76906a5c46d134f8a86e086d23"
+        },
+        {
+          "path": "textures/thirdparty/polyhaven/wood_floor_deck/wood_floor_deck_arm_1k.jpg",
+          "original": "wood_floor_deck_arm_1k.jpg",
+          "bytes": 719383,
+          "sha256": "80a66dacfc5a3fa92b1e0f1ac1af2067bdccf46099a0de7ee2c5a32c4daa1756"
+        }
+      ],
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attribution": "CC0 waiver. Voluntary credit listed in asset-attribution.md.",
+      "genre": [
+        "platformer",
+        "action-rpg",
+        "isometric-rpg"
+      ],
+      "samples": [
+        "action-rpg-valley-3d",
+        "action-rpg-iso-25d",
+        "platformer-profile-terrain-25d"
+      ],
+      "technicalStatus": "Recorded files matched manifest size and SHA-256"
+    },
+    {
+      "id": "opengameart-detective-bunny",
+      "name": "Detective Bunny",
+      "category": "model",
+      "source": "https://opengameart.org/content/detective-bunny",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://opengameart.org/content/detective-bunny",
+      "authors": [
+        "atornity"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied local source, inventoried on this date",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Blender 5.2.2. Selected six authored clips and embedded textures",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/detective-bunny/detective-bunny.glb",
+          "original": "bun_tective.blend",
+          "bytes": 310216,
+          "sha256": "56c44064a93814082ca8bc9a197bac150d24d9ce504984bf813b655f0c3dedb8"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-fox",
+      "name": "Fox",
+      "category": "model",
+      "source": "https://opengameart.org/content/fox-0",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://opengameart.org/content/fox-0",
+      "authors": [
+        "br-n518"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied local source, inventoried on this date",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Blender 5.2.2. Applied mesh mirror and connected original diffuse and normal maps",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/fox/fox.glb",
+          "original": "fox.blend",
+          "bytes": 3131988,
+          "sha256": "a7634138b696b1f26c22f5d00471fdcd065c0f2e71089c4e2f2b0017c210b573"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-rabbit",
+      "name": "Rabbit",
+      "category": "model",
+      "source": "https://opengameart.org/content/rabbit-0",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://opengameart.org/content/rabbit-0",
+      "authors": [
+        "CDmir",
+        "TinyWorlds"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied local source, inventoried on this date",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Blender 5.2.2. Rebuilt materials from packed maps and exported three wildlife clips",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/rabbit/rabbit.glb",
+          "original": "rabbit.blend",
+          "bytes": 4262696,
+          "sha256": "0677d847a0e3898b6d38c013d12c976a599fb778f302e742ddb43738c5cbb64e"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-boulder",
+      "name": "Realistic Rocks/Boulders",
+      "category": "model",
+      "source": "https://opengameart.org/content/realistic-rocksboulders",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://opengameart.org/content/realistic-rocksboulders",
+      "authors": [
+        "WeaponGuy"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied local source, inventoried on this date",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Blender 5.2.2. Centered evaluated Rock mesh, added UVs, embedded CC0 Rocky Terrain 02 base color, and omitted legacy scenery and external image. Embedded texture source: textures/thirdparty/polyhaven/rocky_terrain_02/rocky_terrain_02_diff_1k.jpg",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/boulder/boulder.glb",
+          "original": "rocksrealistic.blend",
+          "bytes": 850652,
+          "sha256": "bc3c8b24a843c1d0af135a164badb3be11d0819d7ca0e683d10948ac96e35406"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-hex-paver-b",
+      "name": "PBR Materials (Rocks), Hex Paver B",
+      "category": "texture",
+      "source": "https://opengameart.org/content/pbr-materials-rocks",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://opengameart.org/content/pbr-materials-rocks",
+      "authors": [
+        "KillGorack"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied local source, inventoried on this date",
+      "format": "png",
+      "dependencies": [],
+      "conversion": "Resize approved B diffuse, normal and AO maps to 1024; use scalar roughness",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "textures/thirdparty/opengameart/hex-paver-b/diffuse.png",
+          "original": "Hex_paver_b_diffuse.png",
+          "bytes": 2626372,
+          "sha256": "85642012b8c0e2014502371dadea9b78d1c7a78512a1539fcfee1c8ce46b031e"
+        },
+        {
+          "path": "textures/thirdparty/opengameart/hex-paver-b/normal.png",
+          "original": "Hex_paver_b_normal.png",
+          "bytes": 446308,
+          "sha256": "00c77970bcd183a85ddb57a6b1a6ee443d1d8a4c1da48bdf724f5b6d60a0f524"
+        },
+        {
+          "path": "textures/thirdparty/opengameart/hex-paver-b/ao.png",
+          "original": "Hex_paver_b_ao.png",
+          "bytes": 143197,
+          "sha256": "b51acd031e16022e2e571c4ee36e56f51bbe366028da15687cee0e7699d1d992"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-warrior-low-poly",
+      "name": "Warrior low poly",
+      "category": "model",
+      "source": "https://opengameart.org/content/warrior-low-poly",
+      "licence": "CC-BY-3.0",
+      "licenceEvidence": "https://opengameart.org/content/warrior-low-poly",
+      "authors": [
+        "jjmoser"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied OpenGameArt archive",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Converted to GLB and linked supplied diffuse and normal maps.",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/warrior-low-poly/warrior.glb",
+          "original": "MANIQUI_lowpoly.blend",
+          "bytes": 200428,
+          "sha256": "feb0e19f3d0025d2fb7ecfb3b156259ae655dc884f8513820a1bad9df9d07fda"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-thin-zombie",
+      "name": "Thin Zombie",
+      "category": "model",
+      "source": "https://opengameart.org/content/thin-zombie-awake-zombie-asset",
+      "licence": "CC-BY-3.0",
+      "licenceEvidence": "https://opengameart.org/content/thin-zombie-awake-zombie-asset",
+      "authors": [
+        "Rosswet Mobile"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied OpenGameArt archive",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Converted to GLB with supplied texture and six authored clips.",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/thin-zombie/thin-zombie.glb",
+          "original": "new_thin_zombie.blend",
+          "bytes": 1860720,
+          "sha256": "a9a18e8f57665d966cf192abbd7e61588a85cdf8faaf1965a44286842674c6a4"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-horror-sci-fi-map-kit",
+      "name": "Horror sci-fi 3d map kit",
+      "category": "model",
+      "source": "https://opengameart.org/content/horror-sci-fi-3d-map-kit",
+      "licence": "CC-BY-3.0",
+      "licenceEvidence": "https://opengameart.org/content/horror-sci-fi-3d-map-kit",
+      "authors": [
+        "Rosswet Mobile"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied OpenGameArt archive",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Converted room and cover to GLB and rebuilt their material bindings.",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-cover.glb",
+          "original": "others/cover.obj",
+          "bytes": 335032,
+          "sha256": "03bbff60abbb2e55376da8c103a97eb1b75000afe1b07d8380faf4a4bb027493"
+        },
+        {
+          "path": "models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-room.glb",
+          "original": "room/room.obj",
+          "bytes": 947560,
+          "sha256": "3c98f50a35813085caebe3b1a9dc167a5bd5c0eb61b75fbedec7e4412a749a92"
+        }
+      ]
+    }
+  ],
+  "preservedOpenGameArtSources": {
+    "asset-sources/opengameart/mansedj/Mansc_Release.blend": {
+      "bytes": 43368536,
+      "sha256": "cf4175f165799d90db1e6fc419344ae57ab4fb7c2a48184170c90ca270c9ed03"
+    },
+    "asset-sources/opengameart/detective-bunny/bun_tective.blend": {
+      "bytes": 3811116,
+      "sha256": "4ca3ecb9cec7e5cf259a99630fd0bce7c0628759bc7060ae3e48c6971a67868e"
+    },
+    "asset-sources/opengameart/boulder/rocksrealistic.blend": {
+      "bytes": 145416,
+      "sha256": "79c685a65b4c8fb69e6d62026980eb1abd110e3f5397ddbfb250f35677723676"
+    },
+    "asset-sources/opengameart/rabbit/rabbit.blend": {
+      "bytes": 5996916,
+      "sha256": "bb6deef1ee91b21380355138374cae87946451ce864502b1af68eb60f4750843"
+    },
+    "asset-sources/opengameart/fox/fox.blend": {
+      "bytes": 1249244,
+      "sha256": "88bd013a69da6125337f0a7ca6f74a9c5b445e9ff387c0c7c8c05b0ea4ad4374"
+    },
+    "asset-sources/opengameart/fox/fox_diffuse.png": {
+      "bytes": 2248762,
+      "sha256": "c400f07c58d1fec5725e5870a83ba60f076196fd9581b619e6b085b330f51a6c"
+    },
+    "asset-sources/opengameart/fox/fox_normal.png": {
+      "bytes": 738921,
+      "sha256": "86762291f34ce0c626286a95bca321a58dc539e384c6a5514888d0bd1eb1d7dd"
+    },
+    "asset-sources/opengameart/fox/fox_textures.xcf": {
+      "bytes": 16844177,
+      "sha256": "b81a56a939f82a429879c7ce6685368c458034cbef375f6ca2875b06f0f7e5a7"
+    },
+    "asset-sources/opengameart/hex-paver-b/hex_paver_b.zip": {
+      "bytes": 22021010,
+      "sha256": "51bf5a831c2be037c83710cd6f8cb700b3da630aadf44b39ccb543c78059367e"
+    },
+    "asset-sources/opengameart/hex-paver-b/Hex_paver_b_ao.png": {
+      "bytes": 423700,
+      "sha256": "ac8841e30117dc754fe7fa7d6247eb5e799288906d90e2a590ed6755ad3597b3"
+    },
+    "asset-sources/opengameart/hex-paver-b/Hex_paver_b_diffuse.png": {
+      "bytes": 10272141,
+      "sha256": "8a68c851bfbdb37dd1a433100fffa4f8ef6a57a5880e7e1196c0611676fa1b47"
+    },
+    "asset-sources/opengameart/hex-paver-b/Hex_paver_b_diffuseOriginal.png": {
+      "bytes": 8592699,
+      "sha256": "e4869c0e6ff67f504f88a9ffaa877e8166a23ba4f102e69661ed24b146652853"
+    },
+    "asset-sources/opengameart/hex-paver-b/Hex_paver_b_edge.png": {
+      "bytes": 1213396,
+      "sha256": "1e6484f2fa45eefd7ce8c07c5fc448b22b3da0c275149a4591c954c1e4547c1f"
+    },
+    "asset-sources/opengameart/hex-paver-b/Hex_paver_b_height.png": {
+      "bytes": 254748,
+      "sha256": "a49f697af2c628433681631779ee3a602754664fc8ae04c9011150f8edef6802"
+    },
+    "asset-sources/opengameart/hex-paver-b/Hex_paver_b_normal.png": {
+      "bytes": 1378996,
+      "sha256": "7cac27b2b9cfc5de9d2fd095bfe2a5cdf88e5b2e05216480c56397581b9733da"
+    },
+    "asset-sources/opengameart/horror-sci-fi-map-kit/sci_map_obj.zip": {
+      "bytes": 4723744,
+      "sha256": "398f2729cde3465c565fb998945192cd1e813f46ae528f86befcab35058cd20a"
+    },
+    "asset-sources/opengameart/thin-zombie/new_thin_zom.zip": {
+      "bytes": 1621462,
+      "sha256": "ba9a8d2a444f36b77f838251103f2c9c3a3d570db3bf1e10fb38b80f4f480b40"
+    },
+    "asset-sources/opengameart/warrior-low-poly/guerrero_low_poly.zip": {
+      "bytes": 336408,
+      "sha256": "b06f6f3fd8e1dd0a31647bf2d646fa218d9808269325e349e27bb8b3940505f3"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+"schemaVersion": 1,
+"importer": "Forgeroom static mesh importer / .mesh v1",
+"sourcePath": "models/thirdparty/blender/cube-diorama-wall.glb",
+"inputs": [
+	{
+		"path": "models/thirdparty/blender/cube-diorama-wall.glb",
+		"original": "cube_diorama/cube_diorama.blend",
+		"sha256": "37b62f4f6addf4503dff093ac767ac67bdd626840267854651457503aac4f0bf",
+		"providerId": "blender-cube-diorama",
+		"source": "https://www.blender.org/download/demo-files/",
+		"licence": "CC0-1.0",
+		"licenceEvidence": "https://www.blender.org/download/demo-files/",
+		"retrieved": "2026-11-24",
+		"conversion": "Blender 5.2.2 LTS; tools/blend_to_static_glb.py; Wall1; geometry only; procedural Plaster - Teal omitted",
+		"authors": [
+			"Blender Studio"
+		]
+	}
+],
+"outputs": {
+	"model.mesh": "991eb7d07fcf7bfce5edc434cf9506ab15d3d00e2d831cfb6ad41937dc0a0c35",
+	"model.gltf": "020a2e1afffe5887eec9268cfb5c9859d0f097444bb2b358b733d96c78ccce3e"
+}
+}

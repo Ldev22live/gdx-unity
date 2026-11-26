@@ -20,3 +20,11 @@ test {
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+tasks.register('deriveMeshFixture', JavaExec) {
+  group = 'application'
+  description = 'Derive a CC0 mesh fixture: --args="<asset root> <relative model> <new output directory>"'
+  classpath = sourceSets.main.runtimeClasspath
+  mainClass = 'io.github.ldev22live.gdxunity.engine.sculpt.MeshFixtureImport'
+  workingDir = rootProject.projectDir
+}

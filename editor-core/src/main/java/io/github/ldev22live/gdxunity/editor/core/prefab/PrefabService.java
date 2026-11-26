@@ -11,6 +11,7 @@ import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.Transform;
 import io.github.ldev22live.gdxunity.engine.scene.prefab.PrefabInstanceComponent;
+import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.prefab.PrefabInstanceComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializationException;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -407,6 +409,148 @@ public class PrefabService {
             syncInstance(root, document, live::get);
             return true;
         }));
+    }
+
+    /**
+     * Writes one overridden component of an instance entity into its prefab (MC.2, "Edit Shared Prefab"), then updates every
+     * instance of that prefab in the scene. Only that component changes in the prefab: the instance's other overrides stay
+     * overrides, and other instances keep their own overrides, including of this component. One undo step restores both the
+     * prefab file and the scene. Instances in other scenes take the change when those scenes are next opened.
+     *
+     * @return false when the entity is not part of a prefab instance, the component has no override, or the entity was added
+     *         to the instance rather than coming from the prefab
+     */
+    public boolean applyComponent(Entity entity, Component component) {
+        return applyComponent(entity, component, null);
+    }
+
+    /**
+     * As {@link #applyComponent(Entity, Component)}, after first making {@code change} to the instance in the same undo step, for
+     * example binding a newly saved model to a part and then sharing it with every instance.
+     *
+     * @param change run first, inside the undo step, on a fresh copy of the component (the copy then replaces it, so undo returns
+     *               the original object unchanged); null for none. When the component then matches the prefab, only the change is
+     *               recorded
+     */
+    public boolean applyComponent(Entity entity, Component component, Consumer<Component> change) {
+        Objects.requireNonNull(entity, "entity cannot be null");
+        Objects.requireNonNull(component, "component cannot be null");
+        PrefabInstanceComponent link = linkOf(entity);
+        String key = PrefabState.componentKey(serializer(), entity, component);
+        Entity root = instanceRootOf(entity);
+        if (link == null || key == null || root == null) {
+            return false;
+        }
+        String path = link.getPrefabPath();
+        PrefabDocument oldDocument;
+        String oldText;
+        try {
+            oldDocument = getDocument(path);
+            oldText = Files.readString(fileOf(path).toPath());
+        } catch (IOException | SceneSerializationException e) {
+            editorState.setStatusMessage("Cannot apply to " + path + ": " + e.getMessage(), true);
+            return false;
+        }
+        UUID sourceId = link.getSourceId();
+        if (!oldDocument.contains(sourceId) || (change == null
+            && computeOverrides(entity, oldDocument).stream().noneMatch(p -> key.equals(PrefabState.componentKeyOf(p))))) {
+            return false;
+        }
+        String[] newText = new String[1];
+        SceneSnapshotCommand command = new SceneSnapshotCommand(editorState, "Apply " + key + " to Prefab '" + oldDocument.getName()
+            + "'", () -> {
+            Scene scene = editorState.getActiveScene();
+            if (change != null) {
+                change.accept(detachedCopy(entity, key));
+                if (computeOverrides(entity, oldDocument).stream().noneMatch(p -> key.equals(PrefabState.componentKeyOf(p)))) {
+                    return true;
+                }
+            }
+            List<Entity> roots = otherInstanceRoots(scene, path, null);
+            // Every member's overrides against the old prefab, so the update changes nothing but the applied component
+            Map<Entity, Set<String>> overrides = new HashMap<>();
+            for (Entity instance : roots) {
+                for (Entity member : linkedMembers(instance, path).values()) {
+                    overrides.put(member, new LinkedHashSet<>(computeOverrides(member, oldDocument)));
+                }
+            }
+            overrides.get(entity).removeIf(p -> key.equals(PrefabState.componentKeyOf(p)));
+
+            Map<String, JsonValue> flat = PrefabState.flatten(oldDocument.getEntity(sourceId));
+            flat.keySet().removeIf(p -> key.equals(PrefabState.componentKeyOf(p)));
+            PrefabState.flatten(serializer().entityToJsonValue(entity)).forEach((p, value) -> {
+                if (key.equals(PrefabState.componentKeyOf(p))) {
+                    flat.put(p, value);
+                }
+            });
+            Map<UUID, JsonValue> entities = new LinkedHashMap<>();
+            Map<UUID, UUID> parents = new LinkedHashMap<>();
+            for (UUID id : oldDocument.getEntityIds()) {
+                entities.put(id, PrefabState.unflatten(id.equals(sourceId) ? flat : PrefabState.flatten(oldDocument.getEntity(id))));
+                UUID parent = oldDocument.getParent(id);
+                if (parent != null) {
+                    parents.put(id, parent);
+                }
+            }
+            PrefabDocument newDocument = new PrefabDocument(oldDocument.getName(), oldDocument.getRootId(), entities, parents);
+            newText[0] = newDocument.toJson();
+            writeDocument(path, newText[0]);
+            cache.put(cacheKey(path), newDocument);
+            for (Entity instance : roots) {
+                syncInstance(instance, newDocument, member -> overrides.getOrDefault(member, linkOf(member).getOverrides()));
+            }
+            storeOverrides(scene);
+            return true;
+        }) {
+            @Override
+            protected void afterRestore(boolean redo) {
+                restoreFile(path, redo ? newText[0] : oldText);
+            }
+        };
+        if (!editorState.executeCommand(command)) {
+            return false;
+        }
+        editorState.setStatusMessage("Applied " + entity.getName() + "'s " + key + " to " + path, false);
+        return true;
+    }
+
+    /**
+     * Replaces {@code entity}'s serializable components (not its prefab link) with equal fresh copies, in their order, and returns
+     * the copy with component key {@code key}. Scene snapshots keep component objects rather than their values, so a change made
+     * on the copies leaves the objects undo puts back untouched.
+     */
+    private Component detachedCopy(Entity entity, String key) {
+        JsonValue components = serializer().entityToJsonValue(entity).get("components");
+        ComponentSerializer<?> linkSerializer = serializer().getRegistry().getByClass(PrefabInstanceComponent.class);
+        String linkType = linkSerializer == null ? null : linkSerializer.getTypeId();
+        for (Component existing : new ArrayList<>(entity.getAllComponents())) {
+            if (!(existing instanceof PrefabInstanceComponent) && serializer().getRegistry().getByClass(existing.getClass()) != null) {
+                entity.removeComponent(existing);
+            }
+        }
+        for (JsonValue state = components == null ? null : components.child; state != null; state = state.next) {
+            if (!state.getString("type", "").equals(linkType)) {
+                Component copy = serializer().readComponent(state);
+                if (copy != null) {
+                    entity.addComponent(copy);
+                }
+            }
+        }
+        for (Component copy : entity.getAllComponents()) {
+            if (key.equals(PrefabState.componentKey(serializer(), entity, copy))) {
+                return copy;
+            }
+        }
+        throw new IllegalStateException("No component " + key + " on " + entity.getName() + " after copying");
+    }
+
+    /** How many instances of the prefab {@code entity} belongs to are in its scene, its own included; 0 when it is no instance. */
+    public int countInstances(Entity entity) {
+        Entity root = instanceRootOf(entity);
+        if (root == null || root.getScene() == null) {
+            return 0;
+        }
+        return otherInstanceRoots(root.getScene(), linkOf(root).getPrefabPath(), null).size();
     }
 
     /** Turns the instance {@code entity} belongs to into plain entities that no longer follow the prefab. */

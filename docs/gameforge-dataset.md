@@ -1,0 +1,44 @@
+# GameForge instruction dataset
+
+This seed dataset teaches a local model about the Forgeroom repository, editor workflows and engineering rules. Each line in the JSONL block is one training example. The examples are original paraphrases of the sources below.
+
+Use `instruction` as the user message and `output` as the expected assistant message. Use `id` and `topic` as metadata. Extract the JSONL block before importing it into a trainer and apply the training template for your chosen model. Keep additional examples from the same topic together when constructing a held-out evaluation set.
+
+The milestone examples describe the M7a.4 scope. Refresh status-sensitive examples when milestones move forward.
+
+## Training records
+
+```jsonl
+{"id":"gameforge-001","topic":"architecture","instruction":"Where should I put mesh source IO, editor session state, and Scene2D controls?","output":"Keep headless mesh source IO in engine-sculpt. Put the modeling session and its testable state in editor-sculpt. Keep Scene2D widgets and viewport wiring in editor-desktop."}
+{"id":"gameforge-002","topic":"architecture","instruction":"Can engine-render depend on editor-core to find a model preview?","output":"Engine modules cannot depend on editor modules. Pass the required preview data through an engine-facing interface from the desktop editor."}
+{"id":"gameforge-003","topic":"project","instruction":"I found a useful helper in the old lwjgl3 template. Can I add the new editor feature there?","output":"Use a module included in settings.gradle. The core and lwjgl3 template directories are outside the current build. Put testable editor behavior in editor-core or the existing feature module, with desktop UI glue in editor-desktop."}
+{"id":"gameforge-004","topic":"workspace","instruction":"How should a modeling action open a placed house prefab?","output":"Keep the prefab instance selected and frame its parts at their current world placement. Offer its model-bearing parts in 3D Modeling. Open the chosen source independently of the instance transform and retain the prefab link."}
+{"id":"gameforge-005","topic":"workspace","instruction":"A roof appears in two instances of a prefab. What happens when I move one roof in World?","output":"The transform changes the placement of the selected entity. The prefab controls handle instance overrides. Geometry editing operates on mesh source data, and material editing changes the surface appearance."}
+{"id":"gameforge-006","topic":"workspace","instruction":"I can select a model part in 3D Modeling. Can I extrude a face and save it today?","output":"Select a face in the wireframe and apply Extrude with a signed distance in source units. Save as new model writes a reusable glTF. Create unique instance mesh also assigns it to the chosen part. Update project-owned model asks for confirmation and protects provider originals."}
+{"id":"gameforge-007","topic":"assets","instruction":"What does a .mesh file created by M7a.1 contain?","output":"Version 1 stores a self-contained static glTF model with the original project-relative path, its SHA-256 checksum and available licence metadata. It retains node transforms, mesh and material references, and embedded resource data."}
+{"id":"gameforge-008","topic":"assets","instruction":"The import fails on a character model containing a skin. What should the editor report?","output":"Report that skinned glTF sources are unsupported by the editable static mesh importer. The runtime glTF import path is separate and can still display compatible skinned assets."}
+{"id":"gameforge-009","topic":"assets","instruction":"We imported a CC0 model. How do we document where it came from?","output":"Use the asset licence manifests and AssetProvenance. Record the source path, licence and checksum, and keep the provider original when creating a derived project-owned asset. Treat files with no record as unrecorded."}
+{"id":"gameforge-010","topic":"templates","instruction":"A template plays and exports, but its mesh uses a flattened glTF source. Can we label it Fully Customizable?","output":"Apply the Appendix F5 editability matrix for all relevant domains. Play and export evidence alone cannot establish the label. Record the missing editable source or replacement workflow and use the matrix-driven gallery label."}
+{"id":"gameforge-011","topic":"commands","instruction":"The inspector needs to change a scene entity transform. Where should that mutation happen?","output":"Submit an EditorCommand through the editor state so the change participates in undo and redo. Keep the inspector responsible for input and display."}
+{"id":"gameforge-012","topic":"commands","instruction":"How many undo entries should a completed transform gizmo drag create?","output":"One ChangeTransformCommand per completed drag. Use the initial TransformSnapshot as the reference throughout the drag."}
+{"id":"gameforge-013","topic":"scene","instruction":"What is required when adding a new scene component?","output":"Extend BaseComponent, implement its ComponentSerializer, register the serializer and add round-trip coverage. Check the shared runtime/editor registration where applicable."}
+{"id":"gameforge-014","topic":"play","instruction":"Why should setup for a game profile apply to a disposable scene copy?","output":"The Play session can add temporary runtime components and modify state. Applying that setup to the Play copy keeps the authored scene and its undo history intact when Stop returns to World."}
+{"id":"gameforge-015","topic":"physics","instruction":"Where does a Java gameplay script access 3D physics?","output":"Use Scene.getPhysics3D() or ScriptComponent.getPhysics3D() and the scene-unit API of PhysicsSystem3D. Jolt types stay inside engine-physics."}
+{"id":"gameforge-016","topic":"physics","instruction":"Which components and calls should drive a walking 3D character?","output":"Use CharacterController3DComponent, without a separate rigid body or 3D collider on the same character. Drive it through moveCharacter3D, jumpCharacter3D and isGrounded3D, or their PhysicsSystem3D equivalents."}
+{"id":"gameforge-017","topic":"testing","instruction":"The Gradle test run was quiet. How do I verify the result?","output":"Check the process exit code and the XML reports under each tested module's build/test-results/test directory. Record the test, failure, error and skip counts and note the modules actually run."}
+{"id":"gameforge-018","topic":"testing","instruction":"A desktop feature passes headless tests. May the report say it was validated in the app?","output":"Document the automated behavior as implemented. Record integration if the action is wired into the app. Validation requires an observed application check. Record the manual check as pending when the environment cannot provide it."}
+{"id":"gameforge-019","topic":"roadmap","instruction":"We finished a milestone. Can we start the next one automatically?","output":"Review and report the current milestone against its acceptance criteria. A new milestone requires the user's instruction to proceed. A new module or decision change also requires the applicable approval."}
+{"id":"gameforge-020","topic":"platforms","instruction":"Does the Forgeroom Web editor need full desktop modeling and music authoring?","output":"Appendix G defines Desktop as the full studio and Web as a smaller creator and preview. State the browser capabilities using verified support labels. Full desktop authoring parity is outside the web scope."}
+{"id":"gameforge-021","topic":"agents","instruction":"How should a new editor operation be surfaced to an agent?","output":"Implement it as an AgentTool in the editor-core tool layer with structured success and failure outputs. Use the same editor operations and permission rules that apply to the user-facing workflow."}
+{"id":"gameforge-022","topic":"git","instruction":"A file is modified before I start editing it. What should I do?","output":"Check git status and inspect the existing diff, report the pre-existing change, and preserve it while making the authorized edit. Do not stage or commit without an explicit request."}
+{"id":"gameforge-023","topic":"resources","instruction":"A disposable throws during shutdown. What should happen next?","output":"Continue disposing the remaining owned resources and collect failures. Report the aggregated errors with ResourceDisposalException under TD-008. Make disposal idempotent and clear owned references."}
+```
+
+## Source material
+
+- [Repository engineering rules](../AGENTS.md)
+- [Technical decisions](TECHNICAL_DECISIONS.md)
+- [Feature and test matrix](FEATURE_TEST_MATRIX.md)
+- [Milestone chart](milestone-chart.md)
+- [Desktop and web scope](ForgeRoom_Master_Roadmap_2026-11-15_Desktop_Web_Scoped.md)
+- [M7a.1 report](reports/m7a-1-editable-mesh-source.md)

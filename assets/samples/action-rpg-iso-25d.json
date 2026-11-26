@@ -165,7 +165,8 @@
             "colorR": 0.4,
             "colorG": 0.58,
             "colorB": 0.34,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RockyTerrain02.material"
           }
         },
         {
@@ -218,7 +219,8 @@
             "colorR": 0.55,
             "colorG": 0.5,
             "colorB": 0.44,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RedBrick03.material"
           }
         },
         {
@@ -271,7 +273,8 @@
             "colorR": 0.55,
             "colorG": 0.5,
             "colorB": 0.44,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RedBrick03.material"
           }
         },
         {
@@ -324,7 +327,8 @@
             "colorR": 0.55,
             "colorG": 0.5,
             "colorB": 0.44,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RedBrick03.material"
           }
         },
         {
@@ -377,7 +381,8 @@
             "colorR": 0.55,
             "colorG": 0.5,
             "colorB": 0.44,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RedBrick03.material"
           }
         },
         {
@@ -430,7 +435,8 @@
             "colorR": 0.72,
             "colorG": 0.56,
             "colorB": 0.36,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/WoodFloorDeck.material"
           }
         },
         {
@@ -483,7 +489,8 @@
             "colorR": 0.62,
             "colorG": 0.6,
             "colorB": 0.58,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RedBrick03.material"
           }
         },
         {
@@ -536,7 +543,8 @@
             "colorR": 0.5,
             "colorG": 0.62,
             "colorB": 0.4,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/HexPaverB.material"
           }
         },
         {
@@ -683,6 +691,84 @@
             "anchor": "BOTTOM_LEFT",
             "offsetX": 16.0,
             "offsetY": 24.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c091a126-cdf5-5c9b-ab16-b68d02d57f19",
+      "name": "Warrior training mannequin",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -320.0,
+          "y": 0.0,
+          "z": 355.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.38268343,
+          "z": 0.0,
+          "w": 0.92387953
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/warrior-low-poly/warrior.glb",
+            "importScale": 76.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "11184321-210f-5792-97d2-c748a01f027c",
+      "name": "Asset Credits",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "Warrior low poly by jjmoser (CC BY 3.0)\nF1 for full asset credits in the desktop game",
+            "colorR": 0.93,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1.0,
+            "scale": 1.0,
+            "anchor": "TOP_LEFT",
+            "offsetX": 16.0,
+            "offsetY": -16.0
           }
         }
       ]

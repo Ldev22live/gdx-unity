@@ -86,10 +86,17 @@
       "web": false
     },
     {
+      "scene": "samples/hybrid-side-scroller-25d.json",
+      "title": "Hybrid Side-scroller",
+      "genre": "Platformer",
+      "summary": "A sprite hero runs past a Kenney house and trees: 3D scenery edited in 3D Modeling, 2D sprites in 2D Studio, drawn in depth order.",
+      "web": false
+    },
+    {
       "scene": "samples/platformer-profile-3d.json",
       "title": "Platformer Profile 3D",
       "genre": "Platformer",
-      "summary": "Floating stones in 3D with no scripts: its genre and game mode supply the chase camera, running, jumping and the restart after a fall.",
+      "summary": "Guide Detective Bunny across floating stones with the chase camera. The genre profile still handles running, jumping and restarting after a fall.",
       "web": false
     },
     {
@@ -219,10 +226,17 @@
       "web": false
     },
     {
+      "scene": "samples/third-person-yard-3d.json",
+      "title": "Third-person Yard",
+      "genre": "Shooter",
+      "summary": "A walled yard with no scripts: its genre and game mode supply a camera behind the Gunner, turning, strafing and a level shot that knocks crates over.",
+      "web": false
+    },
+    {
       "scene": "samples/action-rpg-valley-3d.json",
       "title": "Action RPG Valley",
       "genre": "Action RPG",
-      "summary": "A 3D valley with no scripts: its genre and game mode supply the camera behind the hero, walking and jumping.",
+      "summary": "Explore a 3D valley with textured boulders, animated wildlife and a third-person camera.",
       "web": false
     },
     {

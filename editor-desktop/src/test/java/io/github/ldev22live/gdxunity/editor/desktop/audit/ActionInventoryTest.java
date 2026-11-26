@@ -93,6 +93,8 @@ class ActionInventoryTest {
         home("edit.redo", "header Redo icon", "Header: Redo icon (Appendix E1)");
         home("edit.redo.ctrl-shift-z", "", "Keyboard only (Ctrl+Shift+Z), unchanged");
         home("edit.duplicate", "Outliner context menu", "Selection context menu and selection strip");
+        home("edit.copy", "", "Keyboard (Ctrl+C) and Edit menu (roadmap A03)");
+        home("edit.paste", "", "Keyboard (Ctrl+V) and Edit menu (roadmap A03)");
         home("edit.delete", "Outliner context menu", "Selection context menu and selection strip");
         home("edit.rename", "Outliner context menu", "Selection context menu (and F2)");
         home("prefab.create", "Outliner context menu", "Selection context menu");
@@ -237,8 +239,9 @@ class ActionInventoryTest {
 
         assertEquals(Set.of(), withoutHome, "every action needs a planned home before the layout changes (M1b.1)");
         assertEquals(Set.of(), stale, "the plan names actions that no longer exist");
-        assertEquals(76, registered.size(), "the editor registers 76 actions (69 at M1b.1, the three panel actions of M1b.2 "
-            + "stage 4, New Game of M1.4, the two heightmap actions of M3.5 and the Console drawer of UI M3); a change here means the "
+        assertEquals(78, registered.size(), "the editor registers 78 actions (69 at M1b.1, the three panel actions of M1b.2 "
+            + "stage 4, New Game of M1.4, the two heightmap actions of M3.5, the Console drawer of UI M3 and Copy and Paste of A03); "
+            + "a change here means the "
             + "inventory needs a look");
     }
 
@@ -276,7 +279,10 @@ class ActionInventoryTest {
         assertTrue(source.contains("menuRow.add(toolbar.getPlayControls())"), "the play controls are in the header");
         assertTrue(source.contains("new PropertiesPanel(skin, levelPalette, inspectorPanel, levelSession::isActive, worldSettings)"),
             "the Properties panel shows the map tool's settings or the selection, and World Settings");
-        assertFalse(source.contains("new EditorFooter("), "no footer");
+        // TD-107 (approved 2026-11-25): the World layout restores the footer (Game Genre, Game Mode, Customize and Play side by
+        // side); the classic layout above keeps World Settings in the Properties panel and Play in the header
+        assertTrue(source.contains("new EditorFooter(skin, footerGenre, new GameModeSelector(editorState, genres, skin)")
+            && source.contains("createCustomizeGateway(), toolbar.getPlayControls())"), "the World layout's footer: Customize beside Play");
         for (String button : List.of("DefaultEditorActions.TOOL_SELECT, \"select\"", "DefaultEditorActions.TOOL_MOVE, \"move\"",
                 "DefaultEditorActions.TOOL_ROTATE, \"rotate\"", "DefaultEditorActions.TOOL_SCALE, \"scale\"", "ACTION_FOCUS_SELECTION, \"focus\"",
                 "SculptActions.TOGGLE_MODE, \"sculpt\"", "LevelActions.TOGGLE, \"level\"", "ACTION_TOGGLE_GRID, \"grid\"",
@@ -286,9 +292,10 @@ class ActionInventoryTest {
         for (String icon : List.of("FILE_SAVE_SCENE, \"save\"", "EDIT_UNDO, \"undo\"", "EDIT_REDO, \"redo\"")) {
             assertTrue(source.contains("headerIcon(DefaultEditorActions." + icon), "header icon " + icon);
         }
-        assertEquals(1, source.split("new GameModeSelector\\(", -1).length - 1, "one Game Mode selector");
-        assertEquals(1, source.split("new GameGenreSelector\\(", -1).length - 1, "one Game Genre selector");
-        assertEquals(1, source.split("createCustomizeGateway\\(\\)", -1).length - 2, "one Customize gateway (one call besides its definition)");
+        assertEquals(2, source.split("new GameModeSelector\\(", -1).length - 1, "one Game Mode selector per layout (TD-107)");
+        assertEquals(2, source.split("new GameGenreSelector\\(", -1).length - 1, "one Game Genre selector per layout (TD-107)");
+        assertEquals(2, source.split("createCustomizeGateway\\(\\)", -1).length - 2,
+            "one Customize gateway per layout (TD-107), besides its definition");
         assertTrue(source.contains("tabRow.add(worldStrip)") && source.contains("for (EditorDrawers.Drawer drawer : EditorDrawers.tabs())"),
             "the map drawers and the docked drawers are tabs, so a closed drawer can always be reopened (TD-085)");
         assertTrue(source.contains("root.add(statusRow)"), "the status bar is in the layout");

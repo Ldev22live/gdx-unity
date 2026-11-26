@@ -14,13 +14,20 @@ import java.util.Objects;
 
 /**
  * The {@code .sprite} file (TD-066): JSON with the layers, frames, tags, slices and palette, and one PNG (base64) per non-empty cel, so the file
- * can be read by a browser too. {@code schemaVersion} is 1.
+ * can be read by a browser too.
+ *
+ * <p>{@code schemaVersion} 2 (TD-104) adds per-frame {@code hitboxes} ({@code frames[i].hitboxes}: name, x, y, width, height) and a
+ * per-layer {@code source} ({@code layers[i].source}: the {@code vector} path and the {@code shapes} drawn into it). A document is
+ * written as version 2 only when it has either, so every other sprite stays a version-1 file that older readers (the web player
+ * before TD-104) still open. Both versions are read.
  */
 public final class SpriteFile {
     /** File extension without the dot. */
     public static final String EXTENSION = "sprite";
-    /** Version written, and the only version read. */
+    /** The version of a sprite without hitboxes or layer sources. */
     public static final int SCHEMA_VERSION = 1;
+    /** The version of a sprite with hitboxes or layer sources (TD-104); the newest this build reads. */
+    public static final int SCHEMA_VERSION_HITBOXES = 2;
     private static final String KIND = "sprite";
     private static final int PALETTE_HEX_DIGITS = 8;
 
@@ -33,19 +40,37 @@ public final class SpriteFile {
         JsonWriter w = new JsonWriter(text);
         w.setOutputType(JsonWriter.OutputType.json);
         w.object();
-        w.set("schemaVersion", SCHEMA_VERSION);
+        w.set("schemaVersion", doc.hasHitboxes() || doc.hasLayerSources() ? SCHEMA_VERSION_HITBOXES : SCHEMA_VERSION);
         w.set("kind", KIND);
         w.set("width", doc.getWidth());
         w.set("height", doc.getHeight());
         w.array("layers");
         for (int l = 0; l < doc.getLayerCount(); l++) {
             SpriteLayer layer = doc.getLayer(l);
-            w.object().set("name", layer.name()).set("visible", layer.visible()).set("opacity", layer.opacity()).pop();
+            w.object().set("name", layer.name()).set("visible", layer.visible()).set("opacity", layer.opacity());
+            SpriteLayerSource source = doc.getLayerSource(l);
+            if (source != null) {
+                w.object("source").set("vector", source.vector()).array("shapes");
+                for (String shape : source.shapes()) {
+                    w.value(shape);
+                }
+                w.pop().pop();
+            }
+            w.pop();
         }
         w.pop();
         w.array("frames");
         for (int f = 0; f < doc.getFrameCount(); f++) {
-            w.object().set("duration", doc.getFrameDuration(f)).pop();
+            w.object().set("duration", doc.getFrameDuration(f));
+            if (!doc.getHitboxes(f).isEmpty()) {
+                w.array("hitboxes");
+                for (SpriteHitbox box : doc.getHitboxes(f)) {
+                    w.object().set("name", box.name()).set("x", box.x()).set("y", box.y()).set("width", box.width())
+                        .set("height", box.height()).pop();
+                }
+                w.pop();
+            }
+            w.pop();
         }
         w.pop();
         w.array("tags");
@@ -80,7 +105,7 @@ public final class SpriteFile {
         return text.toString();
     }
 
-    /** Reads {@code .sprite} text. Throws {@link IOException} with the reason for a file that is not a valid version-1 sprite. */
+    /** Reads {@code .sprite} text. Throws {@link IOException} with the reason for a file that is not a valid version-1 or version-2 sprite. */
     public static SpriteDocument read(String json) throws IOException {
         Objects.requireNonNull(json, "json cannot be null");
         JsonValue root;
@@ -93,8 +118,9 @@ public final class SpriteFile {
             throw new IOException("not a sprite file (kind is not \"" + KIND + "\")");
         }
         int version = root.getInt("schemaVersion", -1);
-        if (version != SCHEMA_VERSION) {
-            throw new IOException("unsupported sprite schemaVersion " + version + " (this build reads " + SCHEMA_VERSION + ")");
+        if (version != SCHEMA_VERSION && version != SCHEMA_VERSION_HITBOXES) {
+            throw new IOException("unsupported sprite schemaVersion " + version + " (this build reads " + SCHEMA_VERSION + " and "
+                + SCHEMA_VERSION_HITBOXES + ")");
         }
         try {
             return build(root);
@@ -118,11 +144,27 @@ public final class SpriteFile {
         }
         int index = 0;
         for (JsonValue l : layers) {
-            doc.setLayer(index++, new SpriteLayer(l.getString("name"), l.getBoolean("visible", true), l.getInt("opacity", SpriteLayer.OPAQUE)));
+            doc.setLayer(index, new SpriteLayer(l.getString("name"), l.getBoolean("visible", true), l.getInt("opacity", SpriteLayer.OPAQUE)));
+            JsonValue source = l.get("source");
+            if (source != null) {
+                List<String> shapes = new ArrayList<>();
+                for (JsonValue shape : array(source, "shapes")) {
+                    shapes.add(shape.asString());
+                }
+                doc.setLayerSource(index, new SpriteLayerSource(source.getString("vector"), shapes));
+            }
+            index++;
         }
         index = 0;
         for (JsonValue f : frames) {
-            doc.setFrameDuration(index++, f.getInt("duration", SpriteDocument.DEFAULT_FRAME_MS));
+            doc.setFrameDuration(index, f.getInt("duration", SpriteDocument.DEFAULT_FRAME_MS));
+            List<SpriteHitbox> boxes = new ArrayList<>();
+            for (JsonValue box : array(f, "hitboxes")) {
+                boxes.add(new SpriteHitbox(box.getString("name"), box.getInt("x"), box.getInt("y"), box.getInt("width"),
+                    box.getInt("height")));
+            }
+            doc.setHitboxes(index, boxes);
+            index++;
         }
         List<SpriteTag> tags = new ArrayList<>();
         for (JsonValue t : array(root, "tags")) {

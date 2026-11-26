@@ -11,6 +11,7 @@ import io.github.ldev22live.gdxunity.editor.core.play.PlayModeController;
 import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.prefab.PrefabInstanceComponent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -63,6 +65,7 @@ class WorldFirstNavigationTest {
         boolean contentBrowser;
         boolean refuseActions;
         int framed;
+        int cameraPosition = 17;
         final List<String> actions = new ArrayList<>();
 
         @Override
@@ -100,8 +103,15 @@ class WorldFirstNavigationTest {
         }
 
         @Override
+        public Runnable captureWorldCamera() {
+            int before = cameraPosition;
+            return () -> cameraPosition = before;
+        }
+
+        @Override
         public void frameSelection() {
             framed++;
+            cameraPosition = 0;
         }
     }
 
@@ -220,6 +230,31 @@ class WorldFirstNavigationTest {
      * bar), touching neither the scene, the selection nor the undo history, and Back to World turns a 2D view back.
      */
     @Test
+    void shouldOpenModelingOnPrefabRootAndKeepItsSelection() {
+        Entity house = editorState.createEntity("House");
+        house.addComponent(new PrefabInstanceComponent("prefabs/House.prefab", UUID.randomUUID(), true));
+        Entity wall = editorState.createEntity("Wall");
+        wall.addComponent(new ModelComponent("models/wall.glb"));
+        wall.getTransform().setParent(house.getTransform());
+        editorState.setSelectedEntity(house);
+        int undoSteps = editorState.getCommandHistory().getUndoCount();
+
+        var offers = CustomizeGateway.editSelected(house, editorState.getSerializer().getRegistry());
+        assertTrue(offers.stream().anyMatch(offer -> offer.kind() == CustomizeGateway.Kind.OPEN_MODELING));
+        assertFalse(offers.stream().anyMatch(offer -> CustomizeGateway.SCULPT_FROM_SELECTED_ACTION.equals(offer.actionId())));
+        assertTrue(navigator.editModel(house));
+        assertEquals(Workspace.MODELING_3D, navigator.current());
+        assertEquals(1, view.framed);
+        assertTrue(editorState.getStatusMessage().contains("Prefab mesh sources"));
+        navigator.backToWorld();
+
+        assertEquals(Workspace.WORLD, navigator.current());
+        assertSame(house, editorState.getSelectedEntity());
+        assertSame(house.getTransform(), wall.getTransform().getParent());
+        assertEquals(undoSteps, editorState.getCommandHistory().getUndoCount());
+    }
+
+    @Test
     void shouldOpen3DModelingOnTheSelectedHouseInContextAndComeBackToTheSameWorld() {
         Entity house = editorState.createEntity("House");
         house.addComponent(new ModelComponent("models/house.glb"));
@@ -236,13 +271,13 @@ class WorldFirstNavigationTest {
         assertEquals(undoSteps, editorState.getCommandHistory().getUndoCount(), "opening 3D Modeling is never an undo step");
         assertEquals(1, editorState.getActiveScene().getAllEntities().stream().filter(e -> e.getName().startsWith("House")).count(),
             "no copy is made: sculpting a copy is its own, separate choice");
-        assertEquals("3D Modeling: House. " + ModelingHandOff.MESH_PLANNED_TITLE + ". Editing the vertices, edges and faces of House "
-            + "is planned (roadmap R7a); nothing here changes house.glb.", editorState.getStatusMessage());
+        assertEquals("3D Modeling: House. " + ModelingHandOff.noticeFor(house).summary(), editorState.getStatusMessage());
         assertFalse(editorState.isStatusError());
 
         navigator.backToWorld();
 
         assertEquals(Workspace.WORLD, navigator.current());
+        assertEquals(17, view.cameraPosition, "Back to World restores the camera before the model was framed");
         assertEquals(ViewportMode.VIEW_2D, editorState.getViewportMode(), "Back to World turns the view back to what it was");
         assertSame(house, editorState.getSelectedEntity());
     }

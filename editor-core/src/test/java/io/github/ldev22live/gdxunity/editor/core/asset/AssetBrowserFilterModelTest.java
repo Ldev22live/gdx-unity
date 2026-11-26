@@ -66,6 +66,37 @@ class AssetBrowserFilterModelTest {
         assertEquals(0, filterModel.getFilteredCount());
     }
 
+    @Test
+    void shouldApplyMultipleFacetsAcrossFoldersAndExcludeUnknownAssets() throws IOException {
+        addNested();
+        Files.writeString(tempDir.resolve("asset-classification.json"), """
+            {
+              "models/hero.glb": {
+                "genre": ["platformer", "action-rpg"], "species": ["lion"],
+                "rigged": ["yes"], "triangles": ["12000"], "animation": ["idle", "run"]
+              },
+              "missing.glb": {"genre": ["platformer", "action-rpg"]}
+            }
+            """);
+        filterModel.revalidate();
+        filterModel.setSearchFilter("genre:Action-RPG type:model species:lion rigged:yes animation:run imported:yes");
+        assertEquals(List.of("models/hero.glb"),
+            filterModel.getFilteredAssets().stream().map(AssetMetadata::getPath).toList());
+        filterModel.setSearchFilter("genre:platformer triangles:12000");
+        assertEquals(1, filterModel.getFilteredCount());
+        filterModel.setSearchFilter("species:fox");
+        assertTrue(filterModel.getFilteredAssets().isEmpty());
+    }
+
+    @Test
+    void shouldReportInvalidClassificationAndStillFindFiles() throws IOException {
+        Files.writeString(tempDir.resolve("asset-classification.json"), "[]");
+        filterModel.revalidate();
+        assertNotNull(filterModel.getClassificationError());
+        filterModel.setSearchFilter("player.png");
+        assertEquals(1, filterModel.getFilteredCount());
+    }
+
     private void addNested() throws IOException {
         Files.createDirectories(tempDir.resolve("models/props"));
         Files.createDirectories(tempDir.resolve("ui"));

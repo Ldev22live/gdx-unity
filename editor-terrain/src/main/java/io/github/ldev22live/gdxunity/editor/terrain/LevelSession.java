@@ -170,6 +170,31 @@ public final class LevelSession {
     private Tool tool = Tool.RAISE;
     private Focus focus = Focus.ALL;
     private String objectPath = "";
+    /** Where the Place tool would drop the chosen object now (roadmap A03 ghost preview); null when not hovering the ground. */
+    private PlacementPreview preview;
+    /** The prefab whose root roles (player, spawn point) {@link #characterRoles} last read, so hovering does not reread the file. */
+    private String rolesReadFor;
+    private boolean rolesPlayer;
+    private boolean rolesSpawn;
+
+    /**
+     * Where the Place tool would put the chosen object if the mouse were clicked now, and why it would be refused (roadmap A03).
+     * The view draws it green when {@link #refusal} is null and red otherwise; the click goes through the same check, so the
+     * preview and the click agree.
+     *
+     * @param position the point on the ground, in world space
+     * @param refusal  why a click would place nothing, or null when it would place the object
+     */
+    public record PlacementPreview(Vector3 position, String refusal) {
+        public PlacementPreview {
+            position = new Vector3(Objects.requireNonNull(position, "position cannot be null"));
+        }
+
+        /** True when a click here would place the object. */
+        public boolean valid() {
+            return refusal == null;
+        }
+    }
 
     public LevelSession(EditorState editorState, TerrainSession terrainSession, File assetRoot) {
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
@@ -203,6 +228,7 @@ public final class LevelSession {
             focus = Focus.ALL;
         }
         terrainSession.setLevelTarget(active ? this::findGround : null);
+        preview = null;
         applyTool();
     }
 
@@ -223,6 +249,7 @@ public final class LevelSession {
             // A tree chosen under Objects is not a character, and the other way round
             objectPath = "";
         }
+        preview = null;
         applyTool();
     }
 
@@ -239,6 +266,7 @@ public final class LevelSession {
             throw new IllegalArgumentException(tool + " is not offered in the " + focus.getLabel() + " focus");
         }
         this.tool = tool;
+        preview = null;
         applyTool();
     }
 
@@ -276,6 +304,81 @@ public final class LevelSession {
 
     public void setObjectPath(String objectPath) {
         this.objectPath = objectPath == null ? "" : objectPath;
+        preview = null;
+    }
+
+    /**
+     * Updates the placement preview for the mouse over a point of the ground's own space (the Place tool's hover), or clears it when
+     * the level editor is off or another tool is in hand.
+     *
+     * @return the preview, or null when none is shown
+     */
+    public PlacementPreview previewPlacement(float localX, float localY, float localZ) {
+        Entity ground = findGround();
+        if (!active || tool != Tool.PLACE || ground == null) {
+            preview = null;
+            return null;
+        }
+        Vector3 world = new Vector3(localX, localY, localZ).mul(ground.getTransform().getWorldMatrix());
+        preview = new PlacementPreview(world, placementRefusal());
+        return preview;
+    }
+
+    /** Hides the placement preview (the mouse left the view, or left the ground). */
+    public void clearPlacementPreview() {
+        preview = null;
+    }
+
+    /** The placement preview, or null when none is shown. */
+    public PlacementPreview getPlacementPreview() {
+        return preview;
+    }
+
+    /**
+     * Why the Place tool would place nothing now, or null when it would place the chosen object. The same rules as
+     * {@link #placeObject}: an object must be chosen, there must be ground, and a scene has one player and one spawn point.
+     */
+    public String placementRefusal() {
+        if (objectPath.isEmpty()) {
+            return "Choose an object to place first";
+        }
+        if (editorState.getPrefabService() == null || findGround() == null) {
+            return "There is no ground yet: press New Level";
+        }
+        if (!objectPath.startsWith(CHARACTER_FOLDER + "/")) {
+            return null;
+        }
+        try {
+            characterRoles();
+        } catch (IOException | RuntimeException e) {
+            return "Cannot place " + objectLabel(objectPath) + ": " + e.getMessage();
+        }
+        Scene scene = editorState.getActiveScene();
+        if (rolesPlayer) {
+            Entity existing = firstWith(scene, PlayerComponent.class);
+            if (existing != null) {
+                return existing.getName() + " is already the player, and a scene has one. Select it and move it, or remove its Player first.";
+            }
+        }
+        if (rolesSpawn) {
+            Entity existing = firstWith(scene, SpawnPointComponent.class);
+            if (existing != null) {
+                return existing.getName() + " is already the spawn point, and a scene has one. Select it and move it instead.";
+            }
+        }
+        return null;
+    }
+
+    /** Reads whether the chosen character prefab's root is the player or a spawn point, once per prefab. */
+    private void characterRoles() throws IOException {
+        if (objectPath.equals(rolesReadFor)) {
+            return;
+        }
+        PrefabDocument document = editorState.getPrefabService().getDocument(objectPath);
+        JsonValue root = document.getEntity(document.getRootId());
+        rolesPlayer = rootComponent(root, PLAYER_TYPE) != null;
+        rolesSpawn = rootComponent(root, SPAWN_TYPE) != null;
+        rolesReadFor = objectPath;
     }
 
     /**
@@ -345,12 +448,18 @@ public final class LevelSession {
      * @return the new entity, or null when it could not be made (the reason is in the status bar)
      */
     public Entity createLevel(Surface base) {
+        return createLevel(base, TerrainAssets.MapSize.STANDARD);
+    }
+
+    /** Starts a level with a new ground of the requested size, retaining existing grounds. */
+    public Entity createLevel(Surface base, TerrainAssets.MapSize size) {
+        Objects.requireNonNull(size, "size cannot be null");
         Objects.requireNonNull(base, "base cannot be null");
         if (findGround() != null) {
             editorState.setStatusMessage("This scene already has a level ground; change its Ground instead", true);
             return null;
         }
-        String path = TerrainAssets.createNew(assetRoot, terrainSession.getLibrary(), "Level", true, base);
+        String path = TerrainAssets.createNew(assetRoot, terrainSession.getLibrary(), "Level", true, base, size);
         CreateEntityCommand command = new CreateEntityCommand(editorState, "Level Ground", null,
             List.<Component>of(new TerrainComponent(path), new TerrainCollider3DComponent()));
         if (!editorState.executeCommand(command)) {
@@ -970,16 +1079,15 @@ public final class LevelSession {
      * @return the new instance, or null (the reason is in the status bar)
      */
     public Entity placeObject(float localX, float localY, float localZ) {
-        if (objectPath.isEmpty()) {
-            editorState.setStatusMessage("Choose an object to place first", true);
+        // The placement preview draws the same check (roadmap A03), so a red preview is always a refused click
+        rolesReadFor = null; // the prefab file may have changed since the preview read it
+        String refusal = placementRefusal();
+        if (refusal != null) {
+            editorState.setStatusMessage(refusal, true);
             return null;
         }
         PrefabService prefabs = editorState.getPrefabService();
         Entity ground = findGround();
-        if (prefabs == null || ground == null) {
-            editorState.setStatusMessage("There is no ground yet: press New Level", true);
-            return null;
-        }
         Vector3 world = new Vector3(localX, localY, localZ)
             .mul(ground.getTransform().getWorldMatrix());
         if (objectPath.startsWith(CHARACTER_FOLDER + "/")) {
@@ -1015,23 +1123,7 @@ public final class LevelSession {
             editorState.setStatusMessage("Cannot place " + objectLabel(objectPath) + ": " + e.getMessage(), true);
             return null;
         }
-        Scene scene = editorState.getActiveScene();
-        if (rootComponent(root, PLAYER_TYPE) != null) {
-            Entity existing = firstWith(scene, PlayerComponent.class);
-            if (existing != null) {
-                editorState.setStatusMessage(existing.getName() + " is already the player, and a scene has one. Select it and move it, "
-                    + "or remove its Player first.", true);
-                return null;
-            }
-        }
-        if (rootComponent(root, SPAWN_TYPE) != null) {
-            Entity existing = firstWith(scene, SpawnPointComponent.class);
-            if (existing != null) {
-                editorState.setStatusMessage(existing.getName() + " is already the spawn point, and a scene has one. Select it and move "
-                    + "it instead.", true);
-                return null;
-            }
-        }
+        // The one-player and one-spawn-point rules were checked by placementRefusal
         JsonValue character = rootComponent(root, CHARACTER_TYPE);
         if (character != null) {
             world.y += character.getFloat("height", 0f) / 2f + character.getFloat("radius", 0f) + CHARACTER_CLEARANCE;

@@ -1,0 +1,95 @@
+{
+"schemaVersion": 1,
+"importer": "Forgeroom static mesh importer / .mesh v1",
+"sourcePath": "models/thirdparty/polyhaven/rollershutter_door/rollershutter_door_1k.gltf",
+"inputs": [
+	{
+		"path": "models/thirdparty/polyhaven/rollershutter_door/rollershutter_door_1k.gltf",
+		"original": "rollershutter_door_1k.gltf",
+		"sha256": "913b2689f88f99cb75f8a6575e315ee90437e59976a2a3ce0b260d5636a14d30",
+		"providerId": "polyhaven-rollershutter-door",
+		"source": "https://polyhaven.com/a/rollershutter_door",
+		"licence": "CC0-1.0",
+		"licenceEvidence": "https://polyhaven.com/license",
+		"retrieved": "2026-11-19",
+		"conversion": "none",
+		"authors": [
+			"MP"
+		]
+	},
+	{
+		"path": "models/thirdparty/polyhaven/rollershutter_door/rollershutter_door.bin",
+		"original": "rollershutter_door.bin",
+		"sha256": "155cd44e199d4edd19769503c7ed22b0b4007869166d0193a7e2d5e3134dc38d",
+		"providerId": "polyhaven-rollershutter-door",
+		"source": "https://polyhaven.com/a/rollershutter_door",
+		"licence": "CC0-1.0",
+		"licenceEvidence": "https://polyhaven.com/license",
+		"retrieved": "2026-11-19",
+		"conversion": "none",
+		"authors": [
+			"MP"
+		]
+	},
+	{
+		"path": "models/thirdparty/polyhaven/rollershutter_door/textures/rollershutter_door_nor_gl_1k.jpg",
+		"original": "rollershutter_door_nor_gl_1k.jpg",
+		"sha256": "3eaad465ac23e4b3d5fbf2e315b738f8d3039cd244a69ab8adcc7a0e786cdffb",
+		"providerId": "polyhaven-rollershutter-door",
+		"source": "https://polyhaven.com/a/rollershutter_door",
+		"licence": "CC0-1.0",
+		"licenceEvidence": "https://polyhaven.com/license",
+		"retrieved": "2026-11-19",
+		"conversion": "none",
+		"authors": [
+			"MP"
+		]
+	},
+	{
+		"path": "models/thirdparty/polyhaven/rollershutter_door/textures/rollershutter_door_diff_1k.jpg",
+		"original": "rollershutter_door_diff_1k.jpg",
+		"sha256": "b8cd7ad14fe5c691484fe240213c379bf18f21336afe6622bfa20c731eca010d",
+		"providerId": "polyhaven-rollershutter-door",
+		"source": "https://polyhaven.com/a/rollershutter_door",
+		"licence": "CC0-1.0",
+		"licenceEvidence": "https://polyhaven.com/license",
+		"retrieved": "2026-11-19",
+		"conversion": "none",
+		"authors": [
+			"MP"
+		]
+	},
+	{
+		"path": "models/thirdparty/polyhaven/rollershutter_door/textures/rollershutter_door_arm_1k.jpg",
+		"original": "rollershutter_door_arm_1k.jpg",
+		"sha256": "0a45cf8585a339ae542ef891f3aa697258079b98f1755b2d6716ea542d3de14a",
+		"providerId": "polyhaven-rollershutter-door",
+		"source": "https://polyhaven.com/a/rollershutter_door",
+		"licence": "CC0-1.0",
+		"licenceEvidence": "https://polyhaven.com/license",
+		"retrieved": "2026-11-19",
+		"conversion": "none",
+		"authors": [
+			"MP"
+		]
+	},
+	{
+		"path": "models/thirdparty/polyhaven/rollershutter_door/textures/rollershutter_door_graffiti_diff_1k.jpg",
+		"original": "rollershutter_door_graffiti_diff_1k.jpg",
+		"sha256": "7438bee86fc32e3b6ca23ec694f179576749554dff7c3b281f30acd917c250af",
+		"providerId": "polyhaven-rollershutter-door",
+		"source": "https://polyhaven.com/a/rollershutter_door",
+		"licence": "CC0-1.0",
+		"licenceEvidence": "https://polyhaven.com/license",
+		"retrieved": "2026-11-19",
+		"conversion": "none",
+		"authors": [
+			"MP"
+		]
+	}
+],
+"outputs": {
+	"model.mesh": "7f76f098f182105e49fe2395bc3cca96a33404fac19970bdde03b7e19df6a537",
+	"model.gltf": "bb8a296b325a3fa5c1077abbca52a17d9a03046c6fea78bed2c2386fd9b2a09a"
+}
+}

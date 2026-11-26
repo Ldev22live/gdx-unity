@@ -69,6 +69,121 @@ public class PhysicsSystem2D implements Disposable {
         // Scripts get the 2D collision callbacks from every system, whoever made it (editor Play, the game runtime, a test)
         listeners.add(new ScriptCollisionForwarder2D());
         createBodiesAndFixtures();
+        runtimeScene.attachPhysics2D(this);
+    }
+
+    // ---- moving a body in scene units (TD-105) ----
+
+    /**
+     * The velocity of {@code entity}'s body in scene units (pixels) per second, into {@code out}.
+     *
+     * @throws IllegalArgumentException when the entity has no body here
+     */
+    public Vector2 getLinearVelocity(Entity entity, Vector2 out) {
+        Vector2 v = bodyOf(entity, "getLinearVelocity").getLinearVelocity();
+        return out.set(PhysicsUnits2D.toSceneLength(v.x), PhysicsUnits2D.toSceneLength(v.y));
+    }
+
+    /**
+     * Sets the velocity of {@code entity}'s body, in scene units (pixels) per second, and wakes it.
+     *
+     * @throws IllegalArgumentException when the entity has no body here, or a value is not finite
+     */
+    public void setLinearVelocity(Entity entity, float x, float y) {
+        if (!Float.isFinite(x) || !Float.isFinite(y)) {
+            throw new IllegalArgumentException("velocity must be finite: " + x + ", " + y);
+        }
+        Body body = bodyOf(entity, "setLinearVelocity");
+        body.setLinearVelocity(PhysicsUnits2D.toPhysicsLength(x), PhysicsUnits2D.toPhysicsLength(y));
+        body.setAwake(true);
+    }
+
+    /**
+     * Whether something solid lies under {@code entity}'s body: three short rays straight down (at its left, middle and right) from
+     * the bottom of its shapes reach a fixture of another body that is not a sensor within {@link #GROUND_PROBE} scene units.
+     *
+     * @throws IllegalArgumentException when the entity has no body here, or its body has no shapes
+     */
+    public boolean isGrounded(Entity entity) {
+        Body body = bodyOf(entity, "isGrounded");
+        if (!shapeBounds(body)) {
+            throw new IllegalArgumentException("'" + entity.getName() + "' has no collider, so it cannot stand on anything");
+        }
+        float inset = (groundBox[2] - groundBox[0]) * GROUND_PROBE_INSET;
+        float bottom = groundBox[1];
+        float start = bottom + PhysicsUnits2D.toPhysicsLength(GROUND_PROBE_START);
+        float end = bottom - PhysicsUnits2D.toPhysicsLength(GROUND_PROBE);
+        groundBody = body;
+        groundHit = false;
+        for (int ray = 0; ray < 3 && !groundHit; ray++) {
+            float x = ray == 0 ? groundBox[0] + inset : ray == 1 ? (groundBox[0] + groundBox[2]) / 2f : groundBox[2] - inset;
+            world.rayCast(groundRay, x, start, x, end);
+        }
+        groundBody = null;
+        return groundHit;
+    }
+
+    /** How far below a body's shapes {@link #isGrounded} looks, scene units. */
+    public static final float GROUND_PROBE = 4f;
+    /** Where the downward rays start, scene units above the bottom of the shapes, so a touching floor is found. */
+    private static final float GROUND_PROBE_START = 1f;
+    /** How far in from the body's sides the outer rays are, as a share of its width. */
+    private static final float GROUND_PROBE_INSET = 0.1f;
+    private boolean groundHit;
+    private Body groundBody;
+    private final float[] groundBox = new float[4];
+    private final Vector2 tmpLocal = new Vector2();
+    /** The downward ray of {@link #isGrounded}: ignores the body itself and sensors, stops at the first other fixture. */
+    private final RayCastCallback groundRay = (fixture, point, normal, fraction) -> {
+        if (fixture.getBody() == groundBody || fixture.isSensor()) {
+            return -1f;
+        }
+        groundHit = true;
+        return 0f;
+    };
+
+    /** The world bounds of a body's fixtures (minX, minY, maxX, maxY) in metres, into {@code groundBox}; false when it has none. */
+    private boolean shapeBounds(Body body) {
+        boolean any = false;
+        for (Fixture fixture : body.getFixtureList()) {
+            Shape shape = fixture.getShape();
+            if (shape instanceof PolygonShape polygon) {
+                for (int i = 0; i < polygon.getVertexCount(); i++) {
+                    polygon.getVertex(i, tmpLocal);
+                    Vector2 p = body.getWorldPoint(tmpLocal);
+                    any = grow(any, p.x, p.y, 0f);
+                }
+            } else if (shape instanceof CircleShape circle) {
+                Vector2 centre = body.getWorldPoint(circle.getPosition());
+                any = grow(any, centre.x, centre.y, circle.getRadius());
+            }
+        }
+        return any;
+    }
+
+    private boolean grow(boolean any, float x, float y, float radius) {
+        if (!any) {
+            groundBox[0] = x - radius;
+            groundBox[1] = y - radius;
+            groundBox[2] = x + radius;
+            groundBox[3] = y + radius;
+            return true;
+        }
+        groundBox[0] = Math.min(groundBox[0], x - radius);
+        groundBox[1] = Math.min(groundBox[1], y - radius);
+        groundBox[2] = Math.max(groundBox[2], x + radius);
+        groundBox[3] = Math.max(groundBox[3], y + radius);
+        return true;
+    }
+
+    private Body bodyOf(Entity entity, String operation) {
+        Objects.requireNonNull(entity, "entity cannot be null");
+        Body body = getBody(entity);
+        if (body == null) {
+            throw new IllegalArgumentException(operation + ": '" + entity.getName() + "' has no 2D body; give it a Rigid Body 2D and a "
+                + "2D collider");
+        }
+        return body;
     }
 
     public World getWorld() {
@@ -423,6 +538,7 @@ public class PhysicsSystem2D implements Disposable {
             bodyEntities.clear();
             entityBodies.clear();
             world.dispose();
+            runtimeScene.detachPhysics2D(this);
         }
     }
 }

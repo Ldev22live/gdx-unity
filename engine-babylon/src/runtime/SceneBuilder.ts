@@ -68,6 +68,8 @@ export const SUPPORTED_COMPONENTS: ReadonlySet<string> = new Set([
   // The editor's link from a placed prefab's entities to the prefab file (TD-027): nothing to draw or play, the entities' own copies
   // of the prefab's components are what play (roadmap M2b.6)
   "PrefabInstance",
+  // Which scenario player owns the entity (TD-106): data for the scenario rules (roadmap A04, A05), nothing to draw; kept as written
+  "OwnerComponent",
 ]);
 
 /** Distance an orthographic game camera is pulled back along its view axis, so the z = 0 plane is in front of it. */

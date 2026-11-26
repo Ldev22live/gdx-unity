@@ -136,12 +136,10 @@ class CustomizeGatewayTest {
 
         assertEquals(List.of(new EditOffer("Edit Rock in 3D", Workspace.MODELING_3D, Kind.RUN_ACTION, null,
             CustomizeGateway.SCULPT_ENTER_ACTION, null), transform("Rock")), rockOffers, "the sculpt file needs no second entry");
-        assertEquals(new EditOffer("Edit 3D Model of House (opens 3D Modeling; mesh editing is planned)", Workspace.MODELING_3D,
+        assertEquals(new EditOffer("Edit 3D Model of House (opens mesh source)", Workspace.MODELING_3D,
             Kind.OPEN_MODELING, null, null, null), houseOffers.get(0), "Edit 3D Model comes first and says its limit (M3c.4)");
         assertEquals("Edit House in 3D (sculpt a copy)", houseOffers.get(1).label());
         assertEquals(CustomizeGateway.SCULPT_FROM_SELECTED_ACTION, houseOffers.get(1).actionId());
-        assertEquals(new EditOffer("Edit Mesh Geometry of house.glb", Workspace.MODELING_3D, Kind.UNAVAILABLE, "models/house.glb", null,
-            CustomizeGateway.MESH_GEOMETRY_REASON), houseOffers.get(3), "the model's own geometry has no editor yet (R7a)");
         assertEquals(Kind.OPEN_MODELING, boxOffers.get(0).kind(), "a shape is handed to 3D Modeling too");
         assertEquals(new EditOffer("Edit Material brick.material in Details (shared by every surface that uses it)", Workspace.WORLD,
             Kind.SHOW_DETAILS, "materials/brick.material", null, null), boxOffers.get(2), "a material is edited in Details");
@@ -192,13 +190,13 @@ class CustomizeGatewayTest {
             labels(CustomizeGateway.editSelected(tree, serializers())));
         assertEquals(CustomizeGateway.SHARED_PREFAB_REASON, CustomizeGateway.editSelected(tree, serializers()).get(3).unavailableReason());
 
-        assertEquals(List.of("Edit 3D Model of House (opens 3D Modeling; mesh editing is planned)", "Edit House in 3D (sculpt a copy)",
-            "Move, Rotate or Scale House (transform only, the mesh is unchanged)", "Edit Mesh Geometry of house.glb [unavailable]"),
+        assertEquals(List.of("Edit 3D Model of House (opens mesh source)", "Edit House in 3D (sculpt a copy)",
+            "Move, Rotate or Scale House (transform only, the mesh is unchanged)"),
             labels(CustomizeGateway.editSelected(house, serializers())));
-        assertEquals(List.of("Edit 3D Model of Hero (opens 3D Modeling; mesh editing is planned)", "Edit Hero in 3D (sculpt a copy)",
-            "Move, Rotate or Scale Hero (transform only, the mesh is unchanged)", "Edit Mesh Geometry of hero.glb [unavailable]"),
+        assertEquals(List.of("Edit 3D Model of Hero (opens mesh source)", "Edit Hero in 3D (sculpt a copy)",
+            "Move, Rotate or Scale Hero (transform only, the mesh is unchanged)"),
             labels(CustomizeGateway.editSelected(hero, serializers())));
-        assertEquals(List.of("Edit Sprite coin.sprite", "Move, Rotate or Scale Coin (transform only, the mesh is unchanged)"),
+        assertEquals(List.of("Edit 2D Asset coin.sprite", "Move, Rotate or Scale Coin (transform only, the mesh is unchanged)"),
             labels(CustomizeGateway.editSelected(coin, serializers())));
         assertEquals(List.of("Move, Rotate or Scale Door (transform only, the mesh is unchanged)", "Edit Sound door.wav [unavailable]"),
             labels(CustomizeGateway.editSelected(door, serializers())));
@@ -206,7 +204,6 @@ class CustomizeGatewayTest {
 
         for (Entity entity : List.of(ground, tree, house, hero, coin, door)) {
             for (EditOffer offer : CustomizeGateway.editSelected(entity, serializers())) {
-                assertTrue(!offer.label().startsWith("Edit Mesh Geometry") || !offer.isAvailable(), "mesh editing is R7a: " + offer);
                 assertTrue(offer.isAvailable() || !offer.unavailableReason().isBlank(), "every unavailable entry says why: " + offer);
             }
         }

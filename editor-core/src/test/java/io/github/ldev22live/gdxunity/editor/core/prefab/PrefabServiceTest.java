@@ -2,6 +2,7 @@ package io.github.ldev22live.gdxunity.editor.core.prefab;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.EditorTestHelper;
 import io.github.ldev22live.gdxunity.editor.core.asset.AssetPlacement;
@@ -224,6 +225,60 @@ class PrefabServiceTest {
         assertEquals(Color.WHITE, mesh(instance).getColor());
         assertEquals(3f, instance.getTransform().getLocalScale().x, 0.001f, "Other overrides stay");
         assertFalse(prefabs.revertComponent(instance, mesh(instance)), "Nothing left to revert");
+    }
+
+    @Test
+    void shouldApplyOneComponentToThePrefabAndEveryInstanceKeepingOtherOverrides() throws Exception {
+        AssetReference asset = prefabs.createPrefab(createCrate());
+        Entity a = prefabs.instantiate(asset, new Vector3());
+        Entity b = prefabs.instantiate(asset, new Vector3(500f, 0f, 0f));
+        Entity c = prefabs.instantiate(asset, new Vector3(900f, 0f, 0f));
+        mesh(a).setSize(10f, 20f, 30f);
+        a.getTransform().setLocalScale(2f, 2f, 2f);
+        child(a, "Lamp").getComponent(PointLightComponent.class).setIntensity(7f);
+        mesh(c).setColor(Color.BLUE);
+        String fileBefore = Files.readString(assetRoot.resolve(asset.getPath()));
+        assertEquals(4, prefabs.countInstances(child(b, "Lamp")), "the original crate and the three placed ones");
+
+        assertTrue(prefabs.applyComponent(a, mesh(a)));
+
+        assertEquals(new Vector3(10f, 20f, 30f), mesh(b).getSize(), "every instance takes the applied component");
+        assertEquals(new Vector3(10f, 20f, 30f), mesh(c).getSize());
+        assertEquals(Color.BLUE, mesh(c).getColor(), "...keeping its own overrides of it");
+        assertEquals(2f, a.getTransform().getLocalScale().x, 0.001f, "the applying instance keeps its other overrides");
+        assertEquals(7f, child(a, "Lamp").getComponent(PointLightComponent.class).getIntensity(), 0.001f);
+        assertEquals(1f, child(b, "Lamp").getComponent(PointLightComponent.class).getIntensity(), 0.001f,
+            "the lamp override was not applied");
+        assertTrue(prefabs.getOverrides(a).stream().noneMatch(p -> p.startsWith("component/MeshPrimitiveComponent")));
+        assertFalse(prefabs.getOverrides(a).isEmpty(), "the scale override stays an override");
+        PrefabDocument written = PrefabDocument.parse(Files.readString(assetRoot.resolve(asset.getPath())));
+        String size = written.getEntity(written.getRootId()).toJson(OutputType.json);
+        assertTrue(size.contains("\"sizeX\":10"), size);
+
+        assertTrue(editorState.undo(), "one undo step");
+        assertEquals(fileBefore, Files.readString(assetRoot.resolve(asset.getPath())), "undo restores the prefab file");
+        assertEquals(new Vector3(100f, 100f, 100f), mesh(b).getSize());
+        assertEquals(new Vector3(10f, 20f, 30f), mesh(a).getSize(), "the edit is an override again");
+        assertTrue(editorState.redo());
+        assertEquals(new Vector3(10f, 20f, 30f), mesh(b).getSize());
+        assertFalse(prefabs.applyComponent(a, mesh(a)), "nothing left to apply");
+    }
+
+    @Test
+    void shouldMakeAChangeAndApplyItInOneUndoStep() {
+        AssetReference asset = prefabs.createPrefab(createCrate());
+        Entity a = prefabs.instantiate(asset, new Vector3());
+        Entity b = prefabs.instantiate(asset, new Vector3(500f, 0f, 0f));
+        int undoSteps = editorState.getCommandHistory().getUndoCount();
+
+        assertTrue(prefabs.applyComponent(a, mesh(a), copy -> ((MeshPrimitiveComponent) copy).setColor(Color.GREEN)));
+
+        assertEquals(Color.GREEN, mesh(b).getColor());
+        assertEquals(undoSteps + 1, editorState.getCommandHistory().getUndoCount());
+        editorState.undo();
+        assertEquals(Color.WHITE, mesh(a).getColor(), "undo takes back the change too");
+        assertEquals(Color.WHITE, mesh(b).getColor());
+        assertEquals(0, prefabs.countInstances(editorState.getActiveScene().createEntity("Loose")), "no prefab, no instances");
     }
 
     @Test

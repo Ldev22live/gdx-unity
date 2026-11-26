@@ -29,24 +29,17 @@ class ModelingHandOffTest {
     }
 
     @Test
-    void shouldHandAGltfHouseTo3DModelingWithANoticeThatMeshEditingIsPlanned() {
+    void shouldHandAGltfHouseToTheMeshSourceEditor() {
         Entity house = new Entity("House");
         house.addComponent(new ModelComponent("models/house.glb"));
 
         Notice notice = ModelingHandOff.noticeFor(house);
 
         assertTrue(ModelingHandOff.offersEdit3DModel(house));
-        assertEquals("Edit 3D Model of House (opens 3D Modeling; mesh editing is planned)", ModelingHandOff.edit3DModelLabel(house));
-        assertEquals(Capability.MESH_PLANNED, notice.capability());
+        assertEquals("Edit 3D Model of House (opens mesh source)", ModelingHandOff.edit3DModelLabel(house));
+        assertEquals(Capability.MESH_SOURCE, notice.capability());
         assertTrue(notice.isShown());
-        assertEquals(ModelingHandOff.MESH_PLANNED_TITLE, notice.title());
-        assertEquals(List.of(
-            "Editing the vertices, edges and faces of House is planned (roadmap R7a); nothing here changes house.glb.",
-            "Sculpt a copy: Customize > Edit House in 3D (sculpt a copy) makes a new project-owned sculpt from its mesh; House stays as "
-                + "it is.",
-            "Move, Rotate or Scale changes only where House stands, never its mesh.",
-            "A glTF model has no material slot yet, so its look cannot be changed here."), notice.lines());
-        assertFalse(notice.meshEditing());
+        assertTrue(notice.meshEditing());
         assertTrue(notice.sculptCopy());
         assertFalse(notice.materialSlot(), "a glTF model has no material slot (the M2.2 gap)");
         assertEquals("models/house.glb", notice.modelPath());
@@ -88,7 +81,7 @@ class ModelingHandOffTest {
     }
 
     @Test
-    void shouldNeverClaimMeshEditingOrDescribeATransformAsAMeshEdit() {
+    void shouldOfferMeshSourceEditingOnlyForModelParts() {
         Entity house = new Entity("House");
         house.addComponent(new ModelComponent("models/house.glb"));
         Entity rock = new Entity("Rock");
@@ -98,7 +91,7 @@ class ModelingHandOffTest {
 
         for (Entity entity : Arrays.asList(house, rock, box, new Entity("Empty"), null)) {
             Notice notice = ModelingHandOff.noticeFor(entity);
-            assertFalse(notice.meshEditing(), "mesh editing is R7a: " + notice);
+            assertEquals(entity == house, notice.meshEditing());
             for (String line : notice.lines()) {
                 assertFalse(line.startsWith("Move") && !line.contains("never its mesh"), "a transform is never a mesh edit: " + line);
             }

@@ -8,6 +8,7 @@ import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Objects;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class AssetBrowserFilterModel {
     private final AssetCatalog catalog;
     private String searchFilter = "";
+    private AssetClassification classification;
     private AssetType typeFilter = null; // null means all types
     /** Project-relative folder being browsed, without a trailing slash; empty for the asset root. */
     private String currentFolder = "";
@@ -31,6 +33,12 @@ public class AssetBrowserFilterModel {
 
     public AssetBrowserFilterModel(AssetCatalog catalog) {
         this.catalog = Objects.requireNonNull(catalog, "catalog cannot be null");
+        classification = AssetClassification.load(catalog.getRootDir().toPath());
+    }
+
+    /** Reports unreadable classification metadata while keeping the file browser usable. */
+    public String getClassificationError() {
+        return classification.error();
     }
 
     public AssetCatalog getCatalog() {
@@ -42,7 +50,7 @@ public class AssetBrowserFilterModel {
     }
 
     public void setSearchFilter(String searchFilter) {
-        this.searchFilter = searchFilter != null ? searchFilter.trim().toLowerCase() : "";
+        this.searchFilter = searchFilter != null ? searchFilter.trim().toLowerCase(Locale.ROOT) : "";
     }
 
     public AssetType getTypeFilter() {
@@ -90,6 +98,7 @@ public class AssetBrowserFilterModel {
 
     /** Re-checks the current folder after the catalog was scanned again (see {@link #setCurrentFolder}). */
     public void revalidate() {
+        classification = AssetClassification.load(catalog.getRootDir().toPath());
         setCurrentFolder(currentFolder);
     }
 
@@ -124,13 +133,14 @@ public class AssetBrowserFilterModel {
         if (all.isEmpty()) return Collections.emptyList();
 
         String prefix = currentFolder.isEmpty() ? "" : currentFolder + "/";
+        var matchesSearch = classification.query(searchFilter);
         return all.stream()
             .filter(meta -> {
                 if (typeFilter != null && meta.type() != typeFilter) {
                     return false;
                 }
                 if (!searchFilter.isEmpty()) {
-                    return meta.getPath().toLowerCase().contains(searchFilter);
+                    return matchesSearch.test(meta);
                 }
                 // Browsing: only the files directly in the current folder (the subfolders are listed separately)
                 return meta.getPath().startsWith(prefix) && meta.getPath().indexOf('/', prefix.length()) < 0;

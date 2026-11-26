@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Disposable;
 import io.github.ldev22live.gdxunity.editor.sprite.SpriteSession;
 import io.github.ldev22live.gdxunity.editor.sprite.SpriteToolController;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteDocument;
+import io.github.ldev22live.gdxunity.engine.sprite.SpriteHitbox;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +35,8 @@ final class SpriteCanvasWidget extends Widget implements Disposable {
     private static final int CHECKER_DARK = 0x484848FF;
     private static final float MARGIN = 24f;
     private static final float SELECTION_LINE = 2f;
+    /** Outline colour of hitboxes: cyan, apart from the selection's yellow. */
+    private static final Color HITBOX_COLOR = new Color(0.2f, 0.9f, 1f, 1f);
 
     private final SpriteSession session;
     private final SpriteToolController tools;
@@ -237,6 +240,12 @@ final class SpriteCanvasWidget extends Widget implements Disposable {
                 batch.draw(white, x + p[0] * zoom, y + (drawnHeight - 1 - p[1]) * zoom, zoom, zoom);
             }
         }
+        // The current frame's hitboxes (TD-104), in a colour apart from the selection's; they may reach past the canvas
+        for (SpriteHitbox box : session.getDocument().getHitboxes(session.getFrame())) {
+            batch.setColor(HITBOX_COLOR.r, HITBOX_COLOR.g, HITBOX_COLOR.b, parentAlpha);
+            drawOutline(batch, x + box.x() * zoom, y + (drawnHeight - box.y() - box.height()) * zoom, box.width() * zoom,
+                box.height() * zoom);
+        }
         SpriteSession.SelectionRect s = session.getSelection();
         if (s != null) {
             drawFrameAround(batch, x + s.x() * zoom, y + (drawnHeight - s.y() - s.height()) * zoom, s.width() * zoom, s.height() * zoom, parentAlpha);
@@ -248,6 +257,10 @@ final class SpriteCanvasWidget extends Widget implements Disposable {
 
     private void drawFrameAround(Batch batch, float x, float y, float w, float h, float parentAlpha) {
         batch.setColor(1f, 0.85f, 0.2f, parentAlpha);
+        drawOutline(batch, x, y, w, h);
+    }
+
+    private void drawOutline(Batch batch, float x, float y, float w, float h) {
         batch.draw(white, x, y, w, SELECTION_LINE);
         batch.draw(white, x, y + h - SELECTION_LINE, w, SELECTION_LINE);
         batch.draw(white, x, y, SELECTION_LINE, h);

@@ -137,6 +137,17 @@ class LevelEditingTest {
     }
 
     @Test
+    void shouldCreateSmallMapWithChosenDimensionsAndStandardSpacing() {
+        assertNotNull(level.createLevel(Surface.GRASS, TerrainAssets.MapSize.SMALL));
+        Terrain terrain = level.findTerrain();
+        assertEquals(65, terrain.getResolutionX());
+        assertEquals(65, terrain.getResolutionZ());
+        assertEquals(TerrainAssets.NEW_CELL_SIZE, terrain.getCellSize());
+        assertNull(level.createLevel(Surface.GRASS, TerrainAssets.MapSize.LARGE));
+        assertSame(terrain, level.findTerrain());
+    }
+
+    @Test
     void shouldStartALevelOnTheChosenBaseGroundAsOneUndoStepAndRefuseASecond() {
         Entity ground = level.createLevel(Surface.SAND);
 

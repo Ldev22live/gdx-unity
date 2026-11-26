@@ -56,16 +56,17 @@ class HeaderMenusTest {
 
         List<List<String>> sections = HeaderMenus.sections(registry, HeaderMenus.SETTINGS);
 
-        assertEquals(List.of(HeaderMenus.SETTINGS_GRAPHICS, HeaderMenus.SETTINGS_ABOUT), sections,
-            "without the desktop shell's theme action, its section is left out rather than shown empty");
+        // Settings → Tools keeps only the 2D/3D toggle here: the other tools and every panel toggle are the desktop shell's (TD-107)
+        assertEquals(List.of(List.of(DefaultEditorActions.VIEW_TOGGLE_2D_3D), HeaderMenus.SETTINGS_GRAPHICS, HeaderMenus.SETTINGS_ABOUT),
+            sections, "without the desktop shell's actions, their sections are left out rather than shown empty");
         for (String id : HeaderMenus.actionIds(registry, HeaderMenus.SETTINGS)) {
             assertTrue(registry.execute(id), id);
         }
         assertEquals(RenderQuality3D.HIGH, renderer.getQuality(), "the entries run: high is the last quality chosen");
 
         registry.register(EditorAction.builder(HeaderMenus.WINDOW_TOGGLE_THEME, "Toggle Dark/Light Theme", () -> { }).build());
-        assertEquals(List.of(HeaderMenus.SETTINGS_GRAPHICS, HeaderMenus.SETTINGS_APPEARANCE, HeaderMenus.SETTINGS_ABOUT),
-            HeaderMenus.sections(registry, HeaderMenus.SETTINGS));
+        assertEquals(List.of(List.of(DefaultEditorActions.VIEW_TOGGLE_2D_3D), HeaderMenus.SETTINGS_GRAPHICS,
+            HeaderMenus.SETTINGS_APPEARANCE, HeaderMenus.SETTINGS_ABOUT), HeaderMenus.sections(registry, HeaderMenus.SETTINGS));
     }
 
     @Test

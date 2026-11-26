@@ -1,0 +1,33 @@
+{
+"schemaVersion": 1,
+"width": 48,
+"height": 48,
+"shapes": [
+	{
+		"name": "Wall",
+		"path": "M 8 22 L 40 22 L 40 44 L 8 44 Z",
+		"fill": "#d9b48f",
+		"stroke": "#5a3a22",
+		"strokeWidth": 1.0
+	},
+	{
+		"name": "Door",
+		"path": "M 14 32 L 22 32 L 22 44 L 14 44 Z",
+		"fill": "#7a4a2a"
+	},
+	{
+		"name": "Roof",
+		"path": "M 4 23 L 24 6 L 44 23 Z",
+		"fill": "#b03a2e",
+		"stroke": "#5a1e18",
+		"strokeWidth": 1.0
+	},
+	{
+		"name": "Window",
+		"path": "M 27 28 L 35 28 L 35 35 L 27 35 Z",
+		"fill": "#9fd3f0",
+		"stroke": "#3a3a3a",
+		"strokeWidth": 1.0
+	}
+]
+}

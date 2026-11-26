@@ -72,6 +72,19 @@ public class ModeSwitchingViewportInteraction implements ViewportInteraction {
     }
 
     @Override
+    public void hovered(float localX, float localY, float panelWidth, float panelHeight) {
+        ViewportInteraction target = active();
+        (target == interaction3D ? interaction2D : interaction3D).hoverEnded();
+        target.hovered(localX, localY, panelWidth, panelHeight);
+    }
+
+    @Override
+    public void hoverEnded() {
+        interaction2D.hoverEnded();
+        interaction3D.hoverEnded();
+    }
+
+    @Override
     public Vector3 worldPointAt(float localX, float localY, float panelWidth, float panelHeight) {
         return active().worldPointAt(localX, localY, panelWidth, panelHeight);
     }

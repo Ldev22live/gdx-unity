@@ -65,8 +65,10 @@ Customize opens: World | 3D Modeling | 2D Studio | Animation | Audio & Music | L
 | Sky Light | `create.sky-light` | Create |  | Create dropdown | World > lighting presets (Appendix E2) |
 | Sphere | `create.sphere` | Create |  | Create dropdown | World > Objects strip |
 | Tone Mapping | `create.tone-mapping` | Create |  | Create dropdown | World > lighting presets (Appendix E2) |
+| Copy | `edit.copy` | Edit | Ctrl+C | shortcut Ctrl+C | Keyboard (Ctrl+C) and Edit menu (roadmap A03) |
 | Delete | `edit.delete` | Edit | Delete | shortcut Delete; Outliner context menu | Selection context menu and selection strip |
 | Duplicate | `edit.duplicate` | Edit | Ctrl+D | shortcut Ctrl+D; Outliner context menu | Selection context menu and selection strip |
+| Paste | `edit.paste` | Edit | Ctrl+V | shortcut Ctrl+V | Keyboard (Ctrl+V) and Edit menu (roadmap A03) |
 | Redo | `edit.redo` | Edit | Ctrl+Y | shortcut Ctrl+Y; header Redo icon | Header: Redo icon (Appendix E1) |
 | Redo | `edit.redo.ctrl-shift-z` | none | Ctrl+Shift+Z | shortcut Ctrl+Shift+Z | Keyboard only (Ctrl+Shift+Z), unchanged |
 | Rename | `edit.rename` | Edit | F2 | shortcut F2; Outliner context menu | Selection context menu (and F2) |

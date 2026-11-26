@@ -43,4 +43,12 @@ public interface EditorDialogService {
     UnsavedChangesChoice askUnsavedChanges(String documentName);
 
     void showError(String title, String message);
+
+    /**
+     * Asks a yes/no question and waits for the answer: true for yes. The default answers no, so a dialog service that cannot ask
+     * (headless, tests) never agrees to anything on the person's behalf.
+     */
+    default boolean confirm(String title, String message) {
+        return false;
+    }
 }

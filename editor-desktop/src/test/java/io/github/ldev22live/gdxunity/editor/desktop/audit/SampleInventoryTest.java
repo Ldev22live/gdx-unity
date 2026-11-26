@@ -206,7 +206,7 @@ class SampleInventoryTest {
         }
         Map<String, Long> byDimension = rows.stream().collect(Collectors.groupingBy(SampleInventory.SceneRow::dimension,
             TreeMap::new, Collectors.counting()));
-        assertEquals(Map.of("2d", 8L, "2.5d", 8L, "3d", 38L), byDimension);
+        assertEquals(Map.of("2d", 8L, "2.5d", 9L, "3d", 39L), byDimension, "2.5D: 9 with the hybrid sample (MC.4); 3D: 39 with the yard (M3b.7)");
     }
 
     @Test

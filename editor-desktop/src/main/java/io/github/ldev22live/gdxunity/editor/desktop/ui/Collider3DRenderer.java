@@ -1,5 +1,6 @@
 package io.github.ldev22live.gdxunity.editor.desktop.ui;
 
+import io.github.ldev22live.gdxunity.engine.render.ColliderGeometry;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.ldev22live.gdxunity.engine.render.components.CameraRigComponent;
@@ -83,7 +84,7 @@ public class Collider3DRenderer {
     private final Map<UUID, CachedMesh> meshes = new HashMap<>();
 
     /** @param signature what the mesh was read from; @param geometry the mesh, or null if it could not be read */
-    private record CachedMesh(String signature, MeshGeometry3D geometry) {}
+    private record CachedMesh(ColliderGeometrySource source, long revision, String signature, MeshGeometry3D geometry) {}
 
     /** Colours of a Terrain Path's curve by kind (roadmap M3.7). */
     private static final Color PATH_ROAD_COLOR = new Color(0.85f, 0.6f, 0.3f, 1f);
@@ -336,8 +337,9 @@ public class Collider3DRenderer {
         if (source == null || signature == null) {
             return null;
         }
+        long revision = source instanceof ColliderGeometry models ? models.revision() : 0;
         CachedMesh cached = meshes.get(entity.getId());
-        if (cached == null || !cached.signature().equals(signature)) {
+        if (cached == null || cached.source() != source || cached.revision() != revision || !cached.signature().equals(signature)) {
             MeshGeometry3D geometry;
             try {
                 geometry = source.geometryOf(entity);
@@ -345,7 +347,7 @@ public class Collider3DRenderer {
                 // Shown by Play as the refusal with the entity's name; the editor just has nothing to draw
                 geometry = null;
             }
-            cached = new CachedMesh(signature, geometry);
+            cached = new CachedMesh(source, revision, signature, geometry);
             meshes.put(entity.getId(), cached);
         }
         return cached.geometry();

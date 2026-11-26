@@ -54,19 +54,19 @@ class ModelEditCheckToolTest {
     }
 
     @Test
-    void shouldReportThatAHousesMeshCannotBeEditedYetButCanBeSculptedAsACopy() {
+    void shouldReportSourceEditingAndSculptCopyForAHouseModel() {
         AgentToolResult result = tool.execute(entity(house.getId().toString()), context);
 
         assertTrue(result.isSuccess(), result.getMessage());
         Map<String, Object> outputs = result.getOutputs();
         assertEquals(house.getId().toString(), outputs.get("entityId"));
         assertEquals("House", outputs.get("name"));
-        assertEquals("mesh-planned", outputs.get("capability"));
-        assertEquals(false, outputs.get("meshEditing"));
+        assertEquals("mesh-source", outputs.get("capability"));
+        assertEquals(true, outputs.get("meshEditing"));
         assertEquals(true, outputs.get("sculptCopy"));
         assertEquals(false, outputs.get("materialSlot"));
         assertEquals("models/house.glb", outputs.get("model"));
-        assertEquals(ModelingHandOff.MESH_PLANNED_TITLE, outputs.get("title"));
+        assertEquals("Mesh source", outputs.get("title"));
         assertEquals(ModelingHandOff.noticeFor(house).lines(), outputs.get("notice"), "the same sentences a person reads");
         assertEquals(ModelingHandOff.noticeFor(house).summary(), result.getMessage());
     }

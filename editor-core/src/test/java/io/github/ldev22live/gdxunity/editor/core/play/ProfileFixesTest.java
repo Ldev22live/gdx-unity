@@ -3,13 +3,17 @@ package io.github.ldev22live.gdxunity.editor.core.play;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.EditorTestHelper;
 import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent;
 import io.github.ldev22live.gdxunity.engine.render.play.ProfileFix;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.CharacterController3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.play.GameGenres;
 import io.github.ldev22live.gdxunity.engine.scene.play.PlayerComponent;
+import io.github.ldev22live.gdxunity.engine.sprite.SpriteDocument;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,6 +72,30 @@ class ProfileFixesTest {
         assertNotNull(hero.getComponent(CharacterController3DComponent.class));
         assertTrue(editorState.undo());
         assertNull(hero.getComponent(CharacterController3DComponent.class));
+    }
+
+    @Test
+    void shouldAddAnUprightTwoDBodyAndAColliderTheSizeOfTheSpriteEachInOneUndoStep() {
+        Entity hero = editorState.createEntity("Hero");
+        SpriteAnimatorComponent sprite = new SpriteAnimatorComponent();
+        sprite.setDocument(new SpriteDocument(16, 24)); // drawn at its pixel size (Width and Height 0), as a dropped 2D sprite is
+        hero.addComponent(sprite);
+        int steps = undoSteps();
+
+        assertTrue(ProfileFixes.apply(editorState, new ProfileFix(ProfileFix.Kind.ADD_RIGID_BODY_2D, hero.getId(), "Add")));
+        RigidBody2DComponent body = hero.getComponent(RigidBody2DComponent.class);
+        assertEquals(RigidBody2DComponent.BodyType.DYNAMIC, body.getBodyType());
+        assertTrue(body.isFixedRotation(), "a 2D player stays upright");
+        assertTrue(ProfileFixes.apply(editorState, new ProfileFix(ProfileFix.Kind.ADD_BOX_COLLIDER_2D, hero.getId(), "Add")));
+        BoxCollider2DComponent box = hero.getComponent(BoxCollider2DComponent.class);
+        assertEquals(16f, box.getWidth());
+        assertEquals(24f, box.getHeight());
+
+        assertEquals(steps + 2, undoSteps());
+        assertTrue(editorState.undo());
+        assertNull(hero.getComponent(BoxCollider2DComponent.class));
+        assertTrue(editorState.undo());
+        assertNull(hero.getComponent(RigidBody2DComponent.class));
     }
 
     @Test

@@ -10,6 +10,7 @@ import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.render.components.serialization.SpriteAnimatorComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteDocument;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteFile;
+import io.github.ldev22live.gdxunity.engine.sprite.SpriteHitbox;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteTag;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,21 @@ class SpriteAnimatorComponentTest {
         }
         doc.setTags(List.of(new SpriteTag("idle", 0, 1, SpriteTag.Direction.FORWARD), new SpriteTag("run", 2, 3, SpriteTag.Direction.FORWARD)));
         return doc;
+    }
+
+    @Test
+    void shouldGiveTheHitboxesOfTheFrameShownNow() {
+        SpriteAnimatorComponent animator = new SpriteAnimatorComponent();
+        assertEquals(List.of(), animator.getHitboxes(), "nothing loaded, no hitboxes");
+        SpriteDocument doc = sprite();
+        SpriteHitbox swing = new SpriteHitbox("attack", 1, 0, 3, 2);
+        doc.setHitboxes(3, List.of(swing));
+        animator.setDocument(doc);
+        animator.play("run");
+        assertEquals(List.of(), animator.getHitboxes(), "frame 2 has none");
+        animator.onUpdate(0.15f);
+        assertEquals(3, animator.getFrame());
+        assertEquals(List.of(swing), animator.getHitboxes(), "frame 3's attack box while it shows");
     }
 
     @Test

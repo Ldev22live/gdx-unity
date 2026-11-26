@@ -479,6 +479,44 @@ public class EditorState {
         return executeCommand(cmd);
     }
 
+    /** The entity clipboard: Copy fills it, Paste creates new entities from it (roadmap A03). */
+    private final io.github.ldev22live.gdxunity.editor.core.command.EntityClipboard clipboard =
+        new io.github.ldev22live.gdxunity.editor.core.command.EntityClipboard();
+
+    /** The entity clipboard. */
+    public io.github.ldev22live.gdxunity.editor.core.command.EntityClipboard getClipboard() {
+        return clipboard;
+    }
+
+    /** Copies the selected entities to the clipboard; returns how many were copied (0 with nothing selected or during Play). */
+    public int copySelectedEntities() {
+        if (isPlayModeActive() || activeScene == null) {
+            setStatusMessage("Cannot copy during Play/Pause mode", true);
+            return 0;
+        }
+        java.util.List<Entity> entities = new java.util.ArrayList<>();
+        for (UUID id : selectedEntityIds) {
+            Entity entity = activeScene.findEntityById(id);
+            if (entity != null) {
+                entities.add(entity);
+            }
+        }
+        if (entities.isEmpty()) {
+            setStatusMessage("No GameObject selected to copy", true);
+            return 0;
+        }
+        int copied = clipboard.copy(entities, getSerializer());
+        setStatusMessage(copied == 1 ? "Copied: " + entities.get(0).getName() : "Copied " + copied + " entities", false);
+        return copied;
+    }
+
+    /** Pastes the clipboard as new entities (one undo step) and selects them; returns them, or an empty list when nothing was pasted. */
+    public java.util.List<Entity> pasteEntities() {
+        io.github.ldev22live.gdxunity.editor.core.command.PasteEntitiesCommand cmd =
+            new io.github.ldev22live.gdxunity.editor.core.command.PasteEntitiesCommand(this, clipboard);
+        return executeCommand(cmd) ? cmd.getPasted() : java.util.List.of();
+    }
+
     public Entity duplicateSelectedEntity() {
         if (isPlayModeActive()) {
             setStatusMessage("Cannot duplicate entity during Play/Pause mode", true);
@@ -571,15 +609,32 @@ public class EditorState {
             throw new IllegalStateException("No active scene to save");
         }
 
-        if (prefabService != null) {
-            prefabService.storeOverrides(activeScene);
-        }
-        String json = serializer.toJson(activeScene);
+        String json = sceneJsonForSave();
         if (file.getParentFile() != null) {
             file.getParentFile().mkdirs();
         }
         Files.writeString(file.toPath(), json);
         setStatusMessage("Saved scene to: " + file.getName(), false);
+    }
+
+    /**
+     * The active scene's file text as Save writes it (prefab overrides stored first), without writing it: a project store
+     * (TD-106) writes it as part of a revision.
+     *
+     * @throws IllegalStateException during Play, or with no active scene
+     */
+    public String sceneJsonForSave() {
+        if (isPlayModeActive()) {
+            setStatusMessage("Cannot save scene during Play/Pause mode", true);
+            throw new IllegalStateException("Cannot save scene while in Play/Pause mode");
+        }
+        if (activeScene == null) {
+            throw new IllegalStateException("No active scene to save");
+        }
+        if (prefabService != null) {
+            prefabService.storeOverrides(activeScene);
+        }
+        return serializer.toJson(activeScene);
     }
 
     public void loadSceneFromFile(File file) throws IOException {

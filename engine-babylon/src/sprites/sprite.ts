@@ -34,6 +34,15 @@ export interface SpriteSlice {
   pivotY: number;
 }
 
+/** A named rectangle of one frame for gameplay (TD-104): sprite pixels, y down. */
+export interface SpriteHitbox {
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 /** A sprite as stored in the file: one PNG (base64) for each non-empty cel. */
 export interface SpriteFileData {
   width: number;
@@ -42,6 +51,8 @@ export interface SpriteFileData {
   durations: number[];
   tags: SpriteTag[];
   slices: SpriteSlice[];
+  /** Per frame, its hitboxes (file version 2); empty lists for a version-1 file. */
+  hitboxes: SpriteHitbox[][];
   cels: { layer: number; frame: number; png: string }[];
 }
 
@@ -52,6 +63,7 @@ export interface Sprite {
   durations: number[];
   tags: SpriteTag[];
   slices: SpriteSlice[];
+  hitboxes: SpriteHitbox[][];
   frames: Uint8Array[];
 }
 
@@ -64,8 +76,10 @@ export interface DecodedImage {
 
 export type PngDecoder = (bytes: Uint8Array) => Promise<DecodedImage>;
 
-/** The file version this player reads. */
+/** The file version of a sprite without hitboxes or layer sources. */
 export const SPRITE_SCHEMA_VERSION = 1;
+/** The file version with per-frame hitboxes and per-layer vector sources (TD-104); the newest this player reads. */
+export const SPRITE_SCHEMA_VERSION_HITBOXES = 2;
 
 function record(value: unknown, what: string): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) throw new Error(`${what} should be an object`);
@@ -88,18 +102,27 @@ function text(value: unknown, what: string): string {
   return value;
 }
 
-/** Reads and checks `.sprite` text; throws with the reason when it is not a version 1 sprite. */
+/** Reads and checks `.sprite` text; throws with the reason when it is not a version 1 or 2 sprite. A layer's vector source is desktop authoring data and is not read. */
 export function parseSpriteFile(json: string): SpriteFileData {
   const root = record(JSON.parse(json) as unknown, "A sprite file");
   if (root["kind"] !== "sprite") throw new Error('Not a sprite file (kind is not "sprite")');
-  if (root["schemaVersion"] !== SPRITE_SCHEMA_VERSION) {
-    throw new Error(`Unsupported sprite schemaVersion ${String(root["schemaVersion"])}; this player reads ${SPRITE_SCHEMA_VERSION}`);
+  if (root["schemaVersion"] !== SPRITE_SCHEMA_VERSION && root["schemaVersion"] !== SPRITE_SCHEMA_VERSION_HITBOXES) {
+    throw new Error(
+      `Unsupported sprite schemaVersion ${String(root["schemaVersion"])}; this player reads ${SPRITE_SCHEMA_VERSION} and ${SPRITE_SCHEMA_VERSION_HITBOXES}`,
+    );
   }
   const layers = list(root["layers"], "layers").map((l, i) => {
     const r = record(l, `layer ${i}`);
     return { name: text(r["name"], "layer name"), visible: r["visible"] !== false, opacity: int(r["opacity"], "layer opacity", 255) };
   });
-  const durations = list(root["frames"], "frames").map((f, i) => int(record(f, `frame ${i}`)["duration"], "frame duration", 100));
+  const frameRecords = list(root["frames"], "frames").map((f, i) => record(f, `frame ${i}`));
+  const durations = frameRecords.map((f) => int(f["duration"], "frame duration", 100));
+  const hitboxes = frameRecords.map((f, i) =>
+    list(f["hitboxes"] ?? [], `frame ${i} hitboxes`).map((h, j) => {
+      const r = record(h, `frame ${i} hitbox ${j}`);
+      return { name: text(r["name"], "hitbox name"), x: int(r["x"], "hitbox x"), y: int(r["y"], "hitbox y"), width: int(r["width"], "hitbox width"), height: int(r["height"], "hitbox height") };
+    }),
+  );
   if (layers.length < 1 || durations.length < 1) throw new Error("A sprite needs at least one layer and one frame");
   const tags = list(root["tags"] ?? [], "tags").map((t, i) => {
     const r = record(t, `tag ${i}`);
@@ -138,6 +161,7 @@ export function parseSpriteFile(json: string): SpriteFileData {
     durations,
     tags,
     slices,
+    hitboxes,
     cels,
   };
 }
@@ -193,7 +217,7 @@ export async function buildSprite(file: SpriteFileData, decode: PngDecoder): Pro
       for (let i = 0; i < pixels; i += 4) over(out, i, image.rgba, i, layer.opacity);
     }
   }
-  return { width: file.width, height: file.height, durations: file.durations, tags: file.tags, slices: file.slices, frames };
+  return { width: file.width, height: file.height, durations: file.durations, tags: file.tags, slices: file.slices, hitboxes: file.hitboxes, frames };
 }
 
 /** The browser's PNG decoder (an OffscreenCanvas); tests pass their own. */

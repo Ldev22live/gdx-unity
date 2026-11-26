@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetSource;
 import io.github.ldev22live.gdxunity.engine.render.components.CameraRigComponent;
+import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.render.play.FallRespawner;
 import io.github.ldev22live.gdxunity.engine.render.play.GroundWalkMover;
 import io.github.ldev22live.gdxunity.engine.render.play.ProfileCameraRig;
@@ -19,11 +20,13 @@ import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import samples.common.CharacterVisualPlayback;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,12 +73,29 @@ class PlatformerChaseProfileOnJoltTest {
 
     private void start() throws IOException {
         scene = GameSession.loadScene(project, SCENE);
-        session = new GameSession(project, scene, new ScriptRegistry(), GameSession.CONSOLE);
+        var scripts = new ScriptRegistry().register(CharacterVisualPlayback.class.getName(), CharacterVisualPlayback::new);
+        session = new GameSession(project, scene, scripts, GameSession.CONSOLE);
         session.setInput(held::contains);
         assertEquals(List.of(), session.start(), "the sample plays with its genre and mode alone");
         jumper = scene.findEntityByName("Jumper");
         camera = scene.findEntityByName("Main Camera");
         run(30); // settle on the start platform
+    }
+
+    @Test
+    void shouldPlayAuthoredJumpAndReturnToIdleAfterLanding() throws IOException {
+        start();
+        var visual = scene.findEntityByName("Detective Bunny").getComponent(ModelComponent.class);
+        visual.setModelInfo(new ModelComponent.ModelInfo(Map.of("Idle", 1f, "Walk", 1f, "Jump", 1f), null, 30, null));
+        run(3);
+        assertEquals("Idle", visual.getAnimation());
+        held.add(Keys.SPACE);
+        run(5);
+        assertEquals("Jump", visual.getAnimation());
+        held.clear();
+        run(150);
+        assertEquals("Idle", visual.getAnimation());
+        assertTrue(visual.isLoop());
     }
 
     private void run(int frames) {

@@ -85,6 +85,27 @@ public final class LevelViewportInteraction implements ViewportInteraction {
         return true;
     }
 
+    /** The Place tool's ghost preview follows the mouse over the ground (roadmap A03); other tools pass the hover on. */
+    @Override
+    public void hovered(float localX, float localY, float panelWidth, float panelHeight) {
+        if (level.isActive() && level.getTool() == LevelSession.Tool.PLACE) {
+            if (groundHit(localX, localY, panelWidth, panelHeight) != null) {
+                level.previewPlacement(hit.x, hit.y, hit.z);
+            } else {
+                level.clearPlacementPreview();
+            }
+        } else {
+            level.clearPlacementPreview();
+        }
+        delegate.hovered(localX, localY, panelWidth, panelHeight);
+    }
+
+    @Override
+    public void hoverEnded() {
+        level.clearPlacementPreview();
+        delegate.hoverEnded();
+    }
+
     @Override
     public boolean touchDragged(float localX, float localY, float panelWidth, float panelHeight) {
         if (consuming && level.isScattering()) {

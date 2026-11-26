@@ -24,6 +24,9 @@ import io.github.ldev22live.gdxunity.editor.core.workspace.CustomizeGateway;
 import io.github.ldev22live.gdxunity.editor.core.workspace.ModelingHandOff;
 import io.github.ldev22live.gdxunity.editor.core.workspace.Workspace;
 import io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceNavigator;
+import io.github.ldev22live.gdxunity.editor.sculpt.MeshPartEditor;
+import io.github.ldev22live.gdxunity.editor.sculpt.MeshSaveSession;
+import io.github.ldev22live.gdxunity.editor.sculpt.MeshWorkspace;
 import io.github.ldev22live.gdxunity.editor.terrain.LevelSession;
 import io.github.ldev22live.gdxunity.editor.terrain.LevelViewportInteraction;
 import io.github.ldev22live.gdxunity.editor.terrain.TerrainSession;
@@ -264,18 +267,27 @@ class OwnerJourneyRegressionTest {
         assertTrue(navigator.editModel(house), editor.getStatusMessage());
         assertEquals(Workspace.MODELING_3D, navigator.current());
         ModelingHandOff.Notice notice = ModelingHandOff.noticeFor(house);
-        assertEquals(ModelingHandOff.Capability.MESH_PLANNED, notice.capability());
-        navigator.backToWorld();
-        assertSame(house, editor.getSelectedEntity());
+        assertEquals(ModelingHandOff.Capability.MESH_SOURCE, notice.capability());
+
         pass(7, "Place a house; Edit 3D Model opens 3D Modeling in context", "`" + imported.asset() + "` imported and placed; "
             + "\"" + first.label() + "\" opens 3D Modeling with the notice \"" + notice.title() + "\"; Back to World keeps the selection");
         blocked(7, "A realistic house from the Buildings palette", "No Buildings palette entries yet (M2b.3); the house was imported "
             + "by hand");
 
-        // 8. Modify the house's geometry and save a derived model: mesh editing does not exist yet
-        assertTrue(!notice.meshEditing());
-        blocked(8, "Extrude a wall, move a window, change a material; save a derived model", "No mesh editing (R7a: M7a.1 to M7a.5); "
-            + "a glTF model has no material slot (M2.2 gap). The notice says so instead of offering a transform as a mesh edit");
+        // 8. Write an edited model as a reusable project asset.
+        assertTrue(notice.meshEditing());
+        MeshSaveSession modeling = new MeshSaveSession(root.toPath(), new MeshWorkspace(root.toPath(), house).open(house));
+        assertTrue(modeling.drafts().getFirst().apply(MeshPartEditor.Tool.Extrude, MeshPartEditor.Kind.Face, 0, 0.1f, 0, 0));
+        String derived = modeling.save(MeshSaveSession.Mode.UNIQUE, "House variant", editor, false);
+        assertTrue(Files.isRegularFile(root.toPath().resolve(derived)));
+        pass(8, "Save a derived house model", "A face was extruded and the new reusable model was saved to " + derived);
+        navigator.backToWorld();
+        assertSame(house, editor.getSelectedEntity());
+        assertEquals(derived, house.getComponent(ModelComponent.class).getModelPath());
+        assertTrue(editor.getCommandHistory().undo());
+        assertEquals(imported.asset(), house.getComponent(ModelComponent.class).getModelPath());
+        assertTrue(editor.getCommandHistory().redo());
+        assertEquals(derived, house.getComponent(ModelComponent.class).getModelPath());
 
         // 9. Save, close, reopen, Play, export; terrain, models, profile and gameplay survive
         assertTrue(files.save(), editor.getStatusMessage());
@@ -291,6 +303,7 @@ class OwnerJourneyRegressionTest {
         }
         assertEquals(GameGenres.ACTION_RPG, back.getGameGenre(), "the genre survives");
         assertEquals(GameMode.MODE_3D, back.getGameMode(), "the mode survives");
+        assertEquals(derived, back.findEntityByName("House").getComponent(ModelComponent.class).getModelPath());
         assertEquals(saved, reopened.getSerializer().toJson(back), "the reopened scene saves to the same text");
         Terrain reread = new TerrainLibrary(AssetSource.directory(root)).get(terrainPath);
         assertArrayEquals(terrain.copyHeights(), reread.copyHeights(), "the sculpted terrain survives");
@@ -299,6 +312,7 @@ class OwnerJourneyRegressionTest {
         reopened.setPlayModeController(replay);
         replay.getProfileStep().setInput(key -> false);
         assertTrue(replay.play(), reopened.getStatusMessage());
+        assertEquals(derived, replay.getRuntimeScene().findEntityByName("House").getComponent(ModelComponent.class).getModelPath());
         Entity replaying = replay.getRuntimeScene().findEntityByName("Player");
         assertEquals(SPAWN_AT.x, replaying.getTransform().getWorldPosition().x, 0.5f, "after reopening, Play starts at the spawn again");
         replay.stop();
@@ -306,9 +320,10 @@ class OwnerJourneyRegressionTest {
         GameExporter.Result exported = GameExportCommand.run(new EditorProject(root), null, fakeRuntimeImage(temp.resolve("image")).toFile(),
             OUT.resolve("export").toFile());
         Path game = exported.folder().toPath().resolve("app").resolve(GameExporter.GAME_FOLDER);
-        for (String file : List.of(made.startScene(), terrainPath, imported.asset())) {
+        for (String file : List.of(made.startScene(), terrainPath, derived)) {
             assertTrue(Files.isRegularFile(game.resolve(file)), "the export holds " + file);
         }
+        assertArrayEquals(Files.readAllBytes(root.toPath().resolve(derived)), Files.readAllBytes(game.resolve(derived)));
         List<String> runtimeErrors = playExported(game.toFile(), new File(game.toFile(), made.startScene()));
         assertEquals(List.of(), runtimeErrors, "the exported game's files play in the game runtime");
         pass(9, "Save, close, reopen, Play, export", "every entity, the genre, the mode, the terrain heights and paint survive; Play starts "
@@ -322,7 +337,6 @@ class OwnerJourneyRegressionTest {
         // Every BLOCKED step is one of these; a change here must be a deliberate one
         assertEquals(List.of("3: Realistic verified CC0 trees and boulders; scatter foliage",
                 "7: A realistic house from the Buildings palette",
-                "8: Extrude a wall, move a window, change a material; save a derived model",
                 "9: Launch the exported game as a program"),
             steps.stream().filter(s -> !s.passed()).map(s -> s.number() + ": " + s.what()).toList());
     }

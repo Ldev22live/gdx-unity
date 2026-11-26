@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "source": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+  "output": "models/edited/Roof NE raised.gltf",
+  "operations": [
+    {
+      "part": 0,
+      "tool": "Translate",
+      "kind": "Vertex",
+      "indices": [5, 7, 8, 10, 33, 35, 50, 54, 61, 63, 76, 77, 86, 87, 88, 89, 90, 91],
+      "x": 0,
+      "y": 0.4,
+      "z": 0
+    }
+  ]
+}

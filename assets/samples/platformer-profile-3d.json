@@ -165,7 +165,8 @@
             "colorR": 0.45,
             "colorG": 0.62,
             "colorB": 0.4,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/HexPaverB.material"
           }
         },
         {
@@ -218,7 +219,8 @@
             "colorR": 0.72,
             "colorG": 0.56,
             "colorB": 0.36,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RockyTerrain02.material"
           }
         },
         {
@@ -271,7 +273,8 @@
             "colorR": 0.72,
             "colorG": 0.56,
             "colorB": 0.36,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RockyTerrain02.material"
           }
         },
         {
@@ -324,7 +327,8 @@
             "colorR": 0.72,
             "colorG": 0.56,
             "colorB": 0.36,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RockyTerrain02.material"
           }
         },
         {
@@ -500,20 +504,6 @@
       },
       "components": [
         {
-          "type": "MeshPrimitiveComponent",
-          "enabled": true,
-          "data": {
-            "shape": "BOX",
-            "sizeX": 60.0,
-            "sizeY": 140.0,
-            "sizeZ": 60.0,
-            "colorR": 0.3,
-            "colorG": 0.55,
-            "colorB": 0.95,
-            "colorA": 1.0
-          }
-        },
-        {
           "type": "CharacterController3DComponent",
           "enabled": true,
           "data": {
@@ -532,6 +522,53 @@
           "enabled": true,
           "data": {
             "useProfileMovement": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c070142c-166b-575a-affd-bbf731731be5",
+      "name": "Detective Bunny",
+      "active": true,
+      "parentId": "8287b584-1de6-5b13-903e-da50495381dd",
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -58.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0,
+          "w": 6.123233995736766e-17
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/detective-bunny/detective-bunny.glb",
+            "importScale": 45.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0,
+            "animation": "Idle"
+          }
+        },
+        {
+          "type": "EntityScriptBindingComponent",
+          "enabled": true,
+          "data": {
+            "scriptPath": "scripts/samples/common/CharacterVisualPlayback.java",
+            "scriptClassName": "samples.common.CharacterVisualPlayback",
+            "language": "JAVA"
           }
         }
       ]
@@ -564,7 +601,7 @@
           "type": "TextComponent",
           "enabled": true,
           "data": {
-            "text": "WASD or the arrows run, Space jumps, Q and E turn the camera; fall and you start again. No scripts: the Platformer genre and 3D mode supply it all.",
+            "text": "WASD or the arrows run, Space jumps, Q and E turn the camera. Falling returns you to the start.",
             "colorR": 0.9,
             "colorG": 0.95,
             "colorB": 1.0,

@@ -45,6 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -197,5 +198,75 @@ class CharacterPlacementTest {
         assertFalse(play.play());
 
         assertTrue(editorState.getStatusMessage().startsWith("Cannot play: No player"), editorState.getStatusMessage());
+    }
+
+    // ---- roadmap A03: the Place tool's ghost preview agrees with the click ----------------------------------------------------
+
+    @Test
+    void shouldShowAValidPreviewWhereTheClickWouldPlaceAndARefusedOneWhereItWouldNot() {
+        level.createLevel(Surface.GRASS);
+        level.setActive(true);
+        level.setFocus(LevelSession.Focus.CHARACTERS);
+        level.setObjectPath(PLAYER);
+
+        LevelSession.PlacementPreview first = level.previewPlacement(100f, 0f, 50f);
+        assertNotNull(first);
+        assertTrue(first.valid(), String.valueOf(first.refusal()));
+        assertNotNull(place(PLAYER, 100f, 50f), "a green preview is a placing click");
+
+        LevelSession.PlacementPreview second = level.previewPlacement(300f, 0f, 50f);
+        assertFalse(second.valid(), "the scene has its player now");
+        assertTrue(second.refusal().startsWith("Player is already the player"), second.refusal());
+        assertNull(place(PLAYER, 300f, 50f), "a red preview is a refused click");
+        assertEquals(second.refusal(), editorState.getStatusMessage(), "the click gives the reason the preview showed");
+    }
+
+    @Test
+    void shouldPutThePreviewOnTheGroundInWorldSpace() {
+        Entity ground = level.createLevel(Surface.GRASS);
+        ground.getTransform().setLocalPosition(1000f, 0f, -500f);
+        level.setActive(true);
+        level.setFocus(LevelSession.Focus.CHARACTERS);
+        level.setObjectPath(SPAWN);
+
+        LevelSession.PlacementPreview preview = level.previewPlacement(10f, 0f, 20f);
+
+        assertEquals(1010f, preview.position().x, EPSILON);
+        assertEquals(-480f, preview.position().z, EPSILON);
+        assertSame(preview, level.getPlacementPreview());
+    }
+
+    @Test
+    void shouldShowNoPreviewUnlessTheLevelEditorIsPlacingAndDropItWhenTheToolOrObjectChanges() {
+        level.createLevel(Surface.GRASS);
+        level.setObjectPath(PLAYER);
+        assertNull(level.previewPlacement(0f, 0f, 0f), "level editor off");
+
+        level.setActive(true);
+        level.setFocus(LevelSession.Focus.TERRAIN);
+        assertNull(level.previewPlacement(0f, 0f, 0f), "a terrain brush is in hand");
+
+        level.setFocus(LevelSession.Focus.CHARACTERS);
+        level.setObjectPath(PLAYER);
+        assertNotNull(level.previewPlacement(0f, 0f, 0f));
+        level.setObjectPath(SPAWN);
+        assertNull(level.getPlacementPreview(), "choosing another object drops the old preview until the mouse moves");
+
+        level.previewPlacement(0f, 0f, 0f);
+        level.setActive(false);
+        assertNull(level.getPlacementPreview(), "turning the level editor off hides it");
+    }
+
+    @Test
+    void shouldRefuseThePreviewWithNothingChosen() {
+        level.createLevel(Surface.GRASS);
+        level.setActive(true);
+        level.setFocus(LevelSession.Focus.CHARACTERS);
+        level.setObjectPath("");
+
+        LevelSession.PlacementPreview preview = level.previewPlacement(0f, 0f, 0f);
+
+        assertFalse(preview.valid());
+        assertEquals("Choose an object to place first", preview.refusal());
     }
 }

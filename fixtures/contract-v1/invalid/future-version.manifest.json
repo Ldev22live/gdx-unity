@@ -1,0 +1,53 @@
+{
+  "contractVersion": 2,
+  "projectId": "b505f242-6d3b-5539-a5ce-53f4fc776d79",
+  "name": "Contract Valley",
+  "startScene": "scenes/valley.json",
+  "scenes": [
+    {
+      "id": "e402718a-c801-5aa1-9c95-a7b9edd1f6f4",
+      "path": "scenes/valley.json"
+    }
+  ],
+  "assets": [
+    {
+      "path": "materials/Meadow.material",
+      "kind": "material",
+      "size": 423,
+      "sha256": "260dbefac2bb14d891248b5e868e61746b5f6e91919232dcbecf99308691e2e6"
+    },
+    {
+      "path": "scenes/valley.json",
+      "kind": "scene",
+      "size": 11762,
+      "sha256": "5c701fc67b46b412bf2fb17234354867f213b50625dcf77411bb273e83a1629f"
+    }
+  ],
+  "capabilities": {
+    "required": [
+      "scene/1",
+      "preserve-unknown/1",
+      "material/1",
+      "scenario/1",
+      "ownership/1"
+    ],
+    "optional": [
+      "profile:action-rpg/3d",
+      "physics3d/1"
+    ]
+  },
+  "revision": {
+    "id": "4b3d4b58-d06d-5d02-986c-b063e7a46269",
+    "base": null,
+    "savedBy": {
+      "client": "desktop",
+      "version": "0.1.0-dev"
+    },
+    "savedAt": "2026-11-25T12:00:00Z"
+  },
+  "extensions": {
+    "example.vendor": {
+      "kept": true
+    }
+  }
+}

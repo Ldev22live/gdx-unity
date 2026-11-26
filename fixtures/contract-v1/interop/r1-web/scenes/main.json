@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "name": "Web Valley",
+  "active": true,
+  "entities": [
+    {
+      "id": "cbeb6ec8-6234-34f0-888c-c97d532837df",
+      "name": "Crate",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 50,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 100,
+            "sizeY": 100,
+            "sizeZ": 100,
+            "colorR": 0.7,
+            "colorG": 0.5,
+            "colorB": 0.3,
+            "colorA": 1
+          }
+        },
+        {
+          "type": "OwnerComponent",
+          "enabled": true,
+          "data": {
+            "player": "3c431c0c-a6d3-30a9-8a47-5eb73d508838"
+          }
+        }
+      ]
+    }
+  ],
+  "scenario": {
+    "version": 1,
+    "players": [
+      {
+        "id": "3c431c0c-a6d3-30a9-8a47-5eb73d508838",
+        "name": "Player 1",
+        "color": "#2f6fdf"
+      }
+    ],
+    "objectives": [],
+    "rules": []
+  }
+}

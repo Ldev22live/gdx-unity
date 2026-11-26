@@ -1,0 +1,524 @@
+{
+  "schemaVersion": 1,
+  "name": "Contract Valley",
+  "gameMode": "3d",
+  "gameGenre": "action-rpg",
+  "active": true,
+  "scenario": {
+    "version": 1,
+    "players": [
+      {
+        "id": "3736541b-76cb-5a7a-9968-81d728325d4a",
+        "name": "Player 1",
+        "color": "#2f6fdf",
+        "spawn": "c3fe5fb5-3188-5dc0-85d1-f05ce2e04e03"
+      },
+      {
+        "id": "e8081b58-2c00-59f4-ad3d-af3ba7728e3f",
+        "name": "Player 2",
+        "color": "#d94a3a"
+      },
+      {
+        "id": "52196128-a620-5e20-9371-e2948d635afd",
+        "name": "Nature",
+        "color": "#8a8a7a",
+        "neutral": true
+      }
+    ],
+    "bounds": {
+      "minX": -2000,
+      "minZ": -2000,
+      "maxX": 2000,
+      "maxZ": 2000
+    },
+    "objectives": [
+      {
+        "id": "4d333f24-5edd-5809-b51e-a77666644745",
+        "text": "Reach the house",
+        "player": "3736541b-76cb-5a7a-9968-81d728325d4a"
+      }
+    ],
+    "rules": [
+      {
+        "id": "687fade2-5ec3-5758-83f1-8aa60799bc7b",
+        "name": "Welcome",
+        "enabled": true,
+        "once": true,
+        "when": {
+          "type": "timer",
+          "seconds": 2
+        },
+        "then": [
+          {
+            "type": "showMessage",
+            "text": "Find the house in the valley.",
+            "seconds": 4
+          }
+        ]
+      },
+      {
+        "id": "5746a1c4-7d52-5362-a89a-9fe38d4c2107",
+        "name": "Arrived",
+        "enabled": true,
+        "once": true,
+        "when": {
+          "type": "enterArea",
+          "area": "017a0667-26cf-5d43-97b0-fbf6afb769c5",
+          "who": "player"
+        },
+        "then": [
+          {
+            "type": "completeObjective",
+            "objective": "4d333f24-5edd-5809-b51e-a77666644745"
+          },
+          {
+            "type": "showMessage",
+            "text": "You reached the house!"
+          },
+          {
+            "type": "endScenario",
+            "result": "victory",
+            "player": "3736541b-76cb-5a7a-9968-81d728325d4a"
+          }
+        ]
+      }
+    ]
+  },
+  "exampleFutureSetting": {
+    "kept": true
+  },
+  "entities": [
+    {
+      "id": "69c32fdf-722c-5cf0-b71c-769e4498fabb",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.32444286,
+            "directionY": -0.81110716,
+            "directionZ": -0.48666432,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.5,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "14081138-bca3-5675-a77a-117eb2dfea5b",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 900.0,
+          "z": 1800.0
+        },
+        "rotation": {
+          "x": -0.2588,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9659
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 55.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "6cf889a2-2909-5a7f-bcf2-26e00b606ca3",
+      "name": "Ground",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": -50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 4000.0,
+            "sizeY": 100.0,
+            "sizeZ": 4000.0,
+            "colorR": 0.4,
+            "colorG": 0.58,
+            "colorB": 0.34,
+            "colorA": 1.0,
+            "materialPath": "materials/Meadow.material",
+            "futureTerrainBlend": 0.25
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "sizeX": 4000.0,
+            "sizeY": 100.0,
+            "sizeZ": 4000.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "0b550093-40f9-58f7-960f-2850fc56c167",
+      "name": "House",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 720.0,
+          "y": 120.0,
+          "z": -600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 300.0,
+            "sizeY": 240.0,
+            "sizeZ": 300.0,
+            "colorR": 0.7,
+            "colorG": 0.52,
+            "colorB": 0.36,
+            "colorA": 1.0,
+            "materialPath": ""
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "sizeX": 300.0,
+            "sizeY": 240.0,
+            "sizeZ": 300.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        },
+        {
+          "type": "OwnerComponent",
+          "enabled": true,
+          "data": {
+            "player": "3736541b-76cb-5a7a-9968-81d728325d4a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0f76e64c-9f35-5c11-92ed-a2e8b1c8a9b8",
+      "name": "Tower",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -700.0,
+          "y": 200.0,
+          "z": -500.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 140.0,
+            "sizeY": 400.0,
+            "sizeZ": 140.0,
+            "colorR": 0.55,
+            "colorG": 0.55,
+            "colorB": 0.6,
+            "colorA": 1.0,
+            "materialPath": ""
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "sizeX": 140.0,
+            "sizeY": 400.0,
+            "sizeZ": 140.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        },
+        {
+          "type": "OwnerComponent",
+          "enabled": true,
+          "data": {
+            "player": "3736541b-76cb-5a7a-9968-81d728325d4a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b0eab955-b725-5162-a70a-deeaa44eb978",
+      "name": "Boulder",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -200.0,
+          "y": 40.0,
+          "z": 200.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 120.0,
+            "sizeY": 80.0,
+            "sizeZ": 100.0,
+            "colorR": 0.5,
+            "colorG": 0.5,
+            "colorB": 0.48,
+            "colorA": 1.0,
+            "materialPath": ""
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "sizeX": 120.0,
+            "sizeY": 80.0,
+            "sizeZ": 100.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        },
+        {
+          "type": "OwnerComponent",
+          "enabled": true,
+          "data": {
+            "player": "52196128-a620-5e20-9371-e2948d635afd"
+          }
+        }
+      ]
+    },
+    {
+      "id": "017a0667-26cf-5d43-97b0-fbf6afb769c5",
+      "name": "House Door Area",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 600.0,
+          "y": 60.0,
+          "z": -380.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "sizeX": 200.0,
+            "sizeY": 120.0,
+            "sizeZ": 120.0,
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3fe5fb5-3188-5dc0-85d1-f05ce2e04e03",
+      "name": "Hero",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 71.0,
+          "z": 600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 140.0,
+            "sizeZ": 60.0,
+            "colorR": 0.3,
+            "colorG": 0.42,
+            "colorB": 0.62,
+            "colorA": 1.0,
+            "materialPath": ""
+          }
+        },
+        {
+          "type": "CharacterController3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 30.0,
+            "height": 80.0,
+            "slopeLimitDegrees": 45.0,
+            "stepHeight": 30.0,
+            "mass": 70.0,
+            "gravityScale": 1.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "PlayerComponent",
+          "enabled": true,
+          "data": {
+            "useProfileMovement": false
+          }
+        },
+        {
+          "type": "OwnerComponent",
+          "enabled": true,
+          "data": {
+            "player": "3736541b-76cb-5a7a-9968-81d728325d4a"
+          }
+        },
+        {
+          "type": "ExampleFutureComponent",
+          "enabled": true,
+          "data": {
+            "note": "kept verbatim by every conforming client",
+            "level": 3
+          }
+        }
+      ]
+    }
+  ]
+}

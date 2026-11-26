@@ -3,7 +3,9 @@ package io.github.ldev22live.gdxunity.editor.sprite;
 import io.github.ldev22live.gdxunity.editor.core.command.CommandHistory;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteDocument;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteFile;
+import io.github.ldev22live.gdxunity.engine.sprite.SpriteHitbox;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteLayer;
+import io.github.ldev22live.gdxunity.engine.sprite.SpriteLayerSource;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteSlice;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteTag;
 
@@ -421,6 +423,123 @@ public final class SpriteSession {
             }
         }
         return run(new SpriteCommands.SetPixels(doc, layer, frame, before, after, "Rotate selection"));
+    }
+
+    /**
+     * Scales and rotates the selected pixels about the selection's centre (TD-104), nearest neighbour, as one undo step: pixel art
+     * keeps hard edges and only existing colours. What lands outside the canvas is clipped; transparent pixels of the selection do
+     * not cover what is below. The selection becomes the transformed pixels' bounds.
+     *
+     * @param scaleX  horizontal scale, not 0 (negative mirrors)
+     * @param scaleY  vertical scale, not 0
+     * @param degrees rotation, clockwise on screen
+     * @return how many pixels changed
+     */
+    public int transformSelection(float scaleX, float scaleY, float degrees) {
+        SelectionRect s = requireSelection();
+        if (scaleX == 0f || scaleY == 0f || !Float.isFinite(scaleX) || !Float.isFinite(scaleY) || !Float.isFinite(degrees)) {
+            throw new IllegalArgumentException("scales must be finite and not 0, and the angle finite: " + scaleX + ", " + scaleY + ", "
+                + degrees);
+        }
+        int w = doc.getWidth();
+        int h = doc.getHeight();
+        double cx = s.x() + s.width() / 2.0;
+        double cy = s.y() + s.height() / 2.0;
+        double radians = Math.toRadians(degrees);
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+        // Bounds of the transformed selection
+        double minX = Double.MAX_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxX = -Double.MAX_VALUE;
+        double maxY = -Double.MAX_VALUE;
+        for (double[] corner : new double[][] {{s.x(), s.y()}, {s.x() + s.width(), s.y()}, {s.x(), s.y() + s.height()},
+            {s.x() + s.width(), s.y() + s.height()}}) {
+            double dx = (corner[0] - cx) * scaleX;
+            double dy = (corner[1] - cy) * scaleY;
+            double x = cx + dx * cos - dy * sin;
+            double y = cy + dx * sin + dy * cos;
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+        }
+        int[] before = doc.copyCel(layer, frame);
+        int[] after = before.clone();
+        for (int y = s.y(); y < s.y() + s.height(); y++) {
+            for (int x = s.x(); x < s.x() + s.width(); x++) {
+                after[y * w + x] = SpriteDocument.TRANSPARENT;
+            }
+        }
+        int left = Math.max(0, (int) Math.floor(minX));
+        int top = Math.max(0, (int) Math.floor(minY));
+        int right = Math.min(w - 1, (int) Math.ceil(maxX) - 1);
+        int bottom = Math.min(h - 1, (int) Math.ceil(maxY) - 1);
+        int usedLeft = Integer.MAX_VALUE;
+        int usedTop = Integer.MAX_VALUE;
+        int usedRight = -1;
+        int usedBottom = -1;
+        for (int py = top; py <= bottom; py++) {
+            for (int px = left; px <= right; px++) {
+                // Inverse: undo the rotation, then the scale, from the destination pixel's centre
+                double dx = px + 0.5 - cx;
+                double dy = py + 0.5 - cy;
+                double rx = (dx * cos + dy * sin) / scaleX;
+                double ry = (-dx * sin + dy * cos) / scaleY;
+                int sx = (int) Math.floor(cx + rx);
+                int sy = (int) Math.floor(cy + ry);
+                if (sx < s.x() || sy < s.y() || sx >= s.x() + s.width() || sy >= s.y() + s.height()) {
+                    continue;
+                }
+                int pixel = before[sy * w + sx];
+                if ((pixel & 0xFF) != 0) {
+                    after[py * w + px] = pixel;
+                    usedLeft = Math.min(usedLeft, px);
+                    usedTop = Math.min(usedTop, py);
+                    usedRight = Math.max(usedRight, px);
+                    usedBottom = Math.max(usedBottom, py);
+                }
+            }
+        }
+        int changed = run(new SpriteCommands.SetPixels(doc, layer, frame, before, after, "Transform selection"));
+        if (usedRight >= 0) {
+            select(usedLeft, usedTop, usedRight, usedBottom);
+        } else {
+            clearSelection();
+        }
+        return changed;
+    }
+
+    // ---- hitboxes and layer sources (TD-104) ----
+
+    /** Adds a hitbox to the current frame, or replaces the one of the same name, as one undo step. */
+    public boolean setHitbox(SpriteHitbox box) {
+        Objects.requireNonNull(box, "box cannot be null");
+        int target = frame;
+        return edit("Hitbox " + box.name(), d -> {
+            List<SpriteHitbox> boxes = new ArrayList<>(d.getHitboxes(target));
+            boxes.removeIf(b -> b.name().equals(box.name()));
+            boxes.add(box);
+            d.setHitboxes(target, boxes);
+        });
+    }
+
+    /** Removes the current frame's hitbox called {@code name}; false when it has none. */
+    public boolean removeHitbox(String name) {
+        int target = frame;
+        if (doc.getHitboxes(target).stream().noneMatch(b -> b.name().equals(name))) {
+            return false;
+        }
+        return edit("Remove hitbox " + name, d -> {
+            List<SpriteHitbox> boxes = new ArrayList<>(d.getHitboxes(target));
+            boxes.removeIf(b -> b.name().equals(name));
+            d.setHitboxes(target, boxes);
+        });
+    }
+
+    /** Links a layer to the vector drawing it is drawn from, or unlinks it with null, as one undo step. */
+    public boolean setLayerSource(int index, SpriteLayerSource source) {
+        return edit(source == null ? "Unlink layer" : "Link layer to " + source.vector(), d -> d.setLayerSource(index, source));
     }
 
     // ---- structure ----

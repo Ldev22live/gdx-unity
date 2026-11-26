@@ -1,0 +1,19 @@
+# Additional art for 3D and 2.5D samples
+
+The three new downloads arrived as archives and extracted files in `assets/characters`. All 37 files were moved byte-for-byte into separate folders under `asset-sources/opengameart`. Their OpenGameArt listings identify them as CC BY 3.0. ForgeRoom’s current TD-094 allows CC0 imports and requires an approved decision and a credits screen for other licenses. The archive inventories contained no separate license texts.
+
+| Local archive | Suitable sample use | Source inspection |
+|---|---|---|
+| `guerrero_low_poly.zip` | 2.5D Action RPG courtyard character candidate | The 1,642-triangle mesh has UVs and supplied diffuse and normal maps. Its Blender file has no rig or animation. Check whether the missing weapon image references are used before converting. [Warrior low poly by jjmoser](https://opengameart.org/content/warrior-low-poly) |
+| `new_thin_zom.zip` | Animated background character in an existing horror-compatible 3D scene, or an enemy where gameplay already supports it | The 3,340-triangle mesh has 41 source bones, 17 actions, UVs and a supplied 1024² texture. A second referenced image was unavailable. Verify what the material actually uses and inspect the active deformation weights in the exported model. [Thin Zombie by Rosswet Mobile](https://opengameart.org/content/thin-zombie-awake-zombie-asset) |
+| `sci_map_obj.zip` | 3D First-person Range wall and room details | The kit has 15 UV-mapped OBJ meshes and six PNG textures. The OBJs reference MTL files absent from the archive. Rebuild the material bindings using the supplied images, and keep the range’s existing collider layout. [Horror sci-fi map kit by Rosswet Mobile](https://opengameart.org/content/horror-sci-fi-3d-map-kit) |
+
+This inventory describes the staging pass before CC BY 3.0 approval. The [integration report](../reports/cc-by-sample-art.md) records the subsequent imports. The current scene pass reuses previously approved CC0 material assets. Terrain Platformer 2.5D uses Hex Paver B on the low and step platforms. First-person Range 3D uses it on the floor, Rocky Terrain 02 on the shelf, and Wood Floor Deck on the crates. These are scene material assignments.
+
+The range uses a 12? tiled material instance that shares the paver?s existing texture files. Both scenes rendered 120 frames with zero runtime errors. The screenshots show added surface detail and the remaining primitive geometry. [3D Range](additional-sample-frames/first-person-range-3d.png) ? [2.5D Platformer](additional-sample-frames/platformer-profile-terrain-25d.png)
+
+On Intel Iris Xe, the 2.5D Platformer measured 3.79 ms P95 and the 3D Range 4.59 ms P95. Each result uses 300 measured frames after warm-up and one run. The focused Java 21 JUnit run passed nine tests across the materials, migrated 2.5D platformer and first-person range classes. The Windows DesktopLauncher smoke commands used `--scene samples/<scene>.json --smoke-test=120`. Measurements used `PerformanceBaseline record <output> --runs 1 <scene>`. All reported commands exited 0 after correcting a stale material test expectation.
+
+Starting and ending HEAD `b8bace5`. The working tree already included the earlier OpenGameArt integration and the three loose source packs. Only the three selected source groups were relocated. This removes the loose downloads that affected packaging checks in the [previous report](test-report.md). No commit, push or destructive Git operation was performed.
+
+The generated asset and template audits passed 43 checks in the verification copy. A separate 10-test run against the working repository passed the asset support, shipped sprite provenance and third-party checksum checks after relocating the new sources. Both runs used the Java 21 JUnit launcher and exited 0. The full Gradle suite was not rerun for this pass.

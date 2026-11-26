@@ -1,0 +1,39 @@
+{
+"schemaVersion": 1,
+"importer": "Forgeroom static mesh importer / .mesh v1",
+"sourcePath": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+"inputs": [
+	{
+		"path": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+		"original": "wall.glb",
+		"sha256": "769a02a70327132ba864c04299631c65fb08e96e01e1796ba73ddf7f44679a36",
+		"providerId": "kenney-building-kit",
+		"source": "https://kenney.nl/assets/building-kit",
+		"licence": "CC0-1.0",
+		"licenceEvidence": "https://kenney.nl/support",
+		"retrieved": "2026-11-20",
+		"conversion": "none",
+		"authors": [
+			"Kenney"
+		]
+	},
+	{
+		"path": "thirdparty/kenney/building-kit/Models/GLB format/Textures/colormap.png",
+		"original": "colormap.png",
+		"sha256": "01741a46a279bef667de3143ee653d0073ed7cae925d88341281391d9220092b",
+		"providerId": "kenney-building-kit",
+		"source": "https://kenney.nl/assets/building-kit",
+		"licence": "CC0-1.0",
+		"licenceEvidence": "https://kenney.nl/support",
+		"retrieved": "2026-11-20",
+		"conversion": "none",
+		"authors": [
+			"Kenney"
+		]
+	}
+],
+"outputs": {
+	"model.mesh": "9abc34d5de381743bc4c6effca9955dfce7206d7ce4ca22c269bf894ff054327",
+	"model.gltf": "787e7ca785070d201db247012c255f494c3f19fa2e453a1bec4a78293aa3f1ce"
+}
+}

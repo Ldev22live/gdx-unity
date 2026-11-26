@@ -208,7 +208,8 @@
             "colorR": 0.45,
             "colorG": 0.42,
             "colorB": 0.4,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RedBrick03.material"
           }
         },
         {
@@ -261,7 +262,8 @@
             "colorR": 0.72,
             "colorG": 0.56,
             "colorB": 0.36,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/HexPaverB.material"
           }
         },
         {
@@ -314,7 +316,8 @@
             "colorR": 0.72,
             "colorG": 0.56,
             "colorB": 0.36,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/WoodFloorDeck.material"
           }
         },
         {
@@ -367,7 +370,8 @@
             "colorR": 0.72,
             "colorG": 0.56,
             "colorB": 0.36,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/HexPaverB.material"
           }
         },
         {
@@ -420,7 +424,8 @@
             "colorR": 0.62,
             "colorG": 0.36,
             "colorB": 0.32,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RockyTerrain02.material"
           }
         },
         {
@@ -473,7 +478,8 @@
             "colorR": 0.8,
             "colorG": 0.62,
             "colorB": 0.3,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/WoodFloorDeck.material"
           }
         },
         {
@@ -526,7 +532,8 @@
             "colorR": 0.45,
             "colorG": 0.42,
             "colorB": 0.4,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/RedBrick03.material"
           }
         },
         {

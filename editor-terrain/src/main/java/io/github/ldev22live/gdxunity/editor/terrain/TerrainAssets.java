@@ -21,6 +21,22 @@ public final class TerrainAssets {
     /** Height of the largest hills of a new terrain, in world units. */
     public static final float NEW_HILL_HEIGHT = 300f;
 
+    /** Square map presets, measured in cells at the usual terrain spacing. */
+    public enum MapSize {
+        SMALL(64), STANDARD(NEW_RESOLUTION - 1), LARGE(256);
+
+        private final int cells;
+
+        MapSize(int cells) {
+            this.cells = cells;
+        }
+
+        @Override
+        public String toString() {
+            return cells + " x " + cells + " cells";
+        }
+    }
+
     private TerrainAssets() { }
 
     /** Whether {@code path} names a terrain file, by its extension. */
@@ -46,6 +62,12 @@ public final class TerrainAssets {
      * a level is built on (TD-083).
      */
     public static String createNew(File assetRoot, TerrainLibrary library, String baseName, boolean flat, Surface base) {
+        return createNew(assetRoot, library, baseName, flat, base, MapSize.STANDARD);
+    }
+
+    /** Creates a square terrain with the chosen cell count and the standard spacing. */
+    static String createNew(File assetRoot, TerrainLibrary library, String baseName, boolean flat, Surface base, MapSize size) {
+        int resolution = Objects.requireNonNull(size, "size cannot be null").cells + 1;
         Objects.requireNonNull(base, "base cannot be null");
         Objects.requireNonNull(assetRoot, "assetRoot cannot be null");
         Objects.requireNonNull(library, "library cannot be null");
@@ -55,8 +77,8 @@ public final class TerrainAssets {
             path = FOLDER + "/" + name + " " + n + EXTENSION;
         }
         String title = path.substring(FOLDER.length() + 1, path.length() - EXTENSION.length());
-        Terrain terrain = flat ? TerrainGenerator.flat(title, NEW_RESOLUTION, NEW_CELL_SIZE)
-            : TerrainGenerator.hills(title, NEW_RESOLUTION, NEW_CELL_SIZE, path.hashCode(), NEW_HILL_HEIGHT);
+        Terrain terrain = flat ? TerrainGenerator.flat(title, resolution, NEW_CELL_SIZE)
+            : TerrainGenerator.hills(title, resolution, NEW_CELL_SIZE, path.hashCode(), NEW_HILL_HEIGHT);
         terrain.fillSurface(base);
         library.save(path, terrain);
         return path;

@@ -20,6 +20,8 @@ public final class Entity {
     private boolean activeSelf = true;
     private final Transform transform;
     private Scene scene;
+    private PreservedFields preservedFields = PreservedFields.EMPTY;
+    private PreservedFields preservedTransformFields = PreservedFields.EMPTY;
 
     // Component storage: Class -> List of Components (allowing multiple components or 1 per type)
     private final List<Component> componentList = new ArrayList<>();
@@ -54,6 +56,26 @@ public final class Entity {
 
     public Transform getTransform() {
         return transform;
+    }
+
+    /** Members of this entity's JSON object this engine does not understand, kept for saving (TD-106). */
+    public PreservedFields getPreservedFields() {
+        return preservedFields;
+    }
+
+    /** Sets the preserved entity members (see {@link #getPreservedFields()}); used by the scene serializer. */
+    public void setPreservedFields(PreservedFields preservedFields) {
+        this.preservedFields = Objects.requireNonNull(preservedFields, "preservedFields cannot be null");
+    }
+
+    /** Members of this entity's {@code transform} object besides position, rotation and scale, kept for saving (TD-106). */
+    public PreservedFields getPreservedTransformFields() {
+        return preservedTransformFields;
+    }
+
+    /** Sets the preserved transform members (see {@link #getPreservedTransformFields()}); used by the scene serializer. */
+    public void setPreservedTransformFields(PreservedFields preservedTransformFields) {
+        this.preservedTransformFields = Objects.requireNonNull(preservedTransformFields, "preservedTransformFields cannot be null");
     }
 
     public Scene getScene() {

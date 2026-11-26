@@ -2793,6 +2793,14 @@ AGENTS.md section 4 says a new module needs approval; it was given for both.
 - **Requirements:** a shot needs 3D physics. It is added only with the profile's movement, so a scripted player shoots by its own script.
 - **Not in this slice:** health, enemies, ammunition and mouse look.
 
+**Implementation notes (2026-11-25, M3b.7 slice 4; [report](reports/m3b-7-4-third-person-shooter-3d.md)):**
+- **Third-person Shooter + 3D is playable.** TD-088 leaves each pair to its own slice; I chose this design. It reuses slice 3's movement and shot, and adds one camera kind and one shot option:
+  - `CameraSetup.Kind.BEHIND_FACING`: an `ORBIT` rig like Action RPG's, but its yaw is set from the player's facing every frame instead of from the turn keys. The player aims with its body, as shooters do. It is nearer (450) and flatter (12 degrees) than Action RPG's. Walls pull it in.
+  - Movement is slice 3's `FIRST_PERSON_WALK`: Q and E turn the player, and so the view; W and S walk; A and D step sideways.
+  - `ShotSetup.Origin`: `CAMERA_VIEW` (slice 3, the default) or `PLAYER_FACING`, which fires from `aimHeight` above the player's centre (30, about the chest), level along its facing. A camera behind and above looks down, so a shot along its view would hit the floor about 11 m out; the acceptance test's mutation check shows exactly that. `aimHeight` must be 0 for `CAMERA_VIEW`.
+- Its acceptance test is `ThirdPersonYardProfileOnJoltTest`, listed in the truth test; the sample is `third-person-yard-3d.json`.
+- **Not in this slice:** an over-the-shoulder side offset, a crosshair that matches the level shot, health, enemies, ammunition and mouse look.
+
 **Implementation notes (2026-11-15, M3c.2; [report](reports/m3c-2-player-prefab-and-spawn-point.md)):**
 - **Spawn point** (TD-088 left it to M3c.2): `SpawnPointComponent` in `engine-scene` `play`, saved, no fields; the entity's position is the ground under the player's feet and its yaw the way the player faces. One per scene (Add Component refuses a second; Play names two). In Play the player of the copy is put on it before 3D physics builds the character: lifted by half its capsule, turned to its yaw. Without one the player starts where it stands, as before.
 - **Player prefab:** `prefabs/characters/Player.prefab`, whose root is the capsule's centre and carries the Character Controller 3D and Player, with a simple body of shapes and a nose that shows which way it faces. `Spawn Point.prefab` has its origin at the foot.
@@ -3223,3 +3231,276 @@ Opening one of the 38 bundled samples written in the other layout (two spaces, `
   - 3,527 files are model source formats neither backend reads.
   - Deleting them is the owner's open decision (M2b.5). The matrix will shrink when they go.
 - **A new shipped file fails the test until the matrix is regenerated.** That is intended, as for `originals.json`.
+
+### TD-102: Editable Static Mesh Source for M7a.1
+
+**Status:** Approved by the owner on 2026-11-23.
+
+**Context.** M7a.1 requires an imported mesh to survive save and reopen with its node transforms, material slots and provenance. `ModelAssets` loads glTF into GPU resources, and the `.sculpt` format stores fixed-topology sculpt geometry. The editable source needs a headless import and persistence path with the structure of the original model.
+
+**Proposed decision.**
+
+- Add a versioned `.mesh` source format in `engine-sculpt`, whose existing headless asset code already handles indexed triangles. Keep the mesh document separate from `SculptMesh` and `.sculpt`. Use existing modules and dependencies.
+- Preserve node hierarchy and local transforms, shared mesh references, and indexed triangle primitives with per-primitive material slots. Preserve positions, normals, tangents, colors and texture coordinates supported by the importer. Keep material definitions and resource references needed by those slots, including texture references and embedded image data. Retain triangle winding and vertex seams.
+- Import static glTF 2.0 `.glb` and `.gltf` through a headless reader. Resolve relative buffers and images within the source asset root. Report missing resources, unsupported required extensions, unsupported primitive modes, skins, animations and morph targets explicitly before saving a derived source. Runtime glTF loading remains under TD-030.
+- Record the source project-relative path, source checksum and available licence information using `AssetProvenance`. Save to a separate project-owned path with a validated, atomic write. Retain provider source files and preserve existing scene and prefab references. Workspace wiring, geometry operations and play/export integration are later R7a milestones.
+
+**Acceptance evidence.** A headless test imports a bundled, provenance-recorded Kenney building mesh, saves the derived document, reopens it and compares the geometry, material bindings, node transforms and provenance. Focused fixtures cover nested transforms, shared meshes, multiple material slots, and unsupported or malformed input. A failure leaves no partial document and the original source checksum is unchanged.
+
+### TD-103: CC BY 3.0 Source Records and Sample Credits
+
+**Status:** Approved by the owner on 2026-11-23. This extends the CC0-only part of TD-094 for CC BY 3.0 assets with recorded attribution. TD-095's automated provider workflow remains scoped to CC0.
+
+The project manifest accepts CC0-1.0 and CC-BY-3.0. For attributed imports, the record keeps author, title, source, license evidence and a description of conversion changes. The desktop game offers a project credits screen on F1. The affected sample scenes display a short credit directly in editor Play and in the game. Template copies carry the relevant manifest records, and exports carry the project manifest. The original author sources are stored outside the packaged asset folder. The remaining license validation and download rules from TD-094 still apply.
+
+The first approved integration covers Warrior low poly, Thin Zombie and the Horror sci-fi 3d map kit. License notices for additional attributed assets belong with their own project records and use.
+
+### TD-104: 2D Studio Slice: Layered Source, Vector Shapes (SVG Subset), Hitboxes and Source-versus-Export (Roadmap MC.3)
+
+**Status:** **Approved** by the owner on 2026-11-24 ("Approve as written"; vector editing in `editor-sprite`). The four open questions below take their proposed answers. Earlier status: Proposed the same day. MC.3's chart row carries a TD gate, and Appendix C4 asks for a TD and format audit before OpenRaster.
+
+**Context.** MC.3 asks for a simplified 2D Studio. Its done-when is "the user changes the roof colour and window shape of a 2D house, edits an animated character frame, returns to the world, plays, stops, saves and reopens with the changes intact". An audit of the repository on 2026-11-24 found:
+
+- **Already built (TD-066, TD-067).**
+  - `.sprite` (`engine-sprite`, `schemaVersion` 1) is a native layered, multi-frame source: layers with opacity and visibility, frames with durations, tags, slices with 9-slice borders and a pivot, and a palette.
+  - `editor-sprite` supplies pencil, eraser, line, rectangle, ellipse, fill, picker, rectangle selection (move, flip, rotate 90° of a square only), layers, frames, tags, slices and palette, each one undo step.
+  - The rest of the 2D path is in place: 2D Studio (Sprites and Tiles tabs), `SpriteAnimatorComponent` (references a sprite by path and tag name, not frame index), `TilemapComponent` with a per-layer `collides` flag, sprite sheets (PNG plus JSON atlas), and `SpriteReload` (edits reach the World without reopening, M3c.8).
+- **Missing.**
+  - No vector shapes or paths and no SVG reading anywhere.
+  - Selection can't scale or rotate by an arbitrary angle (non-square rotation is refused).
+  - No hitbox.
+  - Exported PNGs and atlases do not record their source, so nothing warns that editing an exported PNG loses layers.
+  - No OpenRaster.
+
+**Proposed decision.**
+
+1. **The layered source is the existing `.sprite`.** OpenRaster (`.ora`) import and export is **deferred**. The format audit found it can carry layers but not frames, tags, slices or hitboxes, so it would be a lossy interchange, not a source. It can come later as an explicit, tested import and export with a report of what is dropped.
+2. **Vector shapes in a new headless module, `engine-vector`** (the planned module in `ALL_IN_ONE_STUDIO_ROADMAP.md` §3, depends on `engine-core` only).
+   - **Model.** A `.vector` JSON source document (`schemaVersion` 1). It holds named shapes in z-order; each shape has a path (move, line, quadratic, cubic, close), a solid fill with opacity and a fill rule (non-zero or even-odd), and a solid stroke with a width. Shapes can be grouped, with a 2D affine transform per group.
+   - **SVG subset, import and export.** Supported:
+     - Elements: `svg` (`viewBox`, `width`, `height`), `g`, `path` (every `d` command, absolute and relative, including `A` arcs converted to cubics), `rect` (with `rx`/`ry`), `circle`, `ellipse`, `line`, `polyline`, `polygon`.
+     - Attributes: `transform` (`matrix`, `translate`, `scale`, `rotate`, `skewX`/`skewY`), `fill`, `stroke`, `stroke-width`, `opacity`, `fill-opacity`, `stroke-opacity`, `fill-rule`, `id`, and the same properties in an inline `style` attribute.
+     - Everything else is **reported by name and skipped, never guessed**: `text`, gradients, patterns, filters, masks, `clipPath`, `use`, `image`, CSS style sheets, markers, dashes and line joins other than miter.
+   - **Rasterizer.** A headless scanline rasterizer (both fill rules, 4×4 supersampled coverage) draws a `.vector` into a `.sprite` layer, so vector art feeds the existing sprite, animation and atlas path. The vector remains the source: re-rasterizing replaces that layer only.
+   - **Fidelity tests.** Parse, export and re-parse give the same geometry within 1e-4. Rasterizing fixed fixtures matches reference coverage within a stated tolerance. Each unsupported element is reported.
+3. **Vector editing in `editor-sprite` (2D Studio), not a new `editor-studios` module.** `VectorSession` provides undoable select shape, move a node or control point, add and delete a node, set fill and stroke, reorder, and rasterize to layer. One edit is one undo step. This deviates from the roadmap's planned `editor-studios`, which would bundle 3D, vector and audio and conflicts with the per-studio modules built since. That conflict is why this is an owner question below.
+4. **Sprite tools.**
+   - Selection scale (nearest-neighbour) and rotation by any angle (nearest-neighbour, canvas-clipped), one undo step each.
+   - Per-frame **hitboxes**: named rectangles per frame, stored in `.sprite` `schemaVersion` **2**. Version 1 files still load. The writer writes 2 only when hitboxes exist, so existing files and the web player are unchanged. The hitboxes are exported in the atlas JSON and readable from `SpriteAnimatorComponent` (`getHitboxes()` for the current frame).
+   - Pivot editing uses the existing slices.
+5. **Source versus export.** Sprite sheet and PNG exports record `source` (the `.sprite` or `.vector` path) and its SHA-256 in the atlas JSON, or in a `<png>.source.json` sidecar for a lone PNG. Opening such a PNG in 2D Studio offers to **open the source** instead. When there is none, it says that layers and vectors cannot be recovered from a PNG. Re-exporting regenerates the atlas, and references stay valid because components refer to sprites by path, tag and slice name, never by atlas index (checked by a test).
+6. **Edit 2D Asset.** Customize offers **Edit 2D Asset** for a selected sprite, tile map or vector-backed sprite. It opens 2D Studio on its source, and Back to World returns, as M3c.4 does for 3D.
+7. **Fixtures.** A ForgeRoom-original layered **2D house**: a `.vector` source with roof, wall and window shapes, rasterized into a `.sprite` with a roof layer and a window layer. Also an animated character: the existing CC0 pixel character from the M2b.5 records, or a ForgeRoom-original one if none has frames. The slice test changes the roof colour (vector fill) and the window shape (vector nodes), edits one character frame, returns to a 2D world, plays as Platformer + 2D, stops, saves and reopens. Each step is checked headlessly, and the GL drawing is checked by a smoke run like M3c.6's.
+
+**Alternatives considered.**
+- (a) OpenRaster as the source: loses frames, tags, slices and hitboxes.
+- (b) SVG as the stored source: unbounded format, so round-trips would silently drop unsupported features.
+- (c) An external editor (Inkscape, Krita): licences, no undo or Content Browser integration, and contrary to "entirely in ForgeRoom".
+- (d) Vectors inside `engine-sprite`: mixes two models, and `engine-vector` is already the planned home.
+
+**Consequences.** One new module (`engine-vector`) and a new asset type `VECTOR` (`.vector`). `.sprite` gains version 2 (hitboxes). Atlas JSON gains `source` fields. The Babylon web player must at least load version-2 `.sprite` files (run its suite; update `BACKEND_SUPPORT_MATRIX.md`). Vector editing on the web is not planned (Appendix G).
+
+**Open questions for the owner.**
+1. Approve the new module `engine-vector`?
+2. Vector editing in `editor-sprite` rather than the planned `editor-studios`?
+3. Defer OpenRaster as above?
+4. `.sprite` version 2 for hitboxes?
+
+**Implementation notes (2026-11-24, MC.3 slice 1 of 3):**
+- **Built:** module `engine-vector`, which `settings.gradle` includes:
+  - the model: `Rgba`, `Affine`, `VectorPath`, `VectorShape`, `VectorDocument`;
+  - `PathData`: every SVG `d` command, with arcs to cubics per SVG 1.1 F.6;
+  - `VectorFile` (`.vector` v1);
+  - `SvgImport` and `SvgExport` for the stated subset (DOCTYPE and external entities refused);
+  - `VectorRasterizer`: 4×4 supersampled, both fill rules, straight-alpha `0xRRGGBBAA`.
+- **Built:** `VectorSession` in `editor-sprite`, which now depends on `engine-vector`. It provides recolour, move point(s), insert and delete node, move, reorder, add and remove shape, SVG import with its report, save and open, each one undo step. It also rasterizes chosen shapes into a sprite cel as one sprite-session step.
+- **Two details decided while building:**
+  - Groups are folded into each shape's transform, so a group's opacity multiplies into its shapes. This differs from SVG where grouped shapes overlap, and the class comment says so.
+  - Strokes rasterize with round joins and caps (distance to the outline) whatever the SVG asked for. Caps and joins in `style` are reported. A `stroke-linecap` or `stroke-linejoin` *attribute* is reported as an unsupported attribute.
+- **Not built yet:**
+  - slice 2: `.sprite` v2 with per-frame hitboxes and a per-layer `source` link to the `.vector` and shapes it was drawn from (the link is needed for Edit 2D Asset to open the source), selection scale and free rotation, export source records;
+  - slice 3: Edit 2D Asset, the 2D Studio vector panel, the `VECTOR` asset type, the house and character fixtures, the slice test and GL smoke, and loading `.sprite` v2 in the Babylon player.
+- Nothing is reachable by a user yet, so the status is **Implemented**, not Integrated.
+
+**Implementation notes (2026-11-24, MC.3 slice 3 of 3):**
+- **Built:**
+  - `AssetType.VECTOR` (folder `vectors/`, no editor of its own).
+  - "Edit 2D Asset" in Customize.
+  - `SpriteVectorSources`: linked layers, drawings opened once, redraw in every frame as one sprite step, a painted-over check, drawings saved before the sprite.
+  - The Sprites panel's Vector source, Hitboxes and Transform controls.
+  - The house fixture in `fixtures/2d-sources/house`.
+  - `TwoDHouseSliceTest`.
+- **Decided while building:**
+  - A vector-drawn layer is the same picture in every frame.
+  - The drawing and the sprite keep separate undo histories.
+  - The animated character is the shipped hero sprite.
+  - The slice plays 2D without a genre, because Platformer + 2D is planned (M3c.7).
+- **Not yet:** dragging nodes on the canvas and hitboxes in web scripts. The slice test passes.
+
+**Implementation notes (2026-11-24, MC.3 slice 2 of 3):**
+- **Built:** `.sprite` v2 (`SpriteHitbox` per frame, `SpriteLayerSource` per layer; version 2 only when present), the atlas carries hitboxes and a `SourceRecord`, `SpriteSession.transformSelection` (nearest neighbour, any angle), undoable hitbox and layer-source edits, `SpriteExports` (source records, the PNG sidecar, the origin of a PNG), the Sprites panel's export and import using them, `SpriteAnimatorComponent.getHitboxes()`, and the web player reading v2.
+- **Decided while building:** the per-layer `source` link is a version-2 field next to hitboxes, because Edit 2D Asset needs to find a layer's vector. A lone PNG records its source in a `<name>.png.source.json` sidecar, and a sheet records it in its atlas.
+- **Not built yet (slice 3):** Edit 2D Asset, the vector and hitbox panel UI, the `VECTOR` asset type, the fixtures, the done-when slice test and its GL smoke, and hitboxes in web scripts.
+
+### TD-105: Platformer + 2D Moves the Player's Rigid Body 2D (Roadmap M3c.7)
+
+**Status:** **Approved** by the owner on 2026-11-24 ("Drive its RigidBody2D (Recommended)"). The alternative, a new kinematic Character Controller 2D mirroring TD-049, was declined for now.
+
+**Context.** Platformer + 2D was a planned pair ("needs a 2D character controller"), so Play refused it, and Scenario B (M3c.7) could not be played. 2D scenes already run on Box2D (`PhysicsSystem2D`), with dynamic and static Rigid Body 2D, box and circle colliders, and solid tile map cells as static boxes. The 2.5D and 3D profiles move a Character Controller 3D (TD-049), which a 2D scene does not have.
+
+**Decision.**
+1. **No new component.** The Platformer + 2D profile moves the player's own **dynamic Rigid Body 2D** by setting its velocity: left and right set the horizontal speed, and the jump key sets the upward speed when the ground check finds ground under the player. Gravity, landing and collisions are Box2D's. The Play copy's body gets fixed rotation, so the player stays upright.
+2. **Ground check.** `PhysicsSystem2D.isGrounded` casts three short rays straight down (left, middle, right) from the bottom of the body's shapes, ignoring the body itself and sensors.
+3. **Reaching the body.** The scene holds its running 2D physics (`Scene.getPhysics2D()`, attached by `PhysicsSystem2D`'s constructor and detached on dispose), as it does for 3D (TD-048). `PhysicsSystem2D` gains `setLinearVelocity` and `getLinearVelocity` in scene units.
+4. **Camera.** `FOLLOW_2D`: a follow rig that moves with the player across the screen and is reset to look straight along −Z after every update, so the orthographic view never tilts.
+5. **Scene checks and fixes.** The player needs a dynamic Rigid Body 2D and a 2D collider. Play offers one fix at a time: **Add a Rigid Body 2D** (dynamic, fixed rotation) and **Add a Box Collider 2D** (the size of the sprite as drawn). A non-dynamic body is reported with no fix.
+6. **Values.** Run 300 pixels/s and jump 650 pixels/s, about 215 pixels high at Box2D's 100 pixels per metre and 9.81 m/s². The camera looks 40 pixels above the player and follows at the 2.5D rate.
+
+**Consequences.**
+- Platformer + 2D is playable in editor Play and the game runtime (`GameSession` creates 2D physics before the profile step). The web player does not run genre profiles (unchanged, `BACKEND_SUPPORT_MATRIX.md`).
+- **Not covered:** slopes, one-way platforms, coyote time and jump buffering, a variable jump height, and moving platforms. A dynamic body can be pushed by other dynamic bodies. A Character Controller 2D can supersede this later through a new decision.
+- Acceptance tests: `Platformer2DProfileTest` (engine-render, listed in `PlayableGenrePairsTest`) and Scenario B's `ScenarioB2DPlatformerTest` (editor-desktop).
+
+### TD-106: Shared Project Contract for Desktop and Web (urGameForge Alpha A11)
+
+**Status:** **Approved in principle** by the owner on 2026-11-25 (A12 directive), subject to the implementation conditions below. Schemas and fixtures: [`docs/contracts/`](contracts/), `fixtures/contract-v1/`. Design evidence: [`reports/alpha-a11-shared-contract.md`](reports/alpha-a11-shared-contract.md); implementation: [`reports/alpha-a12-implementation-report.md`](reports/alpha-a12-implementation-report.md).
+
+**Approved:**
+- the `gdxunity.project` marker kept, with `format=2`, `projectId` and `manifest=`;
+- `project-manifest.json`, versioned;
+- the versioned `scenario` block;
+- `OwnerComponent`;
+- required and optional capabilities;
+- unknown-data preservation;
+- revision-based cloud conflict detection;
+- provider-neutral cloud and AI interfaces.
+
+**Alpha rule set (authoritative for A04 and A05):** conditions `timer` and `enterArea`; effects `showMessage`, `completeObjective` and `endScenario`. No executable code in scenario rules; later rule types only as versioned, backward-compatible extensions.
+
+**Implementation conditions (owner, 2026-11-25):**
+- no renamed file formats and no destructive migration;
+- known fields stay editable, and unknown data survives edits to adjacent known fields;
+- semantic comparison allows only documented normalizations, never a global null, empty or missing equivalence;
+- path safety is checked on resolved filesystem paths, not by schema alone;
+- saves are atomic or recoverable;
+- a cloud implementation must compare revisions atomically on the server;
+- no UrConnex or UDX endpoint is invented.
+
+**Classifications:**
+- `AtmosphereComponent` is an optional web capability (presentation only), with its data preserved;
+- TeaVM is excluded from Alpha acceptance (deferred, kept).
+
+**Context.**
+- Desktop and web already share most data:
+  - the scene JSON (`schemaVersion` 1) and the component JSON (`{type, enabled, data}`);
+  - `.terrain`, `.material`, `.sprite`, `.anim`, `.graph`, glTF;
+  - 100 units to the metre, +Y up, −Z forward, quaternion rotations, UUID entity ids;
+  - asset paths relative to the project root.
+- They differ on three things that lose data:
+  1. The desktop `SceneSerializer` **drops** component types it does not know and **drops** unknown top-level keys. Known components keep only the fields their serializer reads.
+  2. The web editor edits one scene file. It has **no project**: it saves through the browser's file picker or a download.
+  3. There is **no revision identity, capability declaration or asset hash** in a project, so neither client can tell whether it may safely save a project the other wrote.
+- The desktop project identity is `gdxunity.project`, a Java properties file (`format=1`, `name`, `startScene`). It is read only for its existence and individual keys.
+
+**Decision (proposed).**
+1. **Evolve, do not replace.** Every existing file format stays as it is. A project gains one versioned JSON manifest, `project-manifest.json`, at its root ([schema](contracts/project-manifest.schema.json)). `gdxunity.project` stays the project marker and gains `format=2`, `projectId` and `manifest=project-manifest.json`. Readers of format 1 ignore the new keys. A project without a manifest opens as legacy, and a manifest is written on its first save, after the person agrees.
+2. **The manifest** holds:
+   - `contractVersion` (1) and `projectId` (UUID);
+   - `name` and `startScene`;
+   - `scenes` (id, path);
+   - `assets`: path, kind, size, `sha256`, and a licence record id from the TD-094 manifest. Only files a scene reaches are listed, directly or through materials, sprites, prefabs and glTF buffers. Hashes are cached by size and modification time;
+   - `capabilities.required` and `capabilities.optional`, as capability ids (point 5);
+   - `revision`: `id`, `base`, `savedBy` (client and version), `savedAt`;
+   - `extensions`, a map of namespaced objects other clients must keep unchanged.
+3. **No silent loss (the core rule).**
+   - **Unknown component type:** the desktop keeps an opaque record (`{type, enabled, data}` verbatim), shown in Details as "Not editable here", and writes it back unchanged. It is duplicated with its entity and never instantiated. The web already keeps raw JSON.
+   - **Unknown fields in a known component:** after a serializer writes its fields, the original fields it did not write are added back.
+   - **Unknown top-level scene keys:** kept and written back.
+   - **When preservation is impossible** (for example, a removed entity owned an opaque component the person did not see), the save lists what would be lost and asks. It never silently drops.
+4. **The scenario block.** Scenario data lives in the scene under an optional, separately versioned `scenario` object ([schema](contracts/scenario.schema.json)), defined now so A04 and A05 add no ad hoc format:
+   - `players`: stable `id`, `name`, `color`, `neutral`;
+   - `objectives`: id, text, initial state;
+   - `rules`: id, name, enabled, `once`, one condition, ordered effects;
+   - `bounds`.
+   - Object ownership is a saved component on the entity: `OwnerComponent {player: <player id>}`, so it travels with duplication and prefabs.
+   - Conditions and effects are a closed, versioned set, not code:
+     - conditions `timer` and `enterArea`;
+     - effects `showMessage`, `completeObjective`, `endScenario`, and `spawnPrefab` only if A05 finds a safe operation.
+   - Graphs stay the advanced path. Whether the Rules drawer writes this data or compiles to graphs is A05's own decision.
+5. **Capabilities.**
+   - **Ids** are `<area>/<version>` (for example `scene/1`, `terrain-edit/1`, `profile:action-rpg/3d`, `graph-run/2`, `mesh-edit/1`, `scenario/1`). Each client publishes what it supports ([capability matrix](contracts/capability-matrix.md)).
+   - **On open:** a missing **required** capability opens the project read-only with the reason. A missing **optional** capability opens it editable with the limits named. Nothing is converted.
+   - **On save:** a client adds to `required` what its edits need and never removes another client's entries.
+6. **Revisions.**
+   - **Local saves** set a new `revision.id`, with `base` the previous id.
+   - **A cloud save** sends `base`. The store refuses a stale base (409 Conflict) and the client offers "Save mine as a copy" or "Reload theirs". Per-entity merge is later work.
+   - **No last-write-wins and no automatic sync.**
+   - **Offline desktop edits** keep their base and are reconciled when the person chooses to upload.
+7. **Safety.**
+   - Paths are relative, forward slashes, no `..`, no absolute paths, no drive letters, and no symlinks.
+   - Imported archives are checked for count, total size and path escape before extraction.
+   - An asset whose hash does not match the manifest is reported, not used silently.
+   - A future `contractVersion` is refused with its number.
+   - Limits are proposed in the schema and confirmed at A12 from measured sample sizes.
+8. **Boundaries:** interfaces only, implemented when their contracts exist.
+   - **`ProjectStore`:** open, save with base revision, list revisions. The local-folder implementation needs no network and is the desktop default; the cloud implementation waits on the UrConnex API contract.
+   - **`AuthoringPlan`:** the AI plan contract, `AgentPlan` version 1 with typed steps executed only through `AgentTool` and `EditorCommand`, as one undo group with a revision precondition. The UDX gateway is plugged in once its contract is known.
+   - Clients never reach a database, model or GPU host directly.
+
+**Implementation notes (2026-11-25, A12; [report](reports/alpha-a12-implementation-report.md)):**
+- **Desktop preservation** (`engine-scene`): `PreservedFields` (compact JSON per member; strings quoted, explicit `null` kept), `PreservedComponent` (an unknown component, inert, written back as read), preserved members on `Scene`, `Entity`, transform, `BaseComponent` data and entry. A known component's `data` is written by its serializer as before, with residual fields appended only where the serializer did not write that key. Files without unknown data are byte-identical to the pre-A12 output (56 of 56 samples).
+- **`OwnerComponent`** (`engine-scene` `scenario`): by player UUID only; registered in `GameComponentSerializers`. **`ScenarioValidator`** checks the block and owners against the approved rule set and never runs anything.
+- **`SceneSemanticDiff`** (Java) and `semanticDiff.ts` (web): the same comparison with exactly six documented normalizations (light direction, 2D collider 16-bit masks, sprite `slice` absent as `null`), each checked in the serializer code.
+- **Project layer** (`editor-core` `project.contract`): `ProjectManifest` (strict reader, deterministic writer), `ProjectMarker` (manifest wins; marker mirrors name and start scene), `ProjectPaths` (text rules and real-path containment, symbolic links followed), `AssetInventory` (files a scene reaches, SHA-256, verification without substitution), `CapabilityPolicy` (desktop set; `scenario-run/1` reserved for A05), `ProjectStore` and `LocalProjectStore` (journaled recoverable saves, locked base comparison, Save as Copy, injectable ids). `SceneFileController` opens and saves through it when a manifest exists; legacy projects save as before.
+- **Web** (`engine-babylon`): `src/project/contract.ts`, the same manifest and marker text, capabilities (`WEB_SUPPORTED`), hashing, revisions; `OwnerComponent` is data in `SceneBuilder`; the editor's status names components it does not draw.
+- **Cross-platform:** `fixtures/contract-v1/interop/` written alternately by `CrossPlatformInteropTest` (desktop) and `interop.test.ts` (web), each checking the other's output.
+- **Not yet:** a consent dialog for adding a manifest to a legacy project and creating new projects in format 2 (A02); a web project UI (A13, A14); a cloud store (A16); terrain in the interop fixtures.
+
+**Consequences.**
+- **A12:** the desktop gains opaque components, residual fields and kept top-level keys in `SceneSerializer`; manifest read and write in `editor-core`; a local `ProjectStore`. The web gains a project, not just a scene, and manifest handling. Neither changes an existing file format.
+- **Old readers:** they still read new projects, but an old desktop build saving a newer project could still drop data. The manifest's `required` capabilities let new clients warn. Old clients cannot be fixed retroactively.
+- **Tests (A12):** round trips desktop → web → desktop and the reverse on the canonical fixtures, compared semantically (entity ids, components, fields, assets, scenario), not byte for byte. Also: unknown-component and unknown-field survival, a future version refused, a missing required capability opening read-only, path traversal refused, a hash mismatch reported, and a stale base refused.
+- **Not decided here:**
+  - the cloud API (A16, needs the UrConnex contract);
+  - the AI gateway transport (A18, needs the UDX contract);
+  - per-entity merge;
+  - real-time collaboration (post-Alpha).
+
+### TD-107: World Shell to the Owner's Scenario-Editor Reference (urGameForge Alpha A02)
+
+**Status:** **Approved** by the owner on 2026-11-25 ("approve TD-107"). It supersedes the UI M3b composition (the reference of 2026-11-19) as the default World layout; TD-085's drawer state model is kept, and the classic composition stays selectable until the owner signs off A02. Evidence: [alpha-a01-ux-audit.md](reports/alpha-a01-ux-audit.md) and [alpha-a02-a11-a13-proposals.md](reports/alpha-a02-a11-a13-proposals.md); the reference was confirmed 2026-11-25 (`docs/Screenshot 2026-11-25 113907.png`, [milestone-roadmap.md](milestone-roadmap.md) §1).
+
+**Context (traced in `EditorApplication.buildUi`, 2026-11-25).** The World screen is one root table with four rows:
+1. **Header** (`menuRow`): context; Create, Save, Undo, Redo, Compile Scripts, Play, Pause, Stop, a state badge, Project, Settings.
+2. **Tab row:** the World strip's sections (`WorldStripBar`: Terrain, Objects, Buildings, Characters), then Assets, Layers, Scripts, AI Assistant; the view drop-down on the right.
+3. **Panels area** (`PanelLayout`, TD-085): the tool rail and the map; Properties on the right (with World Settings: Genre, Mode, Customize); the Assets and Console drawers below.
+4. **Status row.**
+
+The reference has a thin header, a dominant map with overlays, a category bar below it (Map, Terrain, Objects, Buildings, Characters, Players, Rules), one palette row, and a footer (Genre, Mode, Customize, Play). The footer component that existed before UI M3b, `EditorFooter` (M1b.3, TD-077), still exists; `ActionInventoryTest` asserts it is not used.
+
+**Decision (proposed).**
+1. **Composition, not engine.** One `WorldLayout` class builds the new composition from the existing widgets: `WorldStripBar` sections, `levelPalette`, `PropertiesPanel`, `EditorFooter`, `EditorToolbar`, the drawers. The current composition stays selectable (Settings → Layout → Classic) until the owner signs off A02, then is removed.
+2. **Header:** product and project name, then New (the gallery), Open, Save, Undo, Redo and Settings, and a "Saved" mark. Compile Scripts runs on Play. Pause becomes a key during Play. The state badge moves to the footer's Play button.
+3. **Map overlays:**
+   - "World / *scene*" at top left;
+   - a Top / Iso / Perspective chip at top right, mapped to the existing view modes (axis views under Settings);
+   - a minimap at bottom left: a top orthographic render of the level's bounds into a small frame buffer; a click centres the camera;
+   - a selection card at bottom right: name, Move, Rotate, Duplicate, and Customize's first offer.
+4. **Category bar below the map:** Map, Terrain, Objects, Buildings, Characters, Players, Rules.
+   - Map (new level, size, lighting, existing actions), Terrain, Objects, Buildings and Characters use the existing sessions and palettes.
+   - Players and Rules show "Not built yet: comes with A04 / A05" until those land. No fake controls.
+5. **One palette row** under the categories: the active category's existing palette, compact. Advanced settings (holes, water, roads, rivers, erosion) sit under "More…".
+6. **Footer:** `EditorFooter` restored, with Genre, Mode and Play's fixes on the left and Customize and Play on the right. `ActionInventoryTest`'s "no footer" assertion is replaced by "footer present, Customize and Play adjacent".
+7. **Hidden by default, one toggle each** (Settings → Panels): Outliner, Details and Properties, Console, Asset Library, Layers, Scripts, AI Assistant, Profiler. The tool rail becomes shortcuts (W, E, R, F) plus the selection card. Every action stays reachable (A01 feature-preservation matrix).
+8. **First run** ignores a stale `workspace_layout.json` from the classic layout: the new layout starts clean, and the old file is kept as it is.
+9. **Legacy-project manifest consent** (TD-106 condition): Save in a project without a manifest asks once whether to add one. Declining keeps saving as before.
+
+**Consequences.**
+- **Tests:**
+  - viewport area at least 70% with drawers closed, at 1280 × 720 and 1920 × 1080 (layout maths in headless tests, plus an observed screenshot);
+  - no overlap;
+  - every A01 action reachable;
+  - drawers do not take viewport input;
+  - selection and undo kept across category switches.
+- **Human gate:** an unfamiliar tester finds terrain, placement, Customize and Play unaided.
+- **Not in A02:** Players and Rules content (A04, A05); the web shell (A13).

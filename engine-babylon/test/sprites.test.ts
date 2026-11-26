@@ -57,9 +57,28 @@ describe("the bundled sprites on the web", () => {
     expect([...tiles.frames[0]!.subarray(8 * 4, 8 * 4 + 4)]).toEqual([0x3c, 0xb4, 0x4b, 0xff]);
   });
 
+  it("shouldReadVersionTwoHitboxesAndIgnoreLayerSources", () => {
+    const file = parseSpriteFile(
+      JSON.stringify({
+        kind: "sprite",
+        schemaVersion: 2,
+        width: 4,
+        height: 4,
+        layers: [{ name: "Roof", visible: true, opacity: 255, source: { vector: "vectors/house.vector", shapes: ["Roof"] } }],
+        frames: [{ duration: 100 }, { duration: 100, hitboxes: [{ name: "attack", x: 1, y: 0, width: 3, height: 2 }] }],
+        tags: [],
+        slices: [],
+        palette: [],
+        cels: [],
+      }),
+    );
+    expect(file.hitboxes).toEqual([[], [{ name: "attack", x: 1, y: 0, width: 3, height: 2 }]]);
+    expect(file.layers[0]).toEqual({ name: "Roof", visible: true, opacity: 255 });
+  });
+
   it("shouldRefuseFilesThatAreNotSprites", () => {
     expect(() => parseSpriteFile('{"kind":"graph"}')).toThrow(/Not a sprite file/);
-    expect(() => parseSpriteFile('{"kind":"sprite","schemaVersion":2}')).toThrow(/schemaVersion 2/);
+    expect(() => parseSpriteFile('{"kind":"sprite","schemaVersion":3}')).toThrow(/schemaVersion 3/);
     expect(() => parseSpriteFile('{"kind":"sprite","schemaVersion":1,"width":1,"height":1,"layers":[],"frames":[]}')).toThrow(/at least one layer/);
   });
 });

@@ -8,6 +8,18 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const source = join(root, "..", "assets", "samples");
 const target = join(root, "public", "samples");
 
+// These models also ship with the web build, so provide the same attribution alongside them.
+const assetManifest = JSON.parse(readFileSync(join(root, "..", "assets", "licenses", "manifest.json"), "utf8"));
+const attributedAssets = assetManifest.assets.filter((asset) => asset.licence === "CC-BY-3.0");
+const creditLines = attributedAssets.map((asset) => [
+  `${asset.name} by ${asset.authors.join(", ")}`,
+  asset.source,
+  "CC BY 3.0 | https://creativecommons.org/licenses/by/3.0/",
+  `Changes: ${asset.conversion}`,
+].join("\n"));
+mkdirSync(join(root, "public"), { recursive: true });
+writeFileSync(join(root, "public", "asset-credits.txt"), ["Asset credits", ...creditLines].join("\n\n") + "\n");
+
 rmSync(target, { recursive: true, force: true });
 mkdirSync(target, { recursive: true });
 

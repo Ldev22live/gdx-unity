@@ -33,6 +33,8 @@ public class SceneRenderer2D implements EngineRenderer {
     private boolean depthComposite = true;
     /** Moves a renderable to its entity's Z while drawing with depth (scratch matrix, no allocation per frame). */
     private final Matrix4 zShift = new Matrix4();
+    /** Orders the flats farthest first when they are depth tested against the 3D pass. */
+    private final ViewDepthOrder viewDepthOrder = new ViewDepthOrder();
 
     private Color clearColor = new Color(0.12f, 0.14f, 0.18f, 1.0f);
     private boolean clearEnabled = true;
@@ -127,8 +129,11 @@ public class SceneRenderer2D implements EngineRenderer {
         if (depth) {
             Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
             Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
-            // Tested but not written: sprites keep their painter's order among themselves, and transparent edges leave no halo
+            // Tested but not written, so transparent edges leave no halo; the flats are therefore drawn farthest first (MC.4)
             Gdx.gl.glDepthMask(false);
+            PerspectiveCamera3D perspective = (PerspectiveCamera3D) camera;
+            viewDepthOrder.sortBackToFront(primitivesToRender, perspective.getPosition(), perspective.getDirection());
+            viewDepthOrder.sortBackToFront(spritesToRender, perspective.getPosition(), perspective.getDirection());
         }
         try {
             drawPrimitives(primitivesToRender, combinedMatrix, depth);

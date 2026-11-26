@@ -6,13 +6,16 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
+import io.github.ldev22live.gdxunity.engine.scene.BaseComponent;
 import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.PreservedFields;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.Transform;
 import io.github.ldev22live.gdxunity.engine.scene.play.RuntimeOnlyComponent;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,10 +29,31 @@ import java.util.UUID;
 /**
  * Handles versioned JSON serialization and deserialization of {@link Scene}s.
  * Preserves entity UUIDs, hierarchy, transforms, enabled states, and registered components.
+ *
+ * <p><b>Nothing is dropped (TD-106, roadmap A12).</b> Members this engine does not understand are kept and written back:
+ * <ul>
+ *   <li>top-level scene members (for example the {@code scenario} block) on {@link Scene#getPreservedFields()};</li>
+ *   <li>entity members and transform members on {@link Entity#getPreservedFields()} and
+ *       {@link Entity#getPreservedTransformFields()};</li>
+ *   <li>a component of an unregistered type as a {@link PreservedComponent}, written back exactly;</li>
+ *   <li>fields of a registered component's {@code data} that its serializer does not write back, on
+ *       {@link BaseComponent#getPreservedData()}; they are written after the serializer's own fields, except a field the
+ *       serializer writes itself, so an edited known field always wins.</li>
+ * </ul>
+ * A registered component's {@code data} is written by its serializer exactly as before, so files without unknown members are
+ * byte-for-byte unchanged.
  */
 public class SceneSerializer {
     /** Current supported scene JSON schema version. */
     public static final int CURRENT_SCHEMA_VERSION = 1;
+    /** Top-level scene members this serializer reads; the rest are preserved. */
+    static final Set<String> SCENE_MEMBERS = Set.of("schemaVersion", "name", "gameMode", "gameGenre", "active", "entities");
+    /** Entity members this serializer reads; the rest are preserved. */
+    static final Set<String> ENTITY_MEMBERS = Set.of("id", "name", "active", "parentId", "transform", "components");
+    /** Transform members this serializer reads; the rest are preserved. */
+    static final Set<String> TRANSFORM_MEMBERS = Set.of("position", "rotation", "scale");
+    /** Component entry members this serializer reads; the rest are preserved. */
+    static final Set<String> COMPONENT_ENTRY_MEMBERS = Set.of("type", "enabled", "data");
 
     private final ComponentSerializerRegistry registry;
 
@@ -68,6 +92,7 @@ public class SceneSerializer {
             json.writeValue("gameGenre", scene.getGameGenre());
         }
         json.writeValue("active", scene.isActive());
+        writePreserved(json, scene.getPreservedFields());
 
         // Entities array
         json.writeArrayStart("entities");
@@ -99,22 +124,92 @@ public class SceneSerializer {
     }
 
     /**
-     * Creates the component described by one entry of an entity's {@code components} array
-     * ({@code type}, {@code enabled}, {@code data}), or null when the type is not registered.
+     * Creates the component described by one entry of an entity's {@code components} array ({@code type}, {@code enabled},
+     * {@code data}). An unregistered type, or a registered one whose serializer gives nothing, becomes a {@link PreservedComponent}
+     * holding the entry unchanged; a registered component keeps the {@code data} fields its serializer does not write back.
+     *
+     * @throws SceneSerializationException when the entry has no {@code type}
      */
     @SuppressWarnings("unchecked")
     public Component readComponent(JsonValue componentVal) {
         Objects.requireNonNull(componentVal, "componentVal cannot be null");
         String typeId = componentVal.getString("type", null);
-        ComponentSerializer serializer = typeId != null ? registry.getByTypeId(typeId) : null;
-        if (serializer == null) {
-            return null;
+        if (typeId == null || typeId.isBlank()) {
+            throw new SceneSerializationException("A component entry has no 'type': " + PreservedFields.toJson(componentVal));
         }
-        Component component = serializer.deserialize(componentVal.get("data"), new Json());
-        if (component != null) {
-            component.setEnabled(componentVal.getBoolean("enabled", true));
+        JsonValue dataVal = componentVal.get("data");
+        ComponentSerializer serializer = registry.getByTypeId(typeId);
+        Component component = serializer != null ? serializer.deserialize(dataVal, new Json()) : null;
+        if (component == null) {
+            component = new PreservedComponent(typeId, dataVal == null ? null : PreservedFields.toJson(dataVal));
+        } else if (component instanceof BaseComponent base && dataVal != null && dataVal.isObject()) {
+            base.setPreservedData(PreservedFields.unknownMembers(dataVal, writtenMembers(serializer, component)));
+        }
+        component.setEnabled(componentVal.getBoolean("enabled", true));
+        if (component instanceof BaseComponent base) {
+            base.setPreservedEntry(PreservedFields.unknownMembers(componentVal, COMPONENT_ENTRY_MEMBERS));
         }
         return component;
+    }
+
+    /** The member names {@code serializer} writes for {@code component}. */
+    private static Set<String> writtenMembers(ComponentSerializer<?> serializer, Component component) {
+        Set<String> names = new HashSet<>();
+        JsonValue written = new JsonReader().parse(dataText(serializer, component));
+        for (JsonValue member = written.child; member != null; member = member.next) {
+            names.add(member.name);
+        }
+        return names;
+    }
+
+    /** The compact {@code data} object text {@code serializer} writes for {@code component}, as the scene writer writes it. */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static String dataText(ComponentSerializer serializer, Component component) {
+        StringWriter text = new StringWriter();
+        Json json = new Json(JsonWriter.OutputType.json);
+        json.setWriter(SceneTextFormat.newWriter(text));
+        json.writeObjectStart();
+        serializer.serialize(component, json);
+        json.writeObjectEnd();
+        return text.toString();
+    }
+
+    /** {@code data} with the preserved members the serializer did not write itself appended. */
+    private static String withPreserved(String data, PreservedFields preserved) {
+        if (preserved.isEmpty()) {
+            return data;
+        }
+        Set<String> written = new HashSet<>();
+        JsonValue parsed = new JsonReader().parse(data);
+        for (JsonValue member = parsed.child; member != null; member = member.next) {
+            written.add(member.name);
+        }
+        StringBuilder out = new StringBuilder(data.substring(0, data.length() - 1));
+        boolean first = parsed.child == null;
+        for (Map.Entry<String, String> member : preserved.asMap().entrySet()) {
+            if (written.contains(member.getKey())) {
+                continue;
+            }
+            out.append(first ? "" : ",").append(PreservedFields.quote(member.getKey())).append(':')
+                .append(member.getValue());
+            first = false;
+        }
+        return out.append('}').toString();
+    }
+
+    /** Writes each preserved member as it was read. */
+    private static void writePreserved(Json json, PreservedFields preserved) {
+        for (Map.Entry<String, String> member : preserved.asMap().entrySet()) {
+            writeRaw(json, member.getKey(), member.getValue());
+        }
+    }
+
+    private static void writeRaw(Json json, String name, String rawJson) {
+        try {
+            json.getWriter().json(name, rawJson);
+        } catch (IOException e) {
+            throw new SceneSerializationException("Cannot write '" + name + "': " + e.getMessage(), e);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -156,6 +251,7 @@ public class SceneSerializer {
         json.writeValue("y", scale.y);
         json.writeValue("z", scale.z);
         json.writeObjectEnd();
+        writePreserved(json, entity.getPreservedTransformFields());
         json.writeObjectEnd(); // end transform
 
         // Components
@@ -165,18 +261,35 @@ public class SceneSerializer {
                 throw new SceneSerializationException("'" + entity.getName() + "' has " + component.getClass().getSimpleName()
                     + ", which only exists while the game plays (TD-088) and is never saved. Save the scene from the editor, not from Play.");
             }
-            ComponentSerializer serializer = registry.getByClass(component.getClass());
-            if (serializer != null) {
+            if (component instanceof PreservedComponent preserved) {
                 json.writeObjectStart();
-                json.writeValue("type", serializer.getTypeId());
-                json.writeValue("enabled", component.isEnabled());
-                json.writeObjectStart("data");
-                serializer.serialize(component, json);
+                json.writeValue("type", preserved.getTypeId());
+                json.writeValue("enabled", preserved.isEnabled());
+                if (preserved.getRawData() != null) {
+                    writeRaw(json, "data", preserved.getRawData());
+                }
+                writePreserved(json, preserved.getPreservedEntry());
                 json.writeObjectEnd();
-                json.writeObjectEnd();
+                continue;
             }
+            ComponentSerializer serializer = registry.getByClass(component.getClass());
+            if (serializer == null) {
+                // Kept as before: a component type with no serializer is editor-side state that was never saved
+                continue;
+            }
+            json.writeObjectStart();
+            json.writeValue("type", serializer.getTypeId());
+            json.writeValue("enabled", component.isEnabled());
+            BaseComponent base = component instanceof BaseComponent b ? b : null;
+            writeRaw(json, "data", withPreserved(dataText(serializer, component),
+                base == null ? PreservedFields.EMPTY : base.getPreservedData()));
+            if (base != null) {
+                writePreserved(json, base.getPreservedEntry());
+            }
+            json.writeObjectEnd();
         }
         json.writeArrayEnd(); // end components
+        writePreserved(json, entity.getPreservedFields());
 
         json.writeObjectEnd(); // end entity
     }
@@ -219,6 +332,7 @@ public class SceneSerializer {
 
         Scene scene = new Scene(sceneName);
         scene.setActive(active);
+        scene.setPreservedFields(PreservedFields.unknownMembers(root, SCENE_MEMBERS));
         String modeValue = root.getString("gameMode", null);
         if (modeValue != null) {
             GameMode mode = GameMode.fromFileValue(modeValue);
@@ -269,11 +383,15 @@ public class SceneSerializer {
 
             Entity entity = new Entity(id, entityName);
             entity.setActive(entityActive);
+            entity.setPreservedFields(PreservedFields.unknownMembers(entityVal, ENTITY_MEMBERS));
 
             // Read Transform
             JsonValue transformVal = entityVal.get("transform");
             if (transformVal != null) {
                 readTransform(transformVal, entity.getTransform());
+                if (transformVal.isObject()) {
+                    entity.setPreservedTransformFields(PreservedFields.unknownMembers(transformVal, TRANSFORM_MEMBERS));
+                }
             }
 
             // Read Components
@@ -340,27 +458,9 @@ public class SceneSerializer {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void readComponents(JsonValue componentsVal, Entity entity, Json json) {
         for (JsonValue compVal = componentsVal.child; compVal != null; compVal = compVal.next) {
-            String typeId = compVal.getString("type", null);
-            if (typeId == null) {
-                continue;
-            }
-
-            ComponentSerializer serializer = registry.getByTypeId(typeId);
-            if (serializer == null) {
-                // Unknown component type policy: ignore or log warning
-                continue;
-            }
-
-            JsonValue dataVal = compVal.get("data");
-            Component component = serializer.deserialize(dataVal, json);
-            if (component != null) {
-                boolean enabled = compVal.getBoolean("enabled", true);
-                component.setEnabled(enabled);
-                entity.addComponent(component);
-            }
+            entity.addComponent(readComponent(compVal));
         }
     }
 }

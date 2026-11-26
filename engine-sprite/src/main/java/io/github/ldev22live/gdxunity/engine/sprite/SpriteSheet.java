@@ -10,6 +10,21 @@ import java.util.Objects;
 public final class SpriteSheet {
     private SpriteSheet() { }
 
+    /**
+     * The source an export was made from (TD-104).
+     *
+     * @param path   project-relative path of the {@code .sprite} or {@code .vector} file
+     * @param sha256 its SHA-256 when exported, lower-case hex
+     */
+    public record SourceRecord(String path, String sha256) {
+        public SourceRecord {
+            Objects.requireNonNull(path, "path cannot be null");
+            if (sha256 == null || !sha256.matches("[0-9a-f]{64}")) {
+                throw new IllegalArgumentException("a SHA-256 is 64 lower-case hex digits: " + sha256);
+            }
+        }
+    }
+
     /** An exported sheet: the PNG and the atlas JSON that describes it. */
     public record Export(byte[] png, String atlasJson, int width, int height) { }
 
@@ -21,6 +36,17 @@ public final class SpriteSheet {
      * @param imageName file name written into the atlas
      */
     public static Export export(SpriteDocument doc, int columns, int padding, String imageName) throws IOException {
+        return export(doc, columns, padding, imageName, null);
+    }
+
+    /**
+     * As {@link #export(SpriteDocument, int, int, String)}, recording in the atlas where the sheet came from (TD-104): an exported PNG
+     * is an artifact, and its layers, frames and vectors can only be edited in the source.
+     *
+     * @param source the source file and its SHA-256 at export time, or null for none
+     */
+    public static Export export(SpriteDocument doc, int columns, int padding, String imageName, SourceRecord source)
+        throws IOException {
         Objects.requireNonNull(doc, "doc cannot be null");
         Objects.requireNonNull(imageName, "imageName cannot be null");
         if (columns < 0 || padding < 0) {
@@ -41,6 +67,9 @@ public final class SpriteSheet {
         JsonWriter json = new JsonWriter(text);
         json.setOutputType(JsonWriter.OutputType.json);
         json.object().set("image", imageName).object("size").set("w", sheetW).set("h", sheetH).pop();
+        if (source != null) {
+            json.object("source").set("path", source.path()).set("sha256", source.sha256()).pop();
+        }
         json.array("frames");
         for (int f = 0; f < frames; f++) {
             int ox = (f % cols) * (w + padding);
@@ -49,7 +78,16 @@ public final class SpriteSheet {
             for (int y = 0; y < h; y++) {
                 System.arraycopy(flat, y * w, sheet, (oy + y) * sheetW + ox, w);
             }
-            json.object().set("index", f).set("x", ox).set("y", oy).set("w", w).set("h", h).set("duration", doc.getFrameDuration(f)).pop();
+            json.object().set("index", f).set("x", ox).set("y", oy).set("w", w).set("h", h).set("duration", doc.getFrameDuration(f));
+            if (!doc.getHitboxes(f).isEmpty()) {
+                json.array("hitboxes");
+                for (SpriteHitbox box : doc.getHitboxes(f)) {
+                    json.object().set("name", box.name()).set("x", box.x()).set("y", box.y()).set("w", box.width()).set("h", box.height())
+                        .pop();
+                }
+                json.pop();
+            }
+            json.pop();
         }
         json.pop();
         json.array("tags");

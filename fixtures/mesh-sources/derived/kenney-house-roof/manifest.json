@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "importer": "Forgeroom mesh operation script v1 (MeshOperationScript)",
+  "sourcePath": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+  "derivedPath": "models/edited/Roof NE raised.gltf",
+  "operations": "operations.json",
+  "inputs": [
+    {
+      "path": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+      "original": "roof-flat-corner.glb",
+      "sha256": "63172494beada870666874be756316c0937dec15286b7acc44fbf6f42ae17709",
+      "providerId": "kenney-building-kit",
+      "source": "https://kenney.nl/assets/building-kit",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://kenney.nl/support",
+      "retrieved": "2026-11-20",
+      "conversion": "none",
+      "authors": [
+        "Kenney"
+      ]
+    },
+    {
+      "path": "thirdparty/kenney/building-kit/Models/GLB format/Textures/colormap.png",
+      "original": "colormap.png",
+      "sha256": "01741a46a279bef667de3143ee653d0073ed7cae925d88341281391d9220092b",
+      "providerId": "kenney-building-kit",
+      "source": "https://kenney.nl/assets/building-kit",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://kenney.nl/support",
+      "retrieved": "2026-11-20",
+      "conversion": "none",
+      "authors": [
+        "Kenney"
+      ]
+    }
+  ],
+  "outputs": {
+    "operations.json": "2408715de55a4623463f3d1e04a0720c5bf28aa789ea85cdd98bd51cb784147f",
+    "model.gltf": "f29804f5aed8a53f18ec3086d417477d2b12227a7f60d8ef9b7ab59a9fecb5f5"
+  }
+}

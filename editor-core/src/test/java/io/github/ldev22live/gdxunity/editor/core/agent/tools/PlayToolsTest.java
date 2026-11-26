@@ -109,17 +109,18 @@ class PlayToolsTest {
         PlayProfileSetTool tool = new PlayProfileSetTool();
         int undoSteps = editorState.getCommandHistory().getUndoCount();
 
-        AgentToolResult planned = run(tool, Map.of("genre", "platformer", "mode", "2D"), context);
+        AgentToolResult planned = run(tool, Map.of("genre", "action-rpg", "mode", "2D"), context);
         assertTrue(planned.isSuccess(), planned.getMessage());
-        assertEquals(GameGenres.PLATFORMER, editorState.getGameGenre());
+        assertEquals(GameGenres.ACTION_RPG, editorState.getGameGenre());
         assertEquals(false, planned.getOutput("playable"));
         assertEquals("planned", planned.getOutput("status"));
-        assertEquals(List.of("2.5d", "3d"), planned.getOutput("playableModes"), "Platformer + 3D since M3b.7 slice 2");
+        assertEquals(List.of("2.5d", "3d"), planned.getOutput("playableModes"));
         assertTrue(planned.getMessage().contains("Play will refuse it"), planned.getMessage());
 
-        AgentToolResult playable = run(tool, Map.of("genre", "action-rpg", "mode", "3D"), context);
-        assertEquals(true, playable.getOutput("playable"));
-        assertEquals("3d", playable.getOutput("mode"));
+        AgentToolResult playable = run(tool, Map.of("genre", "platformer", "mode", "2D"), context);
+        assertEquals(true, playable.getOutput("playable"), "Platformer + 2D since TD-105");
+        assertEquals("2d", playable.getOutput("mode"));
+        assertEquals(List.of("2d", "2.5d", "3d"), playable.getOutput("playableModes"));
 
         assertTrue(run(tool, Map.of("genre", "none"), context).isSuccess());
         assertNull(editorState.getGameGenre());

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "name": "HexPaverB",
+  "baseColor": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "metallic": 0.0,
+  "roughness": 0.88,
+  "emissive": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "emissiveStrength": 1.0,
+  "normalScale": 1.0,
+  "occlusionStrength": 1.0,
+  "alphaMode": "OPAQUE",
+  "alphaCutoff": 0.5,
+  "doubleSided": false,
+  "tiling": [
+    2.0,
+    2.0
+  ],
+  "offset": [
+    0.0,
+    0.0
+  ],
+  "textures": {
+    "BASE_COLOR": "textures/thirdparty/opengameart/hex-paver-b/diffuse.png",
+    "NORMAL": "textures/thirdparty/opengameart/hex-paver-b/normal.png",
+    "OCCLUSION": "textures/thirdparty/opengameart/hex-paver-b/ao.png"
+  }
+}

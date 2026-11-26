@@ -43,8 +43,9 @@ class GameGenresTest {
             assertFalse(pair.reason().isBlank(), pair.genre().id() + " " + pair.mode());
         }
         List<String> playable = genres.playablePairs().stream().map(p -> p.genre().id() + "/" + p.mode().getFileValue()).toList();
-        assertEquals(List.of("platformer/2.5d", "platformer/3d", "action-rpg/2.5d", "action-rpg/3d", "first-person-shooter/3d"), playable,
-            "only the pairs with an acceptance test (M3b.3, M3b.7, M3c.3, M3c.1, M3b.7)");
+        assertEquals(List.of("platformer/2d", "platformer/2.5d", "platformer/3d", "action-rpg/2.5d", "action-rpg/3d",
+            "first-person-shooter/3d", "third-person-shooter/3d"), playable,
+            "only the pairs with an acceptance test (M3c.7, M3b.3, M3b.7, M3c.3, M3c.1, M3b.7 slices 3 and 4)");
     }
 
     @Test
@@ -68,7 +69,12 @@ class GameGenresTest {
         assertEquals(GenreStatus.PLAYABLE, side.status());
         assertEquals(GameTestProfile.MovementSetup.Kind.PLANE_RUN, side.profile().movement().kind());
         assertEquals(GameTestProfile.CameraSetup.Kind.SIDE_FOLLOW, side.profile().camera().kind());
-        assertTrue(genres.support(GameGenres.PLATFORMER, GameMode.MODE_2D).reason().contains("2D character controller"));
+        GenreSupport flat = genres.support(GameGenres.PLATFORMER, GameMode.MODE_2D);
+        assertEquals(GenreStatus.PLAYABLE, flat.status(), "TD-105, roadmap M3c.7");
+        assertEquals(GameTestProfile.MovementSetup.Kind.RUN_2D, flat.profile().movement().kind());
+        assertEquals(GameTestProfile.CameraSetup.Kind.FOLLOW_2D, flat.profile().camera().kind());
+        assertEquals(GameTestProfile.Physics.PHYSICS_2D, flat.profile().physics());
+        assertTrue(flat.profile().requirements().contains(GameTestProfile.Requirement.CHARACTER_2D));
     }
 
     @Test
@@ -143,12 +149,43 @@ class GameGenresTest {
         assertEquals(GameGenres.SHOT_RANGE, profile.shot().range());
         assertEquals(GameGenres.SHOT_KNOCK_SPEED, profile.shot().knockSpeed());
         assertFalse(profile.respawnsAfterFalls());
-        assertEquals(GenreStatus.PLANNED, GameGenres.standard().support(GameGenres.THIRD_PERSON_SHOOTER, GameMode.MODE_3D).status());
+        assertEquals(GameTestProfile.ShotSetup.Origin.CAMERA_VIEW, profile.shot().origin(), "from the eyes, along the view");
         for (GenreSupport other : GameGenres.standard().playablePairs()) {
-            if (other != pair && !other.genre().id().equals(GameGenres.FIRST_PERSON_SHOOTER)) {
-                assertFalse(other.profile().hasShot(), other.genre().id() + " shoots nothing");
-            }
+            boolean shooter = other.genre().id().equals(GameGenres.FIRST_PERSON_SHOOTER)
+                || other.genre().id().equals(GameGenres.THIRD_PERSON_SHOOTER);
+            assertEquals(shooter, other.profile().hasShot(), other.genre().id() + " " + other.mode());
         }
+    }
+
+    /** Roadmap M3b.7, slice 4. */
+    @Test
+    void shouldPlayThirdPersonShooter3DFromBehindTheWayThePlayerFacesWithALevelShot() {
+        GenreSupport pair = GameGenres.standard().support(GameGenres.THIRD_PERSON_SHOOTER, GameMode.MODE_3D);
+
+        assertEquals(GenreStatus.PLAYABLE, pair.status());
+        assertTrue(pair.reason().contains("shoots straight ahead"), pair.reason());
+        GameTestProfile profile = pair.profile();
+        assertEquals(GameTestProfile.CameraSetup.Kind.BEHIND_FACING, profile.camera().kind());
+        assertEquals(GameGenres.BEHIND_DISTANCE, profile.camera().distance());
+        assertEquals(GameGenres.BEHIND_PITCH, profile.camera().pitchDegrees());
+        assertEquals(GameTestProfile.MovementSetup.Kind.FIRST_PERSON_WALK, profile.movement().kind(),
+            "the turn keys turn the player, which aims; A and D step sideways");
+        assertTrue(profile.hasShot());
+        assertEquals(GameTestProfile.ShotSetup.Origin.PLAYER_FACING, profile.shot().origin());
+        assertEquals(GameGenres.THIRD_PERSON_AIM_HEIGHT, profile.shot().aimHeight());
+        assertEquals(GameGenres.SHOT_RANGE, profile.shot().range());
+        assertFalse(profile.respawnsAfterFalls());
+    }
+
+    @Test
+    void shouldRefuseAShotOriginWithoutAnAimOrAnAimHeightAlongTheCamera() {
+        assertThrows(NullPointerException.class, () -> new GameTestProfile.ShotSetup(100f, 100f, null, 0f));
+        IllegalArgumentException camera = assertThrows(IllegalArgumentException.class,
+            () -> new GameTestProfile.ShotSetup(100f, 100f, GameTestProfile.ShotSetup.Origin.CAMERA_VIEW, 30f));
+        assertTrue(camera.getMessage().contains("must be 0 along the camera's view"), camera.getMessage());
+        assertThrows(IllegalArgumentException.class,
+            () -> new GameTestProfile.ShotSetup(100f, 100f, GameTestProfile.ShotSetup.Origin.PLAYER_FACING, Float.NaN));
+        assertEquals(GameTestProfile.ShotSetup.Origin.CAMERA_VIEW, new GameTestProfile.ShotSetup(100f, 100f).origin());
     }
 
     @Test

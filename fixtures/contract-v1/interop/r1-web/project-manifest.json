@@ -1,0 +1,14 @@
+{
+  "contractVersion": 1,
+  "projectId": "cd77f8f9-588b-33c1-b307-ed54661d86c1",
+  "name": "Web Valley",
+  "startScene": "scenes/main.json",
+  "scenes": [
+    {"id": "91f7b727-15c9-3b00-9420-866d54bc32c3", "path": "scenes/main.json"}
+  ],
+  "assets": [
+    {"path": "scenes/main.json", "kind": "scene", "size": 1290, "sha256": "e14ed22041bf04fbd6b695fdca400ba2e77d12c160ebda7af058f076ac5b48a6"}
+  ],
+  "capabilities": {"required": ["scene/1", "preserve-unknown/1", "scenario/1", "ownership/1"], "optional": []},
+  "revision": {"id": "29b2a25e-4991-37b7-966d-b71b181ea146", "base": null, "savedBy": {"client": "web", "version": "web-interop"}, "savedAt": "2026-11-25T14:30:00.000Z"}
+}

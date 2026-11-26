@@ -37,6 +37,10 @@ public class ModelAssets implements Disposable {
     public record LoadedModel(Model model, ModelInfo info) {}
 
     private final AssetSource source;
+    private long revision;
+
+    /** Changes when an explicit reload invalidates previously extracted model geometry. */
+    public long revision() { return revision; }
     private final Map<String, SceneAsset> loaded = new LinkedHashMap<>();
     private final Map<String, ModelInfo> infos = new HashMap<>();
     private boolean disposed;
@@ -76,6 +80,7 @@ public class ModelAssets implements Disposable {
     /** Forgets {@code path} so the next {@link #get} reads the file again (after it changed on disk). */
     public void reload(String path) {
         String key = new AssetReference(path).getPath();
+        revision++;
         infos.remove(key);
         SceneAsset asset = loaded.remove(key);
         if (asset != null) {

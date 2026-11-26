@@ -61,8 +61,9 @@ class GenreChoicesTest {
         assertEquals("Platformer / Side-scroller", side.get(1).display());
         assertEquals("Action RPG", side.get(2).display(), "validated on its own (M3c.3)");
         assertTrue(side.stream().anyMatch(c -> c.display().equals("First-person Shooter (not offered)")));
-        long playable = GenreChoices.choices(genres, null, GameMode.MODE_2D).stream().filter(GenreChoices.Choice::isPlayable).count();
-        assertEquals(0, playable, "nothing plays in 2D yet, and nothing says it does");
+        List<String> playable = GenreChoices.choices(genres, null, GameMode.MODE_2D).stream().filter(GenreChoices.Choice::isPlayable)
+            .map(GenreChoices.Choice::display).toList();
+        assertEquals(List.of("Platformer / Side-scroller"), playable, "only Platformer plays in 2D (TD-105), and nothing else says it does");
     }
 
     @Test
@@ -82,29 +83,31 @@ class GenreChoicesTest {
         assertEquals("Planned: Play refuses it", GenreChoices.statusLine(genres, GameGenres.ACTION_RPG, GameMode.MODE_2D));
         assertEquals("Not offered: Play refuses it",
             GenreChoices.statusLine(genres, GameGenres.FIRST_PERSON_SHOOTER, GameMode.MODE_2D));
-        assertEquals(List.of(GameMode.MODE_2_5D, GameMode.MODE_3D), GenreChoices.playableModes(genres, GameGenres.PLATFORMER));
+        assertEquals("Playable", GenreChoices.statusLine(genres, GameGenres.PLATFORMER, GameMode.MODE_2D), "Platformer + 2D since TD-105");
+        assertEquals(List.of(GameMode.MODE_2D, GameMode.MODE_2_5D, GameMode.MODE_3D),
+            GenreChoices.playableModes(genres, GameGenres.PLATFORMER));
+        assertEquals(List.of(GameMode.MODE_2_5D, GameMode.MODE_3D), GenreChoices.playableModes(genres, GameGenres.ACTION_RPG));
         assertEquals(List.of(), GenreChoices.playableModes(genres, GameGenres.RACING));
     }
 
     @Test
     void shouldSetTheGenreAndSayPlainlyWhenItHasNoGameplayYet() {
         editorState.setGameMode(GameMode.MODE_2D);
-        assertTrue(GenreChoices.choose(editorState, genres, GameGenres.PLATFORMER));
-
-        assertEquals(GameGenres.PLATFORMER, editorState.getGameGenre());
-        String message = editorState.getStatusMessage();
-        assertTrue(message.startsWith("Game genre: Platformer / Side-scroller. Platformer / Side-scroller + 2D has no gameplay yet, "
-            + "and Play will refuse it."), message);
-        assertTrue(message.endsWith("It plays in 2.5D, 3D."), message);
-        assertEquals(GenreStatus.PLANNED, GenreChoices.current(GenreChoices.choices(genres, GameGenres.PLATFORMER,
-            editorState.getGameMode()), GameGenres.PLATFORMER).status());
-        editorState.setGameMode(GameMode.MODE_3D);
-
         assertTrue(GenreChoices.choose(editorState, genres, GameGenres.ACTION_RPG));
-        assertTrue(editorState.getStatusMessage().startsWith("Game genre: Action RPG. In 3D Play adds its camera and movement"),
-            editorState.getStatusMessage());
 
-        assertFalse(GenreChoices.choose(editorState, genres, GameGenres.ACTION_RPG), "the same choice changes nothing");
+        assertEquals(GameGenres.ACTION_RPG, editorState.getGameGenre());
+        String message = editorState.getStatusMessage();
+        assertTrue(message.startsWith("Game genre: Action RPG. Action RPG + 2D has no gameplay yet, and Play will refuse it."),
+            message);
+        assertTrue(message.endsWith("It plays in 2.5D, 3D."), message);
+        assertEquals(GenreStatus.PLANNED, GenreChoices.current(GenreChoices.choices(genres, GameGenres.ACTION_RPG,
+            editorState.getGameMode()), GameGenres.ACTION_RPG).status());
+
+        assertTrue(GenreChoices.choose(editorState, genres, GameGenres.PLATFORMER));
+        assertTrue(editorState.getStatusMessage().startsWith("Game genre: Platformer / Side-scroller. In 2D Play adds its camera "
+            + "and movement"), editorState.getStatusMessage());
+
+        assertFalse(GenreChoices.choose(editorState, genres, GameGenres.PLATFORMER), "the same choice changes nothing");
         assertTrue(GenreChoices.choose(editorState, genres, null));
         assertNull(editorState.getGameGenre());
         assertEquals("Game genre: none. Play runs the scene's own scripts, as before.", editorState.getStatusMessage());

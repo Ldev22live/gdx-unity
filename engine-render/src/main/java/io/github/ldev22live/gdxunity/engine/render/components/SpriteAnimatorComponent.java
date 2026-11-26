@@ -15,9 +15,11 @@ import io.github.ldev22live.gdxunity.engine.sprite.NineSlice;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteAnimationState;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteDocument;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteFile;
+import io.github.ldev22live.gdxunity.engine.sprite.SpriteHitbox;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteSlice;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -310,6 +312,15 @@ public class SpriteAnimatorComponent extends BaseComponent implements Renderable
     /** The loaded sprite, or null. */
     public SpriteDocument getDocument() {
         return state != null ? state.getDocument() : null;
+    }
+
+    /**
+     * The hitboxes of the frame shown now (TD-104), in sprite pixels with y down; empty when the sprite is not loaded or the frame has
+     * none. Scripts and graphs read them for attacks and hurt zones.
+     */
+    public List<SpriteHitbox> getHitboxes() {
+        SpriteDocument doc = getDocument();
+        return doc == null ? List.of() : doc.getHitboxes(getFrame());
     }
 
     @Override

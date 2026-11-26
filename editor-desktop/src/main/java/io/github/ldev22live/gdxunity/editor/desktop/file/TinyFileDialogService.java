@@ -68,6 +68,11 @@ public class TinyFileDialogService implements EditorDialogService {
     }
 
     @Override
+    public boolean confirm(String title, String message) {
+        return TinyFileDialogs.tinyfd_messageBox(sanitize(title), sanitize(message), "yesno", "question", false);
+    }
+
+    @Override
     public void showError(String title, String message) {
         TinyFileDialogs.tinyfd_messageBox(sanitize(title), sanitize(message), "ok", "error", true);
     }

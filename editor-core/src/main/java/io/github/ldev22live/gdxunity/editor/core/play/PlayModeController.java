@@ -6,6 +6,7 @@ import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.serialization.PreservedComponent;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
 
 import java.util.ArrayList;
@@ -469,6 +470,9 @@ public class PlayModeController {
 
         for (Entity entity : scene.getAllEntities()) {
             for (Component component : entity.getAllComponents()) {
+                if (component instanceof PreservedComponent) {
+                    continue; // another client's component, written back verbatim by the scene serializer (TD-106); inert in Play
+                }
                 ComponentSerializer<?> ser = serializer.getRegistry().getByClass(component.getClass());
                 if (ser == null) {
                     String name = component.getClass().getSimpleName();

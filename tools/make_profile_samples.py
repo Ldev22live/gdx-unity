@@ -3,7 +3,12 @@ assets/samples/action-rpg-valley-3d.json (roadmap M3c.1), assets/samples/action-
 assets/samples/platformer-profile-3d.json (roadmap M3b.7, slice 2) and assets/samples/first-person-range-3d.json (roadmap M3b.7,
 slice 3).
 
-Run from the repository root:  python tools/make_profile_samples.py
+It also writes assets/samples/hybrid-side-scroller-25d.json (roadmap MC.4): Platformer + 2.5D with Kenney 3D scenery (CC0) and
+ForgeRoom's 2D sprites in front of, on and behind the play plane; the player is a sprite with a Character Controller 3D.
+And assets/samples/third-person-yard-3d.json (roadmap M3b.7, slice 4): Third-person Shooter + 3D in a walled yard with crates on
+the floor that the Gunner knocks over with level shots.
+
+Run from the repository root:  python tools/make_profile_samples.py [sample ...]   (no name: all; e.g. hybrid-side-scroller)
 
 Neither scene has scripts or graphs. Their Game Genre and Game Mode make Play add the camera and the movement to the entity with
 a Player and a Character Controller 3D:
@@ -23,6 +28,7 @@ It reuses the scene helpers of make_block_samples.py and the valley's height fun
 """
 import json
 import math
+import sys
 
 from make_block_samples import Scene, box, component, lighting, text, SAMPLES
 from make_terrain_samples import height, HERO_X, HERO_Z, HERO_CLEARANCE
@@ -251,13 +257,119 @@ def first_person_range():
     write_with_genre(scene, "first-person-range-3d.json", "first-person-shooter")
 
 
-def main():
-    platformer()
-    action_rpg_valley()
-    action_rpg_iso()
-    platformer_3d()
-    first_person_range()
+# Third-person Shooter + 3D (roadmap M3b.7, slice 4): the range's walled yard without the shelf; crates on the floor, tall enough
+# for a level shot from the Gunner's chest (70 + 30 above the floor) to strike them
+YARD_CRATE_SIZE = 120.0
+GUNNER_Z = 600.0
+
+
+def third_person_yard():
+    scene = Scene("third-person-yard", "Third-person Yard 3D", mode="3d")
+    lighting(scene, sky=(0.62, 0.74, 0.92))
+    # No rig and no script: the Third-person Shooter + 3D profile puts the camera behind the Gunner in Play. In the editor this
+    # camera shows the yard from behind and above
+    scene.add("Main Camera", (0.0, 500.0, GUNNER_Z + 700.0), [component(
+        "CameraComponent", projection="PERSPECTIVE", orthographicHeight=480.0, fieldOfView=60.0, nearPlane=1.0, farPlane=50000.0)],
+        rotation=quaternion(0.0, -15.0))
+    scene.add("Floor", (0.0, -50.0, 0.0), collider_box((2400.0, 100.0, 2600.0), (0.46, 0.50, 0.42)))
+    for name, x, z, sx, h, sz, color in RANGE[:-1]:
+        scene.add(name, (x, h / 2.0, z), collider_box((sx, h, sz), color))
+    for name, x in TARGETS:
+        scene.add(name, (x, YARD_CRATE_SIZE / 2.0 + 1.0, -900.0),
+                  dynamic_box((YARD_CRATE_SIZE, YARD_CRATE_SIZE, YARD_CRATE_SIZE), (0.80, 0.58, 0.30), 5.0))
+    scene.add("Gunner", (0.0, STANDING + 1.0, GUNNER_Z), [
+        box((60.0, 140.0, 60.0), (0.30, 0.42, 0.62)), character(), component("PlayerComponent", useProfileMovement=False)])
+    scene.add("Help Text", (0, 0, 0), [text(
+        "Q and E turn, W and S walk, A and D step sideways, Space jumps, F or Ctrl shoots straight ahead. No scripts: the "
+        "Third-person Shooter genre and 3D mode supply it all.", "BOTTOM_LEFT", 16, 24, 1.0, (0.9, 0.95, 1.0))])
+    write_with_genre(scene, "third-person-yard-3d.json", "third-person-shooter")
+
+
+# The 2.5D hybrid (roadmap MC.4): 3D scenery from the Kenney kits (CC0), 2D sprites (ForgeRoom originals) on and off the play plane
+KENNEY_BUILDING = "thirdparty/kenney/building-kit/Models/GLB format/"
+KENNEY_NATURE = "thirdparty/kenney/nature-kit/Models/GLTF format/"
+# The kits are in metres: 100 units to the metre, as the Buildings palette imports them
+KENNEY_SCALE = 100.0
+HOUSE_Z = -320.0
+TREE_Z = -560.0
+TREE_SCALE = 300.0
+# The sprite player's height matches its capsule: 80 plus twice the 30 radius
+HERO_SIZE = 140.0
+VILLAGER_SIZE = 120.0
+BEHIND_Z = -150.0
+IN_FRONT_Z = 160.0
+# The Kenney floor tile is 2 m square and 0.1 m thick; the platform's top is reached by a jump from the ground
+FLOOR_TOP = 120.0
+FLOOR_THICKNESS = 10.0
+
+
+def model(path, scale=KENNEY_SCALE):
+    return component("ModelComponent", model=path, importScale=scale, loop=True, playOnStart=True, speed=1.0)
+
+
+def sprite(path, tag, size, flip=False, tint=(1.0, 1.0, 1.0, 1.0)):
+    return component("SpriteAnimatorComponent", assetPath=path, tag=tag, slice=None, speed=1, loop=True, playOnStart=True,
+                     flipX=flip, flipY=False, width=size, height=size, centered=True,
+                     tint={"r": tint[0], "g": tint[1], "b": tint[2], "a": tint[3]})
+
+
+def hybrid_side_scroller():
+    """Platformer + 2.5D with 3D scenery and 2D sprites. The sprites are listed in the opposite order to their depth on purpose:
+    the 2D pass draws them farthest first (ViewDepthOrder), whatever the scene order."""
+    scene = Scene("hybrid-side-scroller", "Hybrid Side-scroller 2.5D", mode="2.5d")
+    lighting(scene, sky=(0.66, 0.78, 0.94))
+    scene.add("Main Camera", (300.0, STANDING + 150.0, 900.0), [component(
+        "CameraComponent", projection="PERSPECTIVE", orthographicHeight=480.0, fieldOfView=50.0, nearPlane=1.0, farPlane=50000.0)],
+        rotation=(-0.0825, 0.0, 0.0, 0.9966))
+    # Play: the ground strip and the two end walls are boxes; the platform is a Kenney floor tile with a box collider
+    scene.add("Ground", (600.0, -50.0, 0.0), collider_box((2400.0, 100.0, DEPTH), (0.40, 0.58, 0.34)))
+    scene.add("Start Wall", (-560.0, 300.0, 0.0), collider_box((60.0, 600.0, DEPTH), (0.45, 0.42, 0.40)))
+    scene.add("End Wall", (1760.0, 300.0, 0.0), collider_box((60.0, 600.0, DEPTH), (0.45, 0.42, 0.40)))
+    scene.add("Floor Platform", (700.0, FLOOR_TOP - FLOOR_THICKNESS, 0.0), [
+        model(KENNEY_BUILDING + "floor.glb"),
+        component("BoxCollider3DComponent", offsetX=0.0, offsetY=FLOOR_THICKNESS / 2.0, offsetZ=0.0, trigger=False,
+                  sizeX=200.0, sizeY=FLOOR_THICKNESS, sizeZ=200.0)])
+    # Scenery behind the play plane: a house front of Kenney walls (turned to face the side camera) and pines further back
+    for name, piece, x in (("House Wall", "wall", 200.0), ("House Window", "wall-window-square", 400.0),
+                           ("House Door", "wall-doorway-square", 600.0)):
+        scene.add(name, (x, 0.0, HOUSE_Z), [model(KENNEY_BUILDING + piece + ".glb")], rotation=yaw_rotation(90.0))
+    for index, x in enumerate((-250.0, 1000.0, 1450.0), start=1):
+        scene.add(f"Pine {index}", (x, 0.0, TREE_Z), [model(KENNEY_NATURE + "tree_pineTallA.glb", TREE_SCALE)])
+    # In front of the play plane: a Kenney column that hides part of the villager in front of the plane
+    scene.add("Front Column", (330.0, 0.0, IN_FRONT_Z + 60.0), [model(KENNEY_BUILDING + "column.glb")])
+    # 2D sprites, nearest first in the list: a villager in front of the plane, the player on it, a villager behind it and partly
+    # behind the player at the start, so the first frame shows sprite over sprite, sprite over 3D and 3D over sprite
+    scene.add("Front Villager", (300.0, VILLAGER_SIZE / 2.0, IN_FRONT_Z), [sprite("sprites/hero.sprite", "idle", VILLAGER_SIZE,
+                                                                                  flip=True)])
+    scene.add("Hero", (0.0, STANDING + 10.0, 0.0), [
+        sprite("sprites/hero.sprite", "walk", HERO_SIZE), character(), component("PlayerComponent", useProfileMovement=False)])
+    scene.add("Back Villager", (25.0, VILLAGER_SIZE / 2.0, BEHIND_Z), [sprite("sprites/hero.sprite", "idle", VILLAGER_SIZE,
+                                                                               tint=(0.70, 0.78, 0.95, 1.0))])
+    scene.add("Help Text", (0, 0, 0), [text(
+        "A / D or the arrows run, Space jumps. 3D scenery and 2D sprites: Customize opens 3D Modeling or 2D Studio on each.",
+        "BOTTOM_LEFT", 16, 24, 1.0, (0.9, 0.95, 1.0))])
+    write_with_genre(scene, "hybrid-side-scroller-25d.json", "platformer")
+
+
+SAMPLE_WRITERS = {
+    "platformer": platformer,
+    "action-rpg-valley": action_rpg_valley,
+    "action-rpg-iso": action_rpg_iso,
+    "platformer-3d": platformer_3d,
+    "first-person-range": first_person_range,
+    "third-person-yard": third_person_yard,
+    "hybrid-side-scroller": hybrid_side_scroller,
+}
+
+
+def main(names):
+    """Writes the named samples, or all of them when none is named."""
+    unknown = [name for name in names if name not in SAMPLE_WRITERS]
+    if unknown:
+        raise SystemExit(f"unknown sample(s) {unknown}; known: {sorted(SAMPLE_WRITERS)}")
+    for name in names or SAMPLE_WRITERS:
+        SAMPLE_WRITERS[name]()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

@@ -17,10 +17,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class PlayableGenrePairsTest {
     /** Each playable pair ("genre id/mode file value") and the repository path of the acceptance test that plays it. */
     private static final Map<String, String> ACCEPTANCE_TESTS = Map.of(
+        "platformer/2d", "engine-render/src/test/java/io/github/ldev22live/gdxunity/engine/render/play/Platformer2DProfileTest.java",
         "platformer/2.5d", "engine-desktop/src/test/java/io/github/ldev22live/gdxunity/engine/desktop/PlatformerSideProfileOnJoltTest.java",
         "platformer/3d", "engine-desktop/src/test/java/io/github/ldev22live/gdxunity/engine/desktop/PlatformerChaseProfileOnJoltTest.java",
         "first-person-shooter/3d",
         "engine-desktop/src/test/java/io/github/ldev22live/gdxunity/engine/desktop/FirstPersonRangeProfileOnJoltTest.java",
+        "third-person-shooter/3d",
+        "engine-desktop/src/test/java/io/github/ldev22live/gdxunity/engine/desktop/ThirdPersonYardProfileOnJoltTest.java",
         "action-rpg/3d", "engine-desktop/src/test/java/io/github/ldev22live/gdxunity/engine/desktop/ActionRpgValleyProfileOnJoltTest.java",
         "action-rpg/2.5d", "engine-desktop/src/test/java/io/github/ldev22live/gdxunity/engine/desktop/ActionRpgIsometricProfileOnJoltTest.java");
 

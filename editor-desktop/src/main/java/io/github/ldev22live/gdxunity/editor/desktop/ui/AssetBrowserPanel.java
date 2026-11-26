@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Scaling;
@@ -110,7 +111,11 @@ public class AssetBrowserPanel extends Table {
 
         // Search Field
         this.searchField = new TextField("", skin);
-        searchField.setMessageText("Filter assets...");
+        searchField.setMessageText("Name or genre:action-rpg");
+        searchField.addListener(new TextTooltip(
+            "Filter by name or combine facets, e.g. genre:action-rpg type:model.\n"
+                + "Facets: genre, type, role, style, realism, species, rigged, animation, "
+                + "resolution, triangles, license, provider, imported.", skin));
         searchField.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -210,6 +215,13 @@ public class AssetBrowserPanel extends Table {
             statusCountLabel.setText("(" + total + " items)");
         } else {
             statusCountLabel.setText("(" + assets.size() + "/" + total + " items)");
+        }
+
+        String classificationError = filterModel.getClassificationError();
+        if (classificationError != null) {
+            Label warning = new Label(classificationError, skin, "muted");
+            warning.setWrap(true);
+            listTable.add(warning).growX().left().pad(4).row();
         }
 
         addFolderRows(folders);

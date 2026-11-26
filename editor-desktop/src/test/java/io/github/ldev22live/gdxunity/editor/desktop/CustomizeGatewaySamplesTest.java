@@ -75,8 +75,9 @@ class CustomizeGatewaySamplesTest {
                     if (offers.isEmpty() || offers.get(0).kind() != Kind.OPEN_MODELING) {
                         problems.add(where + ": Edit 3D Model is not the first entry");
                     }
-                    if (ModelingHandOff.noticeFor(entity).meshEditing()) {
-                        problems.add(where + ": its notice claims mesh editing, which is R7a");
+                    boolean hasModelSource = !ModelingHandOff.modelParts(entity).isEmpty();
+                    if (ModelingHandOff.noticeFor(entity).meshEditing() != hasModelSource) {
+                        problems.add(where + ": its mesh source capability disagrees with its model parts");
                     }
                 } else if (offers.stream().anyMatch(o -> o.kind() == Kind.OPEN_MODELING)) {
                     problems.add(where + ": offers Edit 3D Model with no model or shape");

@@ -63,6 +63,10 @@ public final class DefaultEditorActions {
     public static final String EDIT_REDO_ALTERNATE = "edit.redo.ctrl-shift-z";
     public static final String EDIT_DUPLICATE = "edit.duplicate";
     public static final String EDIT_DELETE = "edit.delete";
+    /** Copies the selected entities (roadmap A03). */
+    public static final String EDIT_COPY = "edit.copy";
+    /** Pastes copied entities as new ones (roadmap A03). */
+    public static final String EDIT_PASTE = "edit.paste";
     public static final String CREATE_EMPTY_ENTITY = "create.empty-entity";
     public static final String CREATE_BOX = "create.box";
     public static final String CREATE_SPHERE = "create.sphere";
@@ -118,6 +122,16 @@ public final class DefaultEditorActions {
             .menu(MENU_EDIT, GROUP_SECOND)
             .shortcut(Input.Keys.D, EditorKeyboardDispatcher.MOD_CTRL)
             .enabledWhen(() -> canEditSelection(editorState))
+            .build());
+        registry.register(EditorAction.builder(EDIT_COPY, "Copy", editorState::copySelectedEntities)
+            .menu(MENU_EDIT, GROUP_SECOND)
+            .shortcut(Input.Keys.C, EditorKeyboardDispatcher.MOD_CTRL)
+            .enabledWhen(() -> canEditSelection(editorState))
+            .build());
+        registry.register(EditorAction.builder(EDIT_PASTE, "Paste", editorState::pasteEntities)
+            .menu(MENU_EDIT, GROUP_SECOND)
+            .shortcut(Input.Keys.V, EditorKeyboardDispatcher.MOD_CTRL)
+            .enabledWhen(() -> !editorState.isPlayModeActive() && editorState.getActiveScene() != null && !editorState.getClipboard().isEmpty())
             .build());
         registry.register(EditorAction.builder(EDIT_DELETE, "Delete", editorState::deleteSelectedEntity)
             .menu(MENU_EDIT, GROUP_SECOND)

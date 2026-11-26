@@ -15,6 +15,7 @@ import io.github.ldev22live.gdxunity.editor.core.viewport.ViewKind;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportFocus;
 import io.github.ldev22live.gdxunity.editor.core.viewport.ViewportInteraction;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.Collider3DRenderer;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.PlacementPreviewRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.SelectionOutlineRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.SkeletonOverlayRenderer;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.TransformGizmoRenderer;
@@ -119,10 +120,12 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
         private final Collider3DRenderer colliders;
         private final SkeletonOverlayRenderer skeleton;
         private final Supplier<Float> gizmoScale;
+        private final PlacementPreviewRenderer placement;
 
         Overlays(Consumer<ShapeRenderer> grid, TransformGizmoRenderer gizmo,
                  SelectionOutlineRenderer outline, Collider3DRenderer colliders, SkeletonOverlayRenderer skeleton,
-                 Supplier<Float> gizmoScale) {
+                 Supplier<Float> gizmoScale, PlacementPreviewRenderer placement) {
+            this.placement = placement;
             this.grid = grid;
             this.gizmo = gizmo;
             this.outline = outline;
@@ -139,6 +142,7 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
         @Override
         public void renderOverlays(ShapeRenderer shapeRenderer) {
             colliders.render(shapeRenderer);
+            placement.render(shapeRenderer);
             outline.render(shapeRenderer);
             skeleton.render(shapeRenderer);
             gizmo.render(shapeRenderer, gizmoScale.get());
@@ -168,7 +172,8 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
                 new TransformGizmoRenderer(editorState, gizmoController, camera),
                 new SelectionOutlineRenderer(editorState, camera),
                 new Collider3DRenderer(editorState, camera, showAllColliders),
-                new SkeletonOverlayRenderer(editorState, camera, sceneRenderer3D), () -> 1f);
+                new SkeletonOverlayRenderer(editorState, camera, sceneRenderer3D), () -> 1f,
+                new PlacementPreviewRenderer(levelSession, camera));
         }
 
         @Override
@@ -251,7 +256,8 @@ public final class ScenePaneFactory implements MultiViewportArea.PaneFactory {
                 new TransformGizmoRenderer(editorState, gizmoController, view.getCamera(), true),
                 new SelectionOutlineRenderer(editorState, view.getCamera()),
                 new Collider3DRenderer(editorState, view.getCamera(), showAllColliders),
-                new SkeletonOverlayRenderer(editorState, view.getCamera(), sceneRenderer3D), axisInteraction::gizmoScale);
+                new SkeletonOverlayRenderer(editorState, view.getCamera(), sceneRenderer3D), axisInteraction::gizmoScale,
+                new PlacementPreviewRenderer(levelSession, view.getCamera()));
             resetView();
         }
 

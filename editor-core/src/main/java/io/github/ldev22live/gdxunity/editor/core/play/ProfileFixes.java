@@ -10,6 +10,10 @@ import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.CharacterController3DComponent;
 import io.github.ldev22live.gdxunity.engine.scene.play.PlayerComponent;
 
+import io.github.ldev22live.gdxunity.engine.render.components.SpriteAnimatorComponent;
+import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.physics.BoxCollider2DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics.RigidBody2DComponent;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,6 +32,28 @@ public final class ProfileFixes {
      *
      * @return false when the editor refused the command (for example during Play, or the entity no longer exists)
      */
+    /** A dynamic Rigid Body 2D that does not turn: a 2D player stays upright (TD-105). */
+    static RigidBody2DComponent uprightBody() {
+        RigidBody2DComponent body = new RigidBody2DComponent(RigidBody2DComponent.BodyType.DYNAMIC);
+        body.setFixedRotation(true);
+        return body;
+    }
+
+    /**
+     * A Box Collider 2D the size the entity's sprite is drawn at: its Width and Height, or for a sprite drawn at its pixel size (0)
+     * the loaded sprite's canvas. The collider's default size when there is no sprite, or it is not loaded yet.
+     */
+    static BoxCollider2DComponent colliderFor(Entity entity) {
+        SpriteAnimatorComponent sprite = entity.getComponent(SpriteAnimatorComponent.class);
+        if (sprite != null && sprite.getWidth() > 0f && sprite.getHeight() > 0f) {
+            return new BoxCollider2DComponent(sprite.getWidth(), sprite.getHeight());
+        }
+        if (sprite != null && sprite.getDocument() != null) {
+            return new BoxCollider2DComponent(sprite.getDocument().getWidth(), sprite.getDocument().getHeight());
+        }
+        return new BoxCollider2DComponent();
+    }
+
     public static boolean apply(EditorState editorState, ProfileFix fix) {
         Objects.requireNonNull(editorState, "editorState cannot be null");
         Objects.requireNonNull(fix, "fix cannot be null");
@@ -44,6 +70,9 @@ public final class ProfileFixes {
             case MAKE_PLAYER -> editorState.executeCommand(new AddComponentCommand(editorState, fix.entityId(), new PlayerComponent()));
             case ADD_CHARACTER_CONTROLLER_3D -> editorState.executeCommand(
                 new AddComponentCommand(editorState, fix.entityId(), new CharacterController3DComponent()));
+            case ADD_RIGID_BODY_2D -> editorState.executeCommand(new AddComponentCommand(editorState, fix.entityId(), uprightBody()));
+            case ADD_BOX_COLLIDER_2D -> editorState.executeCommand(new AddComponentCommand(editorState, fix.entityId(),
+                colliderFor(editorState.getActiveScene().findEntityById(fix.entityId()))));
             case ADD_CAMERA -> editorState.executeCommand(new CreateEntityCommand(editorState, CAMERA_NAME, null,
                 List.<Component>of(new CameraComponent(editorState.getGameMode() == GameMode.MODE_2D
                     ? CameraComponent.Projection.ORTHOGRAPHIC : CameraComponent.Projection.PERSPECTIVE))));

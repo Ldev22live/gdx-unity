@@ -45,6 +45,7 @@ public final class AssetImport {
         FOLDERS.put(AssetType.SONG, "music");
         FOLDERS.put(AssetType.MATERIAL, "materials");
         FOLDERS.put(AssetType.TERRAIN, "terrains");
+        FOLDERS.put(AssetType.VECTOR, "vectors");
     }
 
     /**

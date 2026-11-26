@@ -18,6 +18,10 @@ public record ProfileFix(Kind kind, UUID entityId, String label) {
         MAKE_PLAYER,
         /** Adds a Character Controller 3D with its defaults to the entity. */
         ADD_CHARACTER_CONTROLLER_3D,
+        /** Adds a dynamic Rigid Body 2D with fixed rotation to the entity, so a 2D player stays upright (TD-105). */
+        ADD_RIGID_BODY_2D,
+        /** Adds a Box Collider 2D the size of the entity's sprite (TD-105). */
+        ADD_BOX_COLLIDER_2D,
         /** Creates an entity named "Main Camera" with a perspective Camera. */
         ADD_CAMERA
     }

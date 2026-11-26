@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urgameforge/scenario/1",
+  "title": "Scenario block of a scene (version 1, TD-106, approved in principle 2026-11-25)",
+  "description": "The optional top-level 'scenario' object of a scene JSON file. Reserved by TD-106 so A04 (players, ownership) and A05 (rules, objectives) add no ad hoc format; their own TDs may refine the condition and effect sets before anything is implemented. Ownership is not here: it is the saved component OwnerComponent {player: <player id>} on each owned entity.",
+  "type": "object",
+  "required": ["version", "players", "objectives", "rules"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": 1 },
+    "players": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "color"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string", "minLength": 1, "maxLength": 60 },
+          "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+          "neutral": { "type": "boolean", "default": false },
+          "spawn": { "type": "string", "description": "Entity id of this player's Spawn Point, if any." }
+        }
+      }
+    },
+    "bounds": {
+      "type": "object",
+      "description": "Playable area in scene units (x and z; y unbounded).",
+      "required": ["minX", "minZ", "maxX", "maxZ"],
+      "additionalProperties": false,
+      "properties": {
+        "minX": { "type": "number" }, "minZ": { "type": "number" },
+        "maxX": { "type": "number" }, "maxZ": { "type": "number" }
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "required": ["id", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "text": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "player": { "type": "string", "description": "Player id the objective belongs to; absent means every player." },
+          "initial": { "enum": ["active", "hidden"], "default": "active" }
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "maxItems": 256,
+      "description": "Evaluated in list order every frame of Play; bounded: one condition, at most 8 effects, no loops or code.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "enabled", "once", "when", "then"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "enabled": { "type": "boolean" },
+          "once": { "type": "boolean", "description": "true: fires once per Play; false: fires again each time the condition becomes true." },
+          "when": {
+            "oneOf": [
+              {
+                "type": "object", "required": ["type", "seconds"], "additionalProperties": false,
+                "properties": { "type": { "const": "timer" }, "seconds": { "type": "number", "minimum": 0, "maximum": 86400 } }
+              },
+              {
+                "type": "object", "required": ["type", "area", "who"], "additionalProperties": false,
+                "properties": {
+                  "type": { "const": "enterArea" },
+                  "area": { "type": "string", "description": "Entity id of a trigger collider." },
+                  "who": { "type": "string", "description": "'player' (the controlled character) or a scenario player id." }
+                }
+              }
+            ]
+          },
+          "then": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 8,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object", "required": ["type", "text"], "additionalProperties": false,
+                  "properties": { "type": { "const": "showMessage" }, "text": { "type": "string", "minLength": 1, "maxLength": 200 }, "seconds": { "type": "number", "minimum": 0, "maximum": 60 } }
+                },
+                {
+                  "type": "object", "required": ["type", "objective"], "additionalProperties": false,
+                  "properties": { "type": { "const": "completeObjective" }, "objective": { "type": "string" } }
+                },
+                {
+                  "type": "object", "required": ["type", "result"], "additionalProperties": false,
+                  "properties": { "type": { "const": "endScenario" }, "result": { "enum": ["victory", "defeat", "draw"] }, "player": { "type": "string" } }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" }
+  }
+}

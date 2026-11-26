@@ -43,7 +43,7 @@ Until one of those is repaired or the backend is retired, the TeaVM column says 
 | `DynamicMeshComponent` | Dynamic Mesh | Works | Blocked | No: reported as unsupported | Runtime-built meshes (sculpt export, mesh edits) |
 | `ShapeRendererComponent` | Shape Renderer | Works | Blocked | Works: filled rectangles | |
 | `SpriteRendererComponent` | Sprite Renderer | Works | Blocked | No: reported as unsupported | Babylon draws sprites through Sprite Animator only |
-| `SpriteAnimatorComponent` | Sprite Animator | Works | Blocked | Works: `.sprite` tags, speed, flip, tint | |
+| `SpriteAnimatorComponent` | Sprite Animator | Works (and `getHitboxes()` of the frame shown, TD-104) | Blocked | Works: `.sprite` tags, speed, flip, tint; hitboxes parsed, not yet exposed to web scripts | |
 | `TilemapComponent` | Tile Map | Works | Blocked | Works: drawn, and its solid tiles collide in 2D physics | Babylon: `tilemap-platformer-2d` drawn ([screenshot](reports/m9-4/babylon-tilemap-platformer-2d.png), 2026-11-18) |
 | `TextComponent` | Text | Works | Blocked | Works: HTML over the canvas, nine anchors | |
 | `CameraComponent` | Camera | Works | Blocked | Works: perspective and orthographic | |
@@ -71,7 +71,8 @@ Until one of those is repaired or the backend is retired, the TeaVM column says 
 | `CharacterController3DComponent` | Character Controller 3D | Works | No: needs Jolt | Works: driven by ported scripts (TD-064) | Graph character nodes are desktop only |
 | `PlayerComponent` | Player (genre profiles) | Works: genre profiles walk it (TD-088) | Blocked | No: reported as unsupported; profile samples load without gameplay | Babylon: `action-rpg-valley-3d` status bar "unsupported: PlayerComponent x1" ([screenshot](reports/m9-4/babylon-action-rpg-valley-3d.png), 2026-11-18) |
 | `SpawnPointComponent` | Spawn Point | Works | Blocked | No: reported as unsupported | |
-| `PrefabInstance` | Prefab link | Works: links the entity to its prefab in the editor; nothing at play | Blocked | No: reported as unsupported; the entity's other components still play | |
+| `OwnerComponent` | Owner (scenario player) | Works: saved, duplicated with its entity and in prefabs; checked by `ScenarioValidator` (TD-106) | Blocked | Works: kept as data, nothing to draw (`SceneBuilder`); preserved through web saves (`contract.test.ts`, `interop.test.ts`) | Scenario rules that use ownership arrive with roadmap A04 and A05 |
+| `PrefabInstance` | Prefab link | Works: links the entity to its prefab in the editor; nothing at play | Blocked | Partial: accepts prefab-link metadata on deserialized entities; the player uses the components already present in the scene | |
 | `EntityScriptBindingComponent` | Script binding | Works: Java and Kotlin scripts | Blocked: Java scripts only, compiled into the build | Partial: only hand-ported TypeScript versions run; 4 of the 14 original games' scripts not ported | Section 2, Scripts |
 | `GraphScriptComponent` | Graph Script | Works | Blocked: `NodeRegistry.createDefault` reaches the reflection above | Partial: the web node set; physics, navigation and some Java method nodes refused with the reason | `visualscript.test.ts` |
 | `AnimatorComponent` | Animator (`.anim` clips) | Works | Blocked | Works: clips on the entity's bones | |
@@ -95,6 +96,7 @@ Until one of those is repaired or the backend is retired, the TeaVM column says 
 | 2D physics | Works: Box2D | Blocked: pure-Java Box2D | Partial: boxes and tile maps; no circles | |
 | 3D physics | Works: Jolt | No: Jolt is native | Works: Jolt in WebAssembly | |
 | Genre profiles (Play/Test, TD-088) | Works | Blocked | No | The three profile samples load on Babylon without gameplay |
+| Flat 2D among 3D in a perspective view: depth against 3D and order among the flats (MC.4) | Works: depth-tested against the 3D pass; flats drawn farthest first along the view (`ViewDepthOrder`) | Blocked | Partial: depth-tested against 3D; among themselves in scene order (`alphaIndex`), so a sprite behind another can be drawn over it | Desktop: `ViewDepthOrderTest`, `HybridSideScrollerOnJoltTest`, [runtime frame](reports/mc-4/runtime-hybrid-frame-240.png) (2026-11-25). `hybrid-side-scroller-25d.json` is not offered on the web (genre profile) |
 | Navigation (M6.4) | Works | Blocked | No | |
 | Materials (`.material`, TD-081) | Works | Blocked | Works (M2.5) | |
 | Terrain (`.terrain`, TD-082) | Works | Blocked | Works (M3.11) | |
@@ -102,7 +104,7 @@ Until one of those is repaired or the backend is retired, the TeaVM column says 
 | Post-processing (M6.2) | Works | Blocked | No | |
 | glTF models | Works | Blocked | Partial: no model animations | |
 | Animation clips (`.anim`) | Works | Blocked | Works | |
-| Sprites and tile maps (`.sprite`) | Works | Blocked: `PixelPng` uses `ImageIO` | Works | |
+| Sprites and tile maps (`.sprite`) | Works (versions 1 and 2) | Blocked: `PixelPng` uses `ImageIO` | Works: versions 1 and 2; version 2's per-frame hitboxes are read (TD-104, 2026-11-24), its layer vector sources are desktop authoring data and ignored | `.vector` drawings are desktop only (no web editing, Appendix G) |
 | Sound effects and audio sources | Works | Blocked | Works | Not listened to in this check. Desktop game runtime silent until M9.5 (fixed; see the Audio Source row) |
 | Music (`.song`) in a scene | Works | Blocked | Partial: sampled, sfxr and SoundFont instruments silent | Desktop game runtime silent until M9.5 (fixed) |
 | Keyboard input | Works | Blocked | Works | |

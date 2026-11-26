@@ -90,6 +90,27 @@
             "exposure": 1.0,
             "operator": "ACES_FILMIC"
           }
+        },
+        {
+          "type": "AtmosphereComponent",
+          "enabled": true,
+          "data": {
+            "zenithR": 0.24,
+            "zenithG": 0.47,
+            "zenithB": 0.85,
+            "horizonR": 0.72,
+            "horizonG": 0.83,
+            "horizonB": 0.94,
+            "fog": true,
+            "fogR": 0.72,
+            "fogG": 0.83,
+            "fogB": 0.94,
+            "fogStart": 6000.0,
+            "fogEnd": 40000.0,
+            "weather": "CLEAR",
+            "weatherIntensity": 0.0,
+            "sunlight": 1.0
+          }
         }
       ]
     },
@@ -198,17 +219,14 @@
       },
       "components": [
         {
-          "type": "MeshPrimitiveComponent",
+          "type": "ModelComponent",
           "enabled": true,
           "data": {
-            "shape": "BOX",
-            "sizeX": 160.0,
-            "sizeY": 160.0,
-            "sizeZ": 160.0,
-            "colorR": 0.52,
-            "colorG": 0.5,
-            "colorB": 0.47,
-            "colorA": 1.0
+            "model": "models/thirdparty/opengameart/boulder/boulder.glb",
+            "importScale": 36.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
           }
         },
         {
@@ -261,7 +279,8 @@
             "colorR": 0.72,
             "colorG": 0.56,
             "colorB": 0.36,
-            "colorA": 1.0
+            "colorA": 1.0,
+            "materialPath": "materials/WoodFloorDeck.material"
           }
         },
         {
@@ -336,6 +355,156 @@
           "enabled": true,
           "data": {
             "useProfileMovement": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "78a04481-b3e1-5306-984a-6c2c774d7785",
+      "name": "Valley Rabbit",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -310.0,
+          "y": 35.39148,
+          "z": 920.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5226872289306592,
+          "z": 0.0,
+          "w": 0.8525245220595057
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/rabbit/rabbit.glb",
+            "importScale": 3.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0,
+            "animation": "Sitting.000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "210e53be-f675-5b95-b180-80c625e86af3",
+      "name": "Valley Fox",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 390.0,
+          "y": 17.94852,
+          "z": 1160.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5226872289306592,
+          "z": 0.0,
+          "w": 0.8525245220595057
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/fox/fox.glb",
+            "importScale": 5.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0,
+            "animation": "IDLE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d72c2bd4-3768-5408-a143-c58b60b7948f",
+      "name": "Ridge Boulder",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 430.0,
+          "y": 101.4765,
+          "z": 1370.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5226872289306592,
+          "z": 0.0,
+          "w": 0.8525245220595057
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/boulder/boulder.glb",
+            "importScale": 44.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "edb20b3e-9594-52d2-8ae4-8b985d8a21f1",
+      "name": "Path Boulder",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -430.0,
+          "y": 88.26353,
+          "z": 1190.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5226872289306592,
+          "z": 0.0,
+          "w": 0.8525245220595057
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/thirdparty/opengameart/boulder/boulder.glb",
+            "importScale": 30.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
           }
         }
       ]

@@ -431,6 +431,7 @@ public final class SampleInventory {
             case SOUND -> "none: an Audio Source plays it";
             case MATERIAL -> "Details of the surface using it";
             case TERRAIN -> "World: Terrain";
+            case VECTOR -> "2D Studio: through the sprite layers drawn from it";
             case UNKNOWN -> "not a Forgeroom asset";
         };
     }

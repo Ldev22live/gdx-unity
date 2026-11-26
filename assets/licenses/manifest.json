@@ -13070,6 +13070,225 @@
           "sha256": "80a66dacfc5a3fa92b1e0f1ac1af2067bdccf46099a0de7ee2c5a32c4daa1756"
         }
       ]
+    },
+    {
+      "id": "opengameart-detective-bunny",
+      "name": "Detective Bunny",
+      "category": "model",
+      "source": "https://opengameart.org/content/detective-bunny",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://opengameart.org/content/detective-bunny",
+      "authors": [
+        "atornity"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied local source, inventoried on this date",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Blender 5.2.2. Selected six authored clips and embedded textures",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/detective-bunny/detective-bunny.glb",
+          "original": "bun_tective.blend",
+          "bytes": 310216,
+          "sha256": "56c44064a93814082ca8bc9a197bac150d24d9ce504984bf813b655f0c3dedb8"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-fox",
+      "name": "Fox",
+      "category": "model",
+      "source": "https://opengameart.org/content/fox-0",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://opengameart.org/content/fox-0",
+      "authors": [
+        "br-n518"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied local source, inventoried on this date",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Blender 5.2.2. Applied mesh mirror and connected original diffuse and normal maps",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/fox/fox.glb",
+          "original": "fox.blend",
+          "bytes": 3131988,
+          "sha256": "a7634138b696b1f26c22f5d00471fdcd065c0f2e71089c4e2f2b0017c210b573"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-rabbit",
+      "name": "Rabbit",
+      "category": "model",
+      "source": "https://opengameart.org/content/rabbit-0",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://opengameart.org/content/rabbit-0",
+      "authors": [
+        "CDmir",
+        "TinyWorlds"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied local source, inventoried on this date",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Blender 5.2.2. Rebuilt materials from packed maps and exported three wildlife clips",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/rabbit/rabbit.glb",
+          "original": "rabbit.blend",
+          "bytes": 4262696,
+          "sha256": "0677d847a0e3898b6d38c013d12c976a599fb778f302e742ddb43738c5cbb64e"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-boulder",
+      "name": "Realistic Rocks/Boulders",
+      "category": "model",
+      "source": "https://opengameart.org/content/realistic-rocksboulders",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://opengameart.org/content/realistic-rocksboulders",
+      "authors": [
+        "WeaponGuy"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied local source, inventoried on this date",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Blender 5.2.2. Centered evaluated Rock mesh, added UVs, embedded CC0 Rocky Terrain 02 base color, and omitted legacy scenery and external image. Embedded texture source: textures/thirdparty/polyhaven/rocky_terrain_02/rocky_terrain_02_diff_1k.jpg",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/boulder/boulder.glb",
+          "original": "rocksrealistic.blend",
+          "bytes": 850652,
+          "sha256": "bc3c8b24a843c1d0af135a164badb3be11d0819d7ca0e683d10948ac96e35406"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-hex-paver-b",
+      "name": "PBR Materials (Rocks), Hex Paver B",
+      "category": "texture",
+      "source": "https://opengameart.org/content/pbr-materials-rocks",
+      "licence": "CC0-1.0",
+      "licenceEvidence": "https://opengameart.org/content/pbr-materials-rocks",
+      "authors": [
+        "KillGorack"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied local source, inventoried on this date",
+      "format": "png",
+      "dependencies": [],
+      "conversion": "Resize approved B diffuse, normal and AO maps to 1024; use scalar roughness",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "textures/thirdparty/opengameart/hex-paver-b/diffuse.png",
+          "original": "Hex_paver_b_diffuse.png",
+          "bytes": 2626372,
+          "sha256": "85642012b8c0e2014502371dadea9b78d1c7a78512a1539fcfee1c8ce46b031e"
+        },
+        {
+          "path": "textures/thirdparty/opengameart/hex-paver-b/normal.png",
+          "original": "Hex_paver_b_normal.png",
+          "bytes": 446308,
+          "sha256": "00c77970bcd183a85ddb57a6b1a6ee443d1d8a4c1da48bdf724f5b6d60a0f524"
+        },
+        {
+          "path": "textures/thirdparty/opengameart/hex-paver-b/ao.png",
+          "original": "Hex_paver_b_ao.png",
+          "bytes": 143197,
+          "sha256": "b51acd031e16022e2e571c4ee36e56f51bbe366028da15687cee0e7699d1d992"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-warrior-low-poly",
+      "name": "Warrior low poly",
+      "category": "model",
+      "source": "https://opengameart.org/content/warrior-low-poly",
+      "licence": "CC-BY-3.0",
+      "licenceEvidence": "https://opengameart.org/content/warrior-low-poly",
+      "authors": [
+        "jjmoser"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied OpenGameArt archive",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Converted to GLB and linked supplied diffuse and normal maps.",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/warrior-low-poly/warrior.glb",
+          "original": "MANIQUI_lowpoly.blend",
+          "bytes": 200428,
+          "sha256": "feb0e19f3d0025d2fb7ecfb3b156259ae655dc884f8513820a1bad9df9d07fda"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-thin-zombie",
+      "name": "Thin Zombie",
+      "category": "model",
+      "source": "https://opengameart.org/content/thin-zombie-awake-zombie-asset",
+      "licence": "CC-BY-3.0",
+      "licenceEvidence": "https://opengameart.org/content/thin-zombie-awake-zombie-asset",
+      "authors": [
+        "Rosswet Mobile"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied OpenGameArt archive",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Converted to GLB with supplied texture and six authored clips.",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/thin-zombie/thin-zombie.glb",
+          "original": "new_thin_zombie.blend",
+          "bytes": 1860720,
+          "sha256": "a9a18e8f57665d966cf192abbd7e61588a85cdf8faaf1965a44286842674c6a4"
+        }
+      ]
+    },
+    {
+      "id": "opengameart-horror-sci-fi-map-kit",
+      "name": "Horror sci-fi 3d map kit",
+      "category": "model",
+      "source": "https://opengameart.org/content/horror-sci-fi-3d-map-kit",
+      "licence": "CC-BY-3.0",
+      "licenceEvidence": "https://opengameart.org/content/horror-sci-fi-3d-map-kit",
+      "authors": [
+        "Rosswet Mobile"
+      ],
+      "retrieved": "2026-11-23",
+      "retrievedWith": "User-supplied OpenGameArt archive",
+      "format": "glb",
+      "dependencies": [],
+      "conversion": "Converted room and cover to GLB and rebuilt their material bindings.",
+      "importStatus": "imported",
+      "files": [
+        {
+          "path": "models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-cover.glb",
+          "original": "others/cover.obj",
+          "bytes": 335032,
+          "sha256": "03bbff60abbb2e55376da8c103a97eb1b75000afe1b07d8380faf4a4bb027493"
+        },
+        {
+          "path": "models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-room.glb",
+          "original": "room/room.obj",
+          "bytes": 947560,
+          "sha256": "3c98f50a35813085caebe3b1a9dc167a5bd5c0eb61b75fbedec7e4412a749a92"
+        }
+      ]
     }
   ]
 }

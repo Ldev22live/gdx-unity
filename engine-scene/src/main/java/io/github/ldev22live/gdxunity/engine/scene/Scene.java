@@ -6,6 +6,7 @@ import io.github.ldev22live.gdxunity.engine.scene.play.EntityLogicComponent;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.ColliderGeometrySource;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.HeightFieldSource;
 import io.github.ldev22live.gdxunity.engine.scene.navigation.NavigationSystem3D;
+import io.github.ldev22live.gdxunity.engine.scene.physics.PhysicsSystem2D;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.PhysicsSystem3D;
 
 import java.util.ArrayList;
@@ -35,8 +36,10 @@ public class Scene implements Disposable {
     private boolean active = true;
     private GameMode gameMode;
     private String gameGenre;
+    private PreservedFields preservedFields = PreservedFields.EMPTY;
     private boolean disposed = false;
     private PhysicsSystem3D physics3D;
+    private PhysicsSystem2D physics2D;
     private ColliderGeometrySource colliderGeometry;
     private HeightFieldSource heightFields;
     /** Walkable areas, baked the first time an agent or a graph asks (roadmap M6.4); null until then. */
@@ -153,6 +156,26 @@ public class Scene implements Disposable {
         this.navigation = navigation;
     }
 
+    /**
+     * The scene's running 2D physics (Box2D), or null when none runs (TD-105). Genre profiles that move a 2D player reach its body
+     * through it.
+     */
+    public PhysicsSystem2D getPhysics2D() {
+        return physics2D;
+    }
+
+    /** Called by {@link PhysicsSystem2D}'s constructor; the newest system is the scene's. */
+    public void attachPhysics2D(PhysicsSystem2D system) {
+        physics2D = Objects.requireNonNull(system, "system cannot be null");
+    }
+
+    /** Called by {@link PhysicsSystem2D#dispose()}; ignored when {@code system} is not the attached one. */
+    public void detachPhysics2D(PhysicsSystem2D system) {
+        if (physics2D == system) {
+            physics2D = null;
+        }
+    }
+
     /** Called by {@link PhysicsSystem3D}'s constructor; a scene runs one 3D physics system at a time. */
     public void attachPhysics3D(PhysicsSystem3D system) {
         Objects.requireNonNull(system, "system cannot be null");
@@ -190,6 +213,28 @@ public class Scene implements Disposable {
     public String getGameGenre() {
         return gameGenre;
     }
+
+    /**
+     * Top-level members of the scene file this engine does not understand, kept for saving (TD-106). The versioned
+     * {@code scenario} block (players, objectives, rules; {@code docs/contracts/scenario.schema.json}) is kept here until the
+     * scenario editor (roadmap A04, A05) reads it; see {@link #getScenarioJson()}.
+     */
+    public PreservedFields getPreservedFields() {
+        return preservedFields;
+    }
+
+    /** Sets the preserved top-level members (see {@link #getPreservedFields()}); used by the scene serializer. */
+    public void setPreservedFields(PreservedFields preservedFields) {
+        this.preservedFields = Objects.requireNonNull(preservedFields, "preservedFields cannot be null");
+    }
+
+    /** The compact JSON text of the scene's {@code scenario} block, or null when it has none. */
+    public String getScenarioJson() {
+        return preservedFields.raw(SCENARIO_MEMBER);
+    }
+
+    /** The name of the scenario block in a scene file (TD-106). */
+    public static final String SCENARIO_MEMBER = "scenario";
 
     /**
      * Sets the genre id; null or blank means "none".

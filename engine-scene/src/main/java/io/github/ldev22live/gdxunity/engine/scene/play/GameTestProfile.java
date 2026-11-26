@@ -43,17 +43,43 @@ public record GameTestProfile(GameGenre genre, GameMode mode, CameraSetup camera
     }
 
     /**
-     * A hitscan shot along the camera's view, once per press of the fire key (roadmap M3b.7). What it hits is reported; a dynamic
-     * rigid body hit is knocked away along the shot.
+     * A hitscan shot, once per press of the fire key (roadmap M3b.7). What it hits is reported; a dynamic rigid body hit is knocked
+     * away along the shot.
      *
      * @param range           how far the shot reaches, in scene units
      * @param knockSpeed      the speed a dynamic body hit gains along the shot, in scene units per second (the impulse is this
      *                        times its mass, so light and heavy bodies move alike)
+     * @param origin          where the shot starts and which way it goes
+     * @param aimHeight       for {@link Origin#PLAYER_FACING}, the height above the player's centre the shot starts at; 0 otherwise
      */
-    public record ShotSetup(float range, float knockSpeed) {
+    public record ShotSetup(float range, float knockSpeed, Origin origin, float aimHeight) {
+        /** Where a shot starts and which way it goes. */
+        public enum Origin {
+            /** From the game camera along its view (First-person Shooter + 3D: the camera is at the eyes). */
+            CAMERA_VIEW,
+            /**
+             * From the player, {@link ShotSetup#aimHeight} above its centre, level along the way it faces (Third-person Shooter + 3D:
+             * a camera behind and above looks down at the player, so a shot along its view would strike the ground).
+             */
+            PLAYER_FACING
+        }
+
         public ShotSetup {
             positive("range", range);
             positive("knockSpeed", knockSpeed);
+            Objects.requireNonNull(origin, "origin cannot be null");
+            if (!Float.isFinite(aimHeight)) {
+                throw new IllegalArgumentException("aimHeight must be finite: " + aimHeight);
+            }
+            if (origin == Origin.CAMERA_VIEW && aimHeight != 0f) {
+                throw new IllegalArgumentException("aimHeight is only used from the player, and must be 0 along the camera's view: "
+                    + aimHeight);
+            }
+        }
+
+        /** A shot along the game camera's view. */
+        public ShotSetup(float range, float knockSpeed) {
+            this(range, knockSpeed, Origin.CAMERA_VIEW, 0f);
         }
     }
 
@@ -76,6 +102,8 @@ public record GameTestProfile(GameGenre genre, GameMode mode, CameraSetup camera
         PLAYER,
         /** The player walks with a Character Controller 3D (TD-049) and has no Rigid Body 3D or 3D collider. */
         CHARACTER_3D,
+        /** The player is a dynamic Rigid Body 2D with a 2D collider, moved by setting its velocity (TD-105). */
+        CHARACTER_2D,
         /** An enabled camera to view the game through. */
         CAMERA
     }
@@ -95,6 +123,12 @@ public record GameTestProfile(GameGenre genre, GameMode mode, CameraSetup camera
         public enum Kind {
             /** Beside the play plane, looking along -Z at the player (a {@code FOLLOW} rig with a side offset). */
             SIDE_FOLLOW,
+            /**
+             * A 2D view that follows the player across the screen, {@link CameraSetup#height} above its centre (TD-105): a
+             * {@code FOLLOW} rig that keeps looking straight along -Z, so the orthographic view never tilts. The distance is the
+             * rig's depth offset only.
+             */
+            FOLLOW_2D,
             /** Behind the player, turned by the turn keys (an {@code ORBIT} rig). */
             THIRD_PERSON,
             /**
@@ -106,7 +140,13 @@ public record GameTestProfile(GameGenre genre, GameMode mode, CameraSetup camera
              * At the player's eyes ({@link CameraSetup#height} above its centre), looking the way the player faces, tilted by the
              * pitch; the player's movement turns it (a {@code FIRST_PERSON} rig; roadmap M3b.7). The distance is not used.
              */
-            FIRST_PERSON
+            FIRST_PERSON,
+            /**
+             * Behind and above the player, always looking the way it faces (an {@code ORBIT} rig whose yaw follows the player's
+             * facing; roadmap M3b.7, Third-person Shooter + 3D). The turn keys turn the player, and so the camera; walls in the way
+             * pull it in.
+             */
+            BEHIND_FACING
         }
 
         public CameraSetup {
@@ -137,6 +177,8 @@ public record GameTestProfile(GameGenre genre, GameMode mode, CameraSetup camera
         public enum Kind {
             /** Left and right along x at the player's authored depth; jump. */
             PLANE_RUN,
+            /** Left and right along x and jump, by setting the velocity of the player's Rigid Body 2D (TD-105). */
+            RUN_2D,
             /** Forward, back, left and right relative to the camera; jump; the player turns toward its movement. */
             GROUND_WALK,
             /**
@@ -175,6 +217,9 @@ public record GameTestProfile(GameGenre genre, GameMode mode, CameraSetup camera
         }
         if (mode == GameMode.MODE_2D && physics == Physics.PHYSICS_3D) {
             throw new IllegalArgumentException(genre.label() + " + 2D cannot use 3D physics: 2D scenes run on Box2D");
+        }
+        if (requirements.contains(Requirement.CHARACTER_2D) && physics != Physics.PHYSICS_2D) {
+            throw new IllegalArgumentException(genre.label() + " + " + mode.getLabel() + " requires a 2D character but not 2D physics");
         }
         if (requirements.contains(Requirement.CHARACTER_3D) && physics != Physics.PHYSICS_3D) {
             throw new IllegalArgumentException(genre.label() + " + " + mode.getLabel() + " requires a Character Controller 3D but not 3D physics");

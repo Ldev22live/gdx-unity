@@ -35,6 +35,9 @@ import io.github.ldev22live.gdxunity.engine.terrain.Terrain;
 import io.github.ldev22live.gdxunity.engine.terrain.TerrainBrush;
 import io.github.ldev22live.gdxunity.engine.terrain.TerrainPath;
 
+import io.github.ldev22live.gdxunity.editor.core.action.DefaultEditorActions;
+import io.github.ldev22live.gdxunity.editor.terrain.TerrainAssets.MapSize;
+import io.github.ldev22live.gdxunity.engine.render.RenderQuality3D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,6 +93,14 @@ public class LevelPalette extends Table {
     private static final float LICENCE_WIDTH = 360f;
     /** Space between the group buttons, which have no frame of their own. */
     private static final float GROUP_GAP = 12f;
+    /** Thumbnail size in the World layout's palette row (TD-107), smaller so a tile fits the row's height. */
+    private static final float ROW_THUMBNAIL_SIZE = 50f;
+    /** Tile width in the World layout's palette row. */
+    private static final float ROW_TILE_WIDTH = 84f;
+    /** Gap between buttons in the palette row, so their labels do not run together. */
+    private static final float TOOL_GAP = 6f;
+    /** Gap between the palette row's sections. */
+    private static final float ROW_SECTION_GAP = 16f;
     /** The Sky menu's entries for a scene with no Sky and Weather, and for one whose settings match no preset. */
     static final String SKY_NONE = "None";
     static final String SKY_CUSTOM = "Custom";
@@ -97,6 +108,8 @@ public class LevelPalette extends Table {
 
     private final Skin skin;
     private final LevelSession level;
+    /** True in the World layout's palette row: see the constructor. */
+    private final boolean inRow;
     private final Map<LevelSession.Tool, TextButton> toolButtons = new EnumMap<>(LevelSession.Tool.class);
     private final Map<Surface, TextButton> baseButtons = new EnumMap<>(Surface.class);
     private final Table context;
@@ -123,6 +136,10 @@ public class LevelPalette extends Table {
     private LevelSession.Focus shownFocus;
     private final Label titleLabel;
     private final Table base;
+    private final Table title;
+    private final SelectBox<MapSize> mapSize;
+    private final Table mapControls;
+    private final Cell<Table> titleCell;
     private final Cell<Table> baseCell;
     private final Table tools;
     /** The base surface of the ground as of {@link #cachedRevision}; the surfaces are only scanned when the terrain changes. */
@@ -136,20 +153,55 @@ public class LevelPalette extends Table {
     /**
      * @param actions runs an editor action by id (the heightmap import and export open file dialogs, so they are editor actions)
      */
+    /** The palette stacked for a side panel (the classic layout). */
     public LevelPalette(Skin skin, LevelSession level, Predicate<String> actions) {
+        this(skin, level, actions, false);
+    }
+
+    /**
+     * @param inRow true for the World layout's palette row (TD-107, roadmap A03): the sections sit side by side (title, ground,
+     *              tools, the tool's settings), and the objects are one strip of tiles beside the search box and groups, so the row
+     *              stays short and scrolls sideways; false stacks everything for a side panel
+     */
+    public LevelPalette(Skin skin, LevelSession level, Predicate<String> actions, boolean inRow) {
         super(skin);
+        this.inRow = inRow;
         this.skin = Objects.requireNonNull(skin, "skin cannot be null");
         this.level = Objects.requireNonNull(level, "level cannot be null");
         Objects.requireNonNull(actions, "actions cannot be null");
         setBackground("elevated-bg");
         pad(4f);
         left();
+        if (inRow) {
+            top();
+            defaults().top().padRight(ROW_SECTION_GAP);
+        }
 
-        Table title = new Table(skin);
+        title = new Table(skin);
         titleLabel = new Label(level.getFocus().getLabel(), skin);
         title.add(titleLabel).left().padRight(8);
         title.add(button("New Level", "primary", () -> level.createLevel(Surface.GRASS))).height(BUTTON_HEIGHT);
-        add(title).left().row();
+        titleCell = add(title).left();
+        row();
+        mapControls = new Table(skin);
+        mapSize = new SelectBox<>(skin);
+        if (inRow) {
+            mapSize.setItems(MapSize.values());
+            mapSize.setSelected(MapSize.STANDARD);
+            mapControls.add(new Label("New map size", skin)).left();
+            mapControls.add(mapSize).left();
+            mapControls.add(button("New Level", "primary", () -> level.createLevel(Surface.GRASS, mapSize.getSelected())));
+            mapControls.row();
+            mapControls.add(new Label("View lighting", skin)).left();
+            Table lighting = new Table(skin);
+            lighting.add(button("Toggle shadows", "flat", () -> actions.test(DefaultEditorActions.VIEW_TOGGLE_SHADOWS)));
+            for (RenderQuality3D quality : RenderQuality3D.values()) {
+                String name = quality.name().toLowerCase(Locale.ROOT);
+                lighting.add(button(name, "flat", () -> actions.test(DefaultEditorActions.VIEW_LIGHTING_QUALITY_PREFIX + name)))
+                    .padLeft(buttonGap());
+            }
+            mapControls.add(lighting).colspan(2).left();
+        }
 
         base = new Table(skin);
         base.add(new Label("Ground", skin, "muted")).width(LABEL_WIDTH).left();
@@ -157,33 +209,38 @@ public class LevelPalette extends Table {
             // With no ground yet, choosing one starts a level on it; otherwise it changes the ground's base
             TextButton b = button(surface.getLabel(), "flat", () -> {
                 if (level.findGround() == null) {
-                    level.createLevel(surface);
+                    level.createLevel(surface, inRow && level.getFocus() == LevelSession.Focus.ALL ? mapSize.getSelected() : MapSize.STANDARD);
                 } else {
                     level.setBaseSurface(surface);
                 }
             });
             baseButtons.put(surface, b);
-            base.add(b).height(BUTTON_HEIGHT).padRight(2);
+            base.add(b).height(BUTTON_HEIGHT).padRight(buttonGap());
         }
         // The water level of the ground (roadmap M3.4): each button is one undo step
         base.row();
         base.add(new Label("Water", skin, "muted")).width(LABEL_WIDTH).left();
         Table water = new Table(skin);
-        water.add(button("Add", "flat", level::addWater)).height(BUTTON_HEIGHT).padRight(2);
-        water.add(button("Up", "flat", () -> level.moveWater(1))).height(BUTTON_HEIGHT).padRight(2);
-        water.add(button("Down", "flat", () -> level.moveWater(-1))).height(BUTTON_HEIGHT).padRight(2);
+        water.add(button("Add", "flat", level::addWater)).height(BUTTON_HEIGHT).padRight(buttonGap());
+        water.add(button("Up", "flat", () -> level.moveWater(1))).height(BUTTON_HEIGHT).padRight(buttonGap());
+        water.add(button("Down", "flat", () -> level.moveWater(-1))).height(BUTTON_HEIGHT).padRight(buttonGap());
         water.add(button("Remove", "flat", () -> level.setWaterLevel(Float.NaN))).height(BUTTON_HEIGHT);
         base.add(water).colspan(GROUNDS.length).left().padTop(2);
         // Heightmap PNG import and export (roadmap M3.5)
         base.row();
         base.add(new Label("Heightmap", skin, "muted")).width(LABEL_WIDTH).left();
         Table heightmap = new Table(skin);
-        heightmap.add(button("Import...", "flat", () -> actions.test(LevelActions.IMPORT_HEIGHTMAP))).height(BUTTON_HEIGHT).padRight(2);
+        heightmap.add(button("Import...", "flat", () -> actions.test(LevelActions.IMPORT_HEIGHTMAP))).height(BUTTON_HEIGHT).padRight(buttonGap());
         heightmap.add(button("Export...", "flat", () -> actions.test(LevelActions.EXPORT_HEIGHTMAP))).height(BUTTON_HEIGHT);
         base.add(heightmap).colspan(GROUNDS.length).left().padTop(2);
-        // The scene's sky, fog and weather (roadmap M3.9, TD-090): choosing a preset is one undo step
-        base.row();
-        base.add(new Label("Sky", skin, "muted")).width(LABEL_WIDTH).left();
+        // The scene's sky, fog and weather (roadmap M3.9, TD-090): choosing a preset is one undo step. In the palette row it sits
+        // beside Heightmap, so the ground settings take three rows and fit the row's height
+        if (inRow) {
+            base.add(new Label("Sky", skin, "muted")).left().padLeft(ROW_SECTION_GAP).padRight(8);
+        } else {
+            base.row();
+            base.add(new Label("Sky", skin, "muted")).width(LABEL_WIDTH).left();
+        }
         skySelect = new SelectBox<>(skin);
         skySelect.setItems(skyChoices());
         skySelect.addListener(new ChangeListener() {
@@ -192,7 +249,7 @@ public class LevelPalette extends Table {
                 applySky(skySelect.getSelected());
             }
         });
-        base.add(skySelect).colspan(GROUNDS.length).left().padTop(2).height(BUTTON_HEIGHT).width(SKY_WIDTH);
+        base.add(skySelect).colspan(inRow ? 1 : GROUNDS.length).left().padTop(2).height(BUTTON_HEIGHT).width(SKY_WIDTH);
         watchSky(level.getEditorState());
         baseCell = add(base).left().padTop(2);
         row();
@@ -201,13 +258,33 @@ public class LevelPalette extends Table {
         add(tools).left().padTop(2).row();
         buildTools();
 
-        context = new Table(skin);
+        context = new Table(skin) {
+            @Override
+            public Cell row() {
+                // In the palette row the tool's settings (material, path kinds, brush size, objects) sit side by side
+                return inRow ? defaults() : super.row();
+            }
+        };
         context.left();
+        if (inRow) {
+            context.defaults().padRight(ROW_SECTION_GAP).top();
+        }
         add(context).left().padTop(2).row();
 
         status = new Label("", skin, "muted");
         add(status).left().padTop(2);
         pack();
+    }
+
+    /** The gap after a button in a row of buttons: wider in the palette row; the side panel keeps its compact spacing. */
+    private float buttonGap() {
+        return inRow ? TOOL_GAP : 2f;
+    }
+
+    /** In the palette row the palette's sections (title, ground, tools, settings, status) sit side by side instead of stacked. */
+    @Override
+    public Cell row() {
+        return inRow ? defaults() : super.row();
     }
 
     /** "None", "Custom" and every sky preset's name. */
@@ -267,16 +344,21 @@ public class LevelPalette extends Table {
      */
     private void buildTools() {
         LevelSession.Focus focus = level.getFocus();
+        titleCell.setActor(inRow && focus == LevelSession.Focus.ALL ? mapControls : title);
         tools.clearChildren();
         toolButtons.clear();
-        tools.add(new Label("Tool", skin, "muted")).width(LABEL_WIDTH).left();
+        if (inRow) {
+            tools.add(new Label("Tool", skin, "muted")).left().padRight(8);
+        } else {
+            tools.add(new Label("Tool", skin, "muted")).width(LABEL_WIDTH).left();
+        }
         for (LevelSession.Tool tool : LevelSession.Tool.values()) {
             if (!focus.offers(tool)) {
                 continue;
             }
             TextButton b = button(tool.getLabel(), "flat", () -> level.setTool(tool));
             toolButtons.put(tool, b);
-            tools.add(b).height(BUTTON_HEIGHT).padRight(2);
+            tools.add(b).height(BUTTON_HEIGHT).padRight(buttonGap());
         }
         baseCell.setActor(focus == LevelSession.Focus.OBJECTS || focus == LevelSession.Focus.CHARACTERS
             || focus == LevelSession.Focus.BUILDINGS ? null : base);
@@ -530,15 +612,31 @@ public class LevelPalette extends Table {
                     fillObjectGrid();
                 }
             });
-            browser.add(search).width(SEARCH_WIDTH).padBottom(3).row();
             categoryRow = new Table(skin);
-            browser.add(categoryRow).padBottom(3).row();
             objectGrid = new Table(skin);
             objectGrid.top().left();
-            browser.add(objectGrid).row();
             licenceLabel = new Label("", skin, "muted");
-            licenceLabel.setWrap(true);
-            browser.add(licenceLabel).width(LICENCE_WIDTH).padTop(3).row();
+            if (inRow) {
+                licenceLabel.setEllipsis(true); // one line in the row; the tile's tooltip has the whole licence
+            } else {
+                licenceLabel.setWrap(true);
+            }
+            if (inRow) {
+                // Search, groups and licence in a column; the tiles in one strip beside it
+                Table column = new Table(skin);
+                column.top().left();
+                column.defaults().left();
+                column.add(search).width(SEARCH_WIDTH).padBottom(3).row();
+                column.add(categoryRow).padBottom(3).row();
+                column.add(licenceLabel).width(SEARCH_WIDTH);
+                browser.add(column).top().padRight(ROW_SECTION_GAP);
+                browser.add(objectGrid).top();
+            } else {
+                browser.add(search).width(SEARCH_WIDTH).padBottom(3).row();
+                browser.add(categoryRow).padBottom(3).row();
+                browser.add(objectGrid).row();
+                browser.add(licenceLabel).width(LICENCE_WIDTH).padTop(3).row();
+            }
             fillObjectGrid();
             if (level.getObjectPath().isEmpty() || !objects.contains(level.getObjectPath())) {
                 level.setObjectPath(objects.get(0));
@@ -566,8 +664,8 @@ public class LevelPalette extends Table {
             Button tile = tile(item);
             objectTiles.add(tile);
             tilePaths.add(item.path());
-            objectGrid.add(tile).width(TILE_WIDTH).top().pad(1);
-            if (++column % TILES_PER_ROW == 0) {
+            objectGrid.add(tile).width(inRow ? ROW_TILE_WIDTH : TILE_WIDTH).top().pad(1);
+            if (++column % TILES_PER_ROW == 0 && !inRow) {
                 objectGrid.row();
             }
         }
@@ -590,14 +688,18 @@ public class LevelPalette extends Table {
         if (texture != null) {
             Image image = new Image(texture);
             image.setScaling(Scaling.fit);
-            button.add(image).size(THUMBNAIL_SIZE).row();
+            button.add(image).size(inRow ? ROW_THUMBNAIL_SIZE : THUMBNAIL_SIZE).row();
         } else {
-            button.add(new Label(item.category().label(), skin, "muted")).height(THUMBNAIL_SIZE).row();
+            button.add(new Label(item.category().label(), skin, "muted")).height(inRow ? ROW_THUMBNAIL_SIZE : THUMBNAIL_SIZE).row();
         }
         Label name = new Label(item.label(), skin);
-        name.setWrap(true);
+        if (inRow) {
+            name.setEllipsis(true); // the full name is in the tooltip
+        } else {
+            name.setWrap(true);
+        }
         name.setAlignment(Align.center);
-        button.add(name).width(TILE_WIDTH - 6f);
+        button.add(name).width((inRow ? ROW_TILE_WIDTH : TILE_WIDTH) - 6f);
         button.pad(2f);
         button.addListener(new TextTooltip(item.label() + "\n" + item.licence(), skin));
         button.addListener(new ChangeListener() {

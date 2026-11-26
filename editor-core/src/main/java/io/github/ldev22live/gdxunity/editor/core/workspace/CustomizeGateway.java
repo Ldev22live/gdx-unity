@@ -37,11 +37,10 @@ public final class CustomizeGateway {
     public static final String SCULPT_ENTER_ACTION = "tools.sculpt-enter";
     /** Sculpt's "sculpt from selected" action: starts a sculpt copy of a model's or a shape's mesh. */
     public static final String SCULPT_FROM_SELECTED_ACTION = "create.sculpt-from-selected";
+    /** The label start of the sprite entry, which opens 2D Studio on the sprite (roadmap MC.3). */
+    public static final String EDIT_2D_ASSET = "Edit 2D Asset";
     /** The Move tool: transforming an object, which never changes its mesh (M1b.4). */
     public static final String MOVE_TOOL_ACTION = "tools.move";
-    /** Why "Edit Mesh Geometry" is not offered yet, and what is offered instead. */
-    public static final String MESH_GEOMETRY_REASON = "Editing vertices, edges and faces is planned (roadmap R7a). Until then, "
-        + "\"in 3D (sculpt a copy)\" reshapes a project-owned copy, and Move, Rotate or Scale only transforms the object.";
     /** Why the shared prefab cannot be edited from here yet. */
     public static final String SHARED_PREFAB_REASON = "Editing the shared prefab from here is planned (roadmap M1.6: Edit this "
         + "instance, Edit shared prefab, Make unique). A change in Details changes this instance only; apply it to the prefab from the "
@@ -66,7 +65,7 @@ public final class CustomizeGateway {
     /**
      * One "Edit Selected" entry.
      *
-     * @param label             text for the menu, e.g. "Edit Sprite hero.sprite"
+     * @param label             text for the menu, e.g. "Edit 2D Asset hero.sprite"
      * @param workspace         where it leads
      * @param kind              what choosing it does
      * @param assetPath         the file opened, for {@link Kind#OPEN_ASSET}; otherwise the file concerned or null
@@ -113,26 +112,28 @@ public final class CustomizeGateway {
         boolean isSculpt = entity.getComponent(DynamicMeshComponent.class) != null;
         if (isSculpt) {
             available.add(new EditOffer("Edit " + name + " in 3D", Workspace.MODELING_3D, Kind.RUN_ACTION, null, SCULPT_ENTER_ACTION, null));
-        } else if (entity.getComponent(ModelComponent.class) != null || entity.getComponent(MeshPrimitiveComponent.class) != null) {
+        } else if (ModelingHandOff.offersEdit3DModel(entity)) {
             // Edit 3D Model first (roadmap M3c.4): it opens 3D Modeling on this object and says what can and cannot be done there
             available.add(new EditOffer(ModelingHandOff.edit3DModelLabel(entity), Workspace.MODELING_3D, Kind.OPEN_MODELING, null, null,
                 null));
-            available.add(new EditOffer("Edit " + name + " in 3D (sculpt a copy)", Workspace.MODELING_3D, Kind.RUN_ACTION, null,
-                SCULPT_FROM_SELECTED_ACTION, null));
+            if (entity.getComponent(ModelComponent.class) != null || entity.getComponent(MeshPrimitiveComponent.class) != null) {
+                available.add(new EditOffer("Edit " + name + " in 3D (sculpt a copy)", Workspace.MODELING_3D, Kind.RUN_ACTION, null,
+                    SCULPT_FROM_SELECTED_ACTION, null));
+            }
         }
         for (String path : assetPathsUsedBy(entity, serializers)) {
             AssetType type = AssetType.fromPath(path);
             String file = path.substring(path.lastIndexOf('/') + 1);
             switch (type) {
-                case SPRITE -> available.add(open("Edit Sprite " + file, Workspace.STUDIO_2D, path));
+                // Edit 2D Asset (MC.3): the sprite opens in 2D Studio, and its vector-drawn layers offer their source there (TD-104)
+                case SPRITE -> available.add(open(EDIT_2D_ASSET + " " + file, Workspace.STUDIO_2D, path));
                 case ANIMATION -> available.add(open("Animate " + name + " (" + file + ")", Workspace.ANIMATION, path));
                 case SONG -> available.add(open("Edit Music " + file, Workspace.AUDIO_MUSIC, path));
                 case GRAPH -> available.add(open("Edit Logic " + file, Workspace.LOGIC, path));
                 case SCULPT -> { } // the 3D entry above covers it
                 case SOUND -> unavailable.add(unavailable("Edit Sound " + file, Workspace.AUDIO_MUSIC, path,
                     "No sound editor yet (roadmap MC.5). " + AssetOpening.guidance(type)));
-                case MODEL -> unavailable.add(unavailable("Edit Mesh Geometry of " + file, Workspace.MODELING_3D, path,
-                    MESH_GEOMETRY_REASON));
+                case MODEL -> { } // The source is opened by Edit 3D Model above.
                 case MATERIAL -> available.add(new EditOffer("Edit Material " + file + " in Details (shared by every surface that uses it)",
                     Workspace.WORLD, Kind.SHOW_DETAILS, path, null, null));
                 case TERRAIN -> available.add(new EditOffer("Sculpt and Paint Terrain " + file + " (World strip: Terrain)",

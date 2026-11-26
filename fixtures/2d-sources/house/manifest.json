@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "origin": "ForgeRoom original, made in this repository for roadmap MC.3 (TD-104)",
+  "licence": "Apache-2.0",
+  "madeWith": {
+    "house.vector": "by hand: SVG path data in the .vector format",
+    "house.sprite": "TwoDHouseFixtureTest (editor-sprite): each layer drawn from house.vector by SpriteVectorSources.link"
+  },
+  "projectPaths": {
+    "house.vector": "vectors/house.vector",
+    "house.sprite": "sprites/house.sprite"
+  },
+  "outputs": {
+    "house.vector": "cfbb2128eab5d87949e7a98bbe57a2acd8c78ae10aa1a70559447c63afe78e19",
+    "house.sprite": "28c86ed617458511a08914b22a8fcd88267aee9965f789d34205738d62fba0e1"
+  }
+}

@@ -20,7 +20,8 @@ class GameComponentSerializersTest {
         GameComponentSerializers.registerAll(registry);
 
         Map<String, ?> all = registry.getAll();
-        assertEquals(43, all.size(), () -> "registered: " + all.keySet());
+        assertEquals(44, all.size(), () -> "registered: " + all.keySet());
+        assertNotNull(registry.getByTypeId("OwnerComponent"), "which scenario player owns an entity (TD-106)");
         assertNotNull(registry.getByTypeId(PrefabInstanceComponentSerializer.TYPE_ID));
         assertNotNull(registry.getByTypeId(DynamicMeshComponentSerializer.TYPE_ID), "sculpts and other editable meshes");
         assertNotNull(registry.getByTypeId(AudioSourceComponentSerializer.TYPE_ID), "sound effects");

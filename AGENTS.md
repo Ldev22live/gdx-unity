@@ -79,9 +79,10 @@ Only the modules in `settings.gradle` are part of the build:
 | `engine-character` | Character creator core (TD-053): MakeHuman-derived CC0 body data, morph targets, skin, glTF writer, humanoid animation templates baked onto the rig; headless, no GL | `engine-animation` |
 | `editor-character` | Headless character creator editing (TD-053): settings with undo, template selection, bake to glTF, place in the scene | `editor-core`, `editor-animation`, `engine-character` |
 | `engine-sprite` | Pixel-art sprite core (TD-066): layered multi-frame images, tags, slices, palette, `.sprite` file, sprite sheets, tag playback; headless, no GL | `engine-core` |
+| `engine-vector` | Vector shapes (TD-104): paths, fills and strokes, the `.vector` file, the stated SVG subset (import and export), a headless rasterizer into sprite pixels; headless, no GL | `engine-core` |
 | `engine-material` | Materials (TD-081): `Material` (PBR parameters), the `.material` file (`MaterialIO`) and the shared `MaterialLibrary`; headless, no GL; how a material is drawn is `engine-render`'s job | `engine-core` |
 | `engine-terrain` | Terrain (TD-082): `Terrain` (heightmap with chunk revisions and ray picking), brushes and strokes, the `.terrain` file (`TerrainIO`), the shared `TerrainLibrary`; headless, no GL; how it is drawn is `engine-render`'s job | `engine-core` |
-| `editor-sprite` | Headless sprite editing (TD-066): drawing tools, undoable commands, layers, frames, tags, palette, session | `editor-core`, `engine-sprite` |
+| `editor-sprite` | Headless sprite editing (TD-066): drawing tools, undoable commands, layers, frames, tags, palette, session; vector editing (`VectorSession`, TD-104) | `editor-core`, `engine-sprite`, `engine-vector` |
 | `editor-terrain` | Headless terrain editing (TD-082): session and brush, undoable strokes, the viewport interaction, new terrain files | `editor-core`, `engine-terrain` |
 | `editor-desktop` | scene2d.ui editor shell, panels, renderers for gizmos/grid/physics debug/bones, graph canvas, Timeline | `editor-core`, `editor-visualscript`, `editor-animation`, engine modules (including `engine-desktop`, for the shared serializer list) |
 
@@ -91,7 +92,7 @@ Rules:
 - `core/` and `lwjgl3/` are leftovers from the gdx-liftoff template and are **not** in `settings.gradle`.
   Do not add code there. Their removal is a planned roadmap task (`ALL_IN_ONE_STUDIO_ROADMAP.md` §6) but
   still requires explicit user approval because it deletes tracked files.
-- Planned modules (`engine-vector`, `editor-studios`) must follow the topology in `ALL_IN_ONE_STUDIO_ROADMAP.md` §3.
+- Planned modules (`editor-studios`; `engine-vector` was created under TD-104) must follow the topology in `ALL_IN_ONE_STUDIO_ROADMAP.md` §3.
   Creating a module is an architectural change: get approval first.
 
 ## 5. Build and test commands

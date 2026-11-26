@@ -18,10 +18,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * The shot a genre profile puts on the player of the Play copy (roadmap M3b.7, First-person Shooter + 3D): once per press of the
- * fire key, a ray from the game camera along its view, up to the profile's range. The player's own shape is passed through. A
- * dynamic rigid body it hits gains the profile's knock speed along the shot (an impulse of that times its mass); anything else hit
- * stops the shot and is only reported. Never saved.
+ * The shot a genre profile puts on the player of the Play copy (roadmap M3b.7): once per press of the fire key, a ray up to the
+ * profile's range. First-person Shooter + 3D shoots from the game camera along its view
+ * ({@link GameTestProfile.ShotSetup.Origin#CAMERA_VIEW}); Third-person Shooter + 3D from the player, at its aim height, level along
+ * the way it faces ({@link GameTestProfile.ShotSetup.Origin#PLAYER_FACING}). The player's own shape is passed through. A dynamic
+ * rigid body it hits gains the profile's knock speed along the shot (an impulse of that times its mass); anything else hit stops
+ * the shot and is only reported. Never saved.
  */
 public class ProfileShooter extends BaseComponent implements RuntimeOnlyComponent {
     /** How far the ray moves on after passing through the player's own shape. */
@@ -59,17 +61,12 @@ public class ProfileShooter extends BaseComponent implements RuntimeOnlyComponen
         Scene scene = getEntity().getScene();
         PhysicsSystem3D physics = scene != null ? scene.getPhysics3D() : null;
         if (physics == null) {
-            throw new IllegalStateException("'" + getEntity().getName() + "' shoots with the First-person Shooter + 3D profile, which "
-                + "needs 3D physics");
+            throw new IllegalStateException("'" + getEntity().getName() + "' shoots with its genre profile, which needs 3D physics");
         }
-        CameraComponent camera = GameCameraRig.findActiveCamera(scene);
-        if (camera == null) {
-            throw new IllegalStateException("'" + getEntity().getName() + "' shoots along the game camera's view, and the scene has "
-                + "no camera");
+        if (!aim(scene)) {
+            return;
         }
         shots++;
-        origin.set(camera.getEntity().getTransform().getWorldPosition());
-        camera.getEntity().getTransform().getWorldRotation().transform(direction.set(0f, 0f, -1f)).nor();
         lastHit = null;
         float left = shot.range();
         for (int skips = 0; skips <= MAX_PLAYER_SKIPS && left > 0f; skips++) {
@@ -86,10 +83,37 @@ public class ProfileShooter extends BaseComponent implements RuntimeOnlyComponen
                 }
                 return;
             }
-            // The shot starts inside the player (the eyes are in its capsule): carry on from just beyond that point
+            // The shot starts inside the player (the eyes or the chest are in its capsule): carry on from just beyond that point
             left -= hit.get().distance() + SKIP_STEP;
             origin.set(hit.get().point()).mulAdd(direction, SKIP_STEP);
         }
+    }
+
+    /**
+     * Sets {@link #origin} and {@link #direction} for the profile's {@link GameTestProfile.ShotSetup.Origin}.
+     *
+     * @return false when the player faces straight up or down, so it has no level direction to shoot along (nothing is fired)
+     * @throws IllegalStateException when a shot along the camera's view finds no game camera
+     */
+    private boolean aim(Scene scene) {
+        if (shot.origin() == GameTestProfile.ShotSetup.Origin.CAMERA_VIEW) {
+            CameraComponent camera = GameCameraRig.findActiveCamera(scene);
+            if (camera == null) {
+                throw new IllegalStateException("'" + getEntity().getName() + "' shoots along the game camera's view, and the scene "
+                    + "has no camera");
+            }
+            origin.set(camera.getEntity().getTransform().getWorldPosition());
+            camera.getEntity().getTransform().getWorldRotation().transform(direction.set(0f, 0f, -1f)).nor();
+            return true;
+        }
+        getEntity().getTransform().getWorldRotation().transform(direction.set(0f, 0f, -1f));
+        direction.y = 0f;
+        if (direction.isZero(1e-6f)) {
+            return false;
+        }
+        direction.nor();
+        origin.set(getEntity().getTransform().getWorldPosition()).add(0f, shot.aimHeight(), 0f);
+        return true;
     }
 
     /** How many shots were fired since Play began. */

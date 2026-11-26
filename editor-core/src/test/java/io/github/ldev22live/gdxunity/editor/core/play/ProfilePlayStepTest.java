@@ -199,9 +199,10 @@ class ProfilePlayStepTest {
     void shouldRefuseAPlannedPairWithItsReasonAndPlayScenesWithoutAGenreAsBefore() {
         runner.addComponent(new PlayerComponent());
         editorState.setGameMode(GameMode.MODE_2D);
+        assertTrue(editorState.setGameGenre(GameGenres.ACTION_RPG)); // Platformer plays in 2D since TD-105
 
         assertFalse(play.play());
-        assertTrue(editorState.getStatusMessage().contains("Platformer / Side-scroller + 2D cannot be played yet"),
+        assertTrue(editorState.getStatusMessage().contains("Action RPG + 2D cannot be played yet"),
             editorState.getStatusMessage());
 
         assertTrue(editorState.setGameGenre(null));

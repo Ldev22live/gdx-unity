@@ -4,7 +4,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import io.github.ldev22live.gdxunity.editor.core.picking.ViewportPicker;
+import io.github.ldev22live.gdxunity.editor.core.workspace.ModelingHandOff;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.prefab.PrefabInstanceComponent;
 
 import java.util.Objects;
 
@@ -24,7 +26,7 @@ public final class ViewportFocus {
     /** Center of the entity's 3D or 2D bounds, or its world position when it has none. */
     public static Vector3 focusCenter(Entity entity) {
         Objects.requireNonNull(entity, "entity cannot be null");
-        BoundingBox mesh = ViewportPicker.computeMeshBounds(entity);
+        BoundingBox mesh = meshBounds(entity);
         if (mesh != null) {
             return mesh.getCenter(new Vector3());
         }
@@ -39,7 +41,7 @@ public final class ViewportFocus {
     /** Radius of a sphere enclosing the entity's bounds, or {@link #DEFAULT_FOCUS_RADIUS}. */
     public static float boundingRadius(Entity entity) {
         Objects.requireNonNull(entity, "entity cannot be null");
-        BoundingBox mesh = ViewportPicker.computeMeshBounds(entity);
+        BoundingBox mesh = meshBounds(entity);
         if (mesh != null) {
             return Math.max(DEFAULT_FOCUS_RADIUS * 0.1f, mesh.getDimensions(new Vector3()).len() / 2f);
         }
@@ -48,6 +50,23 @@ public final class ViewportFocus {
             return Math.max(DEFAULT_FOCUS_RADIUS * 0.1f, (float) Math.hypot(flat.width, flat.height) / 2f);
         }
         return DEFAULT_FOCUS_RADIUS;
+    }
+
+    private static BoundingBox meshBounds(Entity entity) {
+        PrefabInstanceComponent link = entity.getComponent(PrefabInstanceComponent.class);
+        if (link == null || !link.isRoot()) {
+            return ViewportPicker.computeMeshBounds(entity);
+        }
+        BoundingBox combined = new BoundingBox().inf();
+        for (Entity part : ModelingHandOff.modelParts(entity)) {
+            BoundingBox bounds = ViewportPicker.computeMeshBounds(part);
+            if (bounds != null) {
+                combined.ext(bounds);
+            } else {
+                combined.ext(part.getTransform().getWorldPosition());
+            }
+        }
+        return combined.isValid() ? combined : ViewportPicker.computeMeshBounds(entity);
     }
 
     /** Camera distance at which a sphere of {@code radius} fits a perspective view with the given vertical FOV. */

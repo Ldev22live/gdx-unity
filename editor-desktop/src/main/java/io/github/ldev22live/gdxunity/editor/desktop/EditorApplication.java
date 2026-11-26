@@ -1,6 +1,11 @@
 package io.github.ldev22live.gdxunity.editor.desktop;
 
 import io.github.ldev22live.gdxunity.editor.desktop.ui.PropertiesPanel;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.world.MinimapView;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.world.SelectionCard;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.world.WorldCategories;
+import io.github.ldev22live.gdxunity.editor.core.workspace.WorldShell;
+import io.github.ldev22live.gdxunity.editor.core.action.HeaderMenus;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -301,6 +306,13 @@ public class EditorApplication extends ApplicationAdapter {
     private final io.github.ldev22live.gdxunity.editor.desktop.workspaces.SceneEditorWorkspace sceneEditorWorkspace;
     private final io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceLayoutSerializer layoutSerializer;
     private io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceLayoutConfig layoutConfig;
+    /** Which World composition is shown (TD-107): chosen per run with GDXUNITY_EDITOR_LAYOUT, switched from Settings → Panels. */
+    private WorldShell.Style layoutStyle = WorldShell.Style.parse(System.getenv(WorldShell.STYLE_VARIABLE));
+    /** The World layout's minimap; disposed when the UI is rebuilt. */
+    private MinimapView minimapView;
+    /** The map's view in the current layout, measured at the end of a smoke test (A02). */
+    private Actor worldViewActor;
+    private final Vector3 viewCentreScratch = new Vector3();
     private final io.github.ldev22live.gdxunity.editor.core.input.EditorKeyboardDispatcher keyboardDispatcher;
     private final File layoutConfigFile;
     /** The open project (TD-033): asset root, scene dialogs and scripts are inside it. */
@@ -457,7 +469,8 @@ public class EditorApplication extends ApplicationAdapter {
         Objects.requireNonNull(directories, "directories cannot be null");
         this.projectsDir = directories.projectsDir();
         this.launchOptions = Objects.requireNonNull(launchOptions, "launchOptions cannot be null");
-        this.layoutConfigFile = new File(directories.settingsDir(), LAYOUT_FILE_NAME);
+        this.layoutConfigFile = new File(directories.settingsDir(),
+            layoutStyle == WorldShell.Style.WORLD ? WorldShell.LAYOUT_FILE_NAME : LAYOUT_FILE_NAME);
         this.assetLibraryCacheDir = new File(new File(directories.settingsDir(), "cache"), "asset-library");
         this.editorState = new EditorState();
         this.sceneCamera = OrthographicCamera2D.createScreenFilling(DEFAULT_VIEW_CENTER_X, DEFAULT_VIEW_CENTER_Y);
@@ -584,7 +597,8 @@ public class EditorApplication extends ApplicationAdapter {
         // Workspace and Layout initialization
         this.workspaceManager = new io.github.ldev22live.gdxunity.editor.core.workspace.DefaultWorkspaceManager(() -> editorState);
         this.layoutSerializer = new io.github.ldev22live.gdxunity.editor.core.workspace.WorkspaceLayoutSerializer();
-        this.layoutConfig = layoutSerializer.loadFromFile(layoutConfigFile);
+        this.layoutConfig = layoutStyle == WorldShell.Style.WORLD && !layoutConfigFile.isFile()
+            ? WorldShell.firstRunLayout() : layoutSerializer.loadFromFile(layoutConfigFile);
         // Which panels are open is part of the saved layout (World layout by default, TD-085)
         this.panelLayout = new PanelLayout(layoutConfig);
         this.themeManager = new io.github.ldev22live.gdxunity.editor.core.theme.EditorThemeManager(
@@ -954,6 +968,8 @@ public class EditorApplication extends ApplicationAdapter {
     }
 
     private void buildUi() {
+        // TD-107 (approved 2026-11-25): the scenario-editor layout of docs/Screenshot 2026-11-25 113907.png; CLASSIC is UI M3b
+        boolean world = layoutStyle == WorldShell.Style.WORLD;
         Table root = new Table();
         root.setFillParent(true);
         uiStage.addActor(root);
@@ -979,13 +995,14 @@ public class EditorApplication extends ApplicationAdapter {
         // The tool strip lives in the toolbar now (as in the web editor); only the sculpt brush panel floats over the view
         overlayColumn.add(sculptBar).left().row();
         // What 3D Modeling can do for the selection, while 3D Modeling is on screen (roadmap M3c.4)
-        overlayColumn.add(new ModelingNoticePanel(skin, editorState, sculptSession::isSculptMode)).left().padTop(4).row();
+        overlayColumn.add(new ModelingNoticePanel(skin, editorState, sculptSession::isSculptMode, projectRoot.toPath(), modelAssets::reload))
+            .left().padTop(4).row();
         // The map tools' settings are in the Properties panel now (UI M3b), not over the map
         if (levelPaletteView != null) {
             levelPaletteView.dispose();
         }
         io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.LevelPalette levelPalette =
-            new io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.LevelPalette(skin, levelSession, actionRegistry::execute);
+            new io.github.ldev22live.gdxunity.editor.desktop.ui.viewport.LevelPalette(skin, levelSession, actionRegistry::execute, world);
         this.levelPaletteView = levelPalette;
         // Only the strips take clicks; the rest of the column lets the mouse through to the viewport
         overlayColumn.setTouchable(Touchable.childrenOnly);
@@ -1004,6 +1021,10 @@ public class EditorApplication extends ApplicationAdapter {
             }
         };
         Stack sceneView = new Stack(sceneViewport, multiViewport, overlayContainer);
+        if (world) {
+            sceneView.add(worldOverlay());
+        }
+        this.worldViewActor = sceneView;
 
         // Graph tab beside the viewport; a rebuilt UI reopens the graph that was open (saved first)
         AssetReference openGraph = null;
@@ -1100,26 +1121,36 @@ public class EditorApplication extends ApplicationAdapter {
         // The header's right side: Create, Save, Undo, Redo, Compile Scripts and Play, then Project and Settings (which hold every
         // file, graphics, theme and about action, M1.5 and Appendix E). Save, Undo and Redo are icons with their names as tool tips
         menuRow.add().expandX();
+        if (world) {
+            menuRow.add(new ActionTextButton(skin, actionRegistry, ACTION_NEW_GAME, "New", null)).height(BAR_BUTTON_HEIGHT).padRight(4);
+            menuRow.add(new ActionTextButton(skin, actionRegistry, DefaultEditorActions.FILE_OPEN_SCENE, "Open", null))
+                .height(BAR_BUTTON_HEIGHT).padRight(10);
+        }
         menuRow.add(new EditorMenuBar(actionRegistry, List.of(DefaultEditorActions.MENU_CREATE), skin)).padRight(10);
         menuRow.add(headerIcon(DefaultEditorActions.FILE_SAVE_SCENE, "save")).size(HEADER_ICON_SIZE).padRight(2);
         menuRow.add(headerIcon(DefaultEditorActions.EDIT_UNDO, "undo")).size(HEADER_ICON_SIZE).padRight(2);
         menuRow.add(headerIcon(DefaultEditorActions.EDIT_REDO, "redo")).size(HEADER_ICON_SIZE).padRight(8);
-        menuRow.add(toolbar).padRight(4);
-        menuRow.add(toolbar.getPlayControls()).padRight(8);
+        if (!world) {
+            // The World layout's footer holds Play (TD-107 point 2); Play compiles scripts, Settings → Tools compiles on demand
+            menuRow.add(toolbar).padRight(4);
+            menuRow.add(toolbar.getPlayControls()).padRight(8);
+        }
         menuRow.add(EditorMenuBar.header(actionRegistry, skin)).padRight(8);
-        root.add(ScrollingBar.around(menuRow, skin)).growX().minWidth(0).height(HEADER_HEIGHT).row();
+        root.add(ScrollingBar.around(menuRow, skin)).growX().minWidth(0).height(world ? WorldShell.HEADER_HEIGHT : HEADER_HEIGHT).row();
 
         // 2. The tab row (UI M3b): the map's drawers (the World strip's sections for the scene's game mode), then Assets, Layers,
         //    Scripts and AI Assistant (EditorDrawers.tabs()), each lit while open; the view drop-down at the right. A closed drawer
         //    can always be reopened from here (TD-085)
-        Table tabRow = new Table(skin);
-        tabRow.add(worldStrip).left().padLeft(8);
-        for (EditorDrawers.Drawer drawer : EditorDrawers.tabs()) {
-            tabRow.add(drawerTab(drawer)).height(WorldStripBar.TAB_HEIGHT).padRight(WorldStripBar.TAB_GAP);
+        if (!world) {
+            Table tabRow = new Table(skin);
+            tabRow.add(worldStrip).left().padLeft(8);
+            for (EditorDrawers.Drawer drawer : EditorDrawers.tabs()) {
+                tabRow.add(drawerTab(drawer)).height(WorldStripBar.TAB_HEIGHT).padRight(WorldStripBar.TAB_GAP);
+            }
+            tabRow.add().expandX();
+            tabRow.add(viewSelector()).height(WorldStripBar.TAB_HEIGHT).width(VIEW_SELECT_WIDTH).padRight(8);
+            root.add(ScrollingBar.around(tabRow, skin)).growX().minWidth(0).height(TAB_ROW_HEIGHT).row();
         }
-        tabRow.add().expandX();
-        tabRow.add(viewSelector()).height(WorldStripBar.TAB_HEIGHT).width(VIEW_SELECT_WIDTH).padRight(8);
-        root.add(ScrollingBar.around(tabRow, skin)).growX().minWidth(0).height(TAB_ROW_HEIGHT).row();
 
         // Game Genre and Game Mode are fed by the genre registry Play uses (M3b.4, TD-088), so they cannot disagree about what plays.
         // They, Play's fixes and Customize are in the Properties panel's World Settings now (UI M3b), not a footer
@@ -1158,7 +1189,7 @@ public class EditorApplication extends ApplicationAdapter {
 
             @Override
             public void act(float delta) {
-                boolean show = currentWorkspace().showsWorldTools() && !editorState.isPlayModeActive();
+                boolean show = !world && currentWorkspace().showsWorldTools() && !editorState.isPlayModeActive();
                 if ((railCell.getActor() != null) != show) {
                     railCell.setActor(show ? rail : null);
                     railCell.padRight(show ? 6f : 0f).padLeft(show ? 4f : 0f);
@@ -1183,7 +1214,9 @@ public class EditorApplication extends ApplicationAdapter {
             this::createAnimator));
         InspectorPanel inspectorPanel = new InspectorPanel(editorState, skin, detailEditors, componentCatalog);
         // The Properties panel (UI M3b): the open map tool's settings, else the selection's components; World Settings below
-        PropertiesPanel propertiesPanel = new PropertiesPanel(skin, levelPalette, inspectorPanel, levelSession::isActive, worldSettings);
+        PropertiesPanel propertiesPanel = world
+            ? new PropertiesPanel(skin, new Table(), inspectorPanel, () -> false, new Table())
+            : new PropertiesPanel(skin, levelPalette, inspectorPanel, levelSession::isActive, worldSettings);
         this.assistantPanel = new io.github.ldev22live.gdxunity.editor.desktop.ui.AssistantPanel(assistantService, skin);
         this.rightSplit = new com.badlogic.gdx.scenes.scene2d.ui.SplitPane(propertiesPanel,
             new com.badlogic.gdx.scenes.scene2d.ui.Container<>(assistantPanel).minHeight(0f).fill(), true, skin);
@@ -1376,6 +1409,19 @@ public class EditorApplication extends ApplicationAdapter {
         panelsArea.fill();
         panelsArea.minSize(0f);
         root.add(panelsArea).grow().row();
+        if (world) {
+            WorldCategories categories = new WorldCategories(skin, editorState, levelSession, () -> actionRegistry.execute(LevelActions.TOGGLE),
+                worldStrip, levelPalette, new EditorStatusBar(editorState, skin),
+                () -> currentWorkspace().showsWorldTools() && !editorState.isPlayModeActive() && !sculptSession.isSculptMode());
+            root.add(categories.getBar()).growX().minWidth(0).height(WorldShell.CATEGORY_BAR_HEIGHT).row();
+            root.add(categories.getPaletteRow()).growX().minWidth(0).row();
+            GameGenreSelector footerGenre = new GameGenreSelector(editorState, genres, skin);
+            EditorFooter footer = new EditorFooter(skin, footerGenre, new GameModeSelector(editorState, genres, skin),
+                footerGenre.getStatusLabel(), new ProfileFixButtons(editorState, playModeController.getProfileStep(), skin),
+                createCustomizeGateway(), toolbar.getPlayControls());
+            root.add(footer).growX().minWidth(0).height(WorldShell.FOOTER_HEIGHT);
+            return;
+        }
 
         // 4. The status bar of the reference layout (UI M3b): links that open Assets, Layers, Scripts and Properties, the status line,
         //    and on the right the ground's size and whether the world is saved
@@ -1399,6 +1445,77 @@ public class EditorApplication extends ApplicationAdapter {
             }
         }).padLeft(8).padRight(10);
         root.add(statusRow).growX().minWidth(0).height(FOOTER_HEIGHT);
+    }
+
+    /**
+     * The World layout's map overlays (TD-107 point 3): "World / <scene>" at the top left, the camera choice at the top right, the
+     * minimap at the bottom left and the selection card at the bottom right. Only the overlays take clicks.
+     */
+    private Table worldOverlay() {
+        Table overlay = new Table();
+        overlay.setTouchable(Touchable.childrenOnly);
+        Label context = new Label("", skin) {
+            @Override
+            public void act(float delta) {
+                super.act(delta);
+                String text = "World / " + (editorState.getActiveScene() == null ? "" : editorState.getActiveScene().getName());
+                if (!text.contentEquals(getText())) {
+                    setText(text);
+                }
+            }
+        };
+        Container<Label> contextChip = new Container<>(context);
+        contextChip.setBackground(skin.getDrawable("card-bg"));
+        contextChip.pad(4f, 10f, 4f, 10f);
+        Container<Actor> cameraChip = new Container<>(viewSelector());
+        cameraChip.width(VIEW_SELECT_WIDTH).height(WorldStripBar.TAB_HEIGHT - 6f);
+        if (minimapView != null) {
+            minimapView.dispose();
+        }
+        minimapView = new MinimapView(editorState, this::viewCentre, this::centreViewOn);
+        SelectionCard selectionCard = new SelectionCard(skin, editorState, actionRegistry,
+            entity -> CustomizeGateway.editSelected(entity, editorState.getSerializer().getRegistry()), this::runEditOffer);
+        overlay.add(contextChip).top().left().pad(8f).expandX();
+        overlay.add(cameraChip).top().right().pad(8f).row();
+        overlay.add(minimapView).bottom().left().pad(8f).expandY();
+        overlay.add(selectionCard).bottom().right().pad(8f);
+        return overlay;
+    }
+
+    /** Where the editor's view is centred: the 3D orbit target, or the 2D camera's position (the minimap's mark). */
+    private Vector3 viewCentre() {
+        if (editorState.getViewportMode() == ViewportMode.VIEW_3D) {
+            return viewCentreScratch.set(cameraController3D.getTarget());
+        }
+        return viewCentreScratch.set(sceneCamera.getPosition().x, sceneCamera.getPosition().y, 0f);
+    }
+
+    /** Centres the editor's view on {@code point} (a minimap click), keeping the 3D camera's angle and distance. */
+    private void centreViewOn(Vector3 point) {
+        if (editorState.getViewportMode() == ViewportMode.VIEW_3D) {
+            Vector3 offset = new Vector3(sceneCamera3D.getPosition()).sub(cameraController3D.getTarget());
+            sceneCamera3D.setPosition(new Vector3(point).add(offset));
+            sceneCamera3D.update();
+            cameraController3D.setTarget(point);
+        } else {
+            sceneCamera.setPosition(point.x, point.y, 0f);
+        }
+    }
+
+    /** Settings → Panels → Classic Layout: switches between the TD-107 layout and the UI M3b one, rebuilding the UI. */
+    private void toggleLayoutStyle() {
+        layoutStyle = layoutStyle == WorldShell.Style.WORLD ? WorldShell.Style.CLASSIC : WorldShell.Style.WORLD;
+        if (uiStage != null) {
+            uiStage.clear();
+            buildUi();
+        }
+        editorState.setStatusMessage("Layout: " + (layoutStyle == WorldShell.Style.WORLD ? "World (scenario editor)" : "Classic"), false);
+    }
+
+    /** Settings → Tools → Compile Scripts: compiles the project's scripts now (Play also compiles them). */
+    private void compileScriptsNow() {
+        boolean compiled = editorState.getScriptManager().compileAll();
+        editorState.setStatusMessage(compiled ? "Scripts compiled" : "Scripts did not compile: see the Console", !compiled);
     }
 
     /** Adds labelled top-bar buttons for the {@code {actionId, label}} pairs. */
@@ -1919,6 +2036,14 @@ public class EditorApplication extends ApplicationAdapter {
                 () -> Gdx.app.postRunnable(this::toggleTheme))
             .menu(DefaultEditorActions.MENU_WINDOW, 2)
             .build());
+        // TD-107: the classic layout stays one click away until A02 is signed off; deferred like the theme (the UI is rebuilt)
+        actionRegistry.register(EditorAction.builder(HeaderMenus.LAYOUT_TOGGLE_CLASSIC, "Switch World / Classic Layout",
+                () -> Gdx.app.postRunnable(this::toggleLayoutStyle))
+            .menu(DefaultEditorActions.MENU_WINDOW, 3)
+            .build());
+        actionRegistry.register(EditorAction.builder(HeaderMenus.SCRIPTS_COMPILE, "Compile Scripts", this::compileScriptsNow)
+            .menu(DefaultEditorActions.MENU_TOOLS, 2)
+            .build());
     }
 
     private void toggleTheme() {
@@ -2121,6 +2246,10 @@ public class EditorApplication extends ApplicationAdapter {
 
     /** Frames the selected entity: the 3D camera backs off along its view direction, the 2D view zooms to fit. */
     private void focusSelection() {
+        focusSelection(true);
+    }
+
+    private void focusSelection(boolean frameOtherPanes) {
         Entity selected = editorState.getSelectedEntity();
         if (selected == null) {
             return;
@@ -2133,7 +2262,7 @@ public class EditorApplication extends ApplicationAdapter {
             sceneCamera3D.setPosition(new Vector3(center).mulAdd(direction, -distance));
             sceneCamera3D.update();
             cameraController3D.setTarget(center);
-            if (multiViewport != null) {
+            if (frameOtherPanes && multiViewport != null) {
                 multiViewport.frameAll(center, radius);
             }
         } else {
@@ -2441,7 +2570,22 @@ public class EditorApplication extends ApplicationAdapter {
 
                 @Override
                 public void frameSelection() {
-                    focusSelection();
+                    focusSelection(false);
+                }
+
+                @Override
+                public Runnable captureWorldCamera() {
+                    Vector3 position = sceneCamera3D.getPosition();
+                    Vector3 direction = sceneCamera3D.getDirection();
+                    Vector3 up = sceneCamera3D.getUp();
+                    Vector3 target = cameraController3D.getTarget();
+                    return () -> {
+                        sceneCamera3D.setPosition(position);
+                        sceneCamera3D.setDirection(direction);
+                        sceneCamera3D.setUp(up);
+                        cameraController3D.setTarget(target);
+                        sceneCamera3D.update();
+                    };
                 }
             });
         }
@@ -2608,6 +2752,12 @@ public class EditorApplication extends ApplicationAdapter {
             Gdx.app.log(LOG_SOURCE, "Profiler:" + System.lineSeparator()
                 + ProfilerReport.toText(frameProfiler, frame, ProfilerReport.DEFAULT_AVERAGE_FRAMES));
         }
+        if (worldViewActor != null && worldViewActor.getStage() != null && uiStage.getWidth() > 0f && uiStage.getHeight() > 0f) {
+            float share = worldViewActor.getWidth() * worldViewActor.getHeight() / (uiStage.getWidth() * uiStage.getHeight());
+            Gdx.app.log(LOG_SOURCE, String.format(java.util.Locale.ROOT, "World view %.0f x %.0f of %.0f x %.0f (%.1f%% of the window), "
+                + "layout %s", worldViewActor.getWidth(), worldViewActor.getHeight(), uiStage.getWidth(), uiStage.getHeight(),
+                share * 100f, layoutStyle));
+        }
         Gdx.app.log(LOG_SOURCE, "Smoke test rendered " + smokeTestFramesRendered + " frames, "
             + smokeTestErrors.size() + " error(s) in the Output Log");
         Gdx.app.exit();
@@ -2631,6 +2781,10 @@ public class EditorApplication extends ApplicationAdapter {
         if (logoTexture != null) {
             logoTexture.dispose();
             logoTexture = null;
+        }
+        if (minimapView != null) {
+            minimapView.dispose();
+            minimapView = null;
         }
         if (packImportPanel != null) {
             packImportPanel.dispose();

@@ -10,6 +10,7 @@ class AssetTypeTest {
         assertEquals(AssetType.SPRITE, AssetType.fromExtension("sprite"));
         assertEquals(AssetType.SPRITE, AssetType.fromExtension("SPRITE"));
         assertEquals(AssetType.SPRITE, AssetType.fromPath("sprites/hero.sprite"));
+        assertEquals(AssetType.VECTOR, AssetType.fromPath("vectors/house.vector"));
     }
 
     @Test

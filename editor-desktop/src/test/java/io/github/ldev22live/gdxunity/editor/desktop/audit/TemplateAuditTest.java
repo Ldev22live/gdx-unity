@@ -123,7 +123,7 @@ class TemplateAuditTest {
         }
         Set<String> javaLogic = rows.stream().filter(r -> status(r, Gate.LOGIC) == Status.FAIL).map(TemplateAudit.SampleRow::sample)
             .collect(Collectors.toCollection(TreeSet::new));
-        assertEquals(20, javaLogic.size(), javaLogic.toString());
+        assertEquals(21, javaLogic.size(), javaLogic.toString());
     }
 
     @Test

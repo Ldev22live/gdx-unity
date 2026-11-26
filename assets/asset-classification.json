@@ -1,0 +1,383 @@
+{
+  "sprites/hero.sprite": {
+    "genre": [
+      "platformer"
+    ],
+    "role": [
+      "character"
+    ],
+    "style": [
+      "pixel-art"
+    ],
+    "realism": [
+      "stylized"
+    ],
+    "animation": [
+      "idle",
+      "walk"
+    ]
+  },
+  "models/thirdparty/polyhaven/stone_fire_pit/stone_fire_pit_1k.gltf": {
+    "genre": [
+      "action-rpg",
+      "isometric-rpg",
+      "platformer"
+    ],
+    "role": [
+      "prop"
+    ],
+    "style": [
+      "photogrammetry"
+    ],
+    "realism": [
+      "realistic"
+    ],
+    "resolution": [
+      "1k"
+    ],
+    "license": [
+      "cc0-1.0"
+    ],
+    "provider": [
+      "poly-haven"
+    ]
+  },
+  "models/thirdparty/polyhaven/rollershutter_door/rollershutter_door_1k.gltf": {
+    "genre": [
+      "racing",
+      "shooter",
+      "puzzle"
+    ],
+    "role": [
+      "architecture"
+    ],
+    "style": [
+      "photogrammetry"
+    ],
+    "realism": [
+      "realistic"
+    ],
+    "resolution": [
+      "1k"
+    ],
+    "license": [
+      "cc0-1.0"
+    ],
+    "provider": [
+      "poly-haven"
+    ]
+  },
+  "prefabs/level/CC0 Rock.prefab": {
+    "genre": [
+      "platformer",
+      "action-rpg",
+      "isometric-rpg",
+      "strategy"
+    ],
+    "role": [
+      "prop"
+    ],
+    "realism": [
+      "stylized"
+    ]
+  },
+  "prefabs/buildings/CC0 House.prefab": {
+    "genre": [
+      "action-rpg",
+      "isometric-rpg",
+      "strategy"
+    ],
+    "role": [
+      "building"
+    ],
+    "realism": [
+      "stylized"
+    ]
+  },
+  "terrains/Valley.terrain": {
+    "genre": [
+      "platformer",
+      "action-rpg",
+      "strategy"
+    ],
+    "role": [
+      "terrain"
+    ]
+  },
+  "materials/RockyTerrain02.material": {
+    "genre": [
+      "platformer",
+      "action-rpg",
+      "isometric-rpg",
+      "strategy"
+    ],
+    "role": [
+      "stone-surface"
+    ],
+    "realism": [
+      "realistic"
+    ],
+    "resolution": [
+      "1k"
+    ],
+    "provider": [
+      "poly-haven"
+    ],
+    "license": [
+      "cc0-1.0"
+    ]
+  },
+  "materials/RedBrick03.material": {
+    "genre": [
+      "platformer",
+      "action-rpg",
+      "isometric-rpg",
+      "strategy",
+      "puzzle"
+    ],
+    "role": [
+      "masonry"
+    ],
+    "realism": [
+      "realistic"
+    ],
+    "resolution": [
+      "1k"
+    ],
+    "provider": [
+      "poly-haven"
+    ],
+    "license": [
+      "cc0-1.0"
+    ]
+  },
+  "materials/WoodFloorDeck.material": {
+    "genre": [
+      "platformer",
+      "action-rpg",
+      "isometric-rpg",
+      "puzzle"
+    ],
+    "role": [
+      "wood-surface"
+    ],
+    "realism": [
+      "realistic"
+    ],
+    "resolution": [
+      "1k"
+    ],
+    "provider": [
+      "poly-haven"
+    ],
+    "license": [
+      "cc0-1.0"
+    ]
+  },
+  "models/thirdparty/opengameart/detective-bunny/detective-bunny.glb": {
+    "genre": [
+      "platformer"
+    ],
+    "role": [
+      "character"
+    ],
+    "provider": [
+      "opengameart"
+    ],
+    "license": [
+      "cc0-1.0"
+    ],
+    "realism": [
+      "stylized"
+    ],
+    "triangles": [
+      "1208"
+    ],
+    "species": [
+      "rabbit"
+    ],
+    "rigged": [
+      "yes"
+    ],
+    "animation": [
+      "climb",
+      "idle",
+      "investigate",
+      "jump",
+      "talk",
+      "walk"
+    ]
+  },
+  "models/thirdparty/opengameart/fox/fox.glb": {
+    "genre": [
+      "action-rpg"
+    ],
+    "role": [
+      "wildlife"
+    ],
+    "provider": [
+      "opengameart"
+    ],
+    "license": [
+      "cc0-1.0"
+    ],
+    "realism": [
+      "stylized"
+    ],
+    "triangles": [
+      "342"
+    ],
+    "species": [
+      "fox"
+    ],
+    "rigged": [
+      "yes"
+    ],
+    "animation": [
+      "bite",
+      "death",
+      "digging",
+      "idle",
+      "run",
+      "walk"
+    ]
+  },
+  "models/thirdparty/opengameart/rabbit/rabbit.glb": {
+    "genre": [
+      "action-rpg"
+    ],
+    "role": [
+      "wildlife"
+    ],
+    "provider": [
+      "opengameart"
+    ],
+    "license": [
+      "cc0-1.0"
+    ],
+    "realism": [
+      "stylized"
+    ],
+    "triangles": [
+      "2640"
+    ],
+    "species": [
+      "rabbit"
+    ],
+    "rigged": [
+      "yes"
+    ],
+    "animation": [
+      "jump",
+      "running",
+      "sitting.000"
+    ]
+  },
+  "models/thirdparty/opengameart/boulder/boulder.glb": {
+    "genre": [
+      "platformer",
+      "action-rpg"
+    ],
+    "role": [
+      "prop"
+    ],
+    "provider": [
+      "opengameart"
+    ],
+    "license": [
+      "cc0-1.0"
+    ],
+    "realism": [
+      "simplified"
+    ],
+    "triangles": [
+      "120"
+    ]
+  },
+  "materials/HexPaverB.material": {
+    "genre": [
+      "platformer",
+      "action-rpg"
+    ],
+    "role": [
+      "stone-surface"
+    ],
+    "resolution": [
+      "1k"
+    ],
+    "provider": [
+      "opengameart"
+    ],
+    "license": [
+      "cc0-1.0"
+    ]
+  },
+  "models/thirdparty/opengameart/warrior-low-poly/warrior.glb": {
+    "genre": [
+      "action-rpg",
+      "isometric-rpg"
+    ],
+    "role": [
+      "character"
+    ],
+    "provider": [
+      "opengameart"
+    ],
+    "license": [
+      "cc-by-3.0"
+    ]
+  },
+  "models/thirdparty/opengameart/thin-zombie/thin-zombie.glb": {
+    "genre": [
+      "shooter"
+    ],
+    "role": [
+      "character"
+    ],
+    "provider": [
+      "opengameart"
+    ],
+    "license": [
+      "cc-by-3.0"
+    ],
+    "rigged": [
+      "yes"
+    ],
+    "animation": [
+      "attack1_r",
+      "dead1",
+      "hurt",
+      "idle",
+      "run",
+      "walk"
+    ]
+  },
+  "models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-cover.glb": {
+    "genre": [
+      "shooter"
+    ],
+    "role": [
+      "architecture"
+    ],
+    "provider": [
+      "opengameart"
+    ],
+    "license": [
+      "cc-by-3.0"
+    ]
+  },
+  "models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-room.glb": {
+    "genre": [
+      "shooter"
+    ],
+    "role": [
+      "architecture"
+    ],
+    "provider": [
+      "opengameart"
+    ],
+    "license": [
+      "cc-by-3.0"
+    ]
+  }
+}

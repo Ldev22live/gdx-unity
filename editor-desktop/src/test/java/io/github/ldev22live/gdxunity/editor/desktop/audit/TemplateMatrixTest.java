@@ -218,7 +218,8 @@ class TemplateMatrixTest {
         Set<String> incomplete = entries.stream().filter(e -> e.label() == TemplateMatrix.Label.INCOMPLETE)
             .map(TemplateMatrix.Entry::sample).collect(Collectors.toCollection(TreeSet::new));
         assertEquals(Set.of("character-creator-3d.json", "landscape-3d.json", "landscape-alpine-3d.json", "landscape-autumn-3d.json",
-            "landscape-desert-3d.json", "landscape-island-3d.json", "physics-mesh-3d.json"), incomplete,
+            "landscape-desert-3d.json", "landscape-island-3d.json", "physics-mesh-3d.json",
+            "action-rpg-valley-3d.json", "platformer-profile-3d.json", "first-person-range-3d.json"), incomplete,
             "baked grounds and clips baked into a glTF");
         for (TemplateMatrix.Entry entry : entries) {
             assertFalse(entry.label() == TemplateMatrix.Label.FULLY_CUSTOMIZABLE, entry.sample());

@@ -40,12 +40,16 @@ public final class WorkspaceNavigator {
 
         /** Points the view's camera at the selected entity, as the Frame button does. */
         void frameSelection();
+
+        /** Captures the World camera before framing a model. Views without a camera have nothing to restore. */
+        default Runnable captureWorldCamera() { return () -> {}; }
     }
 
     private final EditorState editorState;
     private final View view;
     /** The view the World showed before Edit 3D Model switched it to 3D, restored by Back to World; null when it switched nothing. */
     private ViewportMode viewBeforeModeling;
+    private Runnable restoreWorldCamera;
 
     public WorkspaceNavigator(EditorState editorState, View view) {
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
@@ -99,6 +103,8 @@ public final class WorkspaceNavigator {
             return false;
         }
         ViewportMode before = editorState.getViewportMode();
+        boolean entering = !view.isSculptMode() || restoreWorldCamera == null;
+        Runnable restore = entering ? view.captureWorldCamera() : restoreWorldCamera;
         view.showCenterTab(Workspace.TAB_WORLD);
         editorState.setViewportMode(ViewportMode.VIEW_3D);
         if (!view.isSculptMode() && !view.runAction(SCULPT_ENTER_ACTION)) {
@@ -106,7 +112,8 @@ public final class WorkspaceNavigator {
             editorState.setStatusMessage("3D Modeling is not available now", true);
             return false;
         }
-        if (before != ViewportMode.VIEW_3D && viewBeforeModeling == null) {
+        restoreWorldCamera = restore;
+        if (entering) {
             viewBeforeModeling = before;
         }
         view.frameSelection();
@@ -136,6 +143,8 @@ public final class WorkspaceNavigator {
         if (wasModeling && viewBeforeModeling != null && editorState.getViewportMode() == ViewportMode.VIEW_3D) {
             editorState.setViewportMode(viewBeforeModeling);
         }
+        if (wasModeling && restoreWorldCamera != null) restoreWorldCamera.run();
+        restoreWorldCamera = null;
         viewBeforeModeling = null;
     }
 }

@@ -59,7 +59,7 @@
     {
       "id": "hybrid-25d",
       "slice": "2.5D",
-      "samples": ["platformer-profile-25d.json", "platformer-profile-terrain-25d.json", "sprite-25d.json", "action-rpg-iso-25d.json", "ruins-runner-25d.json", "grapple-gorge-25d.json", "three-heroes-25d.json", "fighter-25d.json"],
+      "samples": ["platformer-profile-25d.json", "platformer-profile-terrain-25d.json", "sprite-25d.json", "action-rpg-iso-25d.json", "ruins-runner-25d.json", "grapple-gorge-25d.json", "three-heroes-25d.json", "fighter-25d.json", "hybrid-side-scroller-25d.json"],
       "replacement": "3D scenery from Poly Haven (candidate 3) and the Building Kit (candidate 1), sprites from Pixel Platformer (candidate 5); terrain grounds as in MP.3",
       "sources": "Poly Haven and Kenney Building Kit (recorded, CC0 1.0); Kenney Pixel Platformer (approved, not downloaded)",
       "visual": "3D scenery behind side-on play; sprites for characters",
@@ -70,13 +70,13 @@
       "runtime": "desktop; web without PlayerComponent and without the Java-only scripts",
       "cost": "measured for the MP.3 pair in docs/migration/mp-3-performance.tsv",
       "rollback": "originals stay; every migrated scene is a new file",
-      "blockers": ["MC.4 (needs MC.2, MC.3)", "M2b.2 and M2b.5 (Legal)"],
-      "status": "first slice done (MP.3: box ground to a terrain); scenery planned"
+      "blockers": ["M2b.2 and M2b.5 (Legal) for Pixel Platformer sprites"],
+      "status": "first slice done (MP.3: box ground to a terrain); MC.4 done (2026-11-25): hybrid-side-scroller-25d.json, a new sample (not a migration), shows Kenney Building and Nature Kit scenery (CC0, already recorded) with ForgeRoom sprites drawn in depth order; Pixel Platformer sprites wait on M2b.5"
     },
     {
       "id": "keep-primitives",
       "slice": "none",
-      "samples": ["breakout-2d.json", "shooter-2d.json", "physics-sandbox-2d.json", "physics-sandbox-3d.json", "physics-joints-3d.json", "hopper-3d.json", "collector-3d.json", "runner-3d.json", "racing-3d.json", "obby-3d.json", "puzzle-3d.json", "arena-fps-3d.json", "blockworld-3d.json", "depth-compositing-3d.json", "materials-3d.json", "terrain-3d.json", "visual-scripting-3d.json", "sculpted-rock-3d.json", "platformer-profile-3d.json", "first-person-range-3d.json", "polyhaven-showcase-3d.json"],
+      "samples": ["breakout-2d.json", "shooter-2d.json", "physics-sandbox-2d.json", "physics-sandbox-3d.json", "physics-joints-3d.json", "hopper-3d.json", "collector-3d.json", "runner-3d.json", "racing-3d.json", "obby-3d.json", "puzzle-3d.json", "arena-fps-3d.json", "blockworld-3d.json", "depth-compositing-3d.json", "materials-3d.json", "terrain-3d.json", "visual-scripting-3d.json", "sculpted-rock-3d.json", "platformer-profile-3d.json", "first-person-range-3d.json", "third-person-yard-3d.json", "polyhaven-showcase-3d.json"],
       "replacement": "None planned: their shapes, materials, terrain and sculpt are already project-owned and editable; what they lack is graphs in place of Java logic (M1.2, not an asset migration)",
       "sources": "none: project-made",
       "visual": "unchanged",

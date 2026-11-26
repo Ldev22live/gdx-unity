@@ -16,11 +16,10 @@ import java.util.UUID;
 
 /**
  * Says what the 3D Modeling workspace can do for an entity (roadmap M3c.4): the same facts as the capability notice a person sees after
- * Customize > Edit 3D Model ({@link ModelingHandOff}). Read-only, so an agent can learn that a mesh cannot be edited yet (R7a) before
- * planning, instead of presenting a transform as a mesh edit.
+ * Customize > Edit 3D Model ({@link ModelingHandOff}). Reports source availability independently of instance transforms.
  *
  * <p>Parameter: {@code entityId} (optional; the selected entity when left out). Outputs: {@code entityId} (empty for no selection),
- * {@code name}, {@code capability} ("sculpt", "mesh-planned", "no-mesh" or "no-selection"), {@code meshEditing}, {@code sculptCopy},
+ * {@code name}, {@code capability} ("sculpt", "mesh-source", "mesh-planned", "no-mesh" or "no-selection"), {@code meshEditing}, {@code sculptCopy},
  * {@code materialSlot}, {@code model} (the glTF path, or empty), {@code title} and {@code notice} (the notice's sentences).
  */
 public class ModelEditCheckTool implements AgentTool {
@@ -35,8 +34,8 @@ public class ModelEditCheckTool implements AgentTool {
     public String getDescription() {
         return "Says what 3D Modeling can do for an entity: whether its mesh (vertices, edges, faces) can be edited, whether a sculpt copy "
             + "can be made, and whether its material can be changed. Parameter entityId (optional; the selected entity otherwise). "
-            + "Outputs capability (sculpt, mesh-planned, no-mesh or no-selection), meshEditing, sculptCopy, materialSlot, model, title "
-            + "and notice. Mesh editing is not built yet; moving, rotating or scaling never edits a mesh.";
+            + "Outputs capability (sculpt, mesh-source, mesh-planned, no-mesh or no-selection), meshEditing, sculptCopy, materialSlot, model, title "
+            + "and notice. Supported static sources can be edited in the modeling preview.";
     }
 
     @Override

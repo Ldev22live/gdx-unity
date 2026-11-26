@@ -48,6 +48,8 @@ public final class AssetOpening {
                 + "material in its Material section.";
             case TERRAIN -> "A terrain is shaped in the World: choose Terrain in the World strip under the view. To use this file, add a "
                 + "Terrain component to an entity, select the file here and press Use Selected in its Details.";
+            case VECTOR -> "A vector drawing is the source of sprite layers drawn from it. Open that sprite in Customize > 2D Studio: "
+                + "Sprites and select a linked layer; its Vector source section edits the drawing and redraws the layer.";
             case UNKNOWN -> "This kind of file is not a Forgeroom asset.";
         };
     }

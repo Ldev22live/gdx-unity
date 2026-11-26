@@ -1,6 +1,7 @@
 package io.github.ldev22live.gdxunity.engine.desktop;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -22,6 +23,7 @@ import io.github.ldev22live.gdxunity.engine.render.components.CameraComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
+import io.github.ldev22live.gdxunity.engine.scene.Scene;
 
 import java.io.File;
 import java.util.zip.Deflater;
@@ -45,6 +47,8 @@ public final class GameRenderer implements EngineRenderer {
     private final SceneRenderer3D renderer3D;
     private final SceneRenderer2D renderer2D;
     private final HudRenderer hud;
+    private final Scene assetCredits;
+    private boolean showingCredits;
     private int width;
     private int height;
     private int framesToRender;
@@ -84,6 +88,7 @@ public final class GameRenderer implements EngineRenderer {
         renderer2D.setClearEnabled(false);
         renderer2D.setActiveScene(session.getScene());
         this.hud = resources.register(new HudRenderer());
+        this.assetCredits = AssetCredits.from(project);
     }
 
     /** Asks the application to exit after {@code frames} rendered frames; 0 runs until the window is closed. */
@@ -270,6 +275,19 @@ public final class GameRenderer implements EngineRenderer {
     private void renderFrame(float deltaTime) {
         if (width == 0 && Gdx.graphics != null) {
             resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        }
+        if (assetCredits != null && Gdx.input != null) {
+            if (Gdx.input.isKeyJustPressed(Keys.F1)) {
+                showingCredits = !showingCredits;
+            } else if (showingCredits && Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
+                showingCredits = false;
+            }
+            if (showingCredits && Gdx.gl != null) {
+                Gdx.gl.glClearColor(0.06f, 0.07f, 0.09f, 1f);
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+                hud.render(assetCredits, width, height);
+                return;
+            }
         }
         session.update(deltaTime);
         CameraComponent camera = GameCameraRig.findActiveCamera(session.getScene());

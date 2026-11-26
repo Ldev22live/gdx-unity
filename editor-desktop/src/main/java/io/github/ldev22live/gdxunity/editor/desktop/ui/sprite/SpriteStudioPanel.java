@@ -15,13 +15,20 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Disposable;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.menu.ContextMenu;
+import io.github.ldev22live.gdxunity.editor.sprite.SpriteExports;
 import io.github.ldev22live.gdxunity.editor.sprite.SpriteSession;
 import io.github.ldev22live.gdxunity.editor.sprite.SpriteToolController;
+import io.github.ldev22live.gdxunity.editor.sprite.SpriteVectorSources;
+import io.github.ldev22live.gdxunity.editor.sprite.VectorSession;
 import io.github.ldev22live.gdxunity.engine.sprite.PixelPng;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteDocument;
+import io.github.ldev22live.gdxunity.engine.sprite.SpriteHitbox;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteSheet;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteSlice;
 import io.github.ldev22live.gdxunity.engine.sprite.SpriteTag;
+import io.github.ldev22live.gdxunity.engine.vector.Rgba;
+import io.github.ldev22live.gdxunity.engine.vector.VectorPath;
+import io.github.ldev22live.gdxunity.engine.vector.VectorShape;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +45,11 @@ import java.util.Objects;
  * a preview on the right, frames and tags at the bottom. All edits go through {@link SpriteSession}, so Ctrl+Z style undo works for every step.
  * Sprites are saved in the project's {@code sprites/} folder as {@code .sprite}; "Export" also writes a PNG sheet and its atlas next to it, which the
  * Content Browser lists as a texture a Sprite Renderer can use.
+ *
+ * <p>Edit 2D Asset (TD-104, roadmap MC.3): a layer drawn from a {@code .vector} drawing shows its <b>Vector source</b> section, where
+ * the drawing's shapes are recoloured, their points and position changed, and every layer drawn from it redrawn after each change.
+ * Save writes changed drawings before the sprite. The bottom bar edits the current frame's <b>hitboxes</b>, and the Selection tools
+ * include a free <b>transform</b> (scale and any angle).
  */
 public final class SpriteStudioPanel extends Table implements Disposable {
     /** Folder of the project that holds sprites. */
@@ -50,7 +62,7 @@ public final class SpriteStudioPanel extends Table implements Disposable {
     private static final int PALETTE_COLUMNS = 8;
     private static final float RIGHT_COLUMN_WIDTH = 230f;
     private static final float FRAME_BUTTON_WIDTH = 38f;
-    private static final String ATLAS_SUFFIX = ".sheet.json";
+    private static final String ATLAS_SUFFIX = SpriteExports.ATLAS_SUFFIX;
     /** The starting palette: a small, well-spread set (the 16 colors of the PICO-8 console are public domain colors as plain RGB values). */
     private static final int[] STARTER_PALETTE = {
         0x000000FF, 0x1D2B53FF, 0x7E2553FF, 0x008751FF, 0xAB5236FF, 0x5F574FFF, 0xC2C3C7FF, 0xFFF1E8FF,
@@ -79,6 +91,15 @@ public final class SpriteStudioPanel extends Table implements Disposable {
     /** What was typed in the slice fields; kept across the rebuilds of the lists. */
     private String sliceName = "";
     private String sliceBorders = "0 0 0 0";
+    /** The open sprite's vector-drawn layers and their drawings (TD-104). */
+    private SpriteVectorSources sources;
+    /** The shape the Vector source section edits; null until a linked layer is shown. */
+    private String selectedShape;
+    private Table vectorTable;
+    private Table hitboxTable;
+    /** What was typed in the hitbox name and transform fields; kept across the rebuilds of the lists. */
+    private String hitboxName = "hurt";
+    private String transformText = "100 100 0";
     private ColorSwatch currentSwatch;
     private final List<TextButton> toolButtons = new ArrayList<>();
     private final List<TextButton> optionButtons = new ArrayList<>();
@@ -158,6 +179,8 @@ public final class SpriteStudioPanel extends Table implements Disposable {
             preview.dispose();
         }
         session = next;
+        sources = new SpriteVectorSources(next, projectRoot.toPath());
+        selectedShape = null;
         tools = new SpriteToolController(session);
         canvas = new SpriteCanvasWidget(session, tools);
         preview = new SpritePreviewWidget(session);
@@ -212,9 +235,12 @@ public final class SpriteStudioPanel extends Table implements Disposable {
     public boolean save() {
         try {
             Files.createDirectories(spritesDir().toPath());
+            // Drawings first, so the sprite never names a drawing whose changes were not written (TD-104)
+            List<File> drawings = sources.saveVectors();
             session.saveAs(fileFor("." + "sprite"));
             onAssetsChanged.run();
-            say("Saved " + session.getFile().getName());
+            say("Saved " + session.getFile().getName() + (drawings.isEmpty() ? ""
+                : " and " + String.join(", ", drawings.stream().map(File::getName).toList())));
             return true;
         } catch (IOException e) {
             say("Cannot save: " + e.getMessage());
@@ -226,11 +252,15 @@ public final class SpriteStudioPanel extends Table implements Disposable {
         try {
             Files.createDirectories(spritesDir().toPath());
             String base = safeName(nameField.getText());
-            SpriteSheet.Export sheet = SpriteSheet.export(session.getDocument(), 0, 0, base + ".png");
+            // A saved sprite is recorded as the sheet's source (TD-104): the PNG is an export, edited through its source
+            SpriteSheet.SourceRecord source = session.getFile() == null || session.isDirty() ? null
+                : SpriteExports.recordOf(projectRoot.toPath(), session.getFile().toPath());
+            SpriteSheet.Export sheet = SpriteSheet.export(session.getDocument(), 0, 0, base + ".png", source);
             Files.write(new File(spritesDir(), base + ".png").toPath(), sheet.png());
             Files.writeString(new File(spritesDir(), base + ATLAS_SUFFIX).toPath(), sheet.atlasJson(), StandardCharsets.UTF_8);
             onAssetsChanged.run();
-            say("Exported " + base + ".png (" + sheet.width() + " x " + sheet.height() + ") and " + base + ATLAS_SUFFIX);
+            say("Exported " + base + ".png (" + sheet.width() + " x " + sheet.height() + ") and " + base + ATLAS_SUFFIX
+                + (source == null ? "; save the sprite first to record it as the source" : " from " + source.path()));
         } catch (IOException e) {
             say("Cannot export: " + e.getMessage());
         }
@@ -248,7 +278,8 @@ public final class SpriteStudioPanel extends Table implements Disposable {
                 Math.min(session.getDocument().getHeight(), image.height()), 0);
             cut.setPalette(session.getDocument().getPalette());
             useSession(new SpriteSession(cut), nameField.getText());
-            say("Imported " + cut.getFrameCount() + " frame(s) from " + png.getName());
+            say("Imported " + cut.getFrameCount() + " frame(s) from " + png.getName() + ". "
+                + SpriteExports.originOf(projectRoot.toPath(), png.toPath()).advice());
         } catch (IOException | RuntimeException e) {
             say("Cannot import " + png.getName() + ": " + e.getMessage());
         }
@@ -301,6 +332,8 @@ public final class SpriteStudioPanel extends Table implements Disposable {
         framesTable = new Table(skin);
         tagsTable = new Table(skin);
         slicesTable = new Table(skin);
+        vectorTable = new Table(skin);
+        hitboxTable = new Table(skin);
         currentSwatch = new ColorSwatch(white, session.getColor(), SWATCH_SIZE * 2);
 
         add(topBar()).growX().colspan(3).height(ROW_HEIGHT + 6).row();
@@ -378,9 +411,34 @@ public final class SpriteStudioPanel extends Table implements Disposable {
         column.add(button("Delete", this::selectionAction)).width(TOOL_BUTTON_WIDTH).height(ROW_HEIGHT).padBottom(2).row();
         column.add(button("Flip H", () -> withSelection(() -> session.flipSelection(true)))).width(TOOL_BUTTON_WIDTH).height(ROW_HEIGHT).padBottom(2).row();
         column.add(button("Flip V", () -> withSelection(() -> session.flipSelection(false)))).width(TOOL_BUTTON_WIDTH).height(ROW_HEIGHT).padBottom(2).row();
-        column.add(button("Rotate", () -> withSelection(session::rotateSelection))).width(TOOL_BUTTON_WIDTH).height(ROW_HEIGHT).row();
+        column.add(button("Rotate", () -> withSelection(session::rotateSelection))).width(TOOL_BUTTON_WIDTH).height(ROW_HEIGHT).padBottom(2).row();
+        // Free transform (TD-104): scale X %, scale Y % and degrees clockwise, nearest neighbour so no new colours appear
+        TextField transform = new TextField(transformText, skin);
+        transform.setMessageText("X% Y% deg");
+        transform.setTextFieldListener((field, c) -> transformText = field.getText());
+        column.add(transform).width(TOOL_BUTTON_WIDTH).height(ROW_HEIGHT).padBottom(2).row();
+        column.add(button("Transform", () -> transformSelection(transform.getText()))).width(TOOL_BUTTON_WIDTH).height(ROW_HEIGHT).row();
         refreshToggles();
         return column;
+    }
+
+    /** Applies "scale X %, scale Y %, degrees" to the selection as one undo step. */
+    private void transformSelection(String text) {
+        transformText = text;
+        String[] parts = text.trim().split("[ ,]+");
+        try {
+            if (parts.length != 3) {
+                throw new NumberFormatException();
+            }
+            float scaleX = Float.parseFloat(parts[0]) / 100f;
+            float scaleY = Float.parseFloat(parts[1]) / 100f;
+            float degrees = Float.parseFloat(parts[2]);
+            withSelection(() -> session.transformSelection(scaleX, scaleY, degrees));
+        } catch (NumberFormatException e) {
+            say("Transform takes three numbers: scale X %, scale Y % and degrees, such as 200 200 0 or 100 100 45");
+        } catch (IllegalArgumentException e) {
+            say(e.getMessage());
+        }
     }
 
     private void selectionAction() {
@@ -437,6 +495,7 @@ public final class SpriteStudioPanel extends Table implements Disposable {
         layersHeader.add(button("-", session::removeLayer)).width(28f).height(ROW_HEIGHT).padLeft(2);
         column.add(layersHeader).growX().row();
         column.add(layersTable).growX().padBottom(8).row();
+        column.add(vectorTable).growX().padBottom(8).row();
         column.add(new Label("Preview", skin, "section")).left().row();
         Table previewRow = new Table(skin);
         previewRow.add(preview).size(96f).padRight(6);
@@ -497,6 +556,7 @@ public final class SpriteStudioPanel extends Table implements Disposable {
         bar.add(frames).growX().height(ROW_HEIGHT + 20f).row();
         bar.add(tagsTable).left().row();
         bar.add(slicesTable).left().row();
+        bar.add(hitboxTable).left().row();
         return bar;
     }
 
@@ -563,6 +623,8 @@ public final class SpriteStudioPanel extends Table implements Disposable {
         tagsTable.add(button("Tag frames " + (session.getFrame() + 1) + "-" + doc.getFrameCount(), () -> addTag(tagName.getText()))).height(ROW_HEIGHT).padRight(2);
         tagsTable.add(button("All frames", () -> preview.setTag(null))).height(ROW_HEIGHT);
         rebuildSlices(doc);
+        rebuildHitboxes(doc);
+        rebuildVector();
         builtRevision = session.getRevision();
     }
 
@@ -587,6 +649,207 @@ public final class SpriteStudioPanel extends Table implements Disposable {
         slicesTable.add(name).width(90f).height(ROW_HEIGHT).padRight(2);
         slicesTable.add(borders).width(80f).height(ROW_HEIGHT).padRight(2);
         slicesTable.add(button("Slice from selection", () -> addSliceFromSelection(name.getText(), borders.getText()))).height(ROW_HEIGHT);
+    }
+
+    /** The current frame's hitboxes (TD-104): named rectangles for gameplay, made from the Select tool's rectangle. */
+    private void rebuildHitboxes(SpriteDocument doc) {
+        hitboxTable.clearChildren();
+        hitboxTable.add(new Label("Hitboxes", skin, "section")).padRight(6);
+        for (SpriteHitbox box : doc.getHitboxes(session.getFrame())) {
+            hitboxTable.add(new Label(box.name() + " " + box.x() + "," + box.y() + " " + box.width() + "x" + box.height(), skin, "muted"))
+                .padRight(2);
+            hitboxTable.add(button("x", () -> session.removeHitbox(box.name()))).width(22f).height(ROW_HEIGHT).padRight(6);
+        }
+        TextField name = new TextField(hitboxName, skin);
+        name.setMessageText("hitbox name");
+        name.setTextFieldListener((field, c) -> hitboxName = field.getText());
+        hitboxTable.add(name).width(90f).height(ROW_HEIGHT).padRight(2);
+        hitboxTable.add(button("Hitbox from selection (frame " + (session.getFrame() + 1) + ")", () -> addHitboxFromSelection(name.getText())))
+            .height(ROW_HEIGHT);
+    }
+
+    private void addHitboxFromSelection(String name) {
+        hitboxName = name;
+        SpriteSession.SelectionRect s = session.getSelection();
+        if (s == null) {
+            say("Draw the hitbox's rectangle with the Select tool first");
+            return;
+        }
+        try {
+            session.setHitbox(new SpriteHitbox(name.trim(), s.x(), s.y(), s.width(), s.height()));
+            say("Hitbox " + name.trim() + " on frame " + (session.getFrame() + 1) + " (" + s.width() + " x " + s.height() + ")");
+        } catch (IllegalArgumentException e) {
+            say(e.getMessage());
+        }
+    }
+
+    // ---- vector source (Edit 2D Asset, TD-104) ----
+
+    /** What a vector edit does to the drawing; returns whether it changed. */
+    private interface VectorEdit {
+        boolean apply(VectorSession drawing);
+    }
+
+    private Label wrapped(String text) {
+        Label label = new Label(text, skin, "muted");
+        label.setWrap(true);
+        return label;
+    }
+
+    /**
+     * The current layer's vector source: its drawing, the shapes drawn into it, and for the chosen shape its fill, stroke, points and
+     * position. Every change redraws all layers drawn from the drawing.
+     */
+    private void rebuildVector() {
+        vectorTable.clearChildren();
+        vectorTable.add(new Label("Vector source", skin, "section")).left().row();
+        SpriteVectorSources.Link link = sources.linkOf(session.getLayer());
+        if (link == null) {
+            vectorTable.add(wrapped("This layer is painted here; it has no vector source.")).width(RIGHT_COLUMN_WIDTH).left().row();
+            return;
+        }
+        String path = link.source().vector();
+        VectorSession drawing;
+        try {
+            drawing = sources.vector(path);
+        } catch (IOException e) {
+            vectorTable.add(wrapped(e.getMessage())).width(RIGHT_COLUMN_WIDTH).left().row();
+            return;
+        }
+        vectorTable.add(new Label(path + (drawing.isDirty() ? " (unsaved)" : ""), skin, "muted")).left().row();
+        try {
+            if (sources.isPaintedOver(link.layer())) {
+                vectorTable.add(wrapped("The layer differs from its drawing (painted by hand, or not redrawn). Redraw replaces it."))
+                    .width(RIGHT_COLUMN_WIDTH).left().row();
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            vectorTable.add(wrapped(e.getMessage())).width(RIGHT_COLUMN_WIDTH).left().row();
+            return;
+        }
+        List<String> shapes = link.source().shapes().isEmpty()
+            ? drawing.getDocument().shapes().stream().map(VectorShape::name).toList() : link.source().shapes();
+        if (shapes.isEmpty()) {
+            return;
+        }
+        if (selectedShape == null || !shapes.contains(selectedShape)) {
+            selectedShape = shapes.get(0);
+        }
+        Table names = new Table(skin);
+        for (String shapeName : shapes) {
+            TextButton b = button(shapeName, () -> {
+                selectedShape = shapeName;
+                builtRevision = -1;
+            });
+            b.setColor(skin.getColor(shapeName.equals(selectedShape) ? "accent" : "text-primary"));
+            names.add(b).height(ROW_HEIGHT).padRight(2);
+        }
+        vectorTable.add(names).left().padBottom(2).row();
+        VectorShape shape = drawing.getDocument().shape(selectedShape);
+        String chosen = selectedShape;
+
+        Table fillRow = new Table(skin);
+        TextField fill = new TextField(shape.fill() == null ? "" : shape.fill().toHex(), skin);
+        fill.setMessageText("none");
+        fillRow.add(new Label("Fill", skin, "muted")).width(44f);
+        fillRow.add(fill).width(90f).height(ROW_HEIGHT).padRight(2);
+        fillRow.add(button("Set", () -> vectorEdit(path, d -> d.setFill(chosen, colour(fill.getText()))))).height(ROW_HEIGHT);
+        vectorTable.add(fillRow).left().row();
+
+        Table strokeRow = new Table(skin);
+        TextField stroke = new TextField(shape.stroke() == null ? "" : shape.stroke().toHex(), skin);
+        stroke.setMessageText("none");
+        TextField width = new TextField(String.valueOf(shape.strokeWidth()), skin);
+        strokeRow.add(new Label("Stroke", skin, "muted")).width(44f);
+        strokeRow.add(stroke).width(90f).height(ROW_HEIGHT).padRight(2);
+        strokeRow.add(width).width(36f).height(ROW_HEIGHT).padRight(2);
+        strokeRow.add(button("Set", () -> vectorEdit(path, d -> d.setStroke(chosen, colour(stroke.getText()),
+            Float.parseFloat(width.getText().trim()))))).height(ROW_HEIGHT);
+        vectorTable.add(strokeRow).left().row();
+
+        // Points in the shape's own coordinates; Enter moves one
+        List<VectorPath.PointRef> refs = shape.path().points();
+        for (int i = 0; i < refs.size(); i++) {
+            VectorPath.PointRef ref = refs.get(i);
+            float[] at = shape.path().point(ref);
+            Table pointRow = new Table(skin);
+            TextField field = new TextField(number(at[0]) + " " + number(at[1]), skin);
+            field.setTextFieldListener((f, c) -> {
+                if (c == '\r' || c == '\n') {
+                    float[] xy = twoNumbers(f.getText());
+                    if (xy != null) {
+                        vectorEdit(path, d -> d.movePoint(chosen, ref, xy[0], xy[1]));
+                    }
+                }
+            });
+            pointRow.add(new Label("Point " + (i + 1), skin, "muted")).width(60f);
+            pointRow.add(field).width(110f).height(ROW_HEIGHT);
+            vectorTable.add(pointRow).left().row();
+        }
+
+        Table moveRow = new Table(skin);
+        TextField delta = new TextField("0 0", skin);
+        moveRow.add(new Label("Move by", skin, "muted")).width(60f);
+        moveRow.add(delta).width(70f).height(ROW_HEIGHT).padRight(2);
+        moveRow.add(button("Move", () -> {
+            float[] xy = twoNumbers(delta.getText());
+            if (xy != null) {
+                vectorEdit(path, d -> d.moveShape(chosen, xy[0], xy[1]));
+            }
+        })).height(ROW_HEIGHT);
+        vectorTable.add(moveRow).left().row();
+
+        Table actions = new Table(skin);
+        actions.add(button("Undo drawing", () -> vectorEdit(path, VectorSession::undo))).height(ROW_HEIGHT).padRight(2);
+        actions.add(button("Redo", () -> vectorEdit(path, VectorSession::redo))).height(ROW_HEIGHT).padRight(2);
+        actions.add(button("Redraw", () -> redraw(path))).height(ROW_HEIGHT);
+        vectorTable.add(actions).left().padTop(2).row();
+    }
+
+    /** Runs a drawing edit, then redraws every layer drawn from it (one sprite step); problems are said, never thrown. */
+    private void vectorEdit(String path, VectorEdit edit) {
+        try {
+            if (edit.apply(sources.vector(path))) {
+                sources.redrawFrom(path);
+                say("Changed " + path + "; redrawn");
+            } else {
+                say("Nothing changed");
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            say(e.getMessage());
+        }
+        builtRevision = -1;
+    }
+
+    private void redraw(String path) {
+        try {
+            say(sources.redrawFrom(path) ? "Redrawn from " + path : "The layers already match " + path);
+        } catch (IOException | IllegalArgumentException e) {
+            say(e.getMessage());
+        }
+        builtRevision = -1;
+    }
+
+    /** A colour typed as #rrggbb or #rrggbbaa, or none for an empty field. */
+    private static Rgba colour(String text) {
+        String trimmed = text.trim();
+        return trimmed.isEmpty() ? null : Rgba.hex(trimmed.startsWith("#") ? trimmed : "#" + trimmed);
+    }
+
+    private float[] twoNumbers(String text) {
+        String[] parts = text.trim().split("[ ,]+");
+        try {
+            if (parts.length == 2) {
+                return new float[] {Float.parseFloat(parts[0]), Float.parseFloat(parts[1])};
+            }
+        } catch (NumberFormatException e) {
+            // said below
+        }
+        say("Type two numbers, x and y, such as 12 30");
+        return null;
+    }
+
+    private static String number(float value) {
+        return value == Math.rint(value) ? String.valueOf((int) value) : String.valueOf(value);
     }
 
     private void addSliceFromSelection(String name, String borderText) {

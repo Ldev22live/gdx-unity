@@ -43,6 +43,14 @@ public final class GameGenres {
     public static final float SIDE_CAMERA_FOLLOW_RATE = 6f;
     /** Platformer + 2.5D: running speed in scene units per second (4.5 m/s). */
     public static final float PLATFORMER_RUN_SPEED = 450f;
+    /** Platformer + 2D running speed, pixels per second (3 m/s at Box2D's 100 pixels per metre). */
+    public static final float PLATFORMER_2D_RUN_SPEED = 300f;
+    /** Platformer + 2D jump speed, pixels per second: about 215 pixels high under Box2D's 9.81 m/s² gravity. */
+    public static final float PLATFORMER_2D_JUMP_SPEED = 650f;
+    /** How far above the player's centre the 2D camera looks, pixels. */
+    public static final float FOLLOW_2D_HEIGHT = 40f;
+    /** The 2D camera rig's depth offset; an orthographic view does not use depth, the rig needs a direction to look along. */
+    public static final float FOLLOW_2D_DEPTH = 1f;
     /** Platformer + 2.5D: jump speed in scene units per second; 6.5 m/s rises about 2.15 m. */
     public static final float PLATFORMER_JUMP_SPEED = 650f;
     /** Action RPG + 3D: the third-person camera's distance behind the pivot, in scene units. */
@@ -85,6 +93,14 @@ public final class GameGenres {
     public static final float SHOT_RANGE = 5000f;
     /** First-person Shooter + 3D: the speed a body hit by a shot gains along it (6 m/s). */
     public static final float SHOT_KNOCK_SPEED = 600f;
+    /** Third-person Shooter + 3D: the camera's distance behind the pivot; nearer than Action RPG's, so the aim reads clearly. */
+    public static final float BEHIND_DISTANCE = 450f;
+    /** Third-person Shooter + 3D: the height above the player's centre that the camera looks at. */
+    public static final float BEHIND_PIVOT_HEIGHT = 80f;
+    /** Third-person Shooter + 3D: the camera's downward tilt, in degrees; shallower than Action RPG's, so targets ahead are seen. */
+    public static final float BEHIND_PITCH = 12f;
+    /** Third-person Shooter + 3D: the height above the player's centre a shot leaves from, about the chest (the top is 70 above). */
+    public static final float THIRD_PERSON_AIM_HEIGHT = 30f;
     /** How fast the walking player turns to face where it walks, degrees per second (not used by side running). */
     private static final float TURN_DEGREES_PER_SECOND = 720f;
 
@@ -96,8 +112,9 @@ public final class GameGenres {
     }
 
     /**
-     * The eleven roadmap genres with their support today. Platformer + 2.5D (roadmap M3b.3, {@link #platformer25D}), Platformer + 3D
-     * (roadmap M3b.7, {@link #platformer3D}), First-person Shooter + 3D (roadmap M3b.7, {@link #firstPersonShooter3D}), Action RPG + 3D
+     * The eleven roadmap genres with their support today. Platformer + 2D (TD-105, {@link #platformer2D}), Platformer + 2.5D (roadmap
+     * M3b.3, {@link #platformer25D}), Platformer + 3D (roadmap M3b.7, {@link #platformer3D}), First-person Shooter + 3D (roadmap
+     * M3b.7, {@link #firstPersonShooter3D}), Third-person Shooter + 3D (roadmap M3b.7, {@link #thirdPersonShooter3D}), Action RPG + 3D
      * (roadmap M3c.1, {@link #actionRpg3D}) and Action RPG + 2.5D (roadmap M3c.3, {@link #actionRpg25D}) are playable.
      * First- and third-person shooters are not offered in 2D and 2.5D (TD-088, question 3); every other pair is planned, with the
      * milestone that is to build it where one exists.
@@ -116,8 +133,10 @@ public final class GameGenres {
         registry.register(new GameGenre(SIMULATION, "Simulation", "Run a system and watch it change."));
         registry.register(new GameGenre(SANDBOX, "Sandbox", "Build and play freely without set goals."));
 
-        registry.planned(PLATFORMER, GameMode.MODE_2D, "Planned: needs a 2D character controller.");
         GameGenre platformer = registry.genres.get(PLATFORMER);
+        registry.setSupport(new GenreSupport(platformer, GameMode.MODE_2D, GenreStatus.PLAYABLE, "Playable: a 2D camera following the "
+            + "player, running and jumping by moving its Rigid Body 2D, collisions with the level's 2D colliders and tile maps.",
+            platformer2D(platformer)));
         registry.setSupport(new GenreSupport(platformer, GameMode.MODE_2_5D, GenreStatus.PLAYABLE, "Playable: a side camera, running "
             + "and jumping along the play plane, collisions with the level's colliders and terrain.", platformer25D(platformer)));
         registry.setSupport(new GenreSupport(platformer, GameMode.MODE_3D, GenreStatus.PLAYABLE, "Playable: a chase camera behind and "
@@ -138,12 +157,31 @@ public final class GameGenres {
         registry.setSupport(new GenreSupport(firstPerson, GameMode.MODE_3D, GenreStatus.PLAYABLE, "Playable: a camera at the player's "
             + "eyes, Q and E turn, W and S walk, A and D step sideways, jumping, and F or Ctrl shoots along the view and knocks back what "
             + "it hits. Health, enemies and ammunition come later.", firstPersonShooter3D(firstPerson)));
-        registry.planned(THIRD_PERSON_SHOOTER, GameMode.MODE_3D, "Planned (roadmap M3b.7).");
+        GameGenre thirdPerson = registry.genres.get(THIRD_PERSON_SHOOTER);
+        registry.setSupport(new GenreSupport(thirdPerson, GameMode.MODE_3D, GenreStatus.PLAYABLE, "Playable: a camera behind and "
+            + "above the player that always looks the way it faces; Q and E turn the player, W and S walk, A and D step sideways, "
+            + "jumping, and F or Ctrl shoots straight ahead from the player's chest and knocks back what it hits. Health, enemies and "
+            + "ammunition come later.", thirdPersonShooter3D(thirdPerson)));
         registry.planned(RACING, GameMode.MODE_3D, "Planned (roadmap M3b.7).");
         for (GameMode mode : GameMode.values()) {
             registry.planned(REAL_TIME_STRATEGY, mode, "Planned: comes with the scenario editor (roadmap R4).");
         }
         return registry;
+    }
+
+    /**
+     * Platformer + 2D (TD-105, roadmap M3c.7): a 2D camera that follows the player, A and D (or the arrows) run along x and Space
+     * jumps from the ground, by setting the velocity of the player's dynamic Rigid Body 2D; Box2D's gravity and the level's 2D
+     * colliders do the rest. It needs a Player with a dynamic Rigid Body 2D and a 2D collider, and a camera.
+     */
+    public static GameTestProfile platformer2D(GameGenre platformer) {
+        return new GameTestProfile(platformer, GameMode.MODE_2D,
+            new GameTestProfile.CameraSetup(GameTestProfile.CameraSetup.Kind.FOLLOW_2D, FOLLOW_2D_DEPTH, FOLLOW_2D_HEIGHT, 0f,
+                SIDE_CAMERA_FOLLOW_RATE),
+            new GameTestProfile.MovementSetup(GameTestProfile.MovementSetup.Kind.RUN_2D, PLATFORMER_2D_RUN_SPEED,
+                PLATFORMER_2D_JUMP_SPEED, TURN_DEGREES_PER_SECOND),
+            GameTestProfile.Physics.PHYSICS_2D, InputMapping.defaults(),
+            Set.of(GameTestProfile.Requirement.PLAYER, GameTestProfile.Requirement.CHARACTER_2D, GameTestProfile.Requirement.CAMERA));
     }
 
     /**
@@ -199,6 +237,24 @@ public final class GameGenres {
             GameTestProfile.Physics.PHYSICS_3D, InputMapping.defaults(),
             Set.of(GameTestProfile.Requirement.PLAYER, GameTestProfile.Requirement.CHARACTER_3D, GameTestProfile.Requirement.CAMERA),
             0f, new GameTestProfile.ShotSetup(SHOT_RANGE, SHOT_KNOCK_SPEED));
+    }
+
+    /**
+     * Third-person Shooter + 3D (roadmap M3b.7, slice 4): a camera behind and above the player that always looks the way it faces;
+     * the turn keys turn the player (and so the view), forward and back walk the way it faces, left and right step sideways;
+     * jumping; the fire key shoots level along the way the player faces from {@link #THIRD_PERSON_AIM_HEIGHT} above its centre and
+     * knocks back a dynamic body it hits. No health, enemies or ammunition yet.
+     */
+    public static GameTestProfile thirdPersonShooter3D(GameGenre shooter) {
+        return new GameTestProfile(shooter, GameMode.MODE_3D,
+            new GameTestProfile.CameraSetup(GameTestProfile.CameraSetup.Kind.BEHIND_FACING, BEHIND_DISTANCE, BEHIND_PIVOT_HEIGHT,
+                BEHIND_PITCH, 0f),
+            new GameTestProfile.MovementSetup(GameTestProfile.MovementSetup.Kind.FIRST_PERSON_WALK, SHOOTER_WALK_SPEED,
+                SHOOTER_JUMP_SPEED, SHOOTER_TURN_DEGREES_PER_SECOND),
+            GameTestProfile.Physics.PHYSICS_3D, InputMapping.defaults(),
+            Set.of(GameTestProfile.Requirement.PLAYER, GameTestProfile.Requirement.CHARACTER_3D, GameTestProfile.Requirement.CAMERA),
+            0f, new GameTestProfile.ShotSetup(SHOT_RANGE, SHOT_KNOCK_SPEED, GameTestProfile.ShotSetup.Origin.PLAYER_FACING,
+                THIRD_PERSON_AIM_HEIGHT));
     }
 
     /**

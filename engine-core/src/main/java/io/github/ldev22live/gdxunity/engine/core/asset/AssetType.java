@@ -24,6 +24,8 @@ public enum AssetType {
     MATERIAL("material"),
     /** Heightmap ground edited with brushes in the 3D view (TD-082). */
     TERRAIN("terrain"),
+    /** Vector drawings (TD-104): the source of sprite layers drawn from them, edited in 2D Studio through those layers. */
+    VECTOR("vector"),
     UNKNOWN;
 
     private final String[] extensions;

@@ -32,6 +32,7 @@ import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.MeshCo
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.TerrainCollider3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.play.serialization.PlayerComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.play.serialization.SpawnPointComponentSerializer;
+import io.github.ldev22live.gdxunity.engine.scene.scenario.OwnerComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.CharacterController3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.Joint3DComponentSerializer;
 import io.github.ldev22live.gdxunity.engine.scene.physics3d.serialization.RigidBody3DComponentSerializer;
@@ -91,6 +92,7 @@ public final class GameComponentSerializers {
         registry.register(new TerrainCollider3DComponentSerializer());
         registry.register(new PlayerComponentSerializer());
         registry.register(new SpawnPointComponentSerializer());
+        registry.register(new OwnerComponentSerializer());
         registry.register(new CharacterController3DComponentSerializer());
         registry.register(new Joint3DComponentSerializer());
         registry.register(new PrefabInstanceComponentSerializer());

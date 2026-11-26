@@ -38,6 +38,9 @@ public class ColliderGeometry implements ColliderGeometrySource {
         this.models = models;
     }
 
+    /** Revision of the loaded meshes used to build collider previews. */
+    public long revision() { return models == null ? 0 : models.revision(); }
+
     @Override
     public MeshGeometry3D geometryOf(Entity entity) {
         Objects.requireNonNull(entity, "entity cannot be null");

@@ -169,9 +169,9 @@ The section names are shared; the messages point at desktop tools, so the web wr
 
 | Game mode | Choices |
 |---|---|
-| 2D | None, Platformer / Side-scroller (planned), Action RPG (planned), Adventure (planned), First-person Shooter (not offered), Third-person Shooter (not offered), Real-time Strategy (planned), Turn-based Strategy (planned), Racing (planned), Puzzle (planned), Simulation (planned), Sandbox (planned) |
+| 2D | None, Platformer / Side-scroller, Action RPG (planned), Adventure (planned), First-person Shooter (not offered), Third-person Shooter (not offered), Real-time Strategy (planned), Turn-based Strategy (planned), Racing (planned), Puzzle (planned), Simulation (planned), Sandbox (planned) |
 | 2.5D | None, Platformer / Side-scroller, Action RPG, Adventure (planned), First-person Shooter (not offered), Third-person Shooter (not offered), Real-time Strategy (planned), Turn-based Strategy (planned), Racing (planned), Puzzle (planned), Simulation (planned), Sandbox (planned) |
-| 3D | None, Platformer / Side-scroller, Action RPG, Adventure (planned), First-person Shooter, Third-person Shooter (planned), Real-time Strategy (planned), Turn-based Strategy (planned), Racing (planned), Puzzle (planned), Simulation (planned), Sandbox (planned) |
+| 3D | None, Platformer / Side-scroller, Action RPG, Adventure (planned), First-person Shooter, Third-person Shooter, Real-time Strategy (planned), Turn-based Strategy (planned), Racing (planned), Puzzle (planned), Simulation (planned), Sandbox (planned) |
 
 ### Desktop template labels (Appendix F5), from the most to the least editable
 

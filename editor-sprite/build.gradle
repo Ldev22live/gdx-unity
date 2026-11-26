@@ -7,6 +7,7 @@ apply plugin: 'java-library'
 dependencies {
   api project(':editor-core')
   api project(':engine-sprite')
+  api project(':engine-vector')
 
   testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.0"

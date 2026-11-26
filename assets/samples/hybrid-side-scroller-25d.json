@@ -1,0 +1,811 @@
+{
+  "schemaVersion": 1,
+  "name": "Hybrid Side-scroller 2.5D",
+  "gameMode": "2.5d",
+  "gameGenre": "platformer",
+  "active": true,
+  "entities": [
+    {
+      "id": "2199d4bf-9dd5-5072-86d8-7a1c1cc1a310",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "f3b17734-e33b-507d-bb42-dd4f784d6765",
+      "name": "Sky Light",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SkyLightComponent",
+          "enabled": true,
+          "data": {
+            "skyR": 0.66,
+            "skyG": 0.78,
+            "skyB": 0.94,
+            "groundR": 0.32,
+            "groundG": 0.29,
+            "groundB": 0.26,
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "ToneMappingComponent",
+          "enabled": true,
+          "data": {
+            "exposure": 1.0,
+            "operator": "ACES_FILMIC"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b8733f8a-b070-528f-8773-463cbee13ffe",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 220.0,
+          "z": 900.0
+        },
+        "rotation": {
+          "x": -0.0825,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.9966
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 50.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "e17316c8-787e-5f1a-9da3-02ab00f1b63a",
+      "name": "Ground",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 600.0,
+          "y": -50.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 2400.0,
+            "sizeY": 100.0,
+            "sizeZ": 400.0,
+            "colorR": 0.4,
+            "colorG": 0.58,
+            "colorB": 0.34,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 2400.0,
+            "sizeY": 100.0,
+            "sizeZ": 400.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "76a64b0f-2d84-5cce-bf67-87f3fc5661ae",
+      "name": "Start Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -560.0,
+          "y": 300.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 600.0,
+            "sizeZ": 400.0,
+            "colorR": 0.45,
+            "colorG": 0.42,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 60.0,
+            "sizeY": 600.0,
+            "sizeZ": 400.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a18641c4-971b-5375-95a1-4cbd17d10dd1",
+      "name": "End Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1760.0,
+          "y": 300.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 600.0,
+            "sizeZ": 400.0,
+            "colorR": 0.45,
+            "colorG": 0.42,
+            "colorB": 0.4,
+            "colorA": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 60.0,
+            "sizeY": 600.0,
+            "sizeZ": 400.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "8b2cbf67-0aed-59c2-9ec3-16fbce736e22",
+      "name": "Floor Platform",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 700.0,
+          "y": 110.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/floor.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 5.0,
+            "offsetZ": 0.0,
+            "trigger": false,
+            "sizeX": 200.0,
+            "sizeY": 10.0,
+            "sizeZ": 200.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "a26c8a97-f7c1-5401-83d2-d4a62f814a2c",
+      "name": "House Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 200.0,
+          "y": 0.0,
+          "z": -320.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7071067811865476,
+          "z": 0.0,
+          "w": 0.7071067811865476
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "69eff302-1fea-59f0-8ba7-7fad83556a80",
+      "name": "House Window",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 400.0,
+          "y": 0.0,
+          "z": -320.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7071067811865476,
+          "z": 0.0,
+          "w": 0.7071067811865476
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall-window-square.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f25b9021-fe1e-529d-a0ea-1859cfc5c761",
+      "name": "House Door",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 600.0,
+          "y": 0.0,
+          "z": -320.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.7071067811865476,
+          "z": 0.0,
+          "w": 0.7071067811865476
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall-doorway-square.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "fbe7cf74-3245-52e6-ab5b-e0799c8dd338",
+      "name": "Pine 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": -250.0,
+          "y": 0.0,
+          "z": -560.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/nature-kit/Models/GLTF format/tree_pineTallA.glb",
+            "importScale": 300.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "c898e7a6-4e3d-5837-b200-d57e3f04428a",
+      "name": "Pine 2",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1000.0,
+          "y": 0.0,
+          "z": -560.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/nature-kit/Models/GLTF format/tree_pineTallA.glb",
+            "importScale": 300.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "3bf01193-d6dc-587e-9717-002ac64802f9",
+      "name": "Pine 3",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 1450.0,
+          "y": 0.0,
+          "z": -560.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/nature-kit/Models/GLTF format/tree_pineTallA.glb",
+            "importScale": 300.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "68e28417-4bb6-597d-bcfe-69955359f571",
+      "name": "Front Column",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 330.0,
+          "y": 0.0,
+          "z": 220.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/column.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "09f706c2-1daf-5fa9-9290-25e2a70bd657",
+      "name": "Front Villager",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 60.0,
+          "z": 160.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SpriteAnimatorComponent",
+          "enabled": true,
+          "data": {
+            "assetPath": "sprites/hero.sprite",
+            "tag": "idle",
+            "slice": null,
+            "speed": 1,
+            "loop": true,
+            "playOnStart": true,
+            "flipX": true,
+            "flipY": false,
+            "width": 120.0,
+            "height": 120.0,
+            "centered": true,
+            "tint": {
+              "r": 1.0,
+              "g": 1.0,
+              "b": 1.0,
+              "a": 1.0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "272c7e48-7c97-5280-b734-0bc84be2aec8",
+      "name": "Hero",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 80.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SpriteAnimatorComponent",
+          "enabled": true,
+          "data": {
+            "assetPath": "sprites/hero.sprite",
+            "tag": "walk",
+            "slice": null,
+            "speed": 1,
+            "loop": true,
+            "playOnStart": true,
+            "flipX": false,
+            "flipY": false,
+            "width": 140.0,
+            "height": 140.0,
+            "centered": true,
+            "tint": {
+              "r": 1.0,
+              "g": 1.0,
+              "b": 1.0,
+              "a": 1.0
+            }
+          }
+        },
+        {
+          "type": "CharacterController3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 30.0,
+            "height": 80.0,
+            "slopeLimitDegrees": 45.0,
+            "stepHeight": 30.0,
+            "mass": 70.0,
+            "gravityScale": 1.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "PlayerComponent",
+          "enabled": true,
+          "data": {
+            "useProfileMovement": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "15c22f72-305c-57dd-a573-f61ea3efa078",
+      "name": "Back Villager",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 25.0,
+          "y": 60.0,
+          "z": -150.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SpriteAnimatorComponent",
+          "enabled": true,
+          "data": {
+            "assetPath": "sprites/hero.sprite",
+            "tag": "idle",
+            "slice": null,
+            "speed": 1,
+            "loop": true,
+            "playOnStart": true,
+            "flipX": false,
+            "flipY": false,
+            "width": 120.0,
+            "height": 120.0,
+            "centered": true,
+            "tint": {
+              "r": 0.7,
+              "g": 0.78,
+              "b": 0.95,
+              "a": 1.0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "4282ee8d-e21f-5331-9189-e5c995e20e9b",
+      "name": "Help Text",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "TextComponent",
+          "enabled": true,
+          "data": {
+            "text": "A / D or the arrows run, Space jumps. 3D scenery and 2D sprites: Customize opens 3D Modeling or 2D Studio on each.",
+            "colorR": 0.9,
+            "colorG": 0.95,
+            "colorB": 1.0,
+            "colorA": 1,
+            "scale": 1.0,
+            "anchor": "BOTTOM_LEFT",
+            "offsetX": 16.0,
+            "offsetY": 24.0
+          }
+        }
+      ]
+    }
+  ]
+}

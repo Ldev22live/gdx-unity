@@ -46,6 +46,14 @@ class ThirdPartyManifestTest {
     }
 
     @Test
+    void shouldReadAnAttributionLicenceAndRejectItsBlankAuthor() {
+        String attributed = manifest("CC-BY-3.0", "models/thirdparty/warrior.glb", "");
+        assertEquals("CC-BY-3.0", ThirdPartyManifest.parse(attributed).entries().getFirst().licence());
+        assertThrows(IllegalArgumentException.class,
+            () -> ThirdPartyManifest.parse(attributed.replace("\"Rob Tuytel\"", "\" \"")));
+    }
+
+    @Test
     void shouldRefuseALicenceItCannotShipUnderAndAnUnsafePath() {
         IllegalArgumentException licence = assertThrows(IllegalArgumentException.class,
             () -> ThirdPartyManifest.parse(manifest("CC-BY-4.0", "textures/a.jpg", "")));

@@ -21,8 +21,14 @@ const KNOWN_UNSUPPORTED: Readonly<Record<string, string[]>> = {
   "platformer-profile-3d.json": ["PlayerComponent"],
   // Roadmap M3b.7: First-person Shooter + 3D, played by its genre profile
   "first-person-range-3d.json": ["PlayerComponent"],
-  "action-rpg-valley-3d.json": ["PlayerComponent"],
+  // Roadmap M3b.7, slice 4: Third-person Shooter + 3D, played by its genre profile
+  "third-person-yard-3d.json": ["PlayerComponent"],
+  // TD-106 (owner, 2026-11-25): atmosphere is an optional web capability (presentation only); the web keeps its data and says it
+  // is not drawn (contract.test.ts)
+  "action-rpg-valley-3d.json": ["AtmosphereComponent", "PlayerComponent"],
   "action-rpg-iso-25d.json": ["PlayerComponent", "SpawnPointComponent"],
+  // Roadmap MC.4: the 2.5D hybrid's sprite hero is played by the Platformer + 2.5D profile
+  "hybrid-side-scroller-25d.json": ["PlayerComponent"],
   // Roadmap M3.10: the landscapes' terrain copies have a Hero played by the Action RPG profile
   "landscape-terrain-3d.json": ["PlayerComponent"],
   // Roadmap M2b.6: the CC0 refresh of the valley has its terrain copy's gap; its prefab links are only the editor's

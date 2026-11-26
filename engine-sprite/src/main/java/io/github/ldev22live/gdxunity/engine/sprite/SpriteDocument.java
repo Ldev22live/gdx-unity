@@ -27,6 +27,10 @@ public final class SpriteDocument {
     private final List<List<int[]>> cels = new ArrayList<>();
     private final List<SpriteTag> tags = new ArrayList<>();
     private final List<SpriteSlice> slices = new ArrayList<>();
+    /** Per frame, its hitboxes (TD-104); parallel to {@code frameDurations}. */
+    private final List<List<SpriteHitbox>> hitboxes = new ArrayList<>();
+    /** Per layer, the vector drawing it is drawn from, or null (TD-104); parallel to {@code layers}. */
+    private final List<SpriteLayerSource> layerSources = new ArrayList<>();
     private int[] palette = {};
 
     /** A new document with one empty layer and one empty frame. */
@@ -35,7 +39,9 @@ public final class SpriteDocument {
         this.width = width;
         this.height = height;
         frameDurations.add(DEFAULT_FRAME_MS);
+        hitboxes.add(List.of());
         layers.add(new SpriteLayer("Layer 1", true, SpriteLayer.OPAQUE));
+        layerSources.add(null);
         List<int[]> row = new ArrayList<>();
         row.add(null);
         cels.add(row);
@@ -177,6 +183,7 @@ public final class SpriteDocument {
             throw new IndexOutOfBoundsException("layer " + index + " of " + layers.size());
         }
         layers.add(index, new SpriteLayer(name, true, SpriteLayer.OPAQUE));
+        layerSources.add(index, null);
         List<int[]> row = new ArrayList<>();
         for (int i = 0; i < frameDurations.size(); i++) {
             row.add(null);
@@ -192,6 +199,7 @@ public final class SpriteDocument {
             throw new IllegalStateException("a sprite needs at least one layer");
         }
         layers.remove(index);
+        layerSources.remove(index);
         cels.remove(index);
     }
 
@@ -200,6 +208,7 @@ public final class SpriteDocument {
         checkLayer(from);
         checkLayer(to);
         layers.add(to, layers.remove(from));
+        layerSources.add(to, layerSources.remove(from));
         cels.add(to, cels.remove(from));
     }
 
@@ -216,6 +225,7 @@ public final class SpriteDocument {
             duration = frameDurations.get(copyOf);
         }
         frameDurations.add(index, duration);
+        hitboxes.add(index, copyOf >= 0 ? hitboxes.get(copyOf) : List.of()); // read before the add shifts the list
         for (List<int[]> row : cels) {
             int[] cel = copyOf >= 0 ? row.get(copyOf) : null; // read before the add shifts the row
             row.add(index, cel == null ? null : cel.clone());
@@ -236,6 +246,7 @@ public final class SpriteDocument {
             throw new IllegalStateException("a sprite needs at least one frame");
         }
         frameDurations.remove(index);
+        hitboxes.remove(index);
         for (List<int[]> row : cels) {
             row.remove(index);
         }
@@ -257,9 +268,50 @@ public final class SpriteDocument {
         checkFrame(from);
         checkFrame(to);
         frameDurations.add(to, frameDurations.remove(from));
+        hitboxes.add(to, hitboxes.remove(from));
         for (List<int[]> row : cels) {
             row.add(to, row.remove(from));
         }
+    }
+
+    // ---- hitboxes and layer sources (TD-104) ----
+
+    /** The hitboxes of a frame, in the order they were set. */
+    public List<SpriteHitbox> getHitboxes(int frame) {
+        checkFrame(frame);
+        return hitboxes.get(frame);
+    }
+
+    /** Replaces the hitboxes of a frame; names must be unique within it. */
+    public void setHitboxes(int frame, List<SpriteHitbox> boxes) {
+        checkFrame(frame);
+        List<SpriteHitbox> copy = List.copyOf(Objects.requireNonNull(boxes, "boxes cannot be null"));
+        if (copy.stream().map(SpriteHitbox::name).distinct().count() != copy.size()) {
+            throw new IllegalArgumentException("hitbox names must be unique within frame " + frame + ": " + copy);
+        }
+        hitboxes.set(frame, copy);
+    }
+
+    /** Whether any frame has a hitbox. */
+    public boolean hasHitboxes() {
+        return hitboxes.stream().anyMatch(list -> !list.isEmpty());
+    }
+
+    /** The vector drawing a layer is drawn from, or null for a painted layer. */
+    public SpriteLayerSource getLayerSource(int layer) {
+        checkLayer(layer);
+        return layerSources.get(layer);
+    }
+
+    /** Links a layer to the vector drawing it is drawn from, or unlinks it with null. */
+    public void setLayerSource(int layer, SpriteLayerSource source) {
+        checkLayer(layer);
+        layerSources.set(layer, source);
+    }
+
+    /** Whether any layer is linked to a vector drawing. */
+    public boolean hasLayerSources() {
+        return layerSources.stream().anyMatch(Objects::nonNull);
     }
 
     // ---- tags, slices, palette ----
@@ -387,8 +439,12 @@ public final class SpriteDocument {
         height = other.height;
         layers.clear();
         layers.addAll(other.layers);
+        layerSources.clear();
+        layerSources.addAll(other.layerSources);
         frameDurations.clear();
         frameDurations.addAll(other.frameDurations);
+        hitboxes.clear();
+        hitboxes.addAll(other.hitboxes);
         cels.clear();
         for (List<int[]> row : other.cels) {
             List<int[]> copy = new ArrayList<>();
@@ -407,7 +463,8 @@ public final class SpriteDocument {
     /** Whether both documents hold the same size, layers, frames, pixels, tags, slices and palette. */
     public boolean contentEquals(SpriteDocument other) {
         if (width != other.width || height != other.height || !layers.equals(other.layers) || !frameDurations.equals(other.frameDurations)
-            || !tags.equals(other.tags) || !slices.equals(other.slices) || !Arrays.equals(palette, other.palette)) {
+            || !tags.equals(other.tags) || !slices.equals(other.slices) || !Arrays.equals(palette, other.palette)
+            || !hitboxes.equals(other.hitboxes) || !layerSources.equals(other.layerSources)) {
             return false;
         }
         for (int l = 0; l < layers.size(); l++) {

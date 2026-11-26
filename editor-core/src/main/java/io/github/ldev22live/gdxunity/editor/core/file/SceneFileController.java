@@ -3,11 +3,24 @@ package io.github.ldev22live.gdxunity.editor.core.file;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
 import io.github.ldev22live.gdxunity.editor.core.project.TemplateProject;
 import io.github.ldev22live.gdxunity.editor.core.project.StarterPalette;
+import io.github.ldev22live.gdxunity.editor.core.project.EditorProject;
+import io.github.ldev22live.gdxunity.editor.core.project.contract.CapabilityPolicy;
+import io.github.ldev22live.gdxunity.editor.core.project.contract.LocalProjectStore;
+import io.github.ldev22live.gdxunity.editor.core.project.contract.ProjectManifest;
+import io.github.ldev22live.gdxunity.editor.core.project.contract.ProjectStore;
+import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.scenario.OwnerComponent;
 import io.github.ldev22live.gdxunity.engine.scene.GameMode;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetType;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -60,6 +73,18 @@ public class SceneFileController {
     private boolean dirty;
     private File readOnlyFolder;
     private AssetOpener assetOpener;
+    /** The shared-contract project the current scene belongs to (TD-106), or null for a legacy project or a loose scene. */
+    private LocalProjectStore projectStore;
+    /** The revision the current scene was opened from or last saved as. */
+    private String baseRevision;
+    /** How this editor may use the current project (read-only when it lacks a required capability). */
+    private CapabilityPolicy.Evaluation projectAccess;
+    private String clientVersion = DEFAULT_CLIENT_VERSION;
+    /** Whether this session already asked to add a manifest to a legacy project (asked once, TD-107 point 9). */
+    private boolean manifestOffered;
+
+    /** The client version recorded in a manifest's revision when none is set ({@link #setClientVersion}). */
+    public static final String DEFAULT_CLIENT_VERSION = "1.0.0-dev";
 
     /**
      * @param defaultDirectory where dialogs start when no file is open yet; may be null
@@ -79,6 +104,24 @@ public class SceneFileController {
      */
     public void setReadOnlyFolder(File folder) {
         this.readOnlyFolder = folder;
+    }
+
+    /** Sets the client version recorded in each saved revision (the editor's own version). */
+    public void setClientVersion(String clientVersion) {
+        this.clientVersion = Objects.requireNonNull(clientVersion, "clientVersion cannot be null");
+    }
+
+    /**
+     * How this editor may use the open project under the shared contract (TD-106), or null when the scene is not in a project with
+     * a manifest (a legacy project or a loose scene).
+     */
+    public CapabilityPolicy.Evaluation getProjectAccess() {
+        return projectAccess;
+    }
+
+    /** The project revision the open scene is based on, or null without a manifest. */
+    public String getBaseRevision() {
+        return baseRevision;
     }
 
     /** Whether {@code file} is inside the read-only folder set with {@link #setReadOnlyFolder}. */
@@ -249,8 +292,51 @@ public class SceneFileController {
         } else {
             currentFile = file;
         }
+        if (!openProjectContract(currentFile)) {
+            return false;
+        }
         markClean();
         return true;
+    }
+
+    /**
+     * Opens the shared-contract project around {@code file} (TD-106): its manifest is read, its capabilities checked and its revision
+     * kept as the base of the next save. A project without a manifest (legacy) or a file outside a project is left as before.
+     *
+     * @return false when the manifest exists but cannot be read (the failure is reported; nothing is guessed)
+     */
+    private boolean openProjectContract(File file) {
+        projectStore = null;
+        baseRevision = null;
+        projectAccess = null;
+        Path root = file == null ? null : projectRootOf(file.toPath());
+        if (root == null || !Files.isRegularFile(root.resolve(ProjectManifest.FILE_NAME))) {
+            return true;
+        }
+        try {
+            LocalProjectStore store = new LocalProjectStore(root, CapabilityPolicy.desktop(), clientVersion, Clock.systemUTC(), Map.of());
+            ProjectStore.OpenResult opened = store.open();
+            projectStore = store;
+            baseRevision = opened.revision();
+            projectAccess = opened.evaluation();
+            if (!opened.notes().isEmpty()) {
+                editorState.setStatusMessage(String.join(" ", opened.notes()), opened.evaluation().readOnly());
+            }
+            return true;
+        } catch (Exception e) {
+            reportFailure("Open failed", "The project manifest of " + root.getFileName() + " cannot be read: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /** The nearest folder at or above {@code file} that holds a project marker, or null. */
+    private static Path projectRootOf(Path file) {
+        for (Path dir = file.toAbsolutePath().getParent(); dir != null; dir = dir.getParent()) {
+            if (Files.isRegularFile(dir.resolve(EditorProject.MARKER_FILE))) {
+                return dir;
+            }
+        }
+        return null;
     }
 
     /**
@@ -327,6 +413,12 @@ public class SceneFileController {
         for (Runnable hook : beforeSaveHooks) {
             hook.run();
         }
+        if (projectStore != null && inProject(file)) {
+            return saveRevision(file);
+        }
+        if (projectStore == null && offerManifest(file)) {
+            return true; // saved with the new manifest
+        }
         try {
             editorState.saveSceneToFile(file);
         } catch (Exception e) {
@@ -336,6 +428,140 @@ public class SceneFileController {
         currentFile = file;
         markClean();
         return true;
+    }
+
+    /**
+     * Saves the scene as a new revision of its shared-contract project (TD-106): refused when the project is read-only here, and
+     * refused as a conflict when the project has moved on since this scene was opened. Never overwrites a newer revision.
+     */
+    private boolean saveRevision(File file) {
+        if (projectAccess != null && projectAccess.readOnly()) {
+            reportFailure("Save failed", String.join(" ", projectAccess.explanations()));
+            return false;
+        }
+        String path = projectPath(file);
+        try {
+            String json = editorState.sceneJsonForSave();
+            ProjectStore.SaveResult result = projectStore.save(baseRevision, Map.of(path, json), capabilitiesOf(), false);
+            if (result instanceof ProjectStore.SaveResult.Saved saved) {
+                baseRevision = saved.manifest().revision().id();
+                currentFile = file;
+                markClean();
+                editorState.setStatusMessage("Saved " + file.getName() + " (revision " + baseRevision.substring(0, 8) + ")", false);
+                return true;
+            }
+            if (result instanceof ProjectStore.SaveResult.Conflict conflict) {
+                reportFailure("Save conflict", "The project was saved elsewhere since you opened it (now revision "
+                    + conflict.current().substring(0, 8) + "). Your changes were not written. Choose Save Mine as a Copy to keep them "
+                    + "as a new project, or Reload Theirs to open the newer revision.");
+                return false;
+            }
+            reportFailure("Save failed", String.valueOf(result));
+            return false;
+        } catch (Exception e) {
+            reportFailure("Save failed", "Could not save " + file.getName() + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * For a scene in a project that has no manifest yet (format 1), asks once per session whether to add one (TD-106, TD-107 point
+     * 9). On yes, the manifest is created by this save and the project is opened under the contract; on no, the project keeps saving
+     * exactly as before.
+     *
+     * @return true when the scene was saved and the project now has a manifest
+     */
+    private boolean offerManifest(File file) {
+        if (manifestOffered) {
+            return false;
+        }
+        Path root = projectRootOf(file.toPath());
+        if (root == null || Files.isRegularFile(root.resolve(ProjectManifest.FILE_NAME))) {
+            return false;
+        }
+        manifestOffered = true;
+        if (!dialogs.confirm("Add a project manifest?", "This project has no project-manifest.json yet. Adding one lets "
+            + "urGameForge Desktop and Web open it safely, keeps a revision history and protects against overwriting newer saves. "
+            + "Older editors can still open it. Add it with this save?")) {
+            return false;
+        }
+        try {
+            LocalProjectStore store = new LocalProjectStore(root, CapabilityPolicy.desktop(), clientVersion, Clock.systemUTC(), Map.of());
+            String path = store.root().relativize(realFile(file)).toString().replace(File.separatorChar, '/');
+            ProjectStore.SaveResult result = store.save(null, Map.of(path, editorState.sceneJsonForSave()), capabilitiesOf(), true);
+            if (!(result instanceof ProjectStore.SaveResult.Saved)) {
+                reportFailure("Save failed", "The manifest could not be added: " + result);
+                return false;
+            }
+            projectStore = store;
+            ProjectStore.OpenResult opened = store.open();
+            baseRevision = opened.revision();
+            projectAccess = opened.evaluation();
+            currentFile = file;
+            markClean();
+            editorState.setStatusMessage("Saved " + file.getName() + " and added project-manifest.json (revision "
+                + baseRevision.substring(0, 8) + ")", false);
+            return true;
+        } catch (Exception e) {
+            reportFailure("Save failed", "The manifest could not be added: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /** "Save mine as a copy" after a conflict: the open scene saved as a new project beside the current one. */
+    public boolean saveMineAsCopy(String copyName) {
+        if (projectStore == null || currentFile == null) {
+            return false;
+        }
+        String path = projectPath(currentFile);
+        try {
+            ProjectStore.OpenResult copy = projectStore.saveAsCopy(copyName, Map.of(path, editorState.sceneJsonForSave()));
+            Path copyRoot = projectStore.root().resolveSibling(copyName);
+            File copyScene = copyRoot.resolve(path).toFile();
+            currentFile = copyScene;
+            openProjectContract(copyScene);
+            markClean();
+            editorState.setStatusMessage("Saved your version as the new project " + copyName + " (" + copy.manifest().projectId()
+                .substring(0, 8) + ")", false);
+            return true;
+        } catch (Exception e) {
+            reportFailure("Save failed", "Could not save a copy: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /** "Reload theirs" after a conflict: opens the current revision of the scene, discarding the unsaved edits. */
+    public boolean reloadTheirs() {
+        return currentFile != null && openFile(currentFile);
+    }
+
+    /** {@code file}'s location with one spelling (its folder's real path), so it compares with the project root. */
+    private static Path realFile(File file) {
+        File absolute = file.getAbsoluteFile();
+        Path folder = absolute.getParentFile() == null ? absolute.toPath() : LocalProjectStore.realPath(absolute.getParentFile().toPath());
+        return folder.resolve(absolute.getName()).normalize();
+    }
+
+    private boolean inProject(File file) {
+        return realFile(file).startsWith(projectStore.root());
+    }
+
+    /** {@code file} relative to the project root, with forward slashes. */
+    private String projectPath(File file) {
+        return projectStore.root().relativize(realFile(file)).toString().replace(File.separatorChar, '/');
+    }
+
+    /** The capability ids the open scene needs (TD-106 point 5): scenario data and ownership when present. */
+    private Set<String> capabilitiesOf() {
+        Set<String> needed = new LinkedHashSet<>(List.of("scene/1", "preserve-unknown/1"));
+        Scene scene = editorState.getActiveScene();
+        if (scene != null && scene.getScenarioJson() != null) {
+            needed.add("scenario/1");
+        }
+        if (scene != null && scene.getAllEntities().stream().anyMatch(e -> e.getComponent(OwnerComponent.class) != null)) {
+            needed.add("ownership/1");
+        }
+        return needed;
     }
 
     /** File operations act on the authored scene, which is locked while Play mode runs. */

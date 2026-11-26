@@ -1663,6 +1663,7 @@ animations/samples/SpinCube.anim	anim	none	samples	Works: clip	Works: Animator c
 animations/skeleton/Tentacle.anim	anim	none	samples	Works: clip	Works: Animator clips
 animations/skeleton/WalkCycle.anim	anim	none	samples	Works: clip	Works: Animator clips
 animations/skeleton/Wave.anim	anim	none	samples	Works: clip	Works: Animator clips
+asset-classification.json	json	none	-	Works: Content Browser classification	Not applicable: editor data: Content Browser classification
 characters/Character.character.json	json	none	-	Works: saved character	Not applicable: editor data: saved character
 characters/Character.gltf	gltf	none	-	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
 characters/Old_Man.character.json	json	none	-	Works: saved character	Not applicable: editor data: saved character
@@ -5734,6 +5735,8 @@ materials/Brick.material	material	none	samples	Works: material	Works: on mesh pr
 materials/Checker.material	material	none	samples	Works: material	Works: on mesh primitives (M2.5)
 materials/Glass.material	material	none	samples	Works: material	Works: on mesh primitives (M2.5)
 materials/Gold.material	material	none	samples	Works: material	Works: on mesh primitives (M2.5)
+materials/HexPaverB.material	material	none	samples	Works: material	Works: on mesh primitives (M2.5)
+materials/HexPaverBRange.material	material	none	samples	Works: material	Works: on mesh primitives (M2.5)
 materials/Lava.material	material	none	samples	Works: material	Works: on mesh primitives (M2.5)
 materials/Neon.material	material	none	samples	Works: material	Works: on mesh primitives (M2.5)
 materials/RedBrick03.material	material	none	samples	Works: material	Works: on mesh primitives (M2.5)
@@ -7749,6 +7752,14 @@ models/landscape/snow-rock.gltf	gltf	none	samples	Works: drawn (ModelAssets)	Wor
 models/landscape/terrain-hills.gltf	gltf	none	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
 models/landscape/tropical-bush.gltf	gltf	none	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
 models/physics-mesh-terrain.gltf	gltf	none	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
+models/thirdparty/opengameart/boulder/boulder.glb	glb	download, CC0-1.0	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
+models/thirdparty/opengameart/detective-bunny/detective-bunny.glb	glb	download, CC0-1.0	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
+models/thirdparty/opengameart/fox/fox.glb	glb	download, CC0-1.0	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
+models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-cover.glb	glb	download, CC-BY-3.0	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
+models/thirdparty/opengameart/horror-sci-fi-map-kit/sci-fi-room.glb	glb	download, CC-BY-3.0	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
+models/thirdparty/opengameart/rabbit/rabbit.glb	glb	download, CC0-1.0	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
+models/thirdparty/opengameart/thin-zombie/thin-zombie.glb	glb	download, CC-BY-3.0	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
+models/thirdparty/opengameart/warrior-low-poly/warrior.glb	glb	download, CC-BY-3.0	samples	Works: drawn (ModelAssets)	Works: loaded by the web tests (modelFiles.test.ts)
 models/thirdparty/polyhaven/rollershutter_door/rollershutter_door.bin	bin	download, CC0-1.0	samples	Works: data of the glTF or character beside it	Unchecked: served beside its model and loaded only through it
 models/thirdparty/polyhaven/rollershutter_door/rollershutter_door_1k.gltf	gltf	download, CC0-1.0	samples	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 models/thirdparty/polyhaven/rollershutter_door/textures/rollershutter_door_arm_1k.jpg	jpg	download, CC0-1.0	samples	Works: image	Unchecked: served beside its model and loaded only through it
@@ -7795,7 +7806,7 @@ prefabs/level/Rock.png	png	original, Apache-2.0	-	Works: image	Not applicable: a
 prefabs/level/Rock.prefab	prefab	none	palette	Works: placed from the palette	Not applicable: a scene holds its own copy of each placed prefab, which is what the web reads
 samples/README.md	md	none	-	Not applicable: documentation, licence text, link or archive	Not applicable: documentation, licence text, link or archive
 samples/action-rpg-iso-25d.json	json	none	samples	Works: scene	Partial: drawn; PlayerComponent, SpawnPointComponent not supported
-samples/action-rpg-valley-3d.json	json	none	samples	Works: scene	Partial: drawn; PlayerComponent not supported
+samples/action-rpg-valley-3d.json	json	none	samples	Works: scene	Partial: drawn; AtmosphereComponent, PlayerComponent not supported
 samples/animation-samples-3d.json	json	none	samples	Works: scene	Unchecked: components supported; not marked web in the gallery
 samples/arena-fps-3d.json	json	none	samples	Works: scene	Partial: drawn; Java scripts not ported
 samples/blockworld-3d.json	json	none	samples	Works: scene	Partial: drawn; Java scripts not ported
@@ -7809,6 +7820,7 @@ samples/first-person-range-3d.json	json	none	samples	Works: scene	Partial: drawn
 samples/grapple-gorge-25d.json	json	none	samples	Works: scene	Works: plays (web tests; marked web in the gallery)
 samples/hopper-3d.json	json	none	samples	Works: scene	Works: plays (web tests; marked web in the gallery)
 samples/humanoid-animations-3d.json	json	none	samples	Works: scene	Unchecked: components supported; not marked web in the gallery
+samples/hybrid-side-scroller-25d.json	json	none	samples	Works: scene	Partial: drawn; PlayerComponent not supported
 samples/landscape-3d.json	json	none	samples	Works: scene	Unchecked: components supported; not marked web in the gallery
 samples/landscape-alpine-3d.json	json	none	samples	Works: scene	Unchecked: components supported; not marked web in the gallery
 samples/landscape-alpine-terrain-3d.json	json	none	samples	Works: scene	Partial: drawn; PlayerComponent not supported
@@ -7845,6 +7857,7 @@ samples/skeleton-wave-3d.json	json	none	samples	Works: scene	Unchecked: componen
 samples/sprite-25d.json	json	none	samples	Works: scene	Partial: drawn; Java scripts not ported
 samples/sprite-animation-2d.json	json	none	samples	Works: scene	Unchecked: components supported; not marked web in the gallery
 samples/terrain-3d.json	json	none	samples	Works: scene	Unchecked: components supported; not marked web in the gallery
+samples/third-person-yard-3d.json	json	none	samples	Works: scene	Partial: drawn; PlayerComponent not supported
 samples/three-heroes-25d.json	json	none	samples	Works: scene	Works: plays (web tests; marked web in the gallery)
 samples/tilemap-platformer-2d.json	json	none	samples	Works: scene	Unchecked: components supported; not marked web in the gallery
 samples/visual-scripting-3d.json	json	none	samples	Works: scene	Unchecked: components supported; not marked web in the gallery
@@ -7853,6 +7866,7 @@ scripts/samples/breakout/BreakoutBall.java	java	none	samples	Works: script, comp
 scripts/samples/breakout/BreakoutPaddle.java	java	none	samples	Works: script, compiled in the editor (TD-019)	No: Java scripts run on the desktop only; the web runs hand-ported TypeScript (TD-041)
 scripts/samples/collector/CollectorGame.java	java	none	samples	Works: script, compiled in the editor (TD-019)	No: Java scripts run on the desktop only; the web runs hand-ported TypeScript (TD-041)
 scripts/samples/collector/CollectorPlayer.java	java	none	samples	Works: script, compiled in the editor (TD-019)	No: Java scripts run on the desktop only; the web runs hand-ported TypeScript (TD-041)
+scripts/samples/common/CharacterVisualPlayback.java	java	none	samples	Works: script, compiled in the editor (TD-019)	No: Java scripts run on the desktop only; the web runs hand-ported TypeScript (TD-041)
 scripts/samples/common/FollowCamera3D.java	java	none	samples	Works: script, compiled in the editor (TD-019)	No: Java scripts run on the desktop only; the web runs hand-ported TypeScript (TD-041)
 scripts/samples/common/SideBody.java	java	none	samples	Works: script, compiled in the editor (TD-019)	No: Java scripts run on the desktop only; the web runs hand-ported TypeScript (TD-041)
 scripts/samples/common/SideCamera25D.java	java	none	samples	Works: script, compiled in the editor (TD-019)	No: Java scripts run on the desktop only; the web runs hand-ported TypeScript (TD-041)
@@ -7955,6 +7969,9 @@ textures/brick.png	png	original, Apache-2.0	samples	Works: image	Works: named by
 textures/brick_normal.png	png	original, Apache-2.0	samples	Works: image	Works: named by a material (M2.5)
 textures/checker.png	png	original, Apache-2.0	samples	Works: image	Works: named by a material (M2.5)
 textures/neon.png	png	original, Apache-2.0	samples	Works: image	Works: named by a material (M2.5)
+textures/thirdparty/opengameart/hex-paver-b/ao.png	png	download, CC0-1.0	samples	Works: image	Works: named by a material (M2.5)
+textures/thirdparty/opengameart/hex-paver-b/diffuse.png	png	download, CC0-1.0	samples	Works: image	Works: named by a material (M2.5)
+textures/thirdparty/opengameart/hex-paver-b/normal.png	png	download, CC0-1.0	samples	Works: image	Works: named by a material (M2.5)
 textures/thirdparty/polyhaven/red_brick_03/red_brick_03_arm_1k.jpg	jpg	download, CC0-1.0	samples	Works: image	Works: named by a material (M2.5)
 textures/thirdparty/polyhaven/red_brick_03/red_brick_03_diff_1k.jpg	jpg	download, CC0-1.0	samples	Works: image	Works: named by a material (M2.5)
 textures/thirdparty/polyhaven/red_brick_03/red_brick_03_nor_gl_1k.jpg	jpg	download, CC0-1.0	samples	Works: image	Works: named by a material (M2.5)
@@ -7966,7 +7983,7 @@ textures/thirdparty/polyhaven/wood_floor_deck/wood_floor_deck_diff_1k.jpg	jpg	do
 textures/thirdparty/polyhaven/wood_floor_deck/wood_floor_deck_nor_gl_1k.jpg	jpg	download, CC0-1.0	samples	Works: image	Works: named by a material (M2.5)
 thirdparty/kenney/building-kit/License.txt	txt	download, CC0-1.0	-	Not applicable: documentation, licence text, link or archive	Not applicable: documentation, licence text, link or archive
 thirdparty/kenney/building-kit/Models/FBX format/Textures/colormap.png	png	download, CC0-1.0	-	Works: image	Unchecked: served beside its model and loaded only through it
-thirdparty/kenney/building-kit/Models/GLB format/Textures/colormap.png	png	download, CC0-1.0	palette	Works: image	Unchecked: served beside its model and loaded only through it
+thirdparty/kenney/building-kit/Models/GLB format/Textures/colormap.png	png	download, CC0-1.0	samples, palette	Works: image	Unchecked: served beside its model and loaded only through it
 thirdparty/kenney/building-kit/Models/GLB format/barricade-doorway-a.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/barricade-doorway-b.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/barricade-doorway-c.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
@@ -7985,7 +8002,7 @@ thirdparty/kenney/building-kit/Models/GLB format/border-high.glb	glb	download, C
 thirdparty/kenney/building-kit/Models/GLB format/border.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/column-thin.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/column-wide.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
-thirdparty/kenney/building-kit/Models/GLB format/column.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
+thirdparty/kenney/building-kit/Models/GLB format/column.glb	glb	download, CC0-1.0	samples	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/detail-pipe.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/door-rotate-round-a.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/door-rotate-round-b.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
@@ -7999,7 +8016,7 @@ thirdparty/kenney/building-kit/Models/GLB format/floor-corner-diagonal.glb	glb	d
 thirdparty/kenney/building-kit/Models/GLB format/floor-corner-round.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/floor-half.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/floor-quarter.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
-thirdparty/kenney/building-kit/Models/GLB format/floor.glb	glb	download, CC0-1.0	palette	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
+thirdparty/kenney/building-kit/Models/GLB format/floor.glb	glb	download, CC0-1.0	samples, palette	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/gutter-vertical-bottom.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/gutter-vertical-short.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/gutter-vertical-top.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
@@ -8032,7 +8049,7 @@ thirdparty/kenney/building-kit/Models/GLB format/wall-corner-diagonal.glb	glb	do
 thirdparty/kenney/building-kit/Models/GLB format/wall-corner-round.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-corner.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-doorway-round.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
-thirdparty/kenney/building-kit/Models/GLB format/wall-doorway-square.glb	glb	download, CC0-1.0	palette	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
+thirdparty/kenney/building-kit/Models/GLB format/wall-doorway-square.glb	glb	download, CC0-1.0	samples, palette	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-doorway-wide-round.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-doorway-wide-square.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-half.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
@@ -8040,12 +8057,12 @@ thirdparty/kenney/building-kit/Models/GLB format/wall-low.glb	glb	download, CC0-
 thirdparty/kenney/building-kit/Models/GLB format/wall-window-round-detailed.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-window-round.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-window-square-detailed.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
-thirdparty/kenney/building-kit/Models/GLB format/wall-window-square.glb	glb	download, CC0-1.0	palette	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
+thirdparty/kenney/building-kit/Models/GLB format/wall-window-square.glb	glb	download, CC0-1.0	samples, palette	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-window-wide-round-detailed.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-window-wide-round.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-window-wide-square-detailed.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/GLB format/wall-window-wide-square.glb	glb	download, CC0-1.0	-	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
-thirdparty/kenney/building-kit/Models/GLB format/wall.glb	glb	download, CC0-1.0	palette	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
+thirdparty/kenney/building-kit/Models/GLB format/wall.glb	glb	download, CC0-1.0	samples, palette	Works: drawn (ModelAssets)	Unchecked: served; names outside files, so the web tests do not load it
 thirdparty/kenney/building-kit/Models/OBJ format/Textures/colormap.png	png	download, CC0-1.0	-	Works: image	Unchecked: served beside its model and loaded only through it
 thirdparty/kenney/building-kit/Models/Textures/variation-a.png	png	download, CC0-1.0	-	Works: image	Unchecked: served beside its model and loaded only through it
 thirdparty/kenney/building-kit/Preview (Variation A).png	png	download, CC0-1.0	-	Works: image	No: not copied into the web build (engine-babylon/scripts/sync-samples.mjs)

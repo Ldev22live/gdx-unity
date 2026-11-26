@@ -1,3 +1,4 @@
+import { describeUnsupported } from "../project/contract";
 import {
   Color3,
   GizmoManager,
@@ -130,10 +131,12 @@ export class EditorApp {
     this.highlight = null;
     this.sculpt.detach();
     this.player.useGameCamera = this.playing;
-    this.player.load(structuredClone(this.model.file));
+    const report = this.player.load(structuredClone(this.model.file));
     if (frame) this.frameAll();
     this.frameWhenModelsLoad = frame;
-    this.setStatus(`${this.model.file.name}: ${this.model.file.entities.length} entities`);
+    // Components the web view does not draw or run (an atmosphere, another client's data) are named, never dropped (TD-106)
+    const notShown = describeUnsupported(report.unsupportedComponents);
+    this.setStatus(`${this.model.file.name}: ${this.model.file.entities.length} entities${notShown ? `. ${notShown}` : ""}`);
   }
 
   /** Models arrive after the scene is built: outline the selected one now, and frame the scene if a frame was waiting. */

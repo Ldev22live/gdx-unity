@@ -32,6 +32,7 @@ Nothing else reaches the web.
 |---|---|---|---|---|
 | `(asset root)` | 7 | Not applicable | Not applicable | documentation, licence text, link or archive |
 | `(asset root)` | 3 | Works | No | not copied into the web build (engine-babylon/scripts/sync-samples.mjs) |
+| `(asset root)` | 1 | Works | Not applicable | editor data: Content Browser classification |
 | `Isometric/` | 1316 | Works | No | not copied into the web build (engine-babylon/scripts/sync-samples.mjs) |
 | `Side/` | 322 | Works | No | not copied into the web build (engine-babylon/scripts/sync-samples.mjs) |
 | `animations/` | 20 | Works | Works | Animator clips |
@@ -47,7 +48,7 @@ Nothing else reaches the web.
 | `kenney_nature-kit/` | 4 | Not applicable | Not applicable | documentation, licence text, link or archive |
 | `kenney_nature-kit/` | 1969 | Works | No | not copied into the web build (engine-babylon/scripts/sync-samples.mjs) |
 | `licenses/` | 2 | Works | Not applicable | editor data: licence record |
-| `materials/` | 12 | Works | Works | on mesh primitives (M2.5) |
+| `materials/` | 14 | Works | Works | on mesh primitives (M2.5) |
 | `models/` | 3 | Works | Works | loaded by the web tests (modelFiles.test.ts) |
 | `models/DAE format/` | 329 | No | No | source format, not served; the web loads glTF and GLB |
 | `models/FBX format/` | 329 | No | No | source format, not served; the web loads glTF and GLB |
@@ -57,19 +58,20 @@ Nothing else reaches the web.
 | `models/landscape/` | 1 | Not applicable | Not applicable | documentation, licence text, link or archive |
 | `models/landscape/` | 29 | Works | Works | loaded by the web tests (modelFiles.test.ts) |
 | `models/thirdparty/` | 11 | Works | Unchecked | varies (see the per-file table) |
+| `models/thirdparty/` | 8 | Works | Works | loaded by the web tests (modelFiles.test.ts) |
 | `music/` | 7 | Works | Partial | sampled, sfxr and SoundFont instruments silent |
 | `prefabs/` | 26 | Works | Not applicable | varies (see the per-file table) |
 | `samples/` | 1 | Not applicable | Not applicable | documentation, licence text, link or archive |
-| `samples/` | 23 | Works | Partial | varies (see the per-file table) |
+| `samples/` | 25 | Works | Partial | varies (see the per-file table) |
 | `samples/` | 22 | Works | Unchecked | components supported; not marked web in the gallery |
 | `samples/` | 9 | Works | Works | plays (web tests; marked web in the gallery) |
-| `scripts/` | 32 | Works | No | Java scripts run on the desktop only; the web runs hand-ported TypeScript (TD-041) |
+| `scripts/` | 33 | Works | No | Java scripts run on the desktop only; the web runs hand-ported TypeScript (TD-041) |
 | `sculpts/` | 3 | Works | No | not copied into the web build (engine-babylon/scripts/sync-samples.mjs) |
 | `sprites/` | 3 | Works | Works | Sprite Animator and Tile Map |
 | `templates/` | 55 | Works | Not applicable | varies (see the per-file table) |
 | `terrains/` | 10 | Works | Works | drawn with paint, holes and water (M3.11) |
 | `textures/` | 4 | Works | Works | named by a material (M2.5) |
-| `textures/thirdparty/` | 9 | Works | Works | named by a material (M2.5) |
+| `textures/thirdparty/` | 12 | Works | Works | named by a material (M2.5) |
 | `thirdparty/kenney/building-kit/` | 1 | Not applicable | Not applicable | documentation, licence text, link or archive |
 | `thirdparty/kenney/building-kit/` | 82 | Works | No | not copied into the web build (engine-babylon/scripts/sync-samples.mjs) |
 | `thirdparty/kenney/building-kit/` | 83 | Works | Unchecked | varies (see the per-file table) |
