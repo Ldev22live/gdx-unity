@@ -35,12 +35,12 @@ class WorldShellTest {
         for (GameMode mode : GameMode.values()) {
             for (WorldShell.Category category : WorldShell.categories(mode)) {
                 boolean scenario = category == WorldShell.PLAYERS || category == WorldShell.RULES;
-                assertEquals(scenario, category.notBuilt().isPresent(), category.label() + " says plainly whether it works yet");
+                assertTrue(category.notBuilt().isEmpty(), category.label() + " works since A04/A05 (TD-108, TD-109)");
                 assertEquals(!scenario && category != WorldShell.MAP, category.worldSection().isPresent(), category.label());
             }
         }
-        assertTrue(WorldShell.PLAYERS.notBuilt().orElseThrow().contains("A04"));
-        assertTrue(WorldShell.RULES.notBuilt().orElseThrow().contains("A05"));
+        assertTrue(WorldShell.PLAYERS.notBuilt().isEmpty(), "Players works since A04 (TD-108)");
+        assertTrue(WorldShell.RULES.notBuilt().isEmpty(), "Rules works since A05 (TD-109)");
     }
 
     @Test

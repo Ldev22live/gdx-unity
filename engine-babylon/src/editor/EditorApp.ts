@@ -4,6 +4,7 @@ import {
   GizmoManager,
   HighlightLayer,
   Matrix,
+  Plane,
   Quaternion,
   Vector3,
   type AbstractMesh,
@@ -18,6 +19,8 @@ import { HierarchyPanel } from "./hierarchy";
 import { InspectorPanel } from "./inspector";
 import { ENTITY_PRESETS } from "./presets";
 import { SculptMode } from "./sculptMode";
+import { TerrainEditing } from "./terrainEditing";
+import { VIEW_ANGLES, type ViewPreset } from "./worldShell";
 
 export type Tool = "select" | "move" | "rotate" | "scale";
 
@@ -56,6 +59,8 @@ export class EditorApp {
   private readonly status = byId("status");
   /** Brush painting on the selected sculpt; public so tests and tools can drive it. */
   readonly sculpt: SculptMode;
+  /** Terrain sculpting and painting (roadmap A14); the World shell's Terrain palette turns it on. */
+  readonly terrain: TerrainEditing;
   private tool: Tool = "move";
   private gizmos: GizmoManager | null = null;
   private highlight: HighlightLayer | null = null;
@@ -66,6 +71,9 @@ export class EditorApp {
   private playing = false;
   /** True after opening a scene: its models are not in yet, so the view is framed again once they are. */
   private frameWhenModelsLoad = false;
+  /** While set, a click on the map places something there (the World shell's palettes) instead of selecting. */
+  private placement: ((point: { x: number; y: number; z: number }) => void) | null = null;
+  private readonly updateListeners: (() => void)[] = [];
 
   constructor(player: ScenePlayer, initial: SceneFile) {
     this.player = player;
@@ -74,6 +82,8 @@ export class EditorApp {
     this.hierarchy = new HierarchyPanel(byId("hierarchy"), this.model, onError);
     this.inspector = new InspectorPanel(byId("inspector"), this.model, onError);
     this.sculpt = new SculptMode(this.model, (message, isError = false) => this.setStatus(message, isError));
+    this.terrain = new TerrainEditing(this.model, player);
+    this.terrain.onStatus = (message, isError = false) => this.setStatus(message, isError);
     this.sculpt.onChange = () => {
       this.attachSelection();
       this.updateToolbar();
@@ -130,6 +140,7 @@ export class EditorApp {
     this.gizmos = null;
     this.highlight = null;
     this.sculpt.detach();
+    this.terrain.detach();
     this.player.useGameCamera = this.playing;
     const report = this.player.load(structuredClone(this.model.file));
     if (frame) this.frameAll();
@@ -166,6 +177,7 @@ export class EditorApp {
     this.gizmos.usePointerToAttachGizmos = false;
     this.highlight = new HighlightLayer("selection", built.scene);
     this.sculpt.attach(built);
+    this.terrain.attach(built);
     this.applyTool();
     this.attachSelection();
     this.installPicking(built);
@@ -194,7 +206,9 @@ export class EditorApp {
         const box = mesh.getBoundingInfo().boundingBox;
         min.minimizeInPlace(box.minimumWorld);
         max.maximizeInPlace(box.maximumWorld);
-        if (mesh.metadata && (entity.getComponent("MeshPrimitiveComponent") || entity.getComponent("ModelComponent") || entity.getComponent("SculptMeshComponent"))) flat = false;
+        // Ground (a Terrain) is 3D too: framed head-on it would be seen edge-on, and nothing on it could be clicked
+        if (mesh.metadata && (entity.getComponent("MeshPrimitiveComponent") || entity.getComponent("ModelComponent")
+          || entity.getComponent("SculptMeshComponent") || entity.getComponent("Terrain"))) flat = false;
       }
     }
     if (!Number.isFinite(min.x)) {
@@ -232,7 +246,13 @@ export class EditorApp {
       } else if (info.type === 2 /* POINTERUP */ && down !== null) {
         const moved = Math.hypot(event.clientX - down.x, event.clientY - down.y);
         down = null;
-        if (moved > CLICK_SLOP_PX || this.dragBefore !== null || this.sculpt.isEnabled) return;
+        if (moved > CLICK_SLOP_PX || this.dragBefore !== null || this.sculpt.isEnabled || this.terrain.isEnabled) return;
+        if (this.placement) {
+          const point = this.groundPoint(built);
+          if (point) this.placement(point);
+          else this.setStatus("Nothing to place on there: click the ground or an object", true);
+          return;
+        }
         const pick = built.scene.pick(built.scene.pointerX, built.scene.pointerY, (mesh) => mesh.metadata?.entityId !== undefined);
         const id = pick?.pickedMesh?.metadata?.entityId as string | undefined;
         this.model.select(id ?? null);
@@ -316,6 +336,68 @@ export class EditorApp {
     entity.node.scaling.set(t.scale.x, t.scale.y, t.scale.z);
   }
 
+  /** The point under the pointer: on the first mesh hit, else on the ground plane (y = 0); null when the ray misses both. */
+  private groundPoint(built: BuiltScene): { x: number; y: number; z: number } | null {
+    const scene = built.scene;
+    const hit = scene.pick(scene.pointerX, scene.pointerY, (mesh) => mesh.isPickable && mesh.isEnabled() && mesh.isVisible);
+    if (hit?.hit && hit.pickedPoint) return { x: hit.pickedPoint.x, y: hit.pickedPoint.y, z: hit.pickedPoint.z };
+    const ray = scene.createPickingRay(scene.pointerX, scene.pointerY, Matrix.Identity(), scene.activeCamera);
+    const distance = ray.intersectsPlane(Plane.FromPositionAndNormal(Vector3.Zero(), Vector3.Up()));
+    if (distance === null || distance < 0) return null;
+    const p = ray.origin.add(ray.direction.scale(distance));
+    return { x: p.x, y: 0, z: p.z };
+  }
+
+  /**
+   * Arms placement: each click on the map calls {@code handler} with the point clicked, until {@link disarmPlacement} (the World
+   * shell's palettes; Escape stops it). Selecting by clicking is off meanwhile.
+   */
+  armPlacement(handler: (point: { x: number; y: number; z: number }) => void): void {
+    this.placement = handler;
+  }
+
+  disarmPlacement(): void {
+    this.placement = null;
+  }
+
+  get isPlacing(): boolean {
+    return this.placement !== null;
+  }
+
+  get isPlaying(): boolean {
+    return this.playing;
+  }
+
+  get currentTool(): Tool {
+    return this.tool;
+  }
+
+  /** Turns the editor's orbit camera to a preset (the World shell's camera chip), keeping what it looks at and how far away. */
+  setViewPreset(preset: ViewPreset): void {
+    const built = this.player.getBuilt();
+    if (!built || this.playing) return;
+    const angles = VIEW_ANGLES[preset];
+    built.viewerCamera.alpha = angles.alpha;
+    built.viewerCamera.beta = angles.beta;
+    this.rememberCamera();
+  }
+
+  /** Where the editor's view is centred (the orbit camera's target), in scene units; the origin before a scene is built. */
+  viewCentre(): { x: number; y: number; z: number } {
+    const target = this.player.getBuilt()?.viewerCamera.target;
+    return target ? { x: target.x, y: target.y, z: target.z } : { x: 0, y: 0, z: 0 };
+  }
+
+  /** Calls {@code listener} whenever the toolbar state changes (selection, undo, play, file). */
+  onUpdate(listener: () => void): void {
+    this.updateListeners.push(listener);
+  }
+
+  /** Shows a message in the status line. */
+  showStatus(message: string, isError = false): void {
+    this.setStatus(message, isError);
+  }
+
   // ---- Commands -----------------------------------------------------------------------------------------------
 
   addEntity(preset: string): void {
@@ -324,7 +406,12 @@ export class EditorApp {
 
   deleteSelected(): void {
     const id = this.model.selection;
-    if (id !== null) this.model.deleteEntity(id);
+    if (id === null) return;
+    try {
+      this.model.deleteEntity(id);
+    } catch (error) {
+      this.setStatus(error instanceof Error ? error.message : String(error), true);
+    }
   }
 
   duplicateSelected(): void {
@@ -361,6 +448,7 @@ export class EditorApp {
 
   private play(): void {
     this.sculpt.exit();
+    this.placement = null;
     this.rememberCamera();
     this.gizmos?.dispose();
     this.gizmos = null;
@@ -511,6 +599,7 @@ export class EditorApp {
     for (const tool of ["select", "move", "rotate", "scale"] as const) {
       byId(`tool-${tool}`).classList.toggle("active", this.tool === tool);
     }
+    for (const listener of this.updateListeners) listener();
   }
 
   private bindKeyboard(): void {
@@ -528,6 +617,12 @@ export class EditorApp {
       if (this.playing || typing) return;
       if (event.key === "Escape" && this.sculpt.isEnabled) {
         this.sculpt.exit();
+        return;
+      }
+      if (event.key === "Escape" && this.placement) {
+        this.disarmPlacement();
+        this.setStatus("Placing stopped");
+        this.updateToolbar();
         return;
       }
       if (this.sculpt.isEnabled && !ctrl) {

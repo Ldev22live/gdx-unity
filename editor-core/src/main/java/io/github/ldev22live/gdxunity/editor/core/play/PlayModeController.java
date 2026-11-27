@@ -52,6 +52,8 @@ public class PlayModeController {
     private final List<Extension> extensions = new CopyOnWriteArrayList<>();
     /** The genre profile step (TD-088), always the first extension. */
     private final ProfilePlayStep profileStep = new ProfilePlayStep();
+    /** The scenario rules step (TD-109), always the second extension. */
+    private final ScenarioPlayStep scenarioStep = new ScenarioPlayStep();
 
     private PlayModeState state = PlayModeState.STOPPED;
 
@@ -80,6 +82,12 @@ public class PlayModeController {
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
         this.serializer = Objects.requireNonNull(serializer, "serializer cannot be null");
         extensions.add(profileStep);
+        extensions.add(scenarioStep);
+    }
+
+    /** The scenario rules step (TD-109): the running rules of the current Play and their log. */
+    public ScenarioPlayStep getScenarioStep() {
+        return scenarioStep;
     }
 
     /** The genre profile step (TD-088): its last problems and message, and the key source tests replace. */

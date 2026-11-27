@@ -3,6 +3,8 @@ package io.github.ldev22live.gdxunity.engine.scene.scenario;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.PreservedFields;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.BoxCollider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.play.SpawnPointComponent;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,6 +24,13 @@ class ScenarioValidatorTest {
     private final Scene scene = new Scene("Valley");
     private final Entity area = scene.createEntity("Door Area");
     private final Entity hero = scene.createEntity("Hero");
+
+    {
+        hero.addComponent(new SpawnPointComponent());
+        BoxCollider3DComponent zone = new BoxCollider3DComponent();
+        zone.setTrigger(true);
+        area.addComponent(zone);
+    }
 
     private void scenario(String rules) {
         String json = """
@@ -89,6 +98,42 @@ class ScenarioValidatorTest {
         List<ScenarioValidator.Problem> newer = ScenarioValidator.validate(scene);
         assertEquals(ScenarioValidator.Severity.NOT_RUN, newer.get(0).severity());
         assertTrue(newer.get(0).message().contains("needs a newer editor"), newer.toString());
+    }
+
+    @Test
+    void shouldReportASpawnThatIsNotASpawnPoint() {
+        hero.removeComponent(hero.getComponent(SpawnPointComponent.class));
+        scenario("");
+
+        List<ScenarioValidator.Problem> problems = ScenarioValidator.validate(scene);
+
+        assertEquals(List.of("scenario.players[0].spawn"), problems.stream().map(ScenarioValidator.Problem::path).toList());
+        assertTrue(problems.get(0).message().contains("'Hero' has no Spawn Point"), problems.toString());
+    }
+
+    @Test
+    void shouldReportBoundsWhoseMinimumIsNotBelowTheMaximum() {
+        scene.setPreservedFields(PreservedFields.of(Map.of(Scene.SCENARIO_MEMBER, """
+            {"version": 1, "players": [], "objectives": [], "rules": [],
+             "bounds": {"minX": 10, "minZ": 0, "maxX": 10, "maxZ": 5}}""")));
+        assertEquals(List.of("scenario.bounds"), ScenarioValidator.validate(scene).stream().map(ScenarioValidator.Problem::path).toList());
+
+        scene.setPreservedFields(PreservedFields.of(Map.of(Scene.SCENARIO_MEMBER, """
+            {"version": 1, "players": [], "objectives": [], "rules": [],
+             "bounds": {"minX": -10, "minZ": -5, "maxX": 10, "maxZ": 5}}""")));
+        assertEquals(List.of(), ScenarioValidator.validate(scene));
+    }
+
+    @Test
+    void shouldReportAnAreaWithoutATriggerCollider() {
+        area.getComponent(BoxCollider3DComponent.class).setTrigger(false);
+        scenario(rule(UUID.randomUUID().toString(), "{\"type\": \"enterArea\", \"area\": \"" + area.getId() + "\", \"who\": \"player\"}",
+            "{\"type\": \"showMessage\", \"text\": \"In\"}"));
+
+        List<ScenarioValidator.Problem> problems = ScenarioValidator.validate(scene);
+
+        assertEquals(List.of("scenario.rules[0].when.area"), problems.stream().map(ScenarioValidator.Problem::path).toList());
+        assertTrue(problems.get(0).message().contains("has no trigger collider"), problems.toString());
     }
 
     @Test

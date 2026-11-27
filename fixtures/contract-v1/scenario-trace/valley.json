@@ -1,0 +1,54 @@
+{
+  "description": "Roadmap A14 / TD-109: one scripted Play of valley-project's scenario. Both engines' ScenarioRuntime must produce exactly this rule log and end state (desktop: ScenarioTraceTest; web: scenarioRuntime.test.ts). Frames of 0.25 s and 0.5 s are exact in binary floating point, so the two clocks agree and no logged time is a rounding tie.",
+  "scene": "../valley-project/scenes/valley.json",
+  "steps": [
+    {
+      "frames": 8,
+      "seconds": 0.25
+    },
+    {
+      "note": "a non-player entity in the door area does not count",
+      "enter": {
+        "area": "017a0667-26cf-5d43-97b0-fbf6afb769c5",
+        "visitor": "0f76e64c-9f35-5c11-92ed-a2e8b1c8a9b8"
+      }
+    },
+    {
+      "frames": 2,
+      "seconds": 0.5
+    },
+    {
+      "enter": {
+        "area": "017a0667-26cf-5d43-97b0-fbf6afb769c5",
+        "visitor": "c3fe5fb5-3188-5dc0-85d1-f05ce2e04e03"
+      }
+    },
+    {
+      "frames": 1,
+      "seconds": 0.5
+    },
+    {
+      "note": "after the end nothing more runs",
+      "enter": {
+        "area": "017a0667-26cf-5d43-97b0-fbf6afb769c5",
+        "visitor": "c3fe5fb5-3188-5dc0-85d1-f05ce2e04e03"
+      }
+    },
+    {
+      "frames": 4,
+      "seconds": 0.5
+    }
+  ],
+  "expect": {
+    "log": [
+      "Rule 'Welcome' at 2.0 s: message \"Find the house in the valley.\"",
+      "Rule 'Arrived' at 3.5 s: objective complete, message \"You reached the house!\", end: Victory"
+    ],
+    "message": "You reached the house!",
+    "objectiveLines": [
+      "[x] Reach the house"
+    ],
+    "result": "VICTORY",
+    "skipped": []
+  }
+}

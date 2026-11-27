@@ -75,6 +75,8 @@ interface CharacterState {
   grounded: boolean;
   /** How far the character really moved in its last step, per second. */
   readonly velocity: { x: number; y: number; z: number };
+  /** The depth (z, meters) the character is held at (TD-088's 2.5D play plane, TD-110), or NaN when it is free. */
+  lockedDepth: number;
 }
 
 /** A live joint: the handles of the two bodies it was made for, so it can be replaced when one of them is. */
@@ -359,6 +361,12 @@ export class Physics3D {
 
   // --- Bodies ---
 
+  /** Builds the bodies of every entity that needs one now, before the first step (Play's ground check reads them). */
+  prepareBodies(): void {
+    if (this.disposed) throw new Error("prepareBodies: the 3D physics of this scene has stopped");
+    this.syncBodies();
+  }
+
   /** Creates bodies for entities that have colliders and none yet, and removes the bodies of entities that are gone or inactive. */
   private syncBodies(): void {
     const wanted = new Set<string>();
@@ -401,7 +409,38 @@ export class Physics3D {
     const state = this.characterOf(entity, "moveCharacter");
     requireFinite(velocity, "velocity");
     state.desiredX = velocity.x * METERS_PER_UNIT;
-    state.desiredZ = velocity.z * METERS_PER_UNIT;
+    state.desiredZ = Number.isNaN(state.lockedDepth) ? velocity.z * METERS_PER_UNIT : 0;
+  }
+
+  /**
+   * Holds a character at depth {@code z} (scene units) from now on: it walks and jumps only along X and Y, as on the 2.5D play plane
+   * (the desktop's `lockCharacterDepth`). The character is put on the plane at once.
+   */
+  lockCharacterDepth(entity: GameEntity, z: number): void {
+    const state = this.characterOf(entity, "lockCharacterDepth");
+    if (!Number.isFinite(z)) throw new Error(`Depth must be finite: ${z}`);
+    state.lockedDepth = z * METERS_PER_UNIT;
+    state.desiredZ = 0;
+    this.holdDepth(state);
+    this.backend.getCharacterPosition(state.handle, this.tmpPosition);
+    setWorldPose(entity, this.tmpPosition.x * UNITS_PER_METER, this.tmpPosition.y * UNITS_PER_METER, this.tmpPosition.z * UNITS_PER_METER,
+      entity.getWorldRotation());
+  }
+
+  /** The depth a character is held at in scene units, or NaN when it is free. */
+  getLockedCharacterDepth(entity: GameEntity): number {
+    const meters = this.characterOf(entity, "getLockedCharacterDepth").lockedDepth;
+    return Number.isNaN(meters) ? Number.NaN : meters * UNITS_PER_METER;
+  }
+
+  /** Puts a depth-locked character back on its plane, keeping its speeds. */
+  private holdDepth(state: CharacterState): void {
+    if (Number.isNaN(state.lockedDepth)) return;
+    const position = { x: 0, y: 0, z: 0 };
+    this.backend.getCharacterPosition(state.handle, position);
+    if (position.z !== state.lockedDepth) {
+      this.backend.setCharacterPosition(state.handle, { x: position.x, y: position.y, z: state.lockedDepth });
+    }
   }
 
   /**
@@ -475,7 +514,7 @@ export class Physics3D {
       layer: num(d, "layer", DEFAULT_LAYER),
       collisionMask: num(d, "collisionMask", ALL_LAYERS),
     });
-    this.charactersByEntity.set(entity.id, { entity, handle, controller, desiredX: 0, desiredZ: 0, verticalSpeed: 0, grounded: false, velocity: { x: 0, y: 0, z: 0 } });
+    this.charactersByEntity.set(entity.id, { entity, handle, controller, desiredX: 0, desiredZ: 0, verticalSpeed: 0, grounded: false, velocity: { x: 0, y: 0, z: 0 }, lockedDepth: Number.NaN });
     this.entityByHandle.set(handle, entity);
   }
 
@@ -502,6 +541,7 @@ export class Physics3D {
       this.backend.getCharacterPosition(state.handle, position);
       const { x, y, z } = position;
       this.backend.moveCharacter(state.handle, { x: state.desiredX, y: moveY, z: state.desiredZ }, FIXED_TIMESTEP);
+      this.holdDepth(state);
       this.backend.getCharacterPosition(state.handle, position);
       state.grounded = this.backend.isCharacterGrounded(state.handle);
       state.velocity.x = (position.x - x) / FIXED_TIMESTEP;

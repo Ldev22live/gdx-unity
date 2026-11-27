@@ -1,0 +1,16 @@
+Asset credits
+
+Warrior low poly by jjmoser
+https://opengameart.org/content/warrior-low-poly
+CC BY 3.0 | https://creativecommons.org/licenses/by/3.0/
+Changes: Converted to GLB and linked supplied diffuse and normal maps.
+
+Thin Zombie by Rosswet Mobile
+https://opengameart.org/content/thin-zombie-awake-zombie-asset
+CC BY 3.0 | https://creativecommons.org/licenses/by/3.0/
+Changes: Converted to GLB with supplied texture and six authored clips.
+
+Horror sci-fi 3d map kit by Rosswet Mobile
+https://opengameart.org/content/horror-sci-fi-3d-map-kit
+CC BY 3.0 | https://creativecommons.org/licenses/by/3.0/
+Changes: Converted room and cover to GLB and rebuilt their material bindings.

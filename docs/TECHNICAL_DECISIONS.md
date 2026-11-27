@@ -3504,3 +3504,86 @@ The reference has a thin header, a dominant map with overlays, a category bar be
   - selection and undo kept across category switches.
 - **Human gate:** an unfamiliar tester finds terrain, placement, Customize and Play unaided.
 - **Not in A02:** Players and Rules content (A04, A05); the web shell (A13).
+
+### TD-108: Editing scenario players and object ownership (Alpha A04)
+
+**Approved by the owner on 2026-11-26.** Build the Players category on the existing TD-106 version 1 [scenario schema](contracts/scenario.schema.json). Keep the current serializers and modules.
+
+- Create a scenario only on an explicit authoring action. Offer two named, coloured slots initially. Allow an optional neutral slot. Unowned scenery has no OwnerComponent. A neutral slot has its own UUID and can own objects.
+- Generate a player UUID once. Renaming, recolouring and undo/redo retain it. Reject blank names and case-insensitive duplicate names on edit. Keep imported duplicate names readable by ID. Enforce the schema limits of 16 slots and 60 characters per name.
+- Store the optional spawn as the UUID of an entity carrying SpawnPointComponent. Bounds use finite scene-unit X/Z values with minima below maxima. Preserve unknown scenario data on edits and keep newer versions read-only. Runtime profile spawn selection continues to use the existing gameplay path.
+- The placement Owner selector defaults to Unowned and applies only to newly placed objects. Reassignment in the selection inspector is an explicit undoable edit. Place and assign ownership in one undo step. Block deletion of a referenced player or assigned spawn and identify its references, including objectives and rules. Block deletion if an opaque rule prevents reliable reference checks.
+- Keep editing logic in the existing editor modules. Test two slots plus neutral, stable IDs, invalid references, undo/redo, duplicate and prefab handling, and save/reopen before the human ownership walkthrough.
+
+[Source audit and acceptance gates](reports/alpha-a04-players.md)
+
+### TD-109: Scenario rules and objectives (Alpha A05)
+
+**Proposed and approved by the owner on 2026-11-26, as proposed.** It builds on the TD-106 version 1 [scenario schema](contracts/scenario.schema.json) and on the TD-108 editing paths. There is no new module, no new dependency and no change to the scene format.
+
+- **Runtime.** `ScenarioRuntime` in `engine-scene` (package `scenario`) is a bounded interpreter of `scenario.rules`. It is headless. Editor Play starts it through a `PlayModeController.Extension` on the runtime copy of the scene. `GameSession` starts it in the same position: after physics, before the scene update. Rules never run code, never load classes and never call graphs. Visual scripts remain the advanced path in Customize.
+- **Order and timing.**
+  - Rules are checked once per Play frame, in list order, using game time. Game time does not advance while Paused.
+  - The effects of one rule run in their listed order.
+  - Effects never trigger other rules within the same frame, so rules cannot chain or loop.
+  - At most 256 rules and 8 effects per rule (the schema limits). A file over these limits is refused at Play with a validation message.
+- **Conditions.**
+  - `timer {seconds}` fires once Play has run for `seconds`. When `once` is false, it fires again every `seconds`.
+  - `enterArea {area, who}` fires on each enter event of the area entity's trigger collider: 3D `TRIGGER_ENTER`, or a 2D sensor enter. `who: "player"` means the entity with `PlayerComponent`. A player id means any entity that player owns (TD-108 `OwnerComponent`). When `once` is true, only the first entry fires. Leaving the area does nothing in Alpha.
+  - A disabled rule never fires.
+- **Effects.**
+  - `showMessage {text, seconds}` shows the text on screen. The default is 4 seconds and the maximum is 60. A newer message replaces the one showing.
+  - `completeObjective {objective}` marks the objective complete. A `hidden` objective becomes visible when it completes.
+  - `endScenario {result, player?}` shows Victory, Defeat or Draw and stops rule evaluation. Play keeps running until Stop is pressed; in the game runtime, Esc exits.
+  - No spawn effect: there is no proven safe runtime spawn operation for Alpha.
+- **Validation.**
+  - Play runs only rules that `ScenarioValidator` accepts.
+  - A rule with an ERROR (for example a missing area) is skipped and listed once in the Output Log. Play still starts.
+  - NOT_RUN rules are kept in the file and never executed.
+  - `enterArea` also needs the area entity to carry a trigger collider. Otherwise it is an ERROR finding, like a missing spawn point in TD-108.
+- **On screen and in the log.**
+  - The current message, the visible objectives with their status and the result are drawn by the existing `HudRenderer` path, in both editor Play and the game.
+  - Each rule that fires writes one line to the Output Log (the rule's name, the game time and its effects). This is the "trigger execution log in Play".
+  - The World view (not in Play) shows none of this.
+- **Authoring.**
+  - The Rules category opens a drawer listing rules: name, enabled, once, a condition editor (seconds, or an area picker plus a who list of Player and the scenario's players), and up to 8 effects with type-specific fields.
+  - Objectives have text, an optional player and initially active or hidden. Their status can be seen in Play only.
+  - Every edit is one `ChangeScenarioCommand`. Adding the first rule or objective on a scene without a scenario creates a block with no players; this is an explicit authoring action, as in TD-108.
+  - "Add Area" creates an entity with a trigger Box Collider 3D at the view centre as one undo step. In 2D scenes the area is an existing entity with a sensor collider.
+  - Deleting an area, or an objective that a rule uses, is blocked with the references named, through the TD-108 `ScenarioReferences`.
+  - IDs are UUIDs generated once. Unknown members of rules, objectives and effects are preserved.
+- **Web.** The rule data stays portable. The Babylon runtime implements the same semantics in A14, checked by shared fixtures. Until then the web player keeps rules as preserved data and does not run them.
+- **Tests.**
+  - Runtime: timer once and repeat, area enter for the player, a player id and an unowned entity, once versus repeat, a disabled rule, list order, no chaining, objective completion including hidden objectives, the end result stopping evaluation, Pause holding the timer, the runtime scene isolated from the authored scene, invalid references skipped, NOT_RUN kept.
+  - Editing: undo/redo of every edit, preservation, delete safeguards, save and reopen.
+  - Game runtime: the same results from `GameSession` (editor/game parity).
+  - Human gate: a reach-the-house objective plus a timed message, tested in Play, edited without code, then saved, reopened and replayed.
+
+[Audit and acceptance](reports/alpha-a05-rules-objectives.md)
+
+### TD-110: The web's Alpha genre profiles are Action RPG + 3D and Platformer + 2.5D (Alpha A14)
+
+**Approved by the owner on 2026-11-26.** The roadmap's A14 asks for a web-supported profile subset "subject to owner approval". Of the desktop's seven PLAYABLE pairs (TD-088), the web player supports **Action RPG + 3D** and **Platformer + 2.5D** for Alpha.
+
+- Both run on Jolt, which the web already loads.
+- On the desktop, both pass profile tests with real physics (`ActionRpgValleyProfileOnJoltTest`, `PlatformerSideProfileOnJoltTest`).
+- **The other five pairs stay desktop-only.** The web labels them "plays on the desktop", never as playable, and its Play runs such a scene without a profile, as today.
+- **Same behaviour as the desktop:** the web profiles port the desktop's `PlayProfiles`, `GroundWalkMover`, `PlaneRunMover`, `ProfileCameraRig` and `FallRespawner` semantics:
+  - the same requirements and refusal messages;
+  - the same speeds, camera distances, pitch and turn rates (the `GameGenres` constants);
+  - the same default keys (`InputMapping.defaults()`).
+  - A shared movement trace fixture (scripted key presses, expected positions within a tolerance) is replayed by both engines, as TD-109's rule trace is.
+- **Not included:** combat, health and enemies (none exist on the desktop either), and Platformer + 2D on the web. The latter would need the web's planck movement matched to TD-105 first.
+
+[A14 report](reports/alpha-a14-web-authoring.md)
+
+### TD-111: Playwright for the web editor's real-browser tests (Alpha A14)
+
+**Approved by the owner on 2026-11-27.** `engine-babylon` gains `@playwright/test` (^1.65.1) as a **dev dependency only**. Playwright downloads its Chromium into the user's cache (`%LOCALAPPDATA%/ms-playwright`), outside the repository.
+
+- **What it is for:** roadmap A13/A14 ask for browser tests of the actual canvas interactions, "not static screenshots alone". The vitest suite runs headless in Node and cannot drive the page.
+- **What it runs:** `e2e/*.spec.ts`, through `npx playwright test`. The config `playwright.config.ts` starts the Vite dev server and runs headless Chromium with real WebGL at 1280 × 720. `npm test` (vitest) is unchanged and does not run them.
+- **What it may not do:** ship in the web build, or replace the owner's hands-on checks. A capture it takes is labelled as automated, never as a person's validation (AGENTS.md §8).
+- **Not included:** Firefox and WebKit runs, and mobile sizes. Each would be a further download, added when the owner asks.
+
+[A14 report](reports/alpha-a14-web-authoring.md)

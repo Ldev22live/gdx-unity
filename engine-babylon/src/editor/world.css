@@ -1,0 +1,91 @@
+/* The World shell (roadmap A13; the desktop's TD-107 composition). Only applies with body.layout-world; ?layout=classic keeps the
+   earlier page. Bar heights match worldShell.ts (header 36, categories 34, palette 96, footer 40). */
+
+body.editor.layout-world { grid-template-rows: 36px 1fr auto auto; }
+
+/* Header: brand, file commands, undo and redo, Panels. Tools, tabs and Play move to the selection card, Customize and the footer. */
+.layout-world #bar { height: 36px; flex-wrap: nowrap; overflow: hidden; }
+.layout-world #bar .tab,
+.layout-world #bar #tool-select, .layout-world #bar #tool-move, .layout-world #bar #tool-rotate,
+.layout-world #bar #tool-scale, .layout-world #bar #tool-sculpt,
+.layout-world #bar #duplicate, .layout-world #bar #delete, .layout-world #bar #play { display: none; }
+.layout-world #bar .sep { display: none; }
+
+/* The map fills the page; Outline and Details only when chosen under Panels */
+.layout-world #workspace { grid-template-columns: 1fr; }
+.layout-world #left, .layout-world #right { display: none; }
+.layout-world.show-outline #left, .layout-world.show-details #right { display: block; }
+.layout-world.show-outline #workspace { grid-template-columns: 260px 1fr; }
+.layout-world.show-details #workspace { grid-template-columns: 1fr 320px; }
+.layout-world.show-outline.show-details #workspace { grid-template-columns: 260px 1fr 320px; }
+
+/* Map overlays: context (top left), camera chip (top right), selection card (bottom right) */
+.world-chip { position: absolute; z-index: 4; background: rgba(26, 29, 37, 0.88); border: 1px solid #2a2e3a; border-radius: 6px;
+  padding: 3px 8px; font-size: 12px; }
+#world-context { top: 8px; left: 8px; }
+#world-camera { top: 8px; right: 8px; display: flex; gap: 2px; padding: 2px; }
+#world-camera button { padding: 2px 8px; font-size: 12px; }
+.world-card { position: absolute; z-index: 4; right: 8px; bottom: 8px; width: 240px; background: rgba(26, 29, 37, 0.94);
+  border: 1px solid #2a2e3a; border-radius: 6px; padding: 8px; font-size: 12px; }
+.world-card[hidden] { display: none; }
+.world-card .name { margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.world-card .row { display: flex; gap: 4px; margin-bottom: 6px; }
+.world-card button.wide { width: 100%; }
+body.sculpting #world-context { display: none; }
+
+/* Category bar, palette row and footer under the map */
+#world-bottom { background: #1a1d25; border-top: 1px solid #2a2e3a; }
+.world-categories { display: flex; align-items: center; gap: 2px; height: 34px; padding: 0 8px; overflow-x: auto; }
+.world-categories button.flat { background: transparent; border-color: transparent; }
+.world-categories button.active { background: #3b5b8f; border-color: #5aa0ff; }
+.world-palette { display: flex; align-items: center; gap: 6px; height: 96px; padding: 4px 8px; overflow-x: auto; overflow-y: hidden;
+  border-top: 1px solid #2a2e3a; }
+.world-palette[hidden] { display: none; }
+.world-palette .label { font-size: 12px; opacity: 0.7; }
+.world-palette .note { font-size: 12px; opacity: 0.85; max-width: 720px; }
+.world-palette .summary { margin-top: 6px; opacity: 0.8; }
+.world-palette .tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 84px;
+  min-width: 84px; height: 84px; font-size: 11px; padding: 2px; overflow: hidden; }
+.world-palette .tile img { width: 56px; height: 56px; object-fit: contain; }
+.world-palette .tile .noimage { font-size: 32px; opacity: 0.5; }
+.world-palette .tile.armed { background: #3b5b8f; border-color: #5aa0ff; }
+.world-footer { position: relative; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 8px; border-top: 1px solid #2a2e3a;
+  font-size: 12px; }
+.world-footer .spacer { flex: 1; }
+.world-genre { opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
+/* Pop-up menus: Panels (header) and Customize (footer) */
+.world-menu { position: absolute; z-index: 20; background: #1d2029; border: 1px solid #343949; border-radius: 6px; padding: 4px;
+  display: flex; flex-direction: column; gap: 2px; min-width: 180px; }
+.world-menu[hidden] { display: none; }
+#world-panels-menu { top: 36px; right: 120px; }
+#world-customize-menu { bottom: 40px; right: 80px; max-width: 320px; }
+.world-menu-item { text-align: left; }
+.world-menu-note { font-size: 11px; opacity: 0.75; padding: 4px; }
+
+/* While the other workspaces (Animations, Visual Scripting, Music) show, the category bar and palette step aside; the footer stays,
+   so Customize can bring the World back */
+body.layout-world.fullpanel #world-categories, body.layout-world.fullpanel #world-palette { display: none; }
+body.layout-world.playing #world-categories, body.layout-world.playing #world-palette, body.layout-world.playing #world-selection { display: none; }
+
+/* Narrow windows: the header and the bars scroll sideways instead of wrapping over the map */
+@media (max-width: 760px) {
+  .layout-world #bar { overflow-x: auto; }
+  .world-genre { display: none; }
+}
+
+/* Players and Rules rows (roadmap A14): one card per slot or rule; the row scrolls sideways */
+.world-palette .scenario-card { display: flex; flex-direction: column; gap: 3px; min-width: 200px; max-height: 88px; overflow-y: auto;
+  padding: 4px 6px; background: #20242f; border: 1px solid #2a2e3a; border-radius: 6px; font-size: 12px; }
+.world-palette .scenario-row { display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; }
+.world-palette .scenario-card input, .world-palette .scenario-card select { background: #12141a; color: inherit; border: 1px solid #343949;
+  border-radius: 3px; padding: 1px 3px; font: inherit; }
+.world-palette .scenario-card button { padding: 1px 6px; font-size: 12px; }
+.world-palette .muted { opacity: 0.7; }
+.world-palette .warning { color: #ffb347; }
+.world-card .row.owner { display: flex; align-items: center; gap: 6px; }
+.world-card .row.owner[hidden] { display: none; }
+.world-card .row.owner select { flex: 1; min-width: 0; }
+
+.world-fixes { display: flex; gap: 4px; }
+.world-fixes button { font-size: 12px; }

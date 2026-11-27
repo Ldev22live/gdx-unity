@@ -164,7 +164,8 @@ public final class GameGenres {
             + "ammunition come later.", thirdPersonShooter3D(thirdPerson)));
         registry.planned(RACING, GameMode.MODE_3D, "Planned (roadmap M3b.7).");
         for (GameMode mode : GameMode.values()) {
-            registry.planned(REAL_TIME_STRATEGY, mode, "Planned: comes with the scenario editor (roadmap R4).");
+            registry.planned(REAL_TIME_STRATEGY, mode, "Planned: the scenario editor (players, rules) exists, but unit selection, "
+                + "orders, economy and RTS play do not yet (roadmap R4).");
         }
         return registry;
     }

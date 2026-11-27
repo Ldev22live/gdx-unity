@@ -225,3 +225,26 @@ describe("EditorModel file format", () => {
     expect(JSON.stringify(sample)).toBe(before);
   });
 });
+
+describe("changes kept outside the scene file (roadmap A14: terrain strokes)", () => {
+  it("undoes and redoes them in order with the scene's own edits, in one history", async () => {
+    const { EditorModel, emptyScene } = await import("../src/editor/EditorModel");
+    const model = new EditorModel(emptyScene());
+    const ground = { height: 0 };
+    model.addEntity("empty");
+    ground.height = 5;
+    model.recordExternal("Terrain: Raise", () => (ground.height = 0), () => (ground.height = 5));
+    model.rename(model.file.entities[0]!.id, "Renamed", false);
+
+    model.undo();
+    expect(model.file.entities[0]!.name).not.toBe("Renamed");
+    expect(ground.height).toBe(5);
+    model.undo();
+    expect(ground.height).toBe(0);
+    expect(model.file.entities).toHaveLength(1);
+    model.redo();
+    expect(ground.height).toBe(5);
+    model.redo();
+    expect(model.file.entities[0]!.name).toBe("Renamed");
+  });
+});

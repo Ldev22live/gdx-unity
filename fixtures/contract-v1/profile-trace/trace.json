@@ -1,0 +1,80 @@
+{
+  "description": "Roadmap A14 / TD-110: scripted key presses on the two web profiles. The desktop (engine-desktop ProfileTraceTest, GameSession with real Jolt) records the player's position after each recorded phase into expected.json (GDXUNITY_UPDATE_TRACE=1); the web (engine-babylon profileTrace.test.ts, real Jolt) must reach the same positions within the tolerance. Every frame is 1/60 s, one physics step on both engines. Keys: W A S D, SPACE, Q E (the desktop's InputMapping.defaults()).",
+  "frameSeconds": 0.016666666666666666,
+  "toleranceUnits": 25,
+  "runs": [
+    {
+      "scene": "action-rpg-3d.json",
+      "phases": [
+        {
+          "keys": [],
+          "frames": 30,
+          "record": "settled"
+        },
+        {
+          "keys": [
+            "W"
+          ],
+          "frames": 60,
+          "record": "after W"
+        },
+        {
+          "keys": [
+            "D"
+          ],
+          "frames": 30,
+          "record": "after D"
+        },
+        {
+          "keys": [
+            "SPACE"
+          ],
+          "frames": 6,
+          "record": "rising"
+        },
+        {
+          "keys": [],
+          "frames": 90,
+          "record": "landed"
+        }
+      ]
+    },
+    {
+      "scene": "platformer-25d.json",
+      "phases": [
+        {
+          "keys": [],
+          "frames": 30,
+          "record": "settled"
+        },
+        {
+          "keys": [
+            "D"
+          ],
+          "frames": 60,
+          "record": "after D"
+        },
+        {
+          "keys": [
+            "D",
+            "SPACE"
+          ],
+          "frames": 6,
+          "record": "rising"
+        },
+        {
+          "keys": [
+            "A"
+          ],
+          "frames": 30,
+          "record": "back left in the air"
+        },
+        {
+          "keys": [],
+          "frames": 90,
+          "record": "landed"
+        }
+      ]
+    }
+  ]
+}

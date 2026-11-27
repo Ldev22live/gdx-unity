@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "name": "Journey Valley",
+  "active": true,
+  "entities": [
+    {
+      "id": "94c441ec-99bb-5205-b4fe-3850eca2248c",
+      "name": "Sun",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 800.0,
+          "z": 400.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "DirectionalLightComponent",
+          "enabled": true,
+          "data": {
+            "directionX": -0.4,
+            "directionY": -1.0,
+            "directionZ": -0.6,
+            "colorR": 1.0,
+            "colorG": 0.96,
+            "colorB": 0.88,
+            "colorA": 1.0,
+            "intensity": 1.0,
+            "castShadows": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "01415bf4-28a0-5e34-8a93-3691e619cc6d",
+      "name": "Main Camera",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 900.0,
+          "z": 1500.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "CameraComponent",
+          "enabled": true,
+          "data": {
+            "projection": "PERSPECTIVE",
+            "orthographicHeight": 480.0,
+            "fieldOfView": 55.0,
+            "nearPlane": 1.0,
+            "farPlane": 50000.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "1caa3987-e0de-5e7d-bbdd-99fe1a415c7a",
+      "name": "Level Ground",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "Terrain",
+          "enabled": true,
+          "data": {
+            "terrainPath": "terrains/Level.terrain"
+          }
+        },
+        {
+          "type": "TerrainCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "6c9abe02-c8be-56f7-9e59-7e0846380d33",
+      "name": "Hero",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 71.0,
+          "z": 300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "MeshPrimitiveComponent",
+          "enabled": true,
+          "data": {
+            "shape": "BOX",
+            "sizeX": 60.0,
+            "sizeY": 140.0,
+            "sizeZ": 60.0,
+            "colorR": 0.3,
+            "colorG": 0.42,
+            "colorB": 0.62,
+            "colorA": 1.0,
+            "materialPath": ""
+          }
+        },
+        {
+          "type": "CharacterController3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 30.0,
+            "height": 80.0,
+            "slopeLimitDegrees": 45.0,
+            "stepHeight": 30.0,
+            "mass": 70.0,
+            "gravityScale": 1.0,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "PlayerComponent",
+          "enabled": true,
+          "data": {
+            "useProfileMovement": false
+          }
+        },
+        {
+          "type": "OwnerComponent",
+          "enabled": true,
+          "data": {
+            "player": "9191089b-80aa-5653-9571-69e1ca4eeff8"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7937c95c-1247-56b0-91c5-5bb12d2f7032",
+      "name": "House Wall",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 300.0,
+          "y": 0.0,
+          "z": -300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "models/wall.glb",
+            "importScale": 100.0,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "f6a42aec-ff26-501b-8fc4-316cf503f181",
+      "name": "Gate",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 60.0,
+          "z": -300.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0.0,
+            "offsetY": 0.0,
+            "offsetZ": 0.0,
+            "trigger": true,
+            "sizeX": 200.0,
+            "sizeY": 120.0,
+            "sizeZ": 120.0
+          }
+        }
+      ]
+    }
+  ],
+  "scenario": {
+    "version": 1,
+    "players": [
+      {
+        "id": "9191089b-80aa-5653-9571-69e1ca4eeff8",
+        "name": "Player 1",
+        "color": "#2f6fdf"
+      },
+      {
+        "id": "dc773826-831f-57ba-8bba-3f9e1bd95afa",
+        "name": "Player 2",
+        "color": "#d9432f"
+      }
+    ],
+    "objectives": [
+      {
+        "id": "aa7e971d-ebd5-5c2b-bb9a-b2ada799de40",
+        "text": "Reach the gate"
+      }
+    ],
+    "rules": [
+      {
+        "id": "b6d10e3e-2367-571f-a1c2-c054bddc4559",
+        "name": "Welcome",
+        "enabled": true,
+        "once": true,
+        "when": {
+          "type": "timer",
+          "seconds": 2
+        },
+        "then": [
+          {
+            "type": "showMessage",
+            "text": "Find the gate",
+            "seconds": 4
+          }
+        ]
+      },
+      {
+        "id": "9a8b9a88-a4c4-59d5-8719-4934e0a2a0e2",
+        "name": "Arrive",
+        "enabled": true,
+        "once": true,
+        "when": {
+          "type": "enterArea",
+          "area": "f6a42aec-ff26-501b-8fc4-316cf503f181",
+          "who": "player"
+        },
+        "then": [
+          {
+            "type": "completeObjective",
+            "objective": "aa7e971d-ebd5-5c2b-bb9a-b2ada799de40"
+          },
+          {
+            "type": "endScenario",
+            "result": "victory"
+          }
+        ]
+      }
+    ]
+  }
+}

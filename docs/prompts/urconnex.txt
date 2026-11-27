@@ -1,0 +1,392 @@
+# UrConnex — Phase 2B.1: Test Execution Stabilization and Alpha Implementation Continuation
+
+## 1. Objective
+
+Continue the current UCX AI and DataForge implementation.
+
+The capability registry has reportedly been updated to version 1.1.0 with 31 entries.
+
+The current blocker is unreliable browser test execution, potentially caused by:
+
+- Separate network namespaces for individual commands.
+- Background process lifecycle issues.
+- Next.js development server startup.
+- External Google Fonts dependencies.
+- Playwright readiness and timeout configuration.
+- Background processes retaining stdout or stderr.
+
+Stop repeatedly scheduling timers without establishing measurable test progress.
+
+Do not restart completed implementation tasks.
+
+## 2. Preserve current implementation
+
+Inspect and preserve:
+
+- Capability registry v1.1.0.
+- All 31 registry entries.
+- Existing frontend changes.
+- Existing backend changes.
+- Existing RAG implementation.
+- Existing DataForge implementation.
+- Existing uncommitted work.
+- Python regression evidence.
+- Browser test failure evidence.
+
+Inspect the current status of task-189 and any remaining test processes.
+
+Capture available logs before terminating any hung test processes.
+
+## 3. Safe process management
+
+Do not use broad process termination commands such as:
+
+- pkill -f 'next dev'
+- pkill -f fake-api-server
+- killall node
+- killall python
+
+This VPS hosts multiple UrConnex services.
+
+Only terminate processes explicitly created by the current isolated test execution.
+
+Track process IDs and process groups.
+
+Use scoped cleanup handlers.
+
+Verify that existing production and test deployment services remain unaffected.
+
+## 4. Diagnose the execution namespace
+
+Verify whether separate Antigravity commands actually receive different network namespaces.
+
+Compare:
+
+- Network namespace identifiers.
+- Process namespace identifiers.
+- Listener visibility.
+- Background process visibility.
+- Loopback connectivity.
+
+Record actual evidence.
+
+If separate commands cannot share network connectivity, execute the entire browser test lifecycle within one bounded shell invocation.
+
+The lifecycle must include:
+
+1. Start the isolated fake API.
+2. Capture its process ID.
+3. Wait for its health endpoint.
+4. Start the isolated Next.js server.
+5. Capture its process ID.
+6. Wait for frontend readiness.
+7. Execute Playwright.
+8. Capture the exit code.
+9. Preserve screenshots and logs.
+10. Terminate only the processes created by this invocation.
+
+Use unique temporary directories and verified unused ports.
+
+Redirect background process output to dedicated log files.
+
+Ensure background processes cannot retain the command's output pipe.
+
+Do not expose any test service publicly.
+
+## 5. Bounded execution
+
+Introduce explicit test execution deadlines.
+
+Proposed limits:
+
+- Fake API startup: 30 seconds.
+- Next.js startup: 120 seconds.
+- Individual browser test: 60 seconds.
+- Initial focused browser suite: 300 seconds.
+- Cleanup: 15 seconds.
+
+Adjust these limits only when measured compilation or startup requirements justify doing so.
+
+Do not increase timeouts indefinitely.
+
+If a deadline expires:
+
+- Capture logs.
+- Capture process status.
+- Capture available browser screenshots.
+- Record the failed readiness condition.
+- Clean up owned processes.
+- Investigate the specific failure.
+
+Do not enter another indefinite waiting cycle.
+
+## 6. Resolve Google Fonts dependency
+
+Inspect the actual Next.js error output.
+
+Do not assume Google Fonts is the cause without evidence.
+
+If external font retrieval is confirmed as the blocker:
+
+- Inspect the existing frontend font configuration.
+- Inspect existing offline build and testing conventions.
+- Verify whether the installed Next.js version supports a test-only font mock.
+- Reuse existing local fonts where appropriate.
+- Keep any temporary font mocking restricted to the test environment.
+
+Do not modify production typography merely to make browser tests pass.
+
+Do not disable TLS certificate verification.
+
+Do not introduce an undocumented production dependency on /tmp/fontmock.js.
+
+If a permanent local-font solution is necessary, document the proposed change separately.
+
+## 7. Focused browser smoke test
+
+Before executing the complete Playwright suite, run one focused browser test.
+
+Verify:
+
+1. The isolated frontend starts.
+2. The fake API is reachable.
+3. The synthetic SUPERUSER session is accepted.
+4. The existing UrConnex layout renders.
+5. The navigation menu renders.
+6. UCX AI appears in the existing menu.
+7. The Alpha badge is visible.
+8. Clicking UCX AI opens /ai.
+
+Capture a screenshot.
+
+If this test fails, identify the exact failing condition before running additional tests.
+
+Do not execute the complete browser suite against a frontend that has not passed readiness checks.
+
+## 8. UCX AI Alpha acceptance tests
+
+After the smoke test succeeds, verify:
+
+- SUPERUSER menu visibility.
+- Authorized alpha tester menu visibility.
+- Unauthorized user menu exclusion.
+- Direct unauthorized route rejection.
+- Desktop navigation.
+- Mobile navigation.
+- Collapsed sidebar behavior.
+- Alpha badge visibility.
+- Conversation creation.
+- Conversation selection.
+- Message composer.
+- Streaming response rendering.
+- Generation cancellation.
+- Source citation rendering.
+- Runtime-unavailable handling.
+- Conversation history.
+- Safe Markdown rendering.
+
+Use synthetic test sessions.
+
+Clearly identify mocked API and mocked inference tests.
+
+Do not represent these tests as actual Ollama or TrueForge runtime verification.
+
+## 9. DataForge administration acceptance tests
+
+Verify the implementation of:
+
+/admin/dataforge
+
+Required checks:
+
+- SUPERUSER authorization.
+- ADMIN rejection unless explicitly authorized by the established security contract.
+- Unauthorized direct route rejection.
+- Candidate listing.
+- Candidate review.
+- Quarantine reasons.
+- Source provenance.
+- Training eligibility.
+- Evaluation results.
+- Generation job status.
+- Export restrictions.
+- Runtime-unavailable states.
+
+Use synthetic fixtures only for isolated testing.
+
+Do not hardcode synthetic records into production application paths.
+
+Do not fabricate historical candidate counts.
+
+## 10. Capability registry verification
+
+Review registry version 1.1.0.
+
+Verify all 31 entries against the actual authoritative frontend and backend.
+
+For each entry verify:
+
+- Stable capability identifier.
+- Actual route.
+- Display name.
+- Feature entitlement.
+- Required permissions.
+- Availability status.
+- Supported functionality.
+- Known limitations.
+- Source references.
+
+Specifically verify:
+
+- Motion FX.
+- Animation Studio.
+- Home.
+- People.
+- Layout builder.
+- Image Editor and Image Studio aliases.
+- Sound Editor and Audio Studio aliases.
+
+Ensure GameForge and ForgeRoom remain BLOCKED.
+
+Do not expose executable GameForge or ForgeRoom tools.
+
+## 11. Python regression reconciliation
+
+Collect the actual results of the Python regression suite already executed.
+
+Compare against the historical baseline:
+
+- 227 non-live tests passed.
+- Restricted environment result: 202 passed, 12 failed, 13 errors, 12 deselected.
+- DataForge targeted tests: 15 passed.
+
+Record:
+
+- Exact test command.
+- Test collection count.
+- Python version.
+- Virtual environment.
+- Passed tests.
+- Failed tests.
+- Errors.
+- Skipped tests.
+- Deselected tests.
+- Execution duration.
+
+Classify each remaining failure.
+
+Correct genuine implementation regressions.
+
+Do not weaken assertions, remove tests or introduce artificial skips to manufacture a passing result.
+
+## 12. Continue independent application implementation
+
+Once the focused test infrastructure is stable, continue any incomplete components:
+
+- Capability registry.
+- Spring Boot AI API.
+- UCX AI Alpha navigation.
+- Native conversational interface.
+- RAG service contracts.
+- DataForge administration.
+- DataForge specialist contracts.
+
+Do not spend the entire development session investigating browser infrastructure.
+
+If browser testing remains blocked after bounded diagnostic attempts, preserve the evidence and continue independent implementation and unit testing.
+
+## 13. Runtime infrastructure
+
+The previous live service connectivity blocker remains unresolved.
+
+Do not assume the following services are stopped merely because they are unreachable from the current namespace:
+
+- Ollama.
+- TrueForge.
+- PostgreSQL.
+
+Do not restart them without owner approval.
+
+Keep all services private.
+
+Do not expose internal service ports to resolve test connectivity.
+
+Continue preparing isolated pgvector and RAG integration, but distinguish implementation from runtime verification.
+
+## 14. Required screenshots
+
+Store actual test-generated screenshots under:
+
+docs/phase-2b-screenshots/
+
+Required screenshots where implementation permits:
+
+- Existing UrConnex navigation with UCX AI Alpha.
+- UCX AI welcome screen.
+- UCX AI conversation interface.
+- UCX AI runtime-unavailable state.
+- Mobile navigation.
+- DataForge administration dashboard.
+- DataForge candidate review.
+
+Label screenshots generated with mocked API fixtures.
+
+Do not create fabricated screenshots.
+
+## 15. Restrictions
+
+- No production deployment.
+- No live database migrations.
+- No shared-service restarts.
+- No broad process termination.
+- No unrestricted permission changes.
+- No global security disabling.
+- No public exposure of internal services.
+- No unrelated production typography changes.
+- No fabricated runtime evidence.
+- No automatic dataset approval.
+- No automatic training.
+- No GameForge or ForgeRoom implementation.
+- No Git commits or pushes.
+
+## 16. Final report
+
+Update:
+
+docs/developer-handover.md
+
+docs/final-implementation-report-phase-2b.md
+
+Include:
+
+1. Registry v1.1.0 verification.
+2. Network namespace findings.
+3. Browser test root cause.
+4. Process lifecycle correction.
+5. Google Fonts findings.
+6. Focused smoke test result.
+7. UCX AI navigation status.
+8. Alpha badge screenshot.
+9. Conversational interface status.
+10. DataForge administration status.
+11. Python regression results.
+12. Playwright results.
+13. Remaining runtime blockers.
+14. Exact changed files.
+15. Exact next implementation task.
+
+Return one of:
+
+TEST INFRASTRUCTURE STABILIZED — CONTINUING PHASE 2B
+
+UCX AI ALPHA — APPLICATION VERIFIED WITH MOCKED SERVICES
+
+UCX AI ALPHA — PARTIALLY IMPLEMENTED
+
+BROWSER TESTING BLOCKED — INDEPENDENT IMPLEMENTATION CONTINUED
+
+FAILED — GENUINE REGRESSION DETECTED
+
+Stop repeatedly waiting on unbounded background tasks.
+
+Prioritize measurable implementation progress and reproducible test results.

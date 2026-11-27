@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "name": "Web Scenario",
+  "active": true,
+  "entities": [
+    {
+      "id": "11111111-1111-3111-8111-111111111111",
+      "name": "Hero",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "PlayerComponent",
+          "enabled": true,
+          "data": {
+            "useProfileMovement": false
+          }
+        },
+        {
+          "type": "CharacterController3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 30,
+            "height": 80,
+            "slopeLimitDegrees": 45,
+            "stepHeight": 30,
+            "mass": 70,
+            "gravityScale": 1,
+            "layer": 0,
+            "collisionMask": 65535
+          }
+        },
+        {
+          "type": "OwnerComponent",
+          "enabled": true,
+          "data": {
+            "player": "27f6c813-0597-34f7-a595-5c60baef8e56"
+          }
+        }
+      ]
+    },
+    {
+      "id": "22222222-2222-3222-8222-222222222222",
+      "name": "Tower",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "OwnerComponent",
+          "enabled": true,
+          "data": {
+            "player": "a35f6d1b-b2d4-32ae-89e9-0f8b0fc82e77"
+          }
+        }
+      ]
+    },
+    {
+      "id": "33333333-3333-3333-8333-333333333333",
+      "name": "Start",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "SpawnPointComponent",
+          "enabled": true,
+          "data": {}
+        }
+      ]
+    },
+    {
+      "id": "4fd38fbb-001d-3565-a95d-6734ac3078df",
+      "name": "Area 1",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 60,
+          "z": -600
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 0,
+            "offsetZ": 0,
+            "trigger": true,
+            "sizeX": 300,
+            "sizeY": 300,
+            "sizeZ": 300
+          }
+        }
+      ]
+    }
+  ],
+  "scenario": {
+    "version": 1,
+    "players": [
+      {
+        "id": "27f6c813-0597-34f7-a595-5c60baef8e56",
+        "name": "Player 1",
+        "color": "#2f6fdf",
+        "spawn": "33333333-3333-3333-8333-333333333333"
+      },
+      {
+        "id": "a35f6d1b-b2d4-32ae-89e9-0f8b0fc82e77",
+        "name": "Raiders",
+        "color": "#d9432f"
+      },
+      {
+        "id": "6fcbed0d-8b7f-3edf-a88a-24a0545252bc",
+        "name": "Neutral",
+        "color": "#8a8a7a",
+        "neutral": true
+      }
+    ],
+    "objectives": [
+      {
+        "id": "e98e1990-b92b-3072-8766-5948dc41baf1",
+        "text": "Reach the gate"
+      }
+    ],
+    "rules": [
+      {
+        "id": "55b88b8e-ccff-3ec5-a1ed-a8baaa8cb232",
+        "name": "Welcome",
+        "enabled": true,
+        "once": true,
+        "when": {
+          "type": "timer",
+          "seconds": 1
+        },
+        "then": [
+          {
+            "type": "showMessage",
+            "text": "Find the gate",
+            "seconds": 3
+          }
+        ]
+      },
+      {
+        "id": "e3edfbb7-2914-31ec-867e-faf848ccdcc4",
+        "name": "Arrive",
+        "enabled": true,
+        "once": true,
+        "when": {
+          "type": "enterArea",
+          "area": "4fd38fbb-001d-3565-a95d-6734ac3078df",
+          "who": "player"
+        },
+        "then": [
+          {
+            "type": "completeObjective",
+            "objective": "e98e1990-b92b-3072-8766-5948dc41baf1"
+          },
+          {
+            "type": "endScenario",
+            "result": "victory"
+          }
+        ]
+      }
+    ],
+    "bounds": {
+      "minX": -2000,
+      "minZ": -2000,
+      "maxX": 2000,
+      "maxZ": 2000
+    }
+  }
+}

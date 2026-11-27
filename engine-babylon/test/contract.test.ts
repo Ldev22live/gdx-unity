@@ -83,7 +83,8 @@ describe("unknown data in the web editor", () => {
   it("builds the fixture scene treating ownership as data and naming only the component it cannot show", () => {
     const engine = createHeadlessEngine();
     const built = buildScene(engine, parseSceneFile(sceneText()));
-    expect([...built.unsupported.keys()].sort()).toEqual(["ExampleFutureComponent", "PlayerComponent"]);
+    // SpawnPointComponent: the fixture's Start (TD-108 spawn); the web reports it unsupported (BACKEND_SUPPORT_MATRIX.md)
+    expect([...built.unsupported.keys()].sort()).toEqual(["ExampleFutureComponent", "PlayerComponent", "SpawnPointComponent"]);
     expect(describeUnsupported(built.unsupported)).toMatch(/^Not shown on the web: .*ExampleFutureComponent.*kept unchanged/);
     built.scene.dispose();
     engine.dispose();

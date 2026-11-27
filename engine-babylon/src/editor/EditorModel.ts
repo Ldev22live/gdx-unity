@@ -1,4 +1,5 @@
 import type { ComponentData, EntityData, SceneFile, TransformData } from "../scene/types";
+import { referencesToEntity } from "./scenarioEditing";
 import { COMPONENT_TEMPLATES, ENTITY_PRESETS, newId } from "./presets";
 
 /** Undo steps kept; older ones are dropped. */
@@ -25,6 +26,8 @@ interface Snapshot {
   label: string;
   file: SceneFile;
   selected: string | null;
+  /** A change kept outside the scene file (a terrain stroke): undone and redone by these, the file left as it is. */
+  external?: { undo: () => void; redo: () => void };
 }
 
 /**
@@ -148,9 +151,29 @@ export class EditorModel {
     this.notify(kind);
   }
 
+  /**
+   * Records a change already made outside the scene file (a terrain stroke, roadmap A14) as one step of the same undo history, so
+   * Undo and Redo take it back and forth in order with the scene's own edits.
+   */
+  recordExternal(label: string, undo: () => void, redo: () => void): void {
+    this.undoStack.push({ label, file: this.fileData, selected: this.selectedId, external: { undo, redo } });
+    if (this.undoStack.length > MAX_UNDO_STEPS) this.undoStack.shift();
+    this.redoStack.length = 0;
+    this.lastCoalesceKey = null;
+    this.revision++;
+    this.notify("sculpt");
+  }
+
   undo(): void {
     const step = this.undoStack.pop();
     if (!step) return;
+    if (step.external) {
+      step.external.undo();
+      this.redoStack.push(step);
+      this.revision++;
+      this.notify("sculpt");
+      return;
+    }
     this.redoStack.push({ label: step.label, file: this.fileData, selected: this.selectedId });
     this.restore(step);
   }
@@ -158,6 +181,13 @@ export class EditorModel {
   redo(): void {
     const step = this.redoStack.pop();
     if (!step) return;
+    if (step.external) {
+      step.external.redo();
+      this.undoStack.push(step);
+      this.revision++;
+      this.notify("sculpt");
+      return;
+    }
     this.undoStack.push({ label: step.label, file: this.fileData, selected: this.selectedId });
     this.restore(step);
   }
@@ -284,8 +314,17 @@ export class EditorModel {
   }
 
   /** Deletes the entity and everything under it. */
+  /**
+   * Deletes the entity and everything under it, as one undo step.
+   *
+   * @throws Error naming the references when the scenario names one of them (a player's spawn, a rule's area; TD-108)
+   */
   deleteEntity(id: string): void {
     const doomed = new Set(this.subtree(id).map((entity) => entity.id));
+    for (const entity of this.subtree(id)) {
+      const references = referencesToEntity(this.fileData, entity.id);
+      if (references.length > 0) throw new Error(`Cannot delete '${entity.name}': ${references.join("; ")}`);
+    }
     this.edit("Delete", "scene", (file) => {
       file.entities = file.entities.filter((entity) => !doomed.has(entity.id));
     });

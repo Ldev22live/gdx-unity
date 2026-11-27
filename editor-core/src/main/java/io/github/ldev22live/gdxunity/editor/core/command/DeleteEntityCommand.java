@@ -3,6 +3,7 @@ package io.github.ldev22live.gdxunity.editor.core.command;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.scenario.ScenarioReferences;
 import io.github.ldev22live.gdxunity.engine.scene.Component;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
@@ -47,6 +48,13 @@ public class DeleteEntityCommand implements EditorCommand {
 
         Entity entity = scene.findEntityById(entityId);
         if (entity == null) return false;
+
+        // TD-108: an entity the scenario names (a player's spawn, a rule's area) is not deleted out from under it
+        List<String> references = ScenarioReferences.toEntity(scene, entityId.toString());
+        if (!references.isEmpty()) {
+            editorState.setStatusMessage("Cannot delete '" + entity.getName() + "': " + String.join("; ", references), true);
+            return false;
+        }
 
         // Capture state on first execution
         this.deletedEntity = entity;

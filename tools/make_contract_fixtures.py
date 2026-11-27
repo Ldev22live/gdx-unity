@@ -79,6 +79,8 @@ def valley_scene():
         entity("Rock", (-200, 40, 200), [box((120.0, 80.0, 100.0), (0.50, 0.50, 0.48)),
                                         collider((120.0, 80.0, 100.0)), owner("Nature")]),
         entity("House Door Area", (600, 60, -380), [collider((200.0, 120.0, 120.0), trigger=True)]),
+        # Player 1's spawn: TD-108 requires a spawn to be an entity with a Spawn Point
+        entity("Start", (0, 0, 600), [component("SpawnPointComponent")]),
         entity("Hero", (0, 71, 600), [
             box((60.0, 140.0, 60.0), (0.30, 0.42, 0.62)),
             component("CharacterController3DComponent", radius=30.0, height=80.0, slopeLimitDegrees=45.0,
@@ -92,7 +94,7 @@ def valley_scene():
     scenario = {
         "version": 1,
         "players": [
-            {"id": uid("Player 1"), "name": "Player 1", "color": "#2f6fdf", "spawn": uid("Hero")},
+            {"id": uid("Player 1"), "name": "Player 1", "color": "#2f6fdf", "spawn": uid("Start")},
             {"id": uid("Player 2"), "name": "Player 2", "color": "#d94a3a"},
             {"id": uid("Nature"), "name": "Nature", "color": "#8a8a7a", "neutral": True},
         ],

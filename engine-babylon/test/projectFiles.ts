@@ -67,7 +67,11 @@ export function matchOrWrite(produced: string, committed: string): void {
   expect(existsSync(committed), `${committed} is missing: run with UPDATE_INTEROP=1`).toBe(true);
   const expected = readProject(committed);
   expect([...files.keys()], "the step's files changed: run with UPDATE_INTEROP=1").toEqual([...expected.keys()]);
-  const differing = [...files].filter(([path, bytes]) => bytes.toString("utf8") !== expected.get(path)!.toString("utf8").replace(/\r\n/g, "\n"))
+  const differing = [...files].filter(([path, bytes]) => {
+    const recorded = expected.get(path)!;
+    if (/\.(glb|png)$/i.test(path)) return !bytes.equals(recorded);
+    return bytes.toString("utf8").replace(/\r\n/g, "\n") !== recorded.toString("utf8").replace(/\r\n/g, "\n");
+  })
     .map(([path]) => path);
   expect(differing, "the step now writes different bytes: run with UPDATE_INTEROP=1 and review").toEqual([]);
 }

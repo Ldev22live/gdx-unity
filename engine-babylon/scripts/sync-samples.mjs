@@ -201,3 +201,30 @@ function copyThirdParty(from, to, relative) {
 }
 if (existsSync(thirdPartySource)) copyThirdParty(thirdPartySource, thirdPartyTarget, "thirdparty");
 console.log(`Copied ${thirdPartyCount} downloaded model files to ${thirdPartyTarget}`);
+
+// The desktop's palette prefabs (../assets/prefabs/{level,buildings,characters}: .prefab and their .png thumbnails) go to
+// public/prefabs with an index.json, so the web World shell's Objects, Buildings and Characters palettes place the same prefabs
+// as the desktop's (roadmap A13). Their models are the downloaded packs' and the desktop's models, copied above.
+const prefabSource = join(root, "..", "assets", "prefabs");
+const prefabTarget = join(root, "public", "prefabs");
+rmSync(prefabTarget, { recursive: true, force: true });
+const prefabIndex = [];
+for (const folder of ["level", "buildings", "characters"]) {
+  const from = join(prefabSource, folder);
+  if (!existsSync(from)) continue;
+  mkdirSync(join(prefabTarget, folder), { recursive: true });
+  for (const name of readdirSync(from).filter((file) => file.endsWith(".prefab")).sort()) {
+    copyFileSync(join(from, name), join(prefabTarget, folder, name));
+    const png = name.replace(/\.prefab$/, ".png");
+    const hasThumbnail = existsSync(join(from, png));
+    if (hasThumbnail) copyFileSync(join(from, png), join(prefabTarget, folder, png));
+    const prefab = JSON.parse(readFileSync(join(from, name), "utf8"));
+    prefabIndex.push({
+      path: `prefabs/${folder}/${name}`,
+      name: prefab.name ?? name.replace(/\.prefab$/, ""),
+      thumbnail: hasThumbnail ? `prefabs/${folder}/${png}` : null,
+    });
+  }
+}
+writeFileSync(join(prefabTarget, "index.json"), JSON.stringify(prefabIndex, null, 2));
+console.log(`Copied ${prefabIndex.length} palette prefabs to ${prefabTarget}`);

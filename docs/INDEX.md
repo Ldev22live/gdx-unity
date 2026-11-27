@@ -187,3 +187,21 @@ Status words follow AGENTS.md §9. Rows were not re-verified by M0.5 except wher
 - [OpenGameArt inventory and integration](assets/opengameart-inventory.md)
 - [Additional 3D and 2.5D sample art](assets/additional-sample-art.md)
 - [CC BY 3.0 pack integration and game credits](reports/cc-by-sample-art.md)
+
+Alpha A04 [players and ownership](reports/alpha-a04-players.md): TD-108 approved 2026-11-26; implemented and integrated in the World layout's Players category; the human ownership walkthrough and the A03 walkthrough are pending.
+
+Alpha A05 [rules and objectives](reports/alpha-a05-rules-objectives.md): TD-109 approved 2026-11-26; implemented and integrated (editor Play, game runtime, Rules drawer); the human walkthrough is pending.
+
+Alpha A06 [Customize and return to World](reports/alpha-a06-customize.md): audit complete; unsaved mesh edits are kept on leaving 3D Modeling; the human edit loop is pending.
+
+Alpha A07 [Play/Stop and scenario runtime](reports/alpha-a07-play-stop.md): automated audit complete; human keyboard play of the seven pairs pending.
+
+[Migration to UrConnex: asset storage report](reports/migration-to-urconnex-report.md) (2026-11-26): measurements and a proposal; owner decisions needed.
+
+Alpha A15 [cross-platform journey](reports/alpha-a15-cross-platform-journey.md): desktop and web exchange terrain, ownership, rule and model edits in the journey fixtures. Human walkthroughs remain pending.
+
+Alpha A13 [web World shell](reports/alpha-a13-web-world-shell.md): implemented in `engine-babylon`; not yet seen in a browser.
+
+Alpha A14 [web authoring and Play](reports/alpha-a14-web-authoring.md): in progress; scenario rules run in web Play, matching the desktop.
+
+Daily roadmap progress: [docs/progress](progress/) (`progress-reports-dd-mm-yyyy.md`); latest [27-11-2026](progress/progress-reports-27-11-2026.md).

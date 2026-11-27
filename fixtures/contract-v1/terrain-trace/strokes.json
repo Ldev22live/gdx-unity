@@ -1,0 +1,23 @@
+{
+  "description": "Roadmap A14: one sequence of brush strokes on a flat 33 x 33 terrain (cell 50), every brush type. The desktop's TerrainStroke (engine-terrain TerrainTraceTest) writes the result with TerrainIO.toJson as expected.terrain (GDXUNITY_UPDATE_TRACE=1); the web's terrainStroke.ts (engine-babylon terrainTrace.test.ts) must give the same terrain: heights within toleranceHeight, layer weights within 1, holes exactly.",
+  "resolution": 33,
+  "cellSize": 50,
+  "toleranceHeight": 0.05,
+  "strokes": [
+    {"type": "RAISE", "radius": 300, "strength": 1, "path": [[0, 0], [0, 0]]},
+    {"type": "RAISE", "radius": 250, "strength": 0.5, "path": [[-400, -300], [100, -300], [300, 100]]},
+    {"type": "LOWER", "radius": 200, "strength": 0.8, "inverted": true, "path": [[500, 500]]},
+    {"type": "SMOOTH", "radius": 300, "strength": 0.7, "path": [[-200, -200], [200, 200]]},
+    {"type": "NOISE", "radius": 400, "strength": 0.6, "path": [[-500, 400], [0, 400]]},
+    {"type": "FLATTEN", "radius": 200, "strength": 0.9, "path": [[0, 0], [150, 0]]},
+    {"type": "PAINT", "radius": 300, "strength": 0.5, "surface": 2, "path": [[-300, 300], [300, 300]]},
+    {"type": "PAINT", "radius": 200, "strength": 0.5, "surface": 1, "path": [[0, 300]]},
+    {"type": "PAINT", "radius": 150, "strength": 0.4, "inverted": true, "surface": 1, "path": [[200, 300]]},
+    {"type": "HOLE", "radius": 120, "strength": 0.5, "path": [[-600, -600]]},
+    {"type": "RAISE", "radius": 150, "strength": 1, "path": [[600, -500], [600, -500]]},
+    {"type": "RAISE", "radius": 150, "strength": 1, "path": [[600, -500]]},
+    {"type": "RAISE", "radius": 150, "strength": 1, "path": [[600, -500]]},
+    {"type": "ERODE", "radius": 250, "strength": 1, "path": [[600, -500]]},
+    {"type": "RAMP", "radius": 120, "strength": 0.5, "path": [[-700, 0], [-300, 0], [-100, 0]]}
+  ]
+}

@@ -11,7 +11,7 @@
         "id": "3736541b-76cb-5a7a-9968-81d728325d4a",
         "name": "Player 1",
         "color": "#2f6fdf",
-        "spawn": "c3fe5fb5-3188-5dc0-85d1-f05ce2e04e03"
+        "spawn": "2d3e2047-441f-5e5d-8ba2-0dc9592f6971"
       },
       {
         "id": "e8081b58-2c00-59f4-ad3d-af3ba7728e3f",
@@ -440,6 +440,37 @@
             "offsetZ": 0.0,
             "trigger": true
           }
+        }
+      ]
+    },
+    {
+      "id": "2d3e2047-441f-5e5d-8ba2-0dc9592f6971",
+      "name": "Start",
+      "active": true,
+      "parentId": null,
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 600.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      },
+      "components": [
+        {
+          "type": "SpawnPointComponent",
+          "enabled": true,
+          "data": {}
         }
       ]
     },

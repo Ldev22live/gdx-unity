@@ -20,3 +20,8 @@ public/materials/
 public/textures/
 # Copied from ../assets/thirdparty (the packs' Models folders) by the same script (roadmap M2b.7)
 public/thirdparty/
+# Copied from ../assets/prefabs (the palette folders) by the same script (roadmap A13)
+public/prefabs/
+# Playwright output (roadmap A14 browser tests)
+test-results/
+playwright-report/

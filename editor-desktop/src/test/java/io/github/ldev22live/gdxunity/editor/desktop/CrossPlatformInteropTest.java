@@ -4,6 +4,9 @@ import com.badlogic.gdx.utils.GdxNativesLoader;
 import io.github.ldev22live.gdxunity.editor.core.project.contract.AssetInventory;
 import io.github.ldev22live.gdxunity.editor.core.project.contract.CapabilityPolicy;
 import io.github.ldev22live.gdxunity.editor.core.project.contract.LocalProjectStore;
+import io.github.ldev22live.gdxunity.editor.core.EditorState;
+import io.github.ldev22live.gdxunity.editor.core.scenario.RulesEditor;
+import io.github.ldev22live.gdxunity.editor.core.scenario.ScenarioEditor;
 import io.github.ldev22live.gdxunity.editor.core.project.contract.ProjectManifest;
 import io.github.ldev22live.gdxunity.editor.core.project.contract.ProjectStore;
 import io.github.ldev22live.gdxunity.engine.desktop.GameComponentSerializers;
@@ -131,9 +134,19 @@ class CrossPlatformInteropTest {
         // Advanced desktop edits: the tower changes owner, the sun is brighter
         scene.findEntityByName("Tower").getComponent(OwnerComponent.class).setPlayerId(house.getComponent(OwnerComponent.class).getPlayerId());
         scene.findEntityByName("Sun").getComponent(DirectionalLightComponent.class).setIntensity(1.5f);
+        // Scenario edits through the Players and Rules editors (A04, A05; roadmap A15): Player 2 renamed, the welcome comes later
+        EditorState editorState = new EditorState(serializer);
+        editorState.setActiveScene(scene);
+        ScenarioEditor players = new ScenarioEditor(editorState);
+        String player2 = players.current().orElseThrow().players().get(1).id();
+        assertTrue(players.renamePlayer(player2, "Raiders"), editorState.getStatusMessage());
+        RulesEditor rules = new RulesEditor(editorState);
+        String welcome = rules.rules().get(0).getString("id");
+        assertTrue(rules.setTimer(welcome, 3f), editorState.getStatusMessage());
+        assertEquals(List.of(), ScenarioValidator.validate(scene), "the scenario is still valid after the desktop's edits");
         String saved = serializer.toJson(scene);
         List<String> changed = diff.compare(webText, saved).stream().map(SceneSemanticDiff.Difference::path).toList();
-        assertEquals(2, changed.size(), changed.toString());
+        assertEquals(4, changed.size(), changed.toString());
         assertInstanceOf(ProjectStore.SaveResult.Saved.class, store.save(opened.revision(), Map.of(SCENE, saved), Set.of(), false));
 
         matchOrWrite(project, INTEROP.resolve("3-desktop"));

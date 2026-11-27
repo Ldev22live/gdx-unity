@@ -45,19 +45,20 @@ A00–A10 retain previous desktop acceptance scope; A11–A20 add mandatory shar
 | A00 | Baseline protection | none | audit done 2026-11-25 ([report](reports/alpha-a00-baseline.md)); checkpoint approval and a fresh full test run outstanding |
 | A01 | Screenshot-led desktop/web UX audit | A00 | audit done 2026-11-25 ([report](reports/alpha-a01-ux-audit.md), [proposals](reports/alpha-a02-a11-a13-proposals.md)); reference confirmed; gap list awaiting owner sign-off |
 | A02–A03 | World shell, terrain and placement | A01, A11 contract | A02: TD-107 **approved** 2026-11-25; World layout implemented and integrated (default; classic selectable), [report](reports/alpha-a02-world-shell.md); **owner walkthrough pending**. A03: in progress — audit, copy/paste, placement ghost preview, [report](reports/alpha-a03-map-terrain-placement.md); horizontal palette row visible in desktop captures; Map size presets and view lighting integrated; hands-on walkthrough pending |
-| A04–A05 | Players, triggers, objectives | A03, A11 | open |
-| A06–A08 | Customize, Play, editable templates | A02–A05 | partial |
+| A04–A05 | Players, triggers, objectives | A03, A11 | A04: TD-108 approved 2026-11-26; players, bounds, spawn, ownership and placement Owner **implemented and integrated** in the World layout's Players category ([report](reports/alpha-a04-players.md)); human ownership walkthrough and A03 walkthrough pending. A05: TD-109 **approved** 2026-11-26; rules runtime (editor Play and game runtime), Rules drawer and HUD **implemented and integrated** ([report](reports/alpha-a05-rules-objectives.md)); human reach-target/timed-message walkthrough pending |
+| A06–A08 | Customize, Play, editable templates | A02–A05 | A06: [audit](reports/alpha-a06-customize.md) 2026-11-26 — covered by M1b.5/M1b.7/M3c.4/M7a/MC.2/MC.3; unsaved mesh edits no longer dropped on leaving 3D Modeling (MeshDraftKeeper); human edit loop pending. A07: [audit](reports/alpha-a07-play-stop.md) 2026-11-26 — seven pairs and Stop restoration covered by tests, repeated 3D Play/Stop with rules added; human keyboard play pending. A08 partial |
 | A09–A10 | Desktop package and human acceptance | A08 | pending |
 | A11 | Shared architecture/schema TD | A01 | done 2026-11-25: TD-106 approved in principle ([report](reports/alpha-a11-shared-contract.md)) |
 | A12 | Cross-engine project adapters | A11 | **met in automated tests 2026-11-25** ([final report](reports/alpha-a12-final-verification-report.md)); TD-106 approved in principle |
-| A13 | Babylon World editor UX | A01,A11 | audit/reuse |
-| A14 | Web authoring and Play | A12,A13,A04–05 | open |
-| A15 | Cross-platform round trip | A12,A14,A06 | open |
+| A13 | Babylon World editor UX | A01,A11 | implemented 2026-11-26 in `engine-babylon` ([report](reports/alpha-a13-web-world-shell.md)): World shell default (`?layout=classic` kept), desktop palette prefabs placed as linked instances; not seen in a browser; human gate pending |
+| A14 | Web authoring and Play | A12,A13,A04–05 | in progress 2026-11-26 ([report](reports/alpha-a14-web-authoring.md)): scenario rules run in web Play (shared trace with the desktop); web profiles Action RPG 3D + Platformer 2.5D (TD-110) ported and matched to the desktop by a shared movement trace; players, ownership and rule editing in the browser (desktop validates and plays a web-made scenario); terrain, New Ground, Play's fixes and ground check in the browser; the browser-only journey passes in real Chromium (TD-111 Playwright); **implemented and integrated, not validated by a person** |
+| A15 | Cross-platform round trip | A12,A14,A06 | In progress. The desktop-first journey exercises a terrain stroke, object ownership, a scenario rule and a unique house model. See the [test and acceptance evidence](reports/alpha-a15-cross-platform-journey.md). |
 | A16 | UrConnex project integration | A11,A15 | open |
 | A17 | GPU jobs and operational safety | A16 | open |
 | A18 | Shared AI command contract and gateway | A11,A16,A17 | open |
 | A19 | Bounded AI-assisted game creation | A18,A14,A07 | open |
 | A20 | Unified human acceptance and release | A09–A10,A15–A19 | blocked |
+| A21 | Asset storage in the UrConnex database, loaded through urconnex-api | A16, urconnex-api ready | added 2026-11-26 by the owner, after A20; storage backend decision (object storage vs database bytes) **paused until urconnex-api is ready** ([report](reports/migration-to-urconnex-report.md)) |
 
 ### A00 — Protect the baseline (R0, R9)
 
@@ -203,6 +204,23 @@ Capture dated screenshots, actual tester observations, test project paths, expor
 - Human tester executes desktop A10 journeys, web A14 journey, A15 bidirectional round trip, A16 account/project/publish and A19 AI journey. Capture dated screenshots against owner reference, observed usability, actual build/version, artifact hashes and logs. Verify desktop offline and web cloud failure recovery.
 - Fresh Gradle and Babylon/Next relevant tests, backend/gateway tests, cross-engine fixtures, security/tenant tests, performance measurements on target laptop/browser/VPS. Resolve Alpha-critical failures; document noncritical exceptions with explicit owner approval. No release on mock-only AI or screenshot-only UX unless owner explicitly changes scope here.
 - Package desktop Windows first, deploy web to approved isolated staging first, validate rollback and backups. Production rollout/tag/publication separately authorized. Proposed 0.1.0-alpha.1. No release until owner signs both platform acceptance and shared integration gates.
+
+### A21 — Asset storage in the UrConnex database (added 2026-11-26, owner)
+
+- Purpose: move the engine's asset library out of the working copy into UrConnex storage, loaded through urconnex-api, to reduce local disk use. Measurements and design: [migration-to-urconnex-report.md](reports/migration-to-urconnex-report.md).
+- Paused decision: whether file bytes live in PostgreSQL itself or in object storage behind the API. The owner paused it until urconnex-api is ready. Nothing in A21 starts before then.
+- Scope once unpaused:
+  - a TD for the storage decision and the API contract (written in the UrConnex repository);
+  - content-addressed assets by SHA-256 (the TD-106 manifest);
+  - an engine `RemoteAssetSource` with a hash-verified offline cache, and a UrConnex `ProjectStore`;
+  - the editor's direct file access moved behind them;
+  - a committed test asset subset for the 90 test classes that read `assets/`;
+  - a dry-run upload tool with licence records;
+  - removal of the uploaded library from the working tree, keeping a bundled starter set.
+- Git history rewriting stays a separate owner decision.
+- Tests: offline start with cached assets, failed network, hash mismatch refused, missing asset reported (never substituted), cross-tenant denial, licence and attribution kept through export, editor save and revision conflict.
+- Done: a project opens, plays and saves with assets served by urconnex-api, and still opens offline from the cache; the working copy no longer carries the uploaded library.
+- Already done under this heading (2026-11-26, owner-approved): about 2.35 GB of regenerable build output deleted (`build/cc-by` and `build/oga` export, template and audit copies; `editor-desktop/build/package`). No source or tracked file was affected.
 
 ## 7. Cross-phase rules and post-Alpha
 

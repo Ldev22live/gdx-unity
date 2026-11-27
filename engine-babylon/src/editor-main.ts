@@ -8,6 +8,8 @@ import { createEngine, ScenePlayer } from "./runtime/ScenePlayer";
 import { createWebSceneMusic } from "./audio/webMusic";
 import { createDefaultRegistry } from "./scripts/registry";
 import { parseSceneFile, type SceneFile } from "./scene/types";
+import { WorldLayout } from "./editor/worldLayout";
+import { layoutStyle } from "./editor/worldShell";
 
 const canvas = byId<HTMLCanvasElement>("view");
 const player = new ScenePlayer(createEngine(canvas), canvas, byId("hud"), createDefaultRegistry(), undefined, createWebSceneMusic());
@@ -38,6 +40,10 @@ initialScene()
     const editor = new EditorApp(player, scene);
     (window as unknown as { editor: EditorApp }).editor = editor;
     startTabs(editor);
+    // The World shell (roadmap A13) is the default; ?layout=classic keeps the earlier page
+    if (layoutStyle(window.location.search) === "world") {
+      (window as unknown as { world: WorldLayout }).world = new WorldLayout(editor);
+    }
   });
 
 /** The tabs share the grid row of the scene workspace; only one of them shows. */

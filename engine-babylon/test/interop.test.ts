@@ -70,14 +70,19 @@ describe("cross-platform round trips (web half)", () => {
     expect(entity(model, "Hero").components.map((c) => c.type)).toContain("ExampleFutureComponent");
     const file = JSON.parse(text) as Record<string, unknown>;
     expect(file["scenario"]).toBeDefined();
+    // The desktop's scenario edits through its Players and Rules editors (A04, A05; roadmap A15) arrive intact
+    const scenario = file["scenario"] as { players: { name: string }[]; rules: { name: string; when: { seconds?: number } }[] };
+    expect(scenario.players[1]!.name).toBe("Raiders");
+    expect(scenario.rules[0]!.name).toBe("Welcome");
+    expect(scenario.rules[0]!.when.seconds).toBe(3);
     expect(file["exampleFutureSetting"]).toEqual({ kept: true });
     expect(compareScenes(text, model.serialize())).toEqual([]);
-    // Against the original fixture, only the two clients' four edits differ (and the desktop's documented normalizations)
+    // Against the original fixture, only the two clients' six edits differ (and the desktop's documented normalizations)
     const fixture = readFileSync(join(INTEROP_DIR, "..", "valley-project", SCENE), "utf8");
     expect(compareScenes(fixture, text, DESKTOP_NORMALIZATIONS).map((d) => d.path.replace(/\[[0-9a-f-]{36} /, "[")).sort()).toEqual([
       "entities[House].transform.position.x", "entities[Rock].name",
       "entities[Sun].components[DirectionalLightComponent#0].data.intensity",
-      "entities[Tower].components[OwnerComponent#0].data.player"]);
+      "entities[Tower].components[OwnerComponent#0].data.player", "scenario.players[1].name", "scenario.rules[0].when.seconds"]);
   });
 
   it("step r1: the web creates a project of its own", async () => {

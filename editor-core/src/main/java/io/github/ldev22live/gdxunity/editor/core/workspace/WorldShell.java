@@ -55,12 +55,10 @@ public final class WorldShell {
 
     /** The Map category: the level itself (new level, size, lighting), the existing level actions. */
     public static final Category MAP = new Category("map", "Map", null, null);
-    /** Player slots and ownership: their editor is roadmap A04 (the data exists since A12, TD-106). */
-    public static final Category PLAYERS = new Category("players", "Players", null,
-        "Player slots and object ownership come with milestone A04. Owned objects in this scene are kept as they are.");
-    /** Triggers and objectives: their editor is roadmap A05. */
-    public static final Category RULES = new Category("rules", "Rules", null,
-        "Triggers and objectives come with milestone A05. Visual scripts (Customize, Logic) work today.");
+    /** Player slots, map bounds and object ownership (roadmap A04, TD-108). */
+    public static final Category PLAYERS = new Category("players", "Players", null, null);
+    /** Triggers and objectives (roadmap A05, TD-109); advanced logic stays in visual scripts (Customize, Logic). */
+    public static final Category RULES = new Category("rules", "Rules", null, null);
 
     /** Header height, in UI units (the reference's thin header). */
     public static final float HEADER_HEIGHT = 36f;

@@ -14,6 +14,7 @@ import io.github.ldev22live.gdxunity.editor.core.command.ModifyComponentProperty
 import io.github.ldev22live.gdxunity.editor.core.command.SceneSnapshotCommand;
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabDocument;
 import io.github.ldev22live.gdxunity.editor.core.prefab.PrefabService;
+import io.github.ldev22live.gdxunity.editor.core.scenario.ScenarioSetup;
 import io.github.ldev22live.gdxunity.engine.core.asset.AssetReference;
 import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 import io.github.ldev22live.gdxunity.engine.render.components.TerrainComponent;
@@ -26,6 +27,7 @@ import io.github.ldev22live.gdxunity.engine.scene.physics3d.TerrainCollider3DCom
 import io.github.ldev22live.gdxunity.engine.scene.play.PlayerComponent;
 import io.github.ldev22live.gdxunity.engine.scene.play.SpawnPointComponent;
 import io.github.ldev22live.gdxunity.engine.scene.prefab.PrefabInstanceComponent;
+import io.github.ldev22live.gdxunity.engine.scene.scenario.OwnerComponent;
 import io.github.ldev22live.gdxunity.engine.terrain.Surface;
 import io.github.ldev22live.gdxunity.engine.terrain.Terrain;
 import io.github.ldev22live.gdxunity.engine.terrain.TerrainBrush;
@@ -176,6 +178,12 @@ public final class LevelSession {
     private String rolesReadFor;
     private boolean rolesPlayer;
     private boolean rolesSpawn;
+    /** The scenario player that owns what is placed next (TD-108); null for Unowned, the default. */
+    private String placementOwner;
+    /** The scenario text and owner {@link #ownerRefusal} last checked, so hovering does not reparse the scenario every frame. */
+    private String ownerCheckedScenario;
+    private String ownerCheckedId;
+    private String ownerCheckedRefusal;
 
     /**
      * Where the Place tool would put the chosen object if the mouse were clicked now, and why it would be refused (roadmap A03).
@@ -334,6 +342,43 @@ public final class LevelSession {
         return preview;
     }
 
+    /** The scenario player id that owns objects placed next (TD-108), or null for Unowned (the default). */
+    public String getPlacementOwner() {
+        return placementOwner;
+    }
+
+    /**
+     * Chooses who owns objects placed from now on: a scenario player's id, or null for Unowned. It applies to new placements only;
+     * objects already in the scene keep their owner. A player removed afterwards makes placement refuse until another is chosen.
+     *
+     * @throws IllegalArgumentException when {@code playerId} is not a UUID
+     */
+    public void setPlacementOwner(String playerId) {
+        if (playerId != null) {
+            new OwnerComponent(playerId); // validates the id the same way the saved component does
+        }
+        placementOwner = playerId;
+    }
+
+    /** Why the chosen owner cannot own a new placement (it is not a player of the scenario now), or null when it can. */
+    String ownerRefusal() {
+        if (placementOwner == null) {
+            return null;
+        }
+        Scene scene = editorState.getActiveScene();
+        String scenario = scene == null ? null : scene.getScenarioJson();
+        // Identity check on purpose: the scene keeps the same text object until the scenario changes
+        if (scenario != ownerCheckedScenario || !placementOwner.equals(ownerCheckedId)) {
+            ownerCheckedScenario = scenario;
+            ownerCheckedId = placementOwner;
+            ScenarioSetup setup = scenario == null ? null : ScenarioSetup.parse(scenario);
+            boolean known = setup != null && !setup.isReadOnly() && setup.player(placementOwner).isPresent();
+            ownerCheckedRefusal = known ? null
+                : "The owner chosen for placing is not a player of this scene any more: choose another in Players";
+        }
+        return ownerCheckedRefusal;
+    }
+
     /**
      * Why the Place tool would place nothing now, or null when it would place the chosen object. The same rules as
      * {@link #placeObject}: an object must be chosen, there must be ground, and a scene has one player and one spawn point.
@@ -341,6 +386,10 @@ public final class LevelSession {
     public String placementRefusal() {
         if (objectPath.isEmpty()) {
             return "Choose an object to place first";
+        }
+        String owner = ownerRefusal();
+        if (owner != null) {
+            return owner;
         }
         if (editorState.getPrefabService() == null || findGround() == null) {
             return "There is no ground yet: press New Level";
@@ -861,8 +910,17 @@ public final class LevelSession {
         if (dot > 0) {
             name = name.substring(0, dot);
         }
-        CreateEntityCommand command = new CreateEntityCommand(editorState, name, position,
-            List.<Component>of(new ModelComponent(modelPath)));
+        String ownerProblem = ownerRefusal();
+        if (ownerProblem != null) {
+            editorState.setStatusMessage(ownerProblem, true);
+            return null;
+        }
+        List<Component> components = new ArrayList<>();
+        components.add(new ModelComponent(modelPath));
+        if (placementOwner != null) {
+            components.add(new OwnerComponent(placementOwner));
+        }
+        CreateEntityCommand command = new CreateEntityCommand(editorState, name, position, components);
         if (!editorState.executeCommand(command)) {
             return null;
         }
@@ -902,6 +960,11 @@ public final class LevelSession {
         }
         if (findGround() == null || findTerrain() == null || editorState.getPrefabService() == null) {
             editorState.setStatusMessage("There is no ground yet: press New Level", true);
+            return false;
+        }
+        String ownerProblem = erase ? null : ownerRefusal();
+        if (ownerProblem != null) {
+            editorState.setStatusMessage(ownerProblem, true);
             return false;
         }
         scatterRecording = SceneSnapshotCommand.begin(editorState);
@@ -972,7 +1035,10 @@ public final class LevelSession {
         for (ScatterPlanner.Placement placement : plan.placements()) {
             Vector3 world = new Vector3(placement.x(), placement.y(), placement.z()).mul(toWorld);
             try {
-                prefabs.placeUnrecorded(prefab, world, placement.yawDegrees(), placement.scale());
+                Entity copy = prefabs.placeUnrecorded(prefab, world, placement.yawDegrees(), placement.scale());
+                if (placementOwner != null) {
+                    copy.addComponent(new OwnerComponent(placementOwner));
+                }
                 placed++;
             } catch (IOException | RuntimeException e) {
                 editorState.setStatusMessage("Cannot scatter " + objectLabel(objectPath) + ": " + e.getMessage(), true);
@@ -1095,7 +1161,7 @@ public final class LevelSession {
         }
         if (objectPath.startsWith(BUILDING_FOLDER + "/")) {
             // A building stands square at its own size, never turned or scaled at random, and is selected to be moved or turned next
-            Entity building = prefabs.instantiate(new AssetReference(objectPath), world, 0f, 1f, true);
+            Entity building = instantiateOwned(prefabs, new AssetReference(objectPath), world, 0f, 1f, true);
             if (building != null) {
                 editorState.setStatusMessage("Placed " + objectLabel(objectPath) + ". Move or turn it with the tools.", false);
             }
@@ -1103,7 +1169,53 @@ public final class LevelSession {
         }
         float yaw = random.nextFloat() * 360f;
         float scale = 1f + (random.nextFloat() * 2f - 1f) * SCALE_JITTER;
-        return prefabs.instantiate(new AssetReference(objectPath), world, yaw, scale, false);
+        return instantiateOwned(prefabs, new AssetReference(objectPath), world, yaw, scale, false);
+    }
+
+    /**
+     * Places a prefab instance as {@link PrefabService#instantiate(AssetReference, Vector3, float, float, boolean)} does and, when an
+     * owner is chosen, gives it that owner in the same undo step (TD-108).
+     */
+    private Entity instantiateOwned(PrefabService prefabs, AssetReference prefab, Vector3 world, float yaw, float scale,
+                                    boolean select) {
+        String owner = placementOwner;
+        if (owner == null) {
+            return prefabs.instantiate(prefab, world, yaw, scale, select);
+        }
+        Entity[] created = new Entity[1];
+        EditorCommand place = prefabs.instantiateCommand(prefab, world, yaw, scale, created);
+        if (place == null) {
+            return null;
+        }
+        OwnerComponent component = new OwnerComponent(owner);
+        EditorCommand own = new EditorCommand() {
+            @Override
+            public boolean execute() {
+                created[0].addComponent(component);
+                editorState.notifyHierarchyModified();
+                return true;
+            }
+
+            @Override
+            public boolean undo() {
+                created[0].removeComponent(component);
+                editorState.notifyHierarchyModified();
+                return true;
+            }
+
+            @Override
+            public String getDescription() {
+                return "Set Owner";
+            }
+        };
+        if (!editorState.executeCommand(new CompoundCommand(place.getDescription() + " (owned)", List.of(place, own)))) {
+            return null;
+        }
+        if (select) {
+            editorState.setSelectedEntity(created[0]);
+        }
+        editorState.setStatusMessage("Placed " + prefab.getFileName(), false);
+        return created[0];
     }
 
     /**
@@ -1128,7 +1240,7 @@ public final class LevelSession {
         if (character != null) {
             world.y += character.getFloat("height", 0f) / 2f + character.getFloat("radius", 0f) + CHARACTER_CLEARANCE;
         }
-        Entity placed = prefabs.instantiate(new AssetReference(objectPath), world, 0f, 1f, true);
+        Entity placed = instantiateOwned(prefabs, new AssetReference(objectPath), world, 0f, 1f, true);
         if (placed != null) {
             editorState.setStatusMessage("Placed " + name + ". Move or turn it with the tools; in Play the player starts at the spawn "
                 + "point.", false);

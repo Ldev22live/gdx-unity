@@ -60,6 +60,11 @@ public final class AssetInventory {
      */
     public static List<ProjectManifest.AssetEntry> inventory(Path projectRoot, List<String> scenePaths, Map<String, String> licences)
         throws IOException {
+        return inventory(projectRoot, scenePaths, licences, Map.of());
+    }
+
+    static List<ProjectManifest.AssetEntry> inventory(Path projectRoot, List<String> scenePaths, Map<String, String> licences,
+                                                      Map<String, Path> stagedScenes) throws IOException {
         Objects.requireNonNull(licences, "licences cannot be null");
         Map<String, ProjectManifest.AssetEntry> found = new TreeMap<>();
         Deque<String> queue = new ArrayDeque<>(scenePaths);
@@ -68,18 +73,20 @@ public final class AssetInventory {
             if (found.containsKey(path)) {
                 continue;
             }
-            Path file = ProjectPaths.resolve(projectRoot, path);
+            Path file = stagedScenes.getOrDefault(path, ProjectPaths.resolve(projectRoot, path));
             if (!Files.isRegularFile(file)) {
                 continue;
             }
-            found.put(path, new ProjectManifest.AssetEntry(path, kindOf(path), Files.size(file), sha256(file), licences.get(path)));
+            found.put(path, new ProjectManifest.AssetEntry(path, stagedScenes.containsKey(path) ? "scene" : kindOf(path), Files.size(file), sha256(file), licences.get(path)));
             String lower = path.toLowerCase(Locale.ROOT);
             if (lower.endsWith(".gltf")) {
                 String folder = path.contains("/") ? path.substring(0, path.lastIndexOf('/') + 1) : "";
                 for (String uri : strings(file, "uri")) {
-                    enqueue(projectRoot, folder + uri, queue);
+                    if (!uri.regionMatches(true, 0, "data:", 0, 5)) {
+                        enqueue(projectRoot, folder + uri, queue);
+                    }
                 }
-            } else if (lower.endsWith(".json") || lower.endsWith(".material") || lower.endsWith(".prefab") || lower.endsWith(".sprite")
+            } else if (stagedScenes.containsKey(path) || lower.endsWith(".json") || lower.endsWith(".material") || lower.endsWith(".prefab") || lower.endsWith(".sprite")
                 || lower.endsWith(".anim") || lower.endsWith(".graph") || lower.endsWith(".song")) {
                 for (String value : strings(file, null)) {
                     enqueue(projectRoot, value, queue);

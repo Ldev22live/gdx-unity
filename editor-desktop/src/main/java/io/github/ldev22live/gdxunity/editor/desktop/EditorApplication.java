@@ -2,8 +2,13 @@ package io.github.ldev22live.gdxunity.editor.desktop;
 
 import io.github.ldev22live.gdxunity.editor.desktop.ui.PropertiesPanel;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.world.MinimapView;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.world.PlayersPanel;
+import io.github.ldev22live.gdxunity.editor.desktop.ui.world.RulesPanel;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.world.SelectionCard;
 import io.github.ldev22live.gdxunity.editor.desktop.ui.world.WorldCategories;
+import io.github.ldev22live.gdxunity.editor.core.scenario.RulesEditor;
+import io.github.ldev22live.gdxunity.editor.sculpt.MeshDraftKeeper;
+import io.github.ldev22live.gdxunity.editor.core.scenario.ScenarioEditor;
 import io.github.ldev22live.gdxunity.editor.core.workspace.WorldShell;
 import io.github.ldev22live.gdxunity.editor.core.action.HeaderMenus;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
@@ -326,6 +331,8 @@ public class EditorApplication extends ApplicationAdapter {
     private boolean playOnFirstFrame;
     /** The drawers the testing aid {@link #DRAWER_VARIABLE} opens on the first frame, or null. */
     private String drawerAid;
+    /** The World layout's category bar, or null in the classic layout. */
+    private WorldCategories worldCategories;
 
     private final io.github.ldev22live.gdxunity.editor.core.agent.service.AssistantService assistantService;
     private io.github.ldev22live.gdxunity.editor.desktop.ui.AssistantPanel assistantPanel;
@@ -440,6 +447,12 @@ public class EditorApplication extends ApplicationAdapter {
     /** Terrain painting (TD-082): the project's terrains and the brush. */
     private final TerrainSession terrainSession;
     private final LevelSession levelSession;
+    /** Scenario players, bounds and ownership (TD-108, roadmap A04): the Players category and the selection card's Owner. */
+    private final ScenarioEditor scenarioEditor;
+    /** Scenario rules and objectives (TD-109, roadmap A05): the Rules category. */
+    private final RulesEditor rulesEditor;
+    /** 3D Modeling's mesh drafts, kept across Back to World and selection changes (roadmap A06). */
+    private final MeshDraftKeeper meshDrafts = new MeshDraftKeeper();
     /** Customize and Back to World, built on first use (M1b.5). */
     private WorkspaceNavigator workspaceNavigator;
     private final TimelineSession timelineSession;
@@ -495,6 +508,8 @@ public class EditorApplication extends ApplicationAdapter {
         this.terrainSession = new TerrainSession(new io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary(
             io.github.ldev22live.gdxunity.engine.core.asset.AssetSource.directory(assetRoot)));
         this.levelSession = new LevelSession(editorState, terrainSession, assetRoot);
+        this.scenarioEditor = new ScenarioEditor(editorState);
+        this.rulesEditor = new RulesEditor(editorState);
         this.musicSession = new MusicSession(assetRoot.toPath());
         // Testing aid: -Dgdxunity.openSong=music/demo.song opens that song and shows the Music tab at startup
         String openSong = System.getProperty(OPEN_SONG_PROPERTY);
@@ -530,6 +545,8 @@ public class EditorApplication extends ApplicationAdapter {
 
         this.playModeController = new PlayModeController(editorState);
         this.editorState.setPlayModeController(playModeController);
+        // Scenario rules write one Output Log line per rule that fires (TD-109)
+        playModeController.getScenarioStep().setLog(line -> editorLog.info("Rules", line));
         // Graphs run from their files: save the one being edited before play loads them
         playModeController.addExtension(new PlayModeController.Extension() {
             @Override
@@ -995,7 +1012,8 @@ public class EditorApplication extends ApplicationAdapter {
         // The tool strip lives in the toolbar now (as in the web editor); only the sculpt brush panel floats over the view
         overlayColumn.add(sculptBar).left().row();
         // What 3D Modeling can do for the selection, while 3D Modeling is on screen (roadmap M3c.4)
-        overlayColumn.add(new ModelingNoticePanel(skin, editorState, sculptSession::isSculptMode, projectRoot.toPath(), modelAssets::reload))
+        overlayColumn.add(new ModelingNoticePanel(skin, editorState, sculptSession::isSculptMode, projectRoot.toPath(), modelAssets::reload,
+            meshDrafts))
             .left().padTop(4).row();
         // The map tools' settings are in the Properties panel now (UI M3b), not over the map
         if (levelPaletteView != null) {
@@ -1411,8 +1429,10 @@ public class EditorApplication extends ApplicationAdapter {
         root.add(panelsArea).grow().row();
         if (world) {
             WorldCategories categories = new WorldCategories(skin, editorState, levelSession, () -> actionRegistry.execute(LevelActions.TOGGLE),
-                worldStrip, levelPalette, new EditorStatusBar(editorState, skin),
+                worldStrip, levelPalette, new PlayersPanel(skin, editorState, scenarioEditor, levelSession),
+                new RulesPanel(skin, editorState, rulesEditor, () -> new Vector3(viewCentre())), new EditorStatusBar(editorState, skin),
                 () -> currentWorkspace().showsWorldTools() && !editorState.isPlayModeActive() && !sculptSession.isSculptMode());
+            worldCategories = categories;
             root.add(categories.getBar()).growX().minWidth(0).height(WorldShell.CATEGORY_BAR_HEIGHT).row();
             root.add(categories.getPaletteRow()).growX().minWidth(0).row();
             GameGenreSelector footerGenre = new GameGenreSelector(editorState, genres, skin);
@@ -1474,7 +1494,7 @@ public class EditorApplication extends ApplicationAdapter {
         }
         minimapView = new MinimapView(editorState, this::viewCentre, this::centreViewOn);
         SelectionCard selectionCard = new SelectionCard(skin, editorState, actionRegistry,
-            entity -> CustomizeGateway.editSelected(entity, editorState.getSerializer().getRegistry()), this::runEditOffer);
+            entity -> CustomizeGateway.editSelected(entity, editorState.getSerializer().getRegistry()), this::runEditOffer, scenarioEditor);
         overlay.add(contextChip).top().left().pad(8f).expandX();
         overlay.add(cameraChip).top().right().pad(8f).row();
         overlay.add(minimapView).bottom().left().pad(8f).expandY();
@@ -1557,7 +1577,20 @@ public class EditorApplication extends ApplicationAdapter {
             String[] parts = name.trim().split(":", 2);
             String label = parts[0].trim();
             Optional<EditorDrawers.Drawer> drawer = EditorDrawers.ALL.stream().filter(d -> d.label().equalsIgnoreCase(label)).findFirst();
-            if (drawer.isEmpty()) {
+            if (label.equalsIgnoreCase(WorldShell.RULES.label())) {
+                if (worldCategories == null) {
+                    editorLog.error(LOG_SOURCE, DRAWER_VARIABLE + ": Rules is a category of the World layout only");
+                } else {
+                    worldCategories.openRules();
+                }
+            } else if (label.equalsIgnoreCase(WorldShell.PLAYERS.label())) {
+                // The World layout's Players category (A04); the classic layout has no category bar
+                if (worldCategories == null) {
+                    editorLog.error(LOG_SOURCE, DRAWER_VARIABLE + ": Players is a category of the World layout only");
+                } else {
+                    worldCategories.openPlayers();
+                }
+            } else if (drawer.isEmpty()) {
                 editorLog.error(LOG_SOURCE, DRAWER_VARIABLE + ": no drawer named " + label);
             } else if (drawer.get().section() != null) {
                 if (!levelSession.isActive()) {
@@ -2535,6 +2568,8 @@ public class EditorApplication extends ApplicationAdapter {
      */
     private void backToWorld() {
         navigator().backToWorld();
+        // Unsaved mesh edits are kept, neither saved nor dropped (A06): say so rather than leave them unseen
+        meshDrafts.backToWorldNotice().ifPresent(notice -> editorState.setStatusMessage(notice, false));
     }
 
     private WorkspaceNavigator navigator() {
@@ -2689,7 +2724,7 @@ public class EditorApplication extends ApplicationAdapter {
     /**
      * Testing aid (UI M3b): GDXUNITY_EDITOR_DRAWER=<label>[:<tool>][,<label>...] opens those drawers on the first frame, by their tab
      * names (Terrain, Objects, Buildings, Characters, Assets, Layers, Scripts, AI Assistant), a map drawer with that level tool in
-     * hand (Terrain:Paint); an unknown name is an error in the Output Log.
+     * hand (Terrain:Paint), or the World layout's Players category (A04); an unknown name is an error in the Output Log.
      */
     private static final String DRAWER_VARIABLE = "GDXUNITY_EDITOR_DRAWER";
     private static final String SHOW_CREATOR_VARIABLE = "GDXUNITY_EDITOR_CREATOR";

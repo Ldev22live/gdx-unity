@@ -1,0 +1,1258 @@
+{
+  "schemaVersion": 1,
+  "name": "Web Placed",
+  "active": true,
+  "entities": [
+    {
+      "id": "e8d1b8f8-e68f-37db-b9f0-f4950a65bd6b",
+      "parentId": null,
+      "name": "CC0 Oak Tree",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -200,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/level/CC0 Oak Tree.prefab",
+            "sourceId": "bf963160-5041-534c-8e69-1903be621dc1",
+            "root": true,
+            "overrides": [],
+            "knownSourceIds": [
+              "bf963160-5041-534c-8e69-1903be621dc1",
+              "51eeac6a-4ff1-59a0-8fde-a5f6ae0219e7"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "13c093bb-4469-3305-8081-a69da0b1a4f9",
+      "parentId": "e8d1b8f8-e68f-37db-b9f0-f4950a65bd6b",
+      "name": "Oak (Kenney Nature Kit)",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 5,
+          "y": 5,
+          "z": 5
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/nature-kit/Models/GLTF format/tree_oak.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "CapsuleCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "radius": 11,
+            "height": 28,
+            "offsetX": 0,
+            "offsetY": 20,
+            "offsetZ": 0,
+            "trigger": false
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/level/CC0 Oak Tree.prefab",
+            "sourceId": "51eeac6a-4ff1-59a0-8fde-a5f6ae0219e7",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "parentId": null,
+      "name": "CC0 House",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 400,
+          "y": 0,
+          "z": -300
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+            "root": true,
+            "overrides": [],
+            "knownSourceIds": [
+              "5557fbf4-42e0-5180-9b46-65b9e6736fdc",
+              "0180d6e8-f539-5ea9-83df-38df2df372e2",
+              "1c35953f-c36c-526d-87d7-b2b7ff161c2e",
+              "22fa87a5-b09d-54e0-b5c3-f9099096e547",
+              "051cc15e-347e-570c-a415-0ddd6a8e6538",
+              "baef2a04-18d7-5ea8-bf35-b5a6f1f1a826",
+              "2b98ab8e-fa0f-5d10-b472-551ead4cbb3f",
+              "f220d0b0-a6cf-599b-8174-b652b48b0d75",
+              "4cbe99b4-a1a8-5629-88b8-f8b0ae932037",
+              "58262d0d-5bdf-5ee3-aac6-f4968cd7c86a",
+              "9cc8966b-ab3f-543f-91a5-85a323dba65e",
+              "ecc4afdd-cd1c-5ce4-939b-e82d5240462c",
+              "7b3bf385-1e6e-54fa-95ea-a0075d9d67f7",
+              "1d5998db-c666-5d84-9a5c-7c244a340e33",
+              "657f7b28-6eba-5a80-805e-d7dbe6bafff7",
+              "82c14357-fd71-5187-a032-2091227cef05",
+              "9440ff4b-efad-5441-9cb7-3caac5f2520e",
+              "030b02ee-a981-5c16-9304-667c594b725f",
+              "bed785f6-8f0b-517d-81eb-b35104c15806",
+              "9c8e5053-fbec-593d-9633-efeec604db85"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "cb9ec76a-236c-33f7-bdfb-786d2fc622fc",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Floor",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100,
+          "y": 0,
+          "z": -100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/floor.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 5,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 200,
+            "sizeY": 10,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "0180d6e8-f539-5ea9-83df-38df2df372e2",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "e18f5e12-ff56-3006-bdd8-4d952713aeef",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Floor",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100,
+          "y": 0,
+          "z": 100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/floor.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 5,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 200,
+            "sizeY": 10,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "1c35953f-c36c-526d-87d7-b2b7ff161c2e",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "e6244f41-5134-348e-8790-774e356917dc",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Floor",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100,
+          "y": 0,
+          "z": -100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/floor.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 5,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 200,
+            "sizeY": 10,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "22fa87a5-b09d-54e0-b5c3-f9099096e547",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "c02aae87-8e4f-3f53-bb5e-f1d9355709cd",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Floor",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100,
+          "y": 0,
+          "z": 100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/floor.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 5,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 200,
+            "sizeY": 10,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "051cc15e-347e-570c-a415-0ddd6a8e6538",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "c579bc64-c74f-3bfa-961d-e31649e35809",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Wall East North",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 200,
+          "y": 0,
+          "z": -100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall-window-square.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 120,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 20,
+            "sizeY": 240,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "baef2a04-18d7-5ea8-bf35-b5a6f1f1a826",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "837510fe-5891-367b-929a-0fb0114fd1e2",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Wall East South",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 200,
+          "y": 0,
+          "z": 100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 120,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 10,
+            "sizeY": 240,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "2b98ab8e-fa0f-5d10-b472-551ead4cbb3f",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "9c99bddf-be02-393b-ba47-afa56470ecef",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Wall West North",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -200,
+          "y": 0,
+          "z": -100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 1,
+          "z": 0,
+          "w": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 120,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 10,
+            "sizeY": 240,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "f220d0b0-a6cf-599b-8174-b652b48b0d75",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "60188af1-07b9-395f-8078-27a055226a4e",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Wall West South",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -200,
+          "y": 0,
+          "z": 100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 1,
+          "z": 0,
+          "w": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall-window-square.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 120,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 20,
+            "sizeY": 240,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "4cbe99b4-a1a8-5629-88b8-f8b0ae932037",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "00649cb5-f02e-331c-b065-15cf13b41234",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Wall North West",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100,
+          "y": 0,
+          "z": -200
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0.7071068,
+          "z": 0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 120,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 10,
+            "sizeY": 240,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "58262d0d-5bdf-5ee3-aac6-f4968cd7c86a",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "9075e4f8-6ee1-3af4-80b8-9f22c70fda6d",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Wall North East",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100,
+          "y": 0,
+          "z": -200
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0.7071068,
+          "z": 0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 120,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 10,
+            "sizeY": 240,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "9cc8966b-ab3f-543f-91a5-85a323dba65e",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "85ae721e-bc82-30f7-b251-9b8a37c9cc37",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Wall Front Door",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100,
+          "y": 0,
+          "z": 200
+        },
+        "rotation": {
+          "x": 0,
+          "y": -0.7071068,
+          "z": 0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall-doorway-square.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "ecc4afdd-cd1c-5ce4-939b-e82d5240462c",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "dc56e3c9-f154-3677-ab54-482e454476d2",
+      "parentId": "85ae721e-bc82-30f7-b251-9b8a37c9cc37",
+      "name": "Collision Jamb Left",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 120,
+            "offsetZ": -75,
+            "trigger": false,
+            "sizeX": 20,
+            "sizeY": 240,
+            "sizeZ": 50
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "7b3bf385-1e6e-54fa-95ea-a0075d9d67f7",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "9c765916-ba11-33ad-a611-ddd21b6d8294",
+      "parentId": "85ae721e-bc82-30f7-b251-9b8a37c9cc37",
+      "name": "Collision Jamb Right",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 120,
+            "offsetZ": 75,
+            "trigger": false,
+            "sizeX": 20,
+            "sizeY": 240,
+            "sizeZ": 50
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "1d5998db-c666-5d84-9a5c-7c244a340e33",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "37229b29-3f97-39d8-8def-92b43ca2accf",
+      "parentId": "85ae721e-bc82-30f7-b251-9b8a37c9cc37",
+      "name": "Collision Lintel",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 225,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 20,
+            "sizeY": 30,
+            "sizeZ": 100
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "657f7b28-6eba-5a80-805e-d7dbe6bafff7",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "f8e90d5e-e583-3315-b28f-ae4bba8580ca",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Wall Front Window",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100,
+          "y": 0,
+          "z": 200
+        },
+        "rotation": {
+          "x": 0,
+          "y": -0.7071068,
+          "z": 0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/wall-window-square.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 0,
+            "offsetY": 120,
+            "offsetZ": 0,
+            "trigger": false,
+            "sizeX": 20,
+            "sizeY": 240,
+            "sizeZ": 200
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "82c14357-fd71-5187-a032-2091227cef05",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "ca8a19e8-2fbe-3318-ab83-48a58a202dd4",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Roof NE",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100,
+          "y": 240,
+          "z": 100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 10,
+            "offsetY": 20,
+            "offsetZ": 10,
+            "trigger": false,
+            "sizeX": 220,
+            "sizeY": 40,
+            "sizeZ": 220
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "9440ff4b-efad-5441-9cb7-3caac5f2520e",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "b1225aa7-8959-3e5f-a57c-180af90f212e",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Roof SE",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": 100,
+          "y": 240,
+          "z": -100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0.7071068,
+          "z": 0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 10,
+            "offsetY": 20,
+            "offsetZ": 10,
+            "trigger": false,
+            "sizeX": 220,
+            "sizeY": 40,
+            "sizeZ": 220
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "030b02ee-a981-5c16-9304-667c594b725f",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "7b91743e-d739-33b5-a307-2260f7276e84",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Roof SW",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100,
+          "y": 240,
+          "z": -100
+        },
+        "rotation": {
+          "x": 0,
+          "y": 1,
+          "z": 0,
+          "w": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 10,
+            "offsetY": 20,
+            "offsetZ": 10,
+            "trigger": false,
+            "sizeX": 220,
+            "sizeY": 40,
+            "sizeZ": 220
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "bed785f6-8f0b-517d-81eb-b35104c15806",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "b653d14b-d06b-34d2-922c-2bbed6a1af49",
+      "parentId": "c128002a-58ab-3acc-b039-54a465d704ac",
+      "name": "Roof NW",
+      "active": true,
+      "transform": {
+        "position": {
+          "x": -100,
+          "y": 240,
+          "z": 100
+        },
+        "rotation": {
+          "x": 0,
+          "y": -0.7071068,
+          "z": 0,
+          "w": 0.7071068
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "components": [
+        {
+          "type": "ModelComponent",
+          "enabled": true,
+          "data": {
+            "model": "thirdparty/kenney/building-kit/Models/GLB format/roof-flat-corner.glb",
+            "importScale": 100,
+            "loop": true,
+            "playOnStart": true,
+            "speed": 1
+          }
+        },
+        {
+          "type": "BoxCollider3DComponent",
+          "enabled": true,
+          "data": {
+            "offsetX": 10,
+            "offsetY": 20,
+            "offsetZ": 10,
+            "trigger": false,
+            "sizeX": 220,
+            "sizeY": 40,
+            "sizeZ": 220
+          }
+        },
+        {
+          "type": "PrefabInstance",
+          "enabled": true,
+          "data": {
+            "prefab": "prefabs/buildings/CC0 House.prefab",
+            "sourceId": "9c8e5053-fbec-593d-9633-efeec604db85",
+            "root": false,
+            "overrides": []
+          }
+        }
+      ]
+    }
+  ]
+}

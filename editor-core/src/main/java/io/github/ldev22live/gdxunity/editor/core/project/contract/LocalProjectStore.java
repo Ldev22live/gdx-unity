@@ -198,26 +198,13 @@ public final class LocalProjectStore implements ProjectStore {
                 }
             }
             scenes.forEach(s -> scenePaths.add(s.path()));
-            List<ProjectManifest.AssetEntry> assets = new ArrayList<>();
-            for (ProjectManifest.AssetEntry entry : AssetInventory.inventory(root, scenePaths, licences)) {
-                String text = sceneTexts.get(entry.path());
-                if (text == null) {
-                    assets.add(entry);
-                } else {
-                    Path file = staging.resolve("scene.json");
-                    Files.writeString(file, text, StandardCharsets.UTF_8);
-                    assets.add(new ProjectManifest.AssetEntry(entry.path(), "scene", Files.size(file), AssetInventory.sha256(file),
-                        entry.licence()));
-                }
+            Map<String, Path> stagedScenes = new LinkedHashMap<>();
+            for (var scene : sceneTexts.entrySet()) {
+                Path staged = staging.resolve("scene-" + stagedScenes.size() + ".json");
+                Files.writeString(staged, scene.getValue(), StandardCharsets.UTF_8);
+                stagedScenes.put(scene.getKey(), staged);
             }
-            for (String path : sceneTexts.keySet()) {
-                if (assets.stream().noneMatch(a -> a.path().equals(path))) {
-                    Path file = staging.resolve("scene.json");
-                    Files.writeString(file, sceneTexts.get(path), StandardCharsets.UTF_8);
-                    assets.add(new ProjectManifest.AssetEntry(path, "scene", Files.size(file), AssetInventory.sha256(file), null));
-                }
-            }
-            assets.sort((a, b) -> a.path().compareTo(b.path()));
+            List<ProjectManifest.AssetEntry> assets = AssetInventory.inventory(root, scenePaths, licences, stagedScenes);
             ProjectManifest.Revision revision = new ProjectManifest.Revision(ids.get(),
                 manifest == null ? null : manifest.revision().id(), "desktop", clientVersion,
                 Instant.now(clock).truncatedTo(ChronoUnit.MILLIS).toString());

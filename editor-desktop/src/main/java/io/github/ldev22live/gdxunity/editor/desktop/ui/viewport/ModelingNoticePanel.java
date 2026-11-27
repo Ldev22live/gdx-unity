@@ -12,6 +12,7 @@ import io.github.ldev22live.gdxunity.editor.sculpt.MeshWorkspace;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.render.components.ModelComponent;
 
+import io.github.ldev22live.gdxunity.editor.sculpt.MeshDraftKeeper;
 import io.github.ldev22live.gdxunity.editor.sculpt.MeshSaveSession;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -26,6 +27,8 @@ import java.util.function.Consumer;
 
 /**
  * The 3D Modeling source panel. Prefab assemblies offer their individual model parts while the World stays visible as reference.
+ * The drafts of each part are held by a {@link MeshDraftKeeper} (roadmap A06), so leaving 3D Modeling or selecting something else
+ * keeps unsaved edits; Save and Discard are the only ways they end.
  */
 public class ModelingNoticePanel extends Table {
     /** Width the notice's sentences wrap at, in UI units; narrow enough for the editor's 1024-wide minimum window. */
@@ -36,6 +39,7 @@ public class ModelingNoticePanel extends Table {
     private final BooleanSupplier modelingOnScreen;
     private final Path assetRoot;
     private final Consumer<String> modelSaved;
+    private final MeshDraftKeeper keeper;
     private Entity shownFor;
     private String shownName;
     private boolean built;
@@ -52,13 +56,23 @@ public class ModelingNoticePanel extends Table {
      * @param modelingOnScreen whether the 3D Modeling workspace is on screen (sculpt mode in the World's view)
      */
     public ModelingNoticePanel(Skin skin, EditorState editorState, BooleanSupplier modelingOnScreen, Path assetRoot) {
-        this(skin, editorState, modelingOnScreen, assetRoot, path -> {});
+        this(skin, editorState, modelingOnScreen, assetRoot, path -> {}, new MeshDraftKeeper());
     }
 
-    /** Notifies the World asset cache after a successful save on the graphics thread. */
+    /** A panel with a keeper of its own (graphics smoke tests). */
     public ModelingNoticePanel(Skin skin, EditorState editorState, BooleanSupplier modelingOnScreen, Path assetRoot,
                                Consumer<String> modelSaved) {
+        this(skin, editorState, modelingOnScreen, assetRoot, modelSaved, new MeshDraftKeeper());
+    }
+
+    /**
+     * @param modelSaved notifies the World asset cache after a successful save on the graphics thread
+     * @param keeper     holds the drafts of every part across visits (the editor's one keeper)
+     */
+    public ModelingNoticePanel(Skin skin, EditorState editorState, BooleanSupplier modelingOnScreen, Path assetRoot,
+                               Consumer<String> modelSaved, MeshDraftKeeper keeper) {
         super(skin);
+        this.keeper = Objects.requireNonNull(keeper, "keeper cannot be null");
         this.modelSaved = Objects.requireNonNull(modelSaved, "modelSaved cannot be null");
         this.skin = Objects.requireNonNull(skin, "skin cannot be null");
         this.editorState = Objects.requireNonNull(editorState, "editorState cannot be null");
@@ -167,15 +181,17 @@ public class ModelingNoticePanel extends Table {
         try {
             Table panel = drafts.get(part);
             if (panel == null) {
-                MeshWorkspace.OpenPart opened = workspace.open(part);
-                MeshSaveSession session = new MeshSaveSession(assetRoot, opened);
+                MeshSaveSession session = keeper.session(part, () -> new MeshSaveSession(assetRoot, workspace.open(part)));
                 panel = new Table();
                 panel.add(new MeshEditPanel(skin, session.drafts())).row();
                 addSaveControls(panel, session, part, source);
                 drafts.put(part, panel);
+                source.setText((keeper.isUnsaved(session) ? "Unsaved edits kept: " : "Source ready: ")
+                    + part.getComponent(ModelComponent.class).getModelPath());
+            } else {
+                source.setText("Source ready: " + part.getComponent(ModelComponent.class).getModelPath());
             }
             tools.add(panel);
-            source.setText("Source ready: " + part.getComponent(ModelComponent.class).getModelPath());
         } catch (IOException e) {
             source.setText(e.getMessage());
         }
@@ -187,10 +203,33 @@ public class ModelingNoticePanel extends Table {
         mode.setItems(MeshSaveSession.Mode.values());
         TextField name = new TextField(part.getName().replaceAll("[^A-Za-z0-9_-]", "_") + "-edited", skin);
         TextButton save = new TextButton("Save", skin);
+        TextButton discard = new TextButton("Discard", skin);
         row.add(mode).padRight(4f);
         row.add(name).width(120f);
         row.add(save);
+        row.add(discard).padLeft(4f);
         panel.add(row);
+        discard.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                if (!keeper.isUnsaved(session)) {
+                    status.setText("Nothing to discard: the drafts match the saved model");
+                    return;
+                }
+                Dialog confirm = new Dialog("Discard mesh edits", skin) {
+                    protected void result(Object choice) {
+                        if (Boolean.TRUE.equals(choice)) {
+                            keeper.discard(part);
+                            built = false; // reopen from the model file on the next frame
+                            editorState.setStatusMessage("Discarded the unsaved mesh edits of " + part.getName(), false);
+                        }
+                    }
+                };
+                Label message = new Label("Discard the unsaved mesh edits of " + part.getName() + "? This cannot be undone.", skin);
+                message.setWrap(true);
+                confirm.getContentTable().add(message).width(WRAP_WIDTH);
+                confirm.button("Cancel", false).button("Discard", true).show(getStage());
+            }
+        });
         mode.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
                 name.setDisabled(mode.getSelected() == MeshSaveSession.Mode.UPDATE);
@@ -226,6 +265,7 @@ public class ModelingNoticePanel extends Table {
     private void saveModel(MeshSaveSession session, MeshSaveSession.Mode mode, String name, Label status, boolean confirmed) {
         try {
             String path = session.save(mode, name, editorState, confirmed);
+            keeper.markSaved(session);
             modelSaved.accept(path);
             status.setText("Saved " + path);
         } catch (IOException | IllegalArgumentException e) {

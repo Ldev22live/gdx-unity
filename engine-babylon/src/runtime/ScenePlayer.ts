@@ -13,9 +13,13 @@ import { joltIfLoaded, JoltPhysicsBackend3D, loadJolt } from "./physics3d/JoltBa
 import { CameraRig } from "./CameraRig";
 import { MeshColliderGeometry } from "./physics3d/ColliderGeometry";
 import { Physics3D, type Contact } from "./physics3d/Physics3D";
+import { resultLabel, ScenarioRuntime } from "./ScenarioRuntime";
+import { groundProblem, resolveProfile, startProfile, validateProfile, type ProfilePart, type ProfileProblem } from "./PlayProfiles";
 import { loadPendingModels, type ModelFailure } from "./ModelLoader";
 import { loadPendingSprites } from "./SpriteLoader";
-import { loadPendingTerrains } from "./TerrainLoader";
+import { createTerrainMeshes, loadPendingTerrains } from "./TerrainLoader";
+import type { TerrainData } from "../terrain/terrain";
+import { terrainToJson } from "../terrain/terrainStroke";
 import { loadPendingMaterials } from "./MaterialLoader";
 import { buildScene, type BuiltScene } from "./SceneBuilder";
 import { ScriptRegistry, type ScriptComponent } from "./ScriptComponent";
@@ -95,6 +99,9 @@ export class ScenePlayer {
     this.detachInput = this.input.attach(window);
     engine.runRenderLoop(() => this.frame());
     window.addEventListener("resize", () => engine.resize());
+    // The page can resize the canvas without the window changing (the editor's palette row opening or closing, a panel shown):
+    // the drawing buffer must follow, or pointer positions map to the wrong place in the scene and picking misses
+    if (typeof ResizeObserver !== "undefined") new ResizeObserver(() => engine.resize()).observe(canvas);
   }
 
   get isPlaying(): boolean {
@@ -106,6 +113,40 @@ export class ScenePlayer {
    * colliders waits for the physics engine to load), so a page follows this instead of reading {@link isPlaying} right after.
    */
   onPlayingChanged: (playing: boolean) => void = () => {};
+  /** Called with each line of the scenario rule log while playing (TD-109): one line per rule that fires, and skipped rules. */
+  /** Terrains being edited, by path: drawn and played from this data instead of their file (roadmap A14). */
+  readonly terrainOverrides = new Map<string, TerrainData>();
+
+  /** Redraws every entity that shows the terrain at {@code path} from its edited data, at once (after a brush dab). */
+  redrawTerrain(path: string): void {
+    const built = this.built;
+    const data = this.terrainOverrides.get(path);
+    if (!built || !data) return;
+    for (const pending of built.pendingTerrains) {
+      if (pending.path !== path) continue;
+      const old = pending.entity.meshes.filter((mesh) => mesh.metadata?.terrain || mesh.metadata?.terrainWater);
+      for (const mesh of old) {
+        pending.entity.meshes.splice(pending.entity.meshes.indexOf(mesh), 1);
+        mesh.dispose();
+      }
+      createTerrainMeshes(built, pending, data);
+    }
+  }
+
+  onRuleLog: (line: string) => void = (line) => console.info(`Rules: ${line}`);
+  /** The playing scene's scenario rules (TD-109, A14), or null when not playing or the scene has no scenario block. */
+  private scenario: ScenarioRuntime | null = null;
+  private scenarioView: HTMLElement | null = null;
+  private scenarioRevision = -1;
+  /** Called when Play starts with a genre profile or without one (TD-110), and when a scene cannot be played, with why. */
+  onProfileMessage: (message: string, isProblem: boolean) => void = (message, isProblem) =>
+    (isProblem ? console.warn : console.info)(`Play: ${message}`);
+  /** Called with the problems that stopped Play (TD-110), with their safe fixes, for the editor to offer; empty when Play started. */
+  onProfileProblems: (problems: ProfileProblem[]) => void = () => {};
+  /** True from a profiled Play's start until its ground check ran, which waits for the terrains (they load after the scene). */
+  private groundCheckPending = false;
+  /** The genre profile's per-frame parts (the player's mover, the camera's turn keys) of this Play (TD-110). */
+  private profileParts: ProfilePart[] = [];
   /** The scene a Play is waiting to start, while the 3D physics engine loads; Stop and loading another scene cancel it. */
   private pendingPlay: SceneFile | null = null;
 
@@ -151,7 +192,14 @@ export class ScenePlayer {
       for (const failure of failures) this.onAssetProblem(`${failure.entityName}: cannot load ${failure.path}: ${failure.message}`);
     });
     // Terrains (roadmap M3.11) arrive after the scene is built too; a file that fails is reported and the rest still shows
-    this.terrainsReady = loadPendingTerrains(built).then((failures) => {
+    this.terrainsReady = loadPendingTerrains(built, undefined, async (url) => {
+      // A terrain being edited (the web editor, roadmap A14) is drawn and played from its edited data, not the file
+      const edited = this.terrainOverrides.get(url);
+      if (edited) return terrainToJson(edited);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText} for ${url}`);
+      return response.text();
+    }).then((failures) => {
       if (this.built !== built) return;
       for (const failure of failures) this.onAssetProblem(`${failure.entityName}: cannot load ${failure.path}: ${failure.message}`);
     });
@@ -186,6 +234,16 @@ export class ScenePlayer {
     // Start from the file's state every time, even if a previous Play moved things
     this.load(this.file);
     const built = this.built!;
+    // The genre profile step (TD-088 on the desktop, TD-110 on the web): a refused pair or a missing part stops Play, with why
+    const resolution = resolveProfile(this.file);
+    const camera = built.gameCamera?.entity ?? null;
+    const profileProblems: ProfileProblem[] = resolution.outcome === "REFUSED" ? [{ message: resolution.message }]
+      : resolution.outcome === "PROFILE" ? validateProfile(built.game, camera) : [];
+    this.onProfileProblems(profileProblems);
+    if (profileProblems.length > 0) {
+      for (const problem of profileProblems) this.onProfileMessage(problem.message, true);
+      return;
+    }
     // The game takes its first step only once the terrains are in, so nothing falls before the ground it stands on exists (roadmap M3.11)
     this.waitingForGround = built.pendingTerrains.length > 0;
     if (this.waitingForGround) {
@@ -202,6 +260,20 @@ export class ScenePlayer {
       || built.terrainFailures.some((failure) => failure.entityName === entity.name));
     this.physics3d = jolt && Physics3D.isUsedBy(built.game) ? new Physics3D(built.game, new JoltPhysicsBackend3D(jolt), geometry) : null;
     this.physics3d?.addContactListener((contact) => this.deliverContact(contact));
+    this.profileParts = [];
+    let profileRig: CameraRig | null = null;
+    if (resolution.outcome === "PROFILE" && this.physics3d && camera) {
+      const started = startProfile(resolution, built.game, camera, this.physics3d, this.input);
+      this.profileParts = started.parts;
+      profileRig = started.rig;
+      this.groundCheckPending = true;
+      this.onProfileMessage(started.message, false);
+    } else if (resolution.outcome === "PROFILE") {
+      this.onProfileMessage(`${resolution.message} needs 3D physics, which has not loaded: the scene plays without the profile.`, true);
+    } else if (resolution.outcome === "DESKTOP_ONLY") {
+      this.onProfileMessage(resolution.message, false);
+    }
+    this.startScenario(built);
     this.scripts = [];
     for (const entity of built.game.entities) {
       const binding = entity.getComponent("EntityScriptBindingComponent");
@@ -216,6 +288,7 @@ export class ScenePlayer {
       this.scripts.push({ script, entityName: entity.name });
     }
     this.startCameraRigs(built);
+    if (profileRig) built.game.rigs.set(profileRig.entity.id, profileRig);
     this.playing = true;
     this.pendingPlay = null;
     this.onPlayingChanged(true);
@@ -238,6 +311,11 @@ export class ScenePlayer {
     this.physics = null;
     this.physics3d?.dispose();
     this.physics3d = null;
+    this.profileParts = [];
+    this.groundCheckPending = false;
+    this.scenario = null;
+    this.scenarioView?.remove();
+    this.scenarioView = null;
     this.scripts = [];
     this.stopAssetDrivers();
     this.music?.stop();
@@ -406,7 +484,53 @@ export class ScenePlayer {
   }
 
   /** Calls the 2D contact callbacks of the scripts on both entities of a contact, like the desktop's `ScriptCollisionForwarder2D`. */
+  /** The running scenario rules, or null (tests and the editor read what they show). */
+  getScenario(): ScenarioRuntime | null {
+    return this.scenario;
+  }
+
+  /** Starts the scene's scenario rules for this Play, the same semantics as the desktop's (TD-109). */
+  private startScenario(built: BuiltScene): void {
+    const block = (this.file as unknown as Record<string, unknown> | null)?.["scenario"];
+    try {
+      this.scenario = ScenarioRuntime.create(block, (id) => built.game.getById(id), (line) => this.onRuleLog(line));
+    } catch (error) {
+      this.scenario = null;
+      this.onRuleLog(`Scenario not run: ${error instanceof Error ? error.message : String(error)}`);
+      return;
+    }
+    for (const reason of this.scenario?.skipped ?? []) this.onRuleLog(`Scenario: ${reason}`);
+    this.scenarioRevision = -1;
+    if (this.scenario) {
+      this.scenarioView = document.createElement("div");
+      this.scenarioView.className = "hud-scenario";
+      this.hudContainer.appendChild(this.scenarioView);
+    }
+  }
+
+  /** Draws the scenario's objectives (top left), message (top centre) and result (centre), only when they change. */
+  private drawScenario(): void {
+    const scenario = this.scenario;
+    const view = this.scenarioView;
+    if (!scenario || !view || scenario.revision === this.scenarioRevision) return;
+    this.scenarioRevision = scenario.revision;
+    const line = (className: string, text: string): HTMLElement => {
+      const element = document.createElement("div");
+      element.className = className;
+      element.textContent = text;
+      return element;
+    };
+    const objectives = document.createElement("div");
+    objectives.className = "hud-objectives";
+    for (const text of scenario.objectiveLines()) objectives.appendChild(line("hud-objective", text));
+    const parts: HTMLElement[] = [objectives];
+    if (scenario.message !== null) parts.push(line("hud-message", scenario.message));
+    if (scenario.result !== null) parts.push(line("hud-result", resultLabel(scenario.result)));
+    view.replaceChildren(...parts);
+  }
+
   private deliverContact2D(contact: Contact2D): void {
+    this.scenario?.onContact(contact.entityA, contact.entityB, contact.kind);
     const deliver = (entity: Contact2D["entityA"], other: Contact2D["entityB"]): void => {
       if (!entity.isActiveInHierarchy) return;
       for (const entry of [...this.scripts]) {
@@ -435,6 +559,7 @@ export class ScenePlayer {
 
   /** Calls the 3D contact callbacks of the scripts on both entities of a contact, like the desktop's `ScriptContactForwarder`. */
   private deliverContact(contact: Contact): void {
+    this.scenario?.onContact(contact.entityA, contact.entityB, contact.kind);
     const deliver = (entity: Contact["entityA"], other: Contact["entityB"]): void => {
       // A callback on the first entity may have deactivated either one
       if (!entity.isActiveInHierarchy) return;
@@ -516,6 +641,17 @@ export class ScenePlayer {
     const built = this.built;
     if (!built) return;
     const delta = this.engine.getDeltaTime() / 1000;
+    if (this.playing && !this.waitingForGround && this.groundCheckPending) {
+      // The desktop checks the ground before Play; here the terrains arrive after the scene, so it is checked once they are in
+      this.groundCheckPending = false;
+      const problem = this.physics3d ? groundProblem(built.game, this.physics3d) : null;
+      if (problem) {
+        this.onProfileProblems([problem]);
+        this.onProfileMessage(problem.message, true);
+        this.stop();
+        return;
+      }
+    }
     if (this.playing && !this.waitingForGround) {
       this.physics?.update(delta);
       this.guardPhysics3D(() => this.physics3d?.update(delta));
@@ -526,10 +662,15 @@ export class ScenePlayer {
       for (const entry of [...this.scripts]) {
         this.guard(entry, () => entry.script.onUpdate(delta));
       }
+      // The profile's mover and turn keys, after physics like the desktop's runtime-only components
+      for (const part of this.profileParts) part.update(delta);
       // After physics and scripts: a rig sees the pose a character just reached and the turn a script just asked for
       for (const rig of built.game.rigs.values()) rig.update(delta, this.physics3d);
+      // After physics: the rules see this frame's trigger entries, as on the desktop (the rules entity updates after physics)
+      this.scenario?.update(delta);
       this.input.endFrame();
     }
+    this.drawScenario();
     if (built.gameCamera && !this.viewerActive) {
       const aspect = this.engine.getRenderWidth() / Math.max(1, this.engine.getRenderHeight());
       built.gameCamera.sync(aspect);

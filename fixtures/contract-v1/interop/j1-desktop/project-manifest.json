@@ -1,0 +1,16 @@
+{
+  "contractVersion": 1,
+  "projectId": "970cbed7-2d94-3628-a96e-6ed8acc98ea3",
+  "name": "Journey Valley",
+  "startScene": "scenes/journey.json",
+  "scenes": [
+    {"id": "935cb522-17bf-308c-9a55-543b2fcbc97b", "path": "scenes/journey.json"}
+  ],
+  "assets": [
+    {"path": "models/wall.glb", "kind": "model", "size": 2664, "sha256": "769a02a70327132ba864c04299631c65fb08e96e01e1796ba73ddf7f44679a36"},
+    {"path": "scenes/journey.json", "kind": "scene", "size": 7202, "sha256": "e95a3f99afbfa9a84aa0a49971c6960588550093c0f134fe9138a96bf6c47604"},
+    {"path": "terrains/Level.terrain", "kind": "terrain", "size": 7395, "sha256": "74c72382d5a0e1ead3a503323ca40d5ab85cf36f5611ba8051e8fdc8e4cdf826"}
+  ],
+  "capabilities": {"required": ["scene/1", "preserve-unknown/1", "ownership/1", "scenario/1"], "optional": []},
+  "revision": {"id": "f03d7eae-8cd2-3447-8f4a-0d08d784854d", "base": null, "savedBy": {"client": "desktop", "version": "1.0.0-interop"}, "savedAt": "2026-11-27T09:00:00Z"}
+}

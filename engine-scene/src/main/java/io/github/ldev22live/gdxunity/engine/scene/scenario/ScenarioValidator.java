@@ -4,6 +4,9 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import io.github.ldev22live.gdxunity.engine.scene.Entity;
 import io.github.ldev22live.gdxunity.engine.scene.Scene;
+import io.github.ldev22live.gdxunity.engine.scene.physics.Collider2DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.physics3d.Collider3DComponent;
+import io.github.ldev22live.gdxunity.engine.scene.play.SpawnPointComponent;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -66,6 +69,7 @@ public final class ScenarioValidator {
             }
             Set<String> objectives = new HashSet<>();
             checkPlayers(scenario.get("players"), scene, players, problems);
+            checkBounds(scenario.get("bounds"), problems);
             checkObjectives(scenario.get("objectives"), players, objectives, problems);
             checkRules(scenario.get("rules"), scene, players, objectives, problems);
         }
@@ -86,9 +90,35 @@ public final class ScenarioValidator {
             String path = "scenario.players[" + index + "]";
             String id = uniqueId(player, path, ids, problems);
             String spawn = player.getString("spawn", null);
-            if (id != null && spawn != null && entity(scene, spawn) == null) {
-                problems.add(new Problem(Severity.ERROR, path + ".spawn", "Spawn entity " + spawn + " is not in the scene"));
+            if (id != null && spawn != null) {
+                Entity spawnEntity = entity(scene, spawn);
+                if (spawnEntity == null) {
+                    problems.add(new Problem(Severity.ERROR, path + ".spawn", "Spawn entity " + spawn + " is not in the scene"));
+                } else if (spawnEntity.getComponent(SpawnPointComponent.class) == null) {
+                    problems.add(new Problem(Severity.ERROR, path + ".spawn", "Spawn entity '" + spawnEntity.getName()
+                        + "' has no Spawn Point"));
+                }
             }
+        }
+    }
+
+    /** Bounds, when present, are four finite numbers with each minimum below its maximum (TD-108). */
+    private static void checkBounds(JsonValue bounds, List<Problem> problems) {
+        if (bounds == null) {
+            return;
+        }
+        double[] values = new double[4];
+        String[] names = {"minX", "minZ", "maxX", "maxZ"};
+        for (int i = 0; i < names.length; i++) {
+            JsonValue value = bounds.get(names[i]);
+            if (value == null || !value.isNumber() || !Double.isFinite(value.asDouble())) {
+                problems.add(new Problem(Severity.ERROR, "scenario.bounds." + names[i], "Not a finite number: " + value));
+                return;
+            }
+            values[i] = value.asDouble();
+        }
+        if (!(values[0] < values[2]) || !(values[1] < values[3])) {
+            problems.add(new Problem(Severity.ERROR, "scenario.bounds", "Each minimum must be below its maximum"));
         }
     }
 
@@ -120,8 +150,12 @@ public final class ScenarioValidator {
                     + "' is not in this version's rule set; the rule is kept and not run"));
             } else if (condition.equals("enterArea")) {
                 String area = when.getString("area", null);
-                if (area == null || entity(scene, area) == null) {
+                Entity areaEntity = area == null ? null : entity(scene, area);
+                if (areaEntity == null) {
                     problems.add(new Problem(Severity.ERROR, path + ".when.area", "Area entity " + area + " is not in the scene"));
+                } else if (!hasTriggerCollider(areaEntity)) {
+                    problems.add(new Problem(Severity.ERROR, path + ".when.area", "Area '" + areaEntity.getName()
+                        + "' has no trigger collider, so nothing can enter it (TD-109)"));
                 }
                 String who = when.getString("who", null);
                 if (!WHO_PLAYER.equals(who) && !players.contains(who)) {
@@ -165,6 +199,21 @@ public final class ScenarioValidator {
             return null;
         }
         return id;
+    }
+
+    /** True when the entity has an enabled 3D trigger collider or 2D sensor collider (what an area rule listens to). */
+    public static boolean hasTriggerCollider(Entity entity) {
+        for (Collider3DComponent collider : entity.getComponents(Collider3DComponent.class)) {
+            if (collider.isEnabled() && collider.isTrigger()) {
+                return true;
+            }
+        }
+        for (Collider2DComponent collider : entity.getComponents(Collider2DComponent.class)) {
+            if (collider.isEnabled() && collider.isSensor()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Entity entity(Scene scene, String id) {

@@ -1,0 +1,5 @@
+format=2
+name=Journey Valley
+startScene=scenes/journey.json
+projectId=970cbed7-2d94-3628-a96e-6ed8acc98ea3
+manifest=project-manifest.json

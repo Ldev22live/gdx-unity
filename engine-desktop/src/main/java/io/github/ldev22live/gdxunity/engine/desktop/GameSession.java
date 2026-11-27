@@ -28,6 +28,8 @@ import io.github.ldev22live.gdxunity.engine.scene.serialization.ComponentSeriali
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializationException;
 import io.github.ldev22live.gdxunity.engine.scene.serialization.SceneSerializer;
 import io.github.ldev22live.gdxunity.engine.terrain.TerrainLibrary;
+import io.github.ldev22live.gdxunity.engine.scene.scenario.ScenarioRuntime;
+import io.github.ldev22live.gdxunity.engine.scene.scenario.ScenarioRuntimeComponent;
 import io.github.ldev22live.gdxunity.engine.visualscript.Graph;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphCollisionForwarder;
 import io.github.ldev22live.gdxunity.engine.visualscript.GraphContactForwarder;
@@ -110,6 +112,8 @@ public final class GameSession implements Disposable {
     private final List<String> runtimeErrors = new ArrayList<>();
     private PhysicsSystem2D physics;
     private PhysicsSystem3D physics3D;
+    /** The scenario rules of the scene (TD-109), or null. */
+    private ScenarioRuntimeComponent scenario;
     private GameAudio audio;
     private boolean started;
     private InputSource input = InputSource.keyboard();
@@ -253,6 +257,9 @@ public final class GameSession implements Disposable {
             problems.addAll(applyProfile());
         }
         if (problems.isEmpty()) {
+            problems.addAll(startScenario());
+        }
+        if (problems.isEmpty()) {
             problems.addAll(bindGraphs());
         }
         if (problems.isEmpty()) {
@@ -307,6 +314,21 @@ public final class GameSession implements Disposable {
             problems.add(problem.message());
         }
         return problems;
+    }
+
+    /** The running scenario rules (TD-109), or null when the scene has no scenario block or the session has not started. */
+    public ScenarioRuntime getScenario() {
+        return scenario == null ? null : scenario.getRuntime();
+    }
+
+    /** The scenario rules step, the same call as editor Play's (TD-109): rules run with the scene update, their log goes to the log. */
+    private List<String> startScenario() {
+        try {
+            scenario = ScenarioRuntime.attach(scene, physics, physics3D, line -> log.info("Rules: " + line));
+            return List.of();
+        } catch (IllegalArgumentException e) {
+            return List.of("Scenario: " + e.getMessage());
+        }
     }
 
     /** Creates the 3D physics for a scene that has 3D colliders; the native library loads here, never for 2D games. */

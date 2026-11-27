@@ -8,7 +8,7 @@
   ],
   "assets": [
     {"path": "materials/Meadow.material", "kind": "material", "size": 423, "sha256": "260dbefac2bb14d891248b5e868e61746b5f6e91919232dcbecf99308691e2e6"},
-    {"path": "scenes/valley.json", "kind": "scene", "size": 11775, "sha256": "9de1355a495b491eb3c4d5c253412ff6057122950a24e5c88d8de33bcc65d278"}
+    {"path": "scenes/valley.json", "kind": "scene", "size": 12372, "sha256": "047f2f0991578e063400eb287e37643cc9074a721b807f8698c2a54caedabc3a"}
   ],
   "capabilities": {"required": ["scene/1", "preserve-unknown/1", "material/1", "scenario/1", "ownership/1"], "optional": ["profile:action-rpg/3d", "physics3d/1"]},
   "revision": {"id": "13823495-4df4-32be-aa6a-b042b74d21bd", "base": "4b3d4b58-d06d-5d02-986c-b063e7a46269", "savedBy": {"client": "desktop", "version": "1.0.0-interop"}, "savedAt": "2026-11-25T14:00:00Z"},
